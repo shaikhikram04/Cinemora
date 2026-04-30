@@ -4,15 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/shadows.dart';
 import 'package:watchary/core/constants/sizes.dart';
-import 'package:watchary/core/themes/custom_theme/text_theme.dart';
-
-/// Using flutter_screenutil - CLEANEST responsive syntax!
-///
-/// Example:
-/// width: 172.w         // Responsive width
-/// height: 254.h        // Responsive height
-/// fontSize: 18.sp      // Responsive font size
-/// padding: 16.w        // Responsive padding
+import 'package:watchary/features/authentication/widgets/index.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -63,70 +55,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  Widget _movieCard({
-    required String image,
-    required double width,
-    required double height,
-    String? title,
-    String? rating,
-    double radius = 22,
-  }) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: WColors.border),
-        image: DecorationImage(
-          image: NetworkImage(image),
-          fit: BoxFit.cover,
-          onError: (_, __) {},
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(radius),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.transparent,
-              WColors.background.withAlpha(120),
-              WColors.background.withAlpha(220),
-            ],
-          ),
-        ),
-        padding: const EdgeInsets.all(WSizes.sm),
-        alignment: Alignment.bottomLeft,
-        child: title == null
-            ? null
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '★ $rating',
-                    style: const TextStyle(
-                      color: WColors.tertiary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -174,10 +102,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             shape: BoxShape.circle,
                             color: WColors.primary,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.play_arrow_rounded,
                             color: Colors.white,
-                            size: 18,
+                            size: 18.sp,
                           ),
                         ),
                         const SizedBox(width: WSizes.sm),
@@ -197,12 +125,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               backgroundColor:
                                   WColors.card.withValues(alpha: 0.5),
                               foregroundColor: WColors.mutedForeground,
-                              minimumSize: const Size(72, 40),
+                              minimumSize: Size(72.w, 40.h),
                               side: const BorderSide(
                                 color: WColors.border,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(999),
+                                borderRadius: BorderRadius.circular(999.r),
                               ),
                             ),
                             onPressed: _jumpToLast,
@@ -219,10 +147,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         final isActive = index == _currentPage;
                         return Expanded(
                           child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 3),
-                            height: 3,
+                            margin: EdgeInsets.symmetric(horizontal: 3.w),
+                            height: 3.h,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(99),
+                              borderRadius: BorderRadius.circular(99.r),
                               color: isActive
                                   ? WColors.primary
                                   : Colors.white.withAlpha(70),
@@ -241,12 +169,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         });
                       },
                       children: [
-                        _OnboardingPageLayout(
+                        OnboardingPageLayout(
                           visual: Stack(
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,
                             children: [
-                              _movieCard(
+                              MovieCard(
                                 image: _posterImages[0],
                                 width: 172.w,
                                 height: 254.h,
@@ -258,7 +186,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 bottom: 90.h,
                                 child: Transform.rotate(
                                   angle: 0.09,
-                                  child: _movieCard(
+                                  child: MovieCard(
                                     image: _posterImages[2],
                                     width: 96.w,
                                     height: 136.h,
@@ -270,7 +198,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 bottom: 60.h,
                                 child: Transform.rotate(
                                   angle: -0.11,
-                                  child: _movieCard(
+                                  child: MovieCard(
                                     image: _posterImages[1],
                                     width: 84.w,
                                     height: 128.h,
@@ -281,12 +209,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 left: -70,
                                 bottom: 30,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 4,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12.w,
+                                    vertical: 4.h,
                                   ),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(99),
+                                    borderRadius: BorderRadius.circular(99.r),
                                     color: WColors.chartGreen.withAlpha(
                                       40,
                                     ),
@@ -308,12 +236,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 right: -70,
                                 bottom: 60,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12.w,
+                                    vertical: 6.h,
                                   ),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(99),
+                                    borderRadius: BorderRadius.circular(99.r),
                                     color: WColors.chartYellow.withAlpha(40),
                                     border: Border.all(
                                       color: WColors.chartYellow.withAlpha(100),
@@ -338,12 +266,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           primaryButton: 'Get Started',
                           onPrimaryPressed: _nextPage,
                         ),
-                        _OnboardingPageLayout(
+                        OnboardingPageLayout(
                           visual: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(height: 62.h),
-                              const _FeatureTile(
+                              const FeatureTile(
                                 icon: Icons.bookmark_border_rounded,
                                 iconColor: Color(0xFF5EA2FF),
                                 title: 'Instant Save',
@@ -351,7 +279,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 trailingColor: Color(0xFF5EA2FF),
                               ),
                               SizedBox(height: WSizes.sm),
-                              _FeatureTile(
+                              FeatureTile(
                                 icon: Icons.star_border_rounded,
                                 iconColor: WColors.tertiary,
                                 title: 'Rate & Review',
@@ -359,7 +287,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 trailingColor: WColors.tertiary,
                               ),
                               SizedBox(height: WSizes.sm),
-                              _FeatureTile(
+                              const FeatureTile(
                                 icon: Icons.auto_awesome_outlined,
                                 iconColor: Color(0xFFA678FF),
                                 title: 'AI Discovery',
@@ -375,7 +303,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           primaryButton: 'Continue',
                           onPrimaryPressed: _nextPage,
                         ),
-                        _OnboardingPageLayout(
+                        OnboardingPageLayout(
                           visual: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: WSizes.sm,
@@ -399,19 +327,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Row(
+                                      Row(
                                         children: [
                                           CircleAvatar(
                                             radius: 16,
-                                            backgroundColor: Color(0xFFC758B6),
+                                            backgroundColor:
+                                                const Color(0xFFC758B6),
                                             child: Icon(
                                               Icons.auto_awesome,
-                                              size: 15,
+                                              size: 15.sp,
                                               color: Colors.white,
                                             ),
                                           ),
-                                          SizedBox(width: WSizes.sm),
-                                          Column(
+                                          const SizedBox(width: WSizes.sm),
+                                          const Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
@@ -441,19 +370,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          _movieCard(
+                                          MovieCard(
                                             image: _posterImages[2],
                                             width: 74,
                                             height: 106,
                                             radius: 14,
                                           ),
                                           const SizedBox(width: WSizes.sm),
-                                          const Expanded(
+                                          Expanded(
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Text(
+                                                const Text(
                                                   'Dune: Part Two',
                                                   style: TextStyle(
                                                     color: Colors.white,
@@ -461,9 +390,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                                     fontSize: 16,
                                                   ),
                                                 ),
-                                                SizedBox(height: 4),
+                                                SizedBox(
+                                                  height: 4.h,
+                                                ),
                                                 Text.rich(
-                                                  TextSpan(
+                                                  const TextSpan(
                                                     children: [
                                                       TextSpan(
                                                         text: '★ 8.7   ',
@@ -491,21 +422,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                                   ),
                                                 ),
                                                 SizedBox(height: 8),
-                                                _TagChip(
+                                                TagChip(
                                                   text:
                                                       'Because you liked Inception',
-                                                  background: Color(0x25972FFF),
-                                                  border: Color(0x3AB752FF),
-                                                  textColor: Color(0xDFE6C1FF),
+                                                  background:
+                                                      const Color(0x25972FFF),
+                                                  border:
+                                                      const Color(0x3AB752FF),
+                                                  textColor:
+                                                      const Color(0xDFE6C1FF),
                                                   icon: Icons.auto_awesome,
                                                 ),
                                                 SizedBox(height: 6),
-                                                _TagChip(
+                                                TagChip(
                                                   text:
                                                       'Matches your Sci-Fi taste',
-                                                  background: Color(0x1A2E8CFF),
-                                                  border: Color(0x663C96FF),
-                                                  textColor: Color(0xFFA4C9FF),
+                                                  background:
+                                                      const Color(0x1A2E8CFF),
+                                                  border:
+                                                      const Color(0x663C96FF),
+                                                  textColor:
+                                                      const Color(0xFFA4C9FF),
                                                   icon: Icons.star_border,
                                                 ),
                                               ],
@@ -521,13 +458,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   spacing: WSizes.sm,
                                   runSpacing: WSizes.sm,
                                   children: [
-                                    _MoodChip(text: '😌 Emotional'),
-                                    _MoodChip(text: '🤯 Mind-Blown'),
-                                    _MoodChip(
+                                    MoodChip(text: '😌 Emotional'),
+                                    MoodChip(text: '🤯 Mind-Blown'),
+                                    MoodChip(
                                       text: '🔥 Hyped',
                                       highlighted: true,
                                     ),
-                                    _MoodChip(text: '😱 Scared'),
+                                    MoodChip(text: '😱 Scared'),
                                   ],
                                 ),
                               ],
@@ -540,7 +477,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           primaryButton: 'Continue',
                           onPrimaryPressed: _nextPage,
                         ),
-                        _OnboardingPageLayout(
+                        OnboardingPageLayout(
                           visual: Column(
                             children: [
                               Flexible(
@@ -556,10 +493,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                     childAspectRatio: 0.7,
                                   ),
                                   itemBuilder: (context, index) {
-                                    return _movieCard(
+                                    return MovieCard(
                                       image: _posterImages[index],
-                                      width: 90,
-                                      height: 130,
+                                      width: 90.w,
+                                      height: 130.h,
                                       radius: 18,
                                     );
                                   },
@@ -572,17 +509,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   vertical: WSizes.sm,
                                 ),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(999),
+                                  borderRadius: BorderRadius.circular(999.r),
                                   color: WColors.primary.withAlpha(35),
                                   border: Border.all(
                                     color: WColors.primary.withAlpha(60),
                                   ),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   '● 2.4M+ movies tracked',
                                   style: TextStyle(
-                                    color: Color(0xFFFF7A7A),
-                                    fontSize: 12,
+                                    color: const Color(0xFFFF7A7A),
+                                    fontSize: 12.sp,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -619,246 +556,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _OnboardingPageLayout extends StatelessWidget {
-  final Widget visual;
-  final String label;
-  final String title;
-  final String subtitle;
-  final String primaryButton;
-  final String? secondaryButton;
-  final VoidCallback onPrimaryPressed;
-  final VoidCallback? onSecondaryPressed;
-
-  const _OnboardingPageLayout({
-    required this.visual,
-    required this.label,
-    required this.title,
-    required this.subtitle,
-    required this.primaryButton,
-    required this.onPrimaryPressed,
-    this.secondaryButton,
-    this.onSecondaryPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: WSizes.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 360, child: Center(child: visual)),
-          Spacer(),
-          const SizedBox(height: WSizes.defaultSpace),
-          Text(
-            label,
-            style: WTextTheme.label,
-          ),
-          const SizedBox(height: WSizes.sm),
-          Text(
-            title,
-            style: WTextTheme.h1,
-          ),
-          const SizedBox(height: WSizes.md),
-          Text(
-            subtitle,
-            style: WTextTheme.body.copyWith(fontSize: 14),
-          ),
-          const SizedBox(height: WSizes.lg),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
-                backgroundColor: WColors.primary,
-                foregroundColor: WColors.primaryForeground,
-                textStyle: WTextTheme.button.copyWith(fontSize: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                shadowColor: WColors.primary.withAlpha(120),
-                elevation: 2,
-              ),
-              onPressed: onPrimaryPressed,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(primaryButton),
-                  const SizedBox(width: WSizes.sm),
-                  const Icon(Icons.arrow_forward, size: 20),
-                ],
-              ),
-            ),
-          ),
-          if (secondaryButton != null) ...[
-            const SizedBox(height: WSizes.md),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(58),
-                  side: const BorderSide(
-                      color: Color.fromARGB(28, 255, 255, 255)),
-                  foregroundColor: WColors.foreground,
-                  textStyle: WTextTheme.button.copyWith(fontSize: 16),
-                  backgroundColor:
-                      const Color.fromARGB(255, 58, 58, 61).withAlpha(120),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                ),
-                onPressed: onSecondaryPressed,
-                child: Text(secondaryButton!),
-              ),
-            ),
-          ],
-          const SizedBox(height: WSizes.lg),
-        ],
-      ),
-    );
-  }
-}
-
-class _FeatureTile extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String subtitle;
-  final Color trailingColor;
-
-  const _FeatureTile({
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.subtitle,
-    required this.trailingColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(WSizes.md),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(WSizes.radiusLg),
-        color: WColors.card.withAlpha(150),
-        border: Border.all(color: WColors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: iconColor.withAlpha(30),
-              border: Border.all(color: iconColor.withAlpha(100)),
-            ),
-            child: Icon(icon, color: iconColor),
-          ),
-          const SizedBox(width: WSizes.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: WTextTheme.h3.copyWith(fontSize: 16),
-                ),
-                Text(
-                  subtitle,
-                  style: WTextTheme.body.copyWith(fontSize: 13),
-                ),
-              ],
-            ),
-          ),
-          CircleAvatar(
-            radius: 12,
-            backgroundColor: trailingColor.withAlpha(45),
-            child: Icon(Icons.check, size: 14, color: trailingColor),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TagChip extends StatelessWidget {
-  final String text;
-  final Color background;
-  final Color border;
-  final Color textColor;
-  final IconData icon;
-
-  const _TagChip({
-    required this.text,
-    required this.background,
-    required this.border,
-    required this.textColor,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: WSizes.sm, vertical: 5),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: border),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: textColor),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.w500,
-              fontSize: 10,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MoodChip extends StatelessWidget {
-  final String text;
-  final bool highlighted;
-
-  const _MoodChip({required this.text, this.highlighted = false});
-
-  @override
-  Widget build(BuildContext context) {
-    final borderColor =
-        highlighted ? WColors.primary : const Color.fromARGB(18, 108, 108, 108);
-    final textColor = highlighted ? WColors.primary : WColors.mutedForeground;
-    final backgroundColor = highlighted
-        ? WColors.primary.withAlpha(30)
-        : const Color.fromARGB(255, 54, 54, 54).withAlpha(130);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: WSizes.sm, vertical: 5),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(999),
-        color: backgroundColor,
-        border: Border.all(color: borderColor.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
         ),
       ),
     );
