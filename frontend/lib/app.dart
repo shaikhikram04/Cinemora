@@ -25,4 +25,3 @@ class WatcharyApp extends StatelessWidget {
     );
   }
 }
-

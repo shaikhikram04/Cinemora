@@ -5,6 +5,7 @@ import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/shadows.dart';
 import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/features/authentication/widgets/index.dart';
+import 'package:watchary/features/home/screens/home.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -533,20 +534,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           primaryButton: 'Sign In with Google',
                           secondaryButton: 'Sign In with Apple',
                           onPrimaryPressed: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (_) => const LoginScreen(),
-                            //   ),
-                            // );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const WatcharyHomeShell(),
+                              ),
+                            );
                           },
                           onSecondaryPressed: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (_) => const SignupScreenStep1(),
-                            //   ),
-                            // );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const WatcharyHomeShell(),
+                              ),
+                            );
                           },
                         ),
                       ],

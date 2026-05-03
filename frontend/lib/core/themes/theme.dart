@@ -3,8 +3,6 @@ import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/core/themes/custom_theme/text_theme.dart';
 
-export 'package:watchary/core/themes/onboarding_theme.dart';
-
 class WTheme {
   const WTheme._();
 
