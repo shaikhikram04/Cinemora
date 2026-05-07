@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
 
-class WMediaProgressCard extends StatelessWidget {
+class HorizontalProgressCard extends StatelessWidget {
   final String image;
   final String title;
   final String progressLabel;
@@ -11,7 +11,7 @@ class WMediaProgressCard extends StatelessWidget {
   final double width;
   final VoidCallback? onTap;
 
-  const WMediaProgressCard({
+  const HorizontalProgressCard({
     super.key,
     required this.image,
     required this.title,
@@ -26,8 +26,7 @@ class WMediaProgressCard extends StatelessWidget {
     final card = Container(
       width: width,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: WColors.surfaceRaised2),
+        borderRadius: BorderRadius.circular(18.r),
         boxShadow: const [
           BoxShadow(
             color: WColors.shadowMedium,
@@ -37,7 +36,7 @@ class WMediaProgressCard extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(18.r),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -79,25 +78,16 @@ class WMediaProgressCard extends StatelessWidget {
                       letterSpacing: -0.3,
                     ),
                   ),
-                  SizedBox(height: 5.h),
+                  SizedBox(height: 8.h),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
                     child: LinearProgressIndicator(
                       value: progress,
-                      minHeight: 3.h,
+                      minHeight: 2.h,
                       backgroundColor: Colors.white.withValues(alpha: 0.26),
                       valueColor: const AlwaysStoppedAnimation<Color>(
                         WColors.accentRed,
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 3.h),
-                  Text(
-                    progressLabel,
-                    style: TextStyle(
-                      color: WColors.mutedSecondarySoft,
-                      fontSize: 9.sp,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:watchary/common/widgets/cards/vertical_poster_card.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/shadows.dart';
 import 'package:watchary/core/constants/sizes.dart';
@@ -175,40 +176,47 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,
                             children: [
-                              MovieCard(
-                                image: _posterImages[0],
-                                width: 172.w,
-                                height: 254.h,
-                                title: 'Inception',
-                                rating: '8.8',
+                              Positioned(
+                                top: 52.h,
+                                child: VerticalPosterCard(
+                                  image: _posterImages[0],
+                                  width: 172.w,
+                                  imageHeight: 272.h,
+                                  title: 'Inception',
+                                  rating: '8.8',
+                                  showBookmark: false,
+                                  titleOnImage: true,
+                                ),
                               ),
                               Positioned(
-                                right: (-70).w,
-                                bottom: 90.h,
+                                right: 24.w,
+                                top: 84.h,
                                 child: Transform.rotate(
                                   angle: 0.09,
-                                  child: MovieCard(
+                                  child: VerticalPosterCard(
                                     image: _posterImages[2],
                                     width: 96.w,
-                                    height: 136.h,
+                                    imageHeight: 142.h,
+                                    showBookmark: false,
                                   ),
                                 ),
                               ),
                               Positioned(
-                                left: (-70).w,
-                                bottom: 60.h,
+                                left: 24.w,
+                                top: 108.h,
                                 child: Transform.rotate(
                                   angle: -0.11,
-                                  child: MovieCard(
+                                  child: VerticalPosterCard(
                                     image: _posterImages[1],
                                     width: 84.w,
-                                    height: 128.h,
+                                    imageHeight: 138.h,
+                                    showBookmark: false,
                                   ),
                                 ),
                               ),
                               Positioned(
-                                left: -70,
-                                bottom: 30,
+                                left: 24.w,
+                                top: 248.h,
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 12.w,
@@ -234,8 +242,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 ),
                               ),
                               Positioned(
-                                right: -70,
-                                bottom: 60,
+                                right: 24.w,
+                                top: 224.h,
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 12.w,
@@ -371,11 +379,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          MovieCard(
+                                          VerticalPosterCard(
                                             image: _posterImages[2],
                                             width: 74,
-                                            height: 106,
+                                            imageHeight: 106,
                                             radius: 14,
+                                            showBookmark: false,
                                           ),
                                           const SizedBox(width: WSizes.sm),
                                           Expanded(
@@ -494,11 +503,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                     childAspectRatio: 0.7,
                                   ),
                                   itemBuilder: (context, index) {
-                                    return MovieCard(
+                                    return VerticalPosterCard(
                                       image: _posterImages[index],
                                       width: 90.w,
-                                      height: 130.h,
+                                      imageHeight: 158.h,
                                       radius: 18,
+                                      showBookmark: false,
                                     );
                                   },
                                 ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:watchary/common/widgets/buttons/action_button.dart';
-import 'package:watchary/common/widgets/cards/media_poster_card.dart';
-import 'package:watchary/common/widgets/cards/media_progress_card.dart';
+import 'package:watchary/common/widgets/cards/horizontal_progress_card.dart';
+import 'package:watchary/common/widgets/cards/vertical_poster_card.dart';
 import 'package:watchary/common/widgets/section_header.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
@@ -140,7 +140,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                 separatorBuilder: (_, __) => SizedBox(width: 12.w),
                 itemBuilder: (context, index) {
                   final item = _continueWatching[index];
-                  return WMediaProgressCard(
+                  return HorizontalProgressCard(
                     image: item.image,
                     title: item.title,
                     progressLabel: item.progressLabel,
@@ -170,7 +170,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
             ),
             SizedBox(height: 10.h),
             SizedBox(
-              height: 196.h,
+              height: 218.h,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -178,7 +178,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                 separatorBuilder: (_, __) => SizedBox(width: 12.w),
                 itemBuilder: (context, index) {
                   final item = _trending[index];
-                  return WMediaPosterCard(
+                  return VerticalPosterCard(
                     image: item.image,
                     width: 104.w,
                     title: item.title,
@@ -213,7 +213,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
             ),
             SizedBox(height: 10.h),
             SizedBox(
-              height: 204.h,
+              height: 218.h,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -221,7 +221,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                 separatorBuilder: (_, __) => SizedBox(width: 12.w),
                 itemBuilder: (context, index) {
                   final item = _recommended[index];
-                  return WMediaPosterCard(
+                  return VerticalPosterCard(
                     image: item.image,
                     width: 104.w,
                     title: item.title,

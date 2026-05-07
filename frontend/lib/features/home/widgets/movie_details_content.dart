@@ -4,7 +4,7 @@ import 'package:watchary/common/widgets/buttons/action_button.dart';
 import 'package:watchary/common/widgets/buttons/circle_icon_button.dart';
 import 'package:watchary/common/widgets/buttons/pill_chip.dart';
 import 'package:watchary/common/widgets/buttons/toggle_action_button.dart';
-import 'package:watchary/common/widgets/cards/media_poster_card.dart';
+import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
 
@@ -645,54 +645,13 @@ class _RecommendationsSection extends StatelessWidget {
             separatorBuilder: (_, __) => SizedBox(width: 12.w),
             itemBuilder: (context, index) {
               final recommendation = recommendations[index];
-              return WMediaPosterCard(
+              return VerticalPosterBookmarkCard(
                 image:
                     'https://images.unsplash.com/photo-1616530940355-351fabd9524b?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 width: 100.w,
                 imageHeight: 140,
-                title: recommendation['title'],
-                rating: recommendation['rating'],
-                showBookmark: false,
-                showRatingBadge: false,
-                footerBuilder: (context, title, cardRating) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 8.h),
-                      SizedBox(
-                        width: 100.w,
-                        child: Text(
-                          title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
-                            color: WColors.foreground,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star_rounded,
-                            color: WColors.tertiary,
-                            size: 12.sp,
-                          ),
-                          SizedBox(width: 4.w),
-                          Text(
-                            cardRating ?? '',
-                            style: TextStyle(
-                              fontSize: 10.sp,
-                              color: WColors.mutedForeground,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
+                title: recommendation['title']!,
+                rating: recommendation['rating']!,
               );
             },
           ),
