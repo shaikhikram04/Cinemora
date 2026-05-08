@@ -23,6 +23,7 @@ class _WatcharyHomeShellState extends State<WatcharyHomeShell> {
       const _EmptyTabPage(),
       const _EmptyTabPage(),
       const _EmptyTabPage(),
+      const _EmptyTabPage(),
     ];
 
     return AnnotatedRegion<SystemUiOverlayStyle>(

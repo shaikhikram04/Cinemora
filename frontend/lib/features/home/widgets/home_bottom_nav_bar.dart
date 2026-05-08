@@ -29,22 +29,28 @@ class HomeBottomNavBar extends StatelessWidget {
             onTap: () => onChanged(0),
           ),
           _NavItem(
-            label: 'Search',
+            label: 'Discover',
             icon: Icons.search_rounded,
             selected: currentIndex == 1,
             onTap: () => onChanged(1),
           ),
           _NavItem(
-            label: 'Watchlist',
+            label: 'Library',
             icon: Icons.bookmark_border_rounded,
             selected: currentIndex == 2,
             onTap: () => onChanged(2),
           ),
           _NavItem(
-            label: 'Profile',
-            icon: Icons.person_outline_rounded,
+            label: 'Rankings',
+            icon: Icons.view_list,
             selected: currentIndex == 3,
             onTap: () => onChanged(3),
+          ),
+          _NavItem(
+            label: 'Profile',
+            icon: Icons.person_outline_rounded,
+            selected: currentIndex == 4,
+            onTap: () => onChanged(4),
           ),
         ],
       ),
@@ -71,13 +77,11 @@ class _NavItem extends StatelessWidget {
     final inactiveColor = WColors.mutedSecondaryHeader;
 
     return Expanded(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18.r),
+      child: GestureDetector(
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
+        child: Container(
           padding: EdgeInsets.symmetric(vertical: 8.h),
+          margin: EdgeInsets.symmetric(horizontal: 4.w),
           decoration: BoxDecoration(
             color: selected
                 ? activeColor.withValues(alpha: 0.16)

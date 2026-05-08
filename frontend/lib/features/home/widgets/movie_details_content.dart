@@ -652,6 +652,8 @@ class _RecommendationsSection extends StatelessWidget {
                 imageHeight: 140,
                 title: recommendation['title']!,
                 rating: recommendation['rating']!,
+                cinemaType: CinemaType.movie,
+                year: '2008',
               );
             },
           ),

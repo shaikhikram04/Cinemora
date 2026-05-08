@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
-import 'common_media_card.dart';
+import 'poster_image.dart';
 
 class VerticalPosterCard extends StatelessWidget {
   final String image;
@@ -12,7 +12,6 @@ class VerticalPosterCard extends StatelessWidget {
   final String? rating;
   final double radius;
   final VoidCallback? onTap;
-  final bool showBookmark;
   final bool showRatingBadge;
   final bool titleOnImage;
 
@@ -25,7 +24,6 @@ class VerticalPosterCard extends StatelessWidget {
     this.rating,
     this.radius = WSizes.radiusXxl,
     this.onTap,
-    this.showBookmark = true,
     this.showRatingBadge = true,
     this.titleOnImage = false,
   });
@@ -42,7 +40,7 @@ class VerticalPosterCard extends StatelessWidget {
             height: imageHeight,
             radius: radius,
             rating: rating,
-            showBookmark: showBookmark,
+            showBookmark: false,
             titleOnImage: titleOnImage,
             title: title,
           ),

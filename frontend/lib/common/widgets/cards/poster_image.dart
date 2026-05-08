@@ -1,0 +1,285 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:watchary/core/constants/colors.dart';
+import 'package:watchary/core/constants/sizes.dart';
+
+typedef BadgeBuilder = Widget Function(BuildContext context, String rating);
+
+class PosterImage extends StatelessWidget {
+  final String image;
+  final double height;
+  final double? width;
+  final double radius;
+  final String? rating;
+  final bool showBookmark;
+  final bool inWatchlist;
+  final VoidCallback? onAddToWatchlist;
+  final BadgeBuilder? badgeBuilder;
+  final String? tag;
+  final Color? tagColor;
+  final bool showAction;
+  final bool actionAdded;
+  final VoidCallback? onActionTap;
+  final bool titleOnImage;
+  final String? title;
+
+  const PosterImage({
+    super.key,
+    required this.image,
+    this.height = WSizes.imagePosterHeight,
+    this.width,
+    this.radius = WSizes.radiusXxl,
+    this.rating,
+    this.showBookmark = false,
+    this.inWatchlist = false,
+    this.onAddToWatchlist,
+    this.badgeBuilder,
+    this.tag,
+    this.tagColor,
+    this.showAction = false,
+    this.actionAdded = false,
+    this.onActionTap,
+    this.titleOnImage = false,
+    this.title,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height.h,
+      width: width,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(radius.r),
+        boxShadow: const [
+          BoxShadow(
+            color: WColors.shadowMedium,
+            blurRadius: 18,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius.r),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.network(
+              image,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: WColors.surfaceMuted,
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.image_not_supported_outlined,
+                  color: WColors.mutedSecondary,
+                  size: 22.sp,
+                ),
+              ),
+            ),
+            const _PosterGradient(),
+            if (showBookmark)
+              if (inWatchlist)
+                Positioned(
+                  right: -30.w,
+                  top: 24.h,
+                  child: Transform.rotate(
+                    angle: 0.785398,
+                    child: _WatchlistRibbon(
+                      label: "IN WATCHLIST",
+                    ),
+                  ),
+                )
+              else
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: _AddToWatchlistCorner(
+                    onTap: onAddToWatchlist,
+                  ),
+                ),
+            if (tag != null && tag!.isNotEmpty)
+              Positioned(
+                left: 8.w,
+                top: 8.h,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: tagColor ?? WColors.accentRed,
+                    borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                  ),
+                  child: Text(
+                    tag!.toUpperCase(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            if (badgeBuilder != null && rating != null)
+              Positioned(
+                right: 8.w,
+                top: 8.h,
+                child: badgeBuilder!(context, rating!),
+              ),
+            if (titleOnImage && title != null)
+              Positioned(
+                left: 10.w,
+                right: 10.w,
+                bottom: 10.h,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        height: 1.1,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    if (rating != null)
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.star_rounded,
+                            color: WColors.tertiary,
+                            size: 11.sp,
+                          ),
+                          SizedBox(width: 2.w),
+                          Text(
+                            rating!,
+                            style: TextStyle(
+                              color: WColors.tertiary,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w800,
+                              height: (1.8).h,
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            if (showAction)
+              Positioned(
+                right: 8.w,
+                bottom: 8.h,
+                child: GestureDetector(
+                  onTap: onActionTap,
+                  child: Container(
+                    width: 36.w,
+                    height: 36.w,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.6),
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      actionAdded ? Icons.check_rounded : Icons.add,
+                      color: actionAdded ? WColors.accentRed : Colors.white,
+                      size: 18.sp,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PosterGradient extends StatelessWidget {
+  const _PosterGradient();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.transparent,
+            Colors.black.withValues(alpha: 0.12),
+            Colors.black.withValues(alpha: 0.78),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddToWatchlistCorner extends StatelessWidget {
+  final VoidCallback? onTap;
+
+  const _AddToWatchlistCorner({this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipPath(
+        clipper: const _TopRightTriangleClipper(),
+        child: Container(
+          width: 46.w,
+          height: 46.w,
+          color: WColors.surfaceMuted.withValues(alpha: 0.7),
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: EdgeInsets.only(top: 8.h, right: 8.w),
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 16.sp,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TopRightTriangleClipper extends CustomClipper<Path> {
+  const _TopRightTriangleClipper();
+
+  @override
+  Path getClip(Size size) {
+    return Path()
+      ..moveTo(size.width, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, 0)
+      ..close();
+  }
+
+  @override
+  bool shouldReclip(covariant _TopRightTriangleClipper oldClipper) => false;
+}
+
+class _WatchlistRibbon extends StatelessWidget {
+  final String label;
+
+  const _WatchlistRibbon({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: WColors.accentRed,
+      padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 28.w),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 8.sp,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.1,
+        ),
+      ),
+    );
+  }
+}

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/common/widgets/cards/vertical_poster_card.dart';
+import 'package:watchary/common/widgets/cards/poster_image.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/shadows.dart';
 import 'package:watchary/core/constants/sizes.dart';
@@ -122,21 +122,28 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ),
                         const Spacer(),
                         if (_currentPage < 3)
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              backgroundColor:
-                                  WColors.card.withValues(alpha: 0.5),
-                              foregroundColor: WColors.mutedForeground,
-                              minimumSize: Size(72.w, 40.h),
-                              side: const BorderSide(
-                                color: WColors.border,
+                          InkWell(
+                            onTap: _jumpToLast,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 6.h,
                               ),
-                              shape: RoundedRectangleBorder(
+                              decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(999.r),
+                                border: Border.all(
+                                  color: WColors.border,
+                                ),
+                                color: WColors.card.withValues(alpha: 0.5),
+                              ),
+                              child: Text(
+                                'Skip',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: WColors.mutedForeground,
+                                ),
                               ),
                             ),
-                            onPressed: _jumpToLast,
-                            child: const Text('Skip'),
                           ),
                       ],
                     ),
@@ -178,13 +185,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             children: [
                               Positioned(
                                 top: 52.h,
-                                child: VerticalPosterCard(
+                                child: PosterImage(
                                   image: _posterImages[0],
                                   width: 172.w,
-                                  imageHeight: 272.h,
+                                  height: 272.h,
                                   title: 'Inception',
                                   rating: '8.8',
-                                  showBookmark: false,
                                   titleOnImage: true,
                                 ),
                               ),
@@ -193,11 +199,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 top: 84.h,
                                 child: Transform.rotate(
                                   angle: 0.09,
-                                  child: VerticalPosterCard(
+                                  child: PosterImage(
                                     image: _posterImages[2],
                                     width: 96.w,
-                                    imageHeight: 142.h,
-                                    showBookmark: false,
+                                    height: 142.h,
                                   ),
                                 ),
                               ),
@@ -206,11 +211,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 top: 108.h,
                                 child: Transform.rotate(
                                   angle: -0.11,
-                                  child: VerticalPosterCard(
+                                  child: PosterImage(
                                     image: _posterImages[1],
                                     width: 84.w,
-                                    imageHeight: 138.h,
-                                    showBookmark: false,
+                                    height: 138.h,
                                   ),
                                 ),
                               ),
@@ -379,12 +383,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          VerticalPosterCard(
+                                          PosterImage(
                                             image: _posterImages[2],
-                                            width: 74,
-                                            imageHeight: 106,
-                                            radius: 14,
-                                            showBookmark: false,
+                                            width: 74.w,
+                                            height: 116.h,
+                                            radius: 14.r,
                                           ),
                                           const SizedBox(width: WSizes.sm),
                                           Expanded(
@@ -500,15 +503,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                     crossAxisCount: 3,
                                     crossAxisSpacing: WSizes.sm,
                                     mainAxisSpacing: WSizes.sm,
-                                    childAspectRatio: 0.7,
+                                    childAspectRatio: 0.74,
                                   ),
                                   itemBuilder: (context, index) {
-                                    return VerticalPosterCard(
+                                    return PosterImage(
                                       image: _posterImages[index],
                                       width: 90.w,
-                                      imageHeight: 158.h,
+                                      height: 158.h,
                                       radius: 18,
-                                      showBookmark: false,
                                     );
                                   },
                                 ),

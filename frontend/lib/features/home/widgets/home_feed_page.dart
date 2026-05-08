@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:watchary/common/widgets/buttons/action_button.dart';
-import 'package:watchary/common/widgets/cards/horizontal_progress_card.dart';
-import 'package:watchary/common/widgets/cards/vertical_poster_card.dart';
+import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:watchary/common/widgets/section_header.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
@@ -17,6 +16,7 @@ class HomeFeedPage extends StatefulWidget {
 
 class _HomeFeedPageState extends State<HomeFeedPage> {
   String? _selectedMood;
+  String _selectedTab = 'For You';
 
   static const _heroImage =
       'https://images.unsplash.com/photo-1612036781124-847f8939b154?auto=format&fit=crop&w=1200&q=80';
@@ -45,24 +45,79 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
     ),
   ];
 
-  final List<_MoviePoster> _recommended = const [
+  final List<_MoviePoster> _anime = const [
     _MoviePoster(
-      title: 'Everything Everywhere All ...',
-      rating: '7.8',
+      title: 'Attack on Titan',
+      rating: '9.1',
+      tag: 'Anime',
+      actionAdded: true,
       image:
-          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=700&q=80',
+          'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a0b9?auto=format&fit=crop&w=700&q=80',
     ),
     _MoviePoster(
-      title: 'Parasite',
-      rating: '8.5',
-      image:
-          'https://images.unsplash.com/photo-1505685296765-3a2736de412f?auto=format&fit=crop&w=700&q=80',
-    ),
-    _MoviePoster(
-      title: 'The Batman',
-      rating: '7.9',
+      title: 'Fullmetal Alchemist',
+      rating: '9.1',
+      tag: 'Anime',
       image:
           'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=700&q=80',
+    ),
+    _MoviePoster(
+      title: 'Steins;Gate',
+      rating: '9.1',
+      tag: 'Anime',
+      image:
+          'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=700&q=80',
+    ),
+  ];
+
+  final List<_MoviePoster> _series = const [
+    _MoviePoster(
+      title: 'Breaking Bad',
+      rating: '9.5',
+      tag: 'Series',
+      actionAdded: true,
+      image:
+          'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=700&q=80',
+    ),
+    _MoviePoster(
+      title: 'True Detective',
+      rating: '9',
+      tag: 'Series',
+      image:
+          'https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?auto=format&fit=crop&w=700&q=80',
+    ),
+    _MoviePoster(
+      title: 'Succession',
+      rating: '8.9',
+      tag: 'Series',
+      image:
+          'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=700&q=80',
+    ),
+  ];
+
+  final List<_MoviePoster> _criticallyAcclaimed = const [
+    _MoviePoster(
+      title: 'Inception',
+      rating: '8.8',
+      tag: 'Movie',
+      image:
+          'https://images.unsplash.com/photo-1612036781124-847f8939b154?auto=format&fit=crop&w=700&q=80',
+    ),
+    _MoviePoster(
+      title: 'The Dark Knight',
+      rating: '9',
+      tag: 'Movie',
+      actionAdded: true,
+      image:
+          'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    ),
+    _MoviePoster(
+      title: 'Dune: Part Two',
+      rating: '8.7',
+      tag: 'Movie',
+      actionAdded: true,
+      image:
+          'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=700&q=80',
     ),
   ];
 
@@ -72,20 +127,14 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
     _MoodOption(label: 'Scared', emoji: '😱'),
   ];
 
-  final List<_ContinueWatchingItem> _continueWatching = const [
-    _ContinueWatchingItem(
-      title: 'The Dark Knight',
-      progressLabel: '68% watched',
-      progress: 0.68,
-      image:
-          'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    ),
-  ];
-
   void _selectMood(String label) {
     setState(() {
       _selectedMood = _selectedMood == label ? null : label;
     });
+  }
+
+  void _selectTab(String label) {
+    setState(() => _selectedTab = label);
   }
 
   @override
@@ -101,11 +150,19 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
             WSizes.screenPadding.w,
             6.h,
             WSizes.screenPadding.w,
-            124.h,
+            42.h,
           ),
           physics: const BouncingScrollPhysics(),
           children: [
-            _Header(profileImage: _profileImage),
+            _Header(
+              profileImage: _profileImage,
+              onRankingTap: () {},
+            ),
+            SizedBox(height: 12.h),
+            _CategoryTabs(
+              selectedTab: _selectedTab,
+              onSelected: _selectTab,
+            ),
             SizedBox(height: 14.h),
             _HeroCard(
               image: _heroImage,
@@ -124,44 +181,6 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
               },
               onWatchlistPressed: () {},
             ),
-            SizedBox(height: 22.h),
-            const WSectionHeader(
-              icon: Icons.access_time_rounded,
-              iconColor: WColors.warning,
-              title: 'Continue Watching',
-            ),
-            SizedBox(height: 10.h),
-            SizedBox(
-              height: 112.h,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                itemCount: _continueWatching.length,
-                separatorBuilder: (_, __) => SizedBox(width: 12.w),
-                itemBuilder: (context, index) {
-                  final item = _continueWatching[index];
-                  return HorizontalProgressCard(
-                    image: item.image,
-                    title: item.title,
-                    progressLabel: item.progressLabel,
-                    progress: item.progress,
-                    width: 168.w,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MovieDetailsScreen(
-                            movieTitle: item.title,
-                            movieImage: item.image,
-                            rating: '8.8',
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
             SizedBox(height: 24.h),
             const WSectionHeader(
               icon: Icons.local_fire_department_rounded,
@@ -170,7 +189,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
             ),
             SizedBox(height: 10.h),
             SizedBox(
-              height: 218.h,
+              height: 262.h,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -178,9 +197,10 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                 separatorBuilder: (_, __) => SizedBox(width: 12.w),
                 itemBuilder: (context, index) {
                   final item = _trending[index];
-                  return VerticalPosterCard(
+                  return VerticalPosterBookmarkCard(
                     image: item.image,
-                    width: 104.w,
+                    width: 130.w,
+                    imageHeight: 180.h,
                     title: item.title,
                     rating: item.rating,
                     onTap: () {
@@ -195,35 +215,67 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                         ),
                       );
                     },
+                    cinemaType: CinemaType.movie,
+                    year: '2008',
                   );
                 },
               ),
             ),
-            SizedBox(height: 18.h),
+            SizedBox(height: 24.h),
+            const WSectionHeader(
+              icon: Icons.movie_filter_rounded,
+              iconColor: WColors.accentPurple,
+              title: 'Top Anime This Season',
+            ),
+            SizedBox(height: 10.h),
+            SizedBox(
+              height: 262.h,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: _anime.length,
+                separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                itemBuilder: (context, index) {
+                  final item = _anime[index];
+                  return VerticalPosterBookmarkCard(
+                    image: item.image,
+                    width: 130.w,
+                    imageHeight: 180.h,
+                    title: item.title,
+                    rating: item.rating,
+                    onTap: () {},
+                    cinemaType: CinemaType.anime,
+                    year: '2008',
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 24.h),
             _MoodPickerCard(
               selectedMood: _selectedMood,
               moods: _moods,
               onSelected: _selectMood,
             ),
-            SizedBox(height: 18.h),
+            SizedBox(height: 24.h),
             const WSectionHeader(
-              icon: Icons.star_rounded,
-              iconColor: WColors.tertiary,
-              title: 'Recommended',
+              icon: Icons.live_tv_rounded,
+              iconColor: WColors.warning,
+              title: 'Binge-Worthy Series',
             ),
             SizedBox(height: 10.h),
             SizedBox(
-              height: 218.h,
+              height: 262.h,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
-                itemCount: _recommended.length,
+                itemCount: _series.length,
                 separatorBuilder: (_, __) => SizedBox(width: 12.w),
                 itemBuilder: (context, index) {
-                  final item = _recommended[index];
-                  return VerticalPosterCard(
+                  final item = _series[index];
+                  return VerticalPosterBookmarkCard(
                     image: item.image,
-                    width: 104.w,
+                    width: 130.w,
+                    imageHeight: 180.h,
                     title: item.title,
                     rating: item.rating,
                     onTap: () {
@@ -238,10 +290,55 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                         ),
                       );
                     },
+                    cinemaType: CinemaType.series,
+                    year: '2008',
                   );
                 },
               ),
             ),
+            SizedBox(height: 24.h),
+            const WSectionHeader(
+              icon: Icons.star_rounded,
+              iconColor: WColors.tertiary,
+              title: 'Critically Acclaimed',
+            ),
+            SizedBox(height: 10.h),
+            SizedBox(
+              height: 262.h,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: _criticallyAcclaimed.length,
+                separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                itemBuilder: (context, index) {
+                  final item = _criticallyAcclaimed[index];
+                  return VerticalPosterBookmarkCard(
+                    image: item.image,
+                    width: 130.w,
+                    imageHeight: 180.h,
+                    title: item.title,
+                    rating: item.rating,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MovieDetailsScreen(
+                            movieTitle: item.title,
+                            movieImage: item.image,
+                            rating: item.rating,
+                          ),
+                        ),
+                      );
+                    },
+                    cinemaType: CinemaType.series,
+                    year: '2008',
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 18.h),
+            const _RankingListCard(),
+            SizedBox(height: 18.h),
           ],
         ),
       ),
@@ -251,8 +348,9 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
 
 class _Header extends StatelessWidget {
   final String profileImage;
+  final VoidCallback? onRankingTap;
 
-  const _Header({required this.profileImage});
+  const _Header({required this.profileImage, this.onRankingTap});
 
   @override
   Widget build(BuildContext context) {
@@ -278,7 +376,7 @@ class _Header extends StatelessWidget {
               'Good evening',
               style: TextStyle(
                 color: WColors.mutedForeground,
-                fontSize: 13.sp,
+                fontSize: 12.sp,
                 height: 1.1,
                 fontWeight: FontWeight.w500,
               ),
@@ -288,7 +386,7 @@ class _Header extends StatelessWidget {
               'Hey, Ikram 👋',
               style: TextStyle(
                 color: WColors.foreground,
-                fontSize: 20.sp,
+                fontSize: 18.sp,
                 height: 1.05,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.4,
@@ -297,6 +395,40 @@ class _Header extends StatelessWidget {
           ],
         ),
         const Spacer(),
+        Material(
+          color: WColors.surfaceMuted,
+          borderRadius: BorderRadius.circular(999.r),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(999.r),
+            onTap: onRankingTap,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(999.r),
+                border: Border.all(
+                    color: WColors.accentRedAlt.withValues(alpha: 0.3)),
+                color: WColors.primary.withValues(alpha: 0.1),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.emoji_events_rounded,
+                      color: WColors.tertiary, size: 15.sp),
+                  SizedBox(width: 4.w),
+                  Text(
+                    'Rankings',
+                    style: TextStyle(
+                      color: WColors.accentRed,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 8.w),
         Stack(
           clipBehavior: Clip.none,
           children: [
@@ -329,6 +461,74 @@ class _Header extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _CategoryTabs extends StatelessWidget {
+  final String selectedTab;
+  final ValueChanged<String> onSelected;
+
+  const _CategoryTabs({
+    required this.selectedTab,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const tabs = <String>[
+      '✨   For You',
+      '🎬   Movies',
+      '⛩️   Anime',
+      '📺   Series'
+    ];
+
+    return SizedBox(
+      height: 36.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: tabs.length,
+        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        itemBuilder: (context, index) {
+          final tab = tabs[index];
+          final selected = tab == selectedTab;
+          return Material(
+            color: selected ? WColors.accentRed : WColors.surfaceRaised,
+            borderRadius: BorderRadius.circular(999.r),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(999.r),
+              onTap: () => onSelected(tab),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999.r),
+                  border: Border.all(
+                    color: selected ? Colors.transparent : WColors.borderStrong,
+                  ),
+                  boxShadow: selected
+                      ? [
+                          BoxShadow(
+                            color: WColors.accentRed.withValues(alpha: 0.25),
+                            blurRadius: 14,
+                            offset: const Offset(0, 6),
+                          ),
+                        ]
+                      : const [],
+                ),
+                child: Text(
+                  tab,
+                  style: TextStyle(
+                    color: selected ? Colors.white : WColors.mutedForeground,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -392,7 +592,7 @@ class _HeroCard extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 12.w,
-                        vertical: 6.h,
+                        vertical: 4.h,
                       ),
                       decoration: BoxDecoration(
                         color: WColors.accentRed,
@@ -505,6 +705,77 @@ class _HeroCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _RankingListCard extends StatelessWidget {
+  const _RankingListCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            WColors.accentPurple.withValues(alpha: 0.12),
+            WColors.accentRed.withValues(alpha: 0.12),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: WColors.accentRed.withValues(alpha: 0.12),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 46.w,
+            height: 46.w,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [WColors.accentPink, WColors.accentPurple],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16.r),
+            ),
+            child: Icon(
+              Icons.trending_up_rounded,
+              color: Colors.white,
+              size: 22.sp,
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'My Ranking Lists',
+                  style: TextStyle(
+                    color: WColors.foreground,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                SizedBox(height: 3.h),
+                Text(
+                  '6 curated lists · Drag to reorder',
+                  style: TextStyle(
+                    color: WColors.mutedSecondary,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right_rounded,
+              color: WColors.mutedForeground, size: 22.sp),
+        ],
       ),
     );
   }
@@ -740,11 +1011,15 @@ class _MoviePoster {
   final String title;
   final String rating;
   final String image;
+  final String? tag;
+  final bool actionAdded;
 
   const _MoviePoster({
     required this.title,
     required this.rating,
     required this.image,
+    this.tag,
+    this.actionAdded = false,
   });
 }
 
@@ -753,18 +1028,4 @@ class _MoodOption {
   final String emoji;
 
   const _MoodOption({required this.label, required this.emoji});
-}
-
-class _ContinueWatchingItem {
-  final String title;
-  final String progressLabel;
-  final double progress;
-  final String image;
-
-  const _ContinueWatchingItem({
-    required this.title,
-    required this.progressLabel,
-    required this.progress,
-    required this.image,
-  });
 }
