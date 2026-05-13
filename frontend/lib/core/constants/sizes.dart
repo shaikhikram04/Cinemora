@@ -39,10 +39,9 @@ class WSizes {
 
   //* Image Sizes
   static const double imageThumbSize = 80.0;
-  static const double imagePosterHeight = 158.0;
-  static const double imageHeroHeight = 284.0;
   static const double imageDetailsHeroHeight = 380.0;
-  static const double imageCoverHeight = 140.0;
+  static const double posterImageWidth = 130.0;
+  static const double posterImageHeight = 180.0;
 
   //* Default spacing between sections
   static const double defaultSpace = 24.0;
@@ -88,7 +87,7 @@ class WSizes {
   static const double cardElevationLg = 10.0;
 
   //* Image carousel height
-  static const double imageCarouselHeight = 200.0;
+  static const double imageCarouselHeight = 262.0;
 
   //* Loading indicator size
   static const double loadingIndicatorSize = 36.0;

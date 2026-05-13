@@ -26,7 +26,7 @@ class PosterImage extends StatelessWidget {
   const PosterImage({
     super.key,
     required this.image,
-    this.height = WSizes.imagePosterHeight,
+    required this.height,
     this.width,
     this.radius = WSizes.radiusXxl,
     this.rating,

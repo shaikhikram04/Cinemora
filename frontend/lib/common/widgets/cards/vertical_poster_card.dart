@@ -19,7 +19,7 @@ class VerticalPosterCard extends StatelessWidget {
     super.key,
     required this.image,
     required this.width,
-    this.imageHeight = WSizes.imagePosterHeight,
+    required this.imageHeight,
     this.title,
     this.rating,
     this.radius = WSizes.radiusXxl,

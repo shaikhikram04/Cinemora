@@ -23,7 +23,7 @@ class VerticalPosterBookmarkCard extends StatelessWidget {
     super.key,
     required this.image,
     required this.width,
-    this.imageHeight = WSizes.imagePosterHeight,
+    required this.imageHeight,
     required this.title,
     required this.rating,
     required this.cinemaType,

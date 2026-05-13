@@ -189,7 +189,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
             ),
             SizedBox(height: 10.h),
             SizedBox(
-              height: 262.h,
+              height: WSizes.imageCarouselHeight.h,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -199,8 +199,8 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                   final item = _trending[index];
                   return VerticalPosterBookmarkCard(
                     image: item.image,
-                    width: 130.w,
-                    imageHeight: 180.h,
+                    width: WSizes.posterImageWidth.w,
+                    imageHeight: WSizes.posterImageHeight.h,
                     title: item.title,
                     rating: item.rating,
                     onTap: () {
@@ -229,7 +229,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
             ),
             SizedBox(height: 10.h),
             SizedBox(
-              height: 262.h,
+              height: WSizes.imageCarouselHeight.h,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -239,8 +239,8 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                   final item = _anime[index];
                   return VerticalPosterBookmarkCard(
                     image: item.image,
-                    width: 130.w,
-                    imageHeight: 180.h,
+                    width: WSizes.posterImageWidth.w,
+                    imageHeight: WSizes.posterImageHeight.h,
                     title: item.title,
                     rating: item.rating,
                     onTap: () {},
@@ -264,7 +264,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
             ),
             SizedBox(height: 10.h),
             SizedBox(
-              height: 262.h,
+              height: WSizes.imageCarouselHeight.h,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -274,8 +274,8 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                   final item = _series[index];
                   return VerticalPosterBookmarkCard(
                     image: item.image,
-                    width: 130.w,
-                    imageHeight: 180.h,
+                    width: WSizes.posterImageWidth.w,
+                    imageHeight: WSizes.posterImageHeight.h,
                     title: item.title,
                     rating: item.rating,
                     onTap: () {
@@ -304,7 +304,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
             ),
             SizedBox(height: 10.h),
             SizedBox(
-              height: 262.h,
+              height: WSizes.imageCarouselHeight.h,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -314,8 +314,8 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                   final item = _criticallyAcclaimed[index];
                   return VerticalPosterBookmarkCard(
                     image: item.image,
-                    width: 130.w,
-                    imageHeight: 180.h,
+                    width: WSizes.posterImageWidth.w,
+                    imageHeight: WSizes.posterImageHeight.h,
                     title: item.title,
                     rating: item.rating,
                     onTap: () {
