@@ -79,34 +79,39 @@ class _NavItem extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8.h),
-          margin: EdgeInsets.symmetric(horizontal: 4.w),
-          decoration: BoxDecoration(
-            color: selected
-                ? activeColor.withValues(alpha: 0.16)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(18.r),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 22.sp,
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 8.h),
+              margin: EdgeInsets.symmetric(horizontal: 8.w).copyWith(top: 4.h),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: selected
+                    ? activeColor.withValues(alpha: 0.16)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(18.r),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    icon,
+                    size: 22.sp,
+                    color: selected ? activeColor : inactiveColor,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              label,
+              style: TextStyle(
                 color: selected ? activeColor : inactiveColor,
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w600,
               ),
-              SizedBox(height: 2.h),
-              Text(
-                label,
-                style: TextStyle(
-                  color: selected ? activeColor : inactiveColor,
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

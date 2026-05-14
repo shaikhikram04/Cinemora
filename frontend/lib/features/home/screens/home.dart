@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
+import 'package:watchary/features/discover/screens/discover_screen.dart';
 import 'package:watchary/features/home/widgets/home_bottom_nav_bar.dart';
 import 'package:watchary/features/home/widgets/home_feed_page.dart';
 
@@ -20,7 +21,7 @@ class _WatcharyHomeShellState extends State<WatcharyHomeShell> {
   Widget build(BuildContext context) {
     final pages = <Widget>[
       const HomeFeedPage(),
-      const _EmptyTabPage(),
+      const DiscoverScreen(),
       const _EmptyTabPage(),
       const _EmptyTabPage(),
       const _EmptyTabPage(),
