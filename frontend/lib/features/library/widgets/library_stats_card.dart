@@ -1,0 +1,272 @@
+import 'dart:math' as math;
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:watchary/core/constants/colors.dart';
+
+class LibraryStatsCard extends StatelessWidget {
+  const LibraryStatsCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      clipBehavior: Clip.hardEdge,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: WColors.surfaceRaised,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: WColors.borderStrong),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            bottom: 0,
+            left: 0,
+            child: Container(
+              width: 100.w,
+              height: 100.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: WColors.accentPurple.withValues(alpha: 0.4),
+                    blurRadius: 100,
+                    offset: const Offset(0, 10),
+                    spreadRadius: 40,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Container(
+              width: 100.w,
+              height: 100.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: WColors.accentRed.withValues(alpha: 0.4),
+                    blurRadius: 100,
+                    offset: const Offset(0, 10),
+                    spreadRadius: 40,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Column(
+            children: [
+              Row(
+                children: [
+                  // ── Ring + month count ──────────────────────────────
+                  SizedBox(
+                    width: 90.w,
+                    height: 90.w,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CustomPaint(
+                          size: Size(90.w, 90.w),
+                          painter: _RingPainter(progress: 5 / 12),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '5/10',
+                              style: TextStyle(
+                                color: WColors.foreground,
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w800,
+                                height: 1.0,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  // ── Watch time ─────────────────────────────────────
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'TOTAL WATCH TIME',
+                          style: TextStyle(
+                            color: WColors.mutedSecondary,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        SizedBox(height: 6.h),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '21h',
+                                style: TextStyle(
+                                  color: WColors.accentRed,
+                                  fontSize: 28.sp,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              TextSpan(
+                                text: '  across 14 titles',
+                                style: TextStyle(
+                                  color: WColors.mutedSecondary,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 14.h),
+              // ── Category breakdown ────────────────────────────────────
+              Row(
+                children: [
+                  _CategoryChip(
+                    icon: Icons.movie_outlined,
+                    iconColor: WColors.accentRed,
+                    label: 'MOVIES',
+                    value: '6 watched',
+                  ),
+                  SizedBox(width: 8.w),
+                  _CategoryChip(
+                    icon: Icons.tv_outlined,
+                    iconColor: WColors.accentPurple,
+                    label: 'SERIES',
+                    value: '4 watched',
+                  ),
+                  SizedBox(width: 8.w),
+                  _CategoryChip(
+                    icon: Icons.auto_awesome_outlined,
+                    iconColor: WColors.warning,
+                    label: 'ANIME',
+                    value: '4 watched',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final String value;
+
+  const _CategoryChip({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+        decoration: BoxDecoration(
+          color: WColors.surfaceOverlay.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.all(Radius.elliptical(20.r, 18.r)),
+          border: Border.all(color: WColors.borderStrong),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 12.sp, color: iconColor),
+                SizedBox(width: 4.w),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: WColors.mutedSecondary,
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              value,
+              style: TextStyle(
+                color: WColors.foreground,
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Ring painter ─────────────────────────────────────────────────────────────
+
+class _RingPainter extends CustomPainter {
+  final double progress;
+
+  const _RingPainter({required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final radius = (size.width / 2) - 8;
+    final strokeW = 8.0;
+    final rect = Rect.fromCircle(center: Offset(cx, cy), radius: radius);
+
+    // Track
+    final trackPaint = Paint()
+      ..color = WColors.surfaceRaised
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeW
+      ..strokeCap = StrokeCap.round;
+    canvas.drawCircle(Offset(cx, cy), radius, trackPaint);
+
+    // Arc
+    final arcPaint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Color(0xFFFE7847), Color(0xFFE63946)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeW
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      rect,
+      -math.pi / 2,
+      2 * math.pi * progress,
+      false,
+      arcPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter oldDelegate) =>
+      oldDelegate.progress != progress;
+}

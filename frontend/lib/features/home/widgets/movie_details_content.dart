@@ -7,6 +7,7 @@ import 'package:watchary/common/widgets/buttons/toggle_action_button.dart';
 import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
+import 'package:watchary/core/utils/rating_display_utils.dart';
 
 class MovieDetailsContent extends StatelessWidget {
   final String movieTitle;
@@ -455,9 +456,9 @@ class _UserRatingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final displayRating = userRating <= 0 ? 4.5 : userRating;
     // Compute once — reused by label, emoji, star color, and meter
-    final ratingColor = _ratingColor(displayRating);
-    final ratingLabel = _ratingLabel(displayRating);
-    final ratingEmoji = _ratingEmoji(displayRating);
+    final ratingColor = ratingColorFor(displayRating);
+    final ratingLabel = ratingLabelFor(displayRating);
+    final ratingEmoji = ratingEmojiFor(displayRating);
     const starSize = 48.0;
 
     return Column(
@@ -633,17 +634,6 @@ class _StarRatingBar extends StatelessWidget {
 
 /// The full color scale for ratings 0.5 → 5.0 (9 stops for 9 half-steps).
 /// Stored as a top-level constant so it is created only once.
-const List<Color> _kRatingGradientColors = [
-  WColors.accentRed, // 0.5
-  Colors.deepOrangeAccent, // 1.0
-  Colors.orangeAccent, // 1.5
-  Colors.amber, // 2.0
-  Colors.amberAccent, // 2.5 – 3.0
-  Colors.lightGreen, // 3.5
-  Colors.green, // 4.0
-  Colors.greenAccent, // 4.5
-  Colors.tealAccent, // 5.0
-];
 
 class _RatingMeter extends StatelessWidget {
   /// Current rating value (0.5 – 5.0).
@@ -671,10 +661,10 @@ class _RatingMeter extends StatelessWidget {
     final fillFraction = (rating / 5).clamp(0.0, 1.0);
 
     // Slice gradient up to the current rating stop only.
-    final stopCount = _kRatingGradientColors.length;
+    final stopCount = kRatingGradientColors.length;
     final lastStopIndex =
         (((rating / 5.0) * (stopCount - 1)).ceil()).clamp(1, stopCount - 1);
-    final activeColors = _kRatingGradientColors.sublist(0, lastStopIndex + 1);
+    final activeColors = kRatingGradientColors.sublist(0, lastStopIndex + 1);
 
     return SizedBox(
       width: totalWidth,
@@ -708,48 +698,6 @@ class _RatingMeter extends StatelessWidget {
       ),
     );
   }
-}
-
-String _ratingLabel(double value) {
-  if (value == 5.0) return 'Masterpiece';
-  if (value >= 4.5) return 'Excellent';
-  if (value >= 4.0) return 'Great';
-  if (value >= 3.5) return 'Good';
-  if (value >= 3.0) return 'Decent';
-  if (value >= 2.5) return 'Below Average';
-  if (value >= 2.0) return 'Bad';
-  if (value >= 1.5) return 'Very Bad';
-  if (value >= 1.0) return 'Terrible';
-
-  return 'Avoid it';
-}
-
-String _ratingEmoji(double value) {
-  if (value == 5.0) return '🏆';
-  if (value >= 4.5) return '🤩';
-  if (value >= 4.0) return '😊';
-  if (value >= 3.5) return '👍';
-  if (value >= 3.0) return '😑';
-  if (value >= 2.5) return '🤔';
-  if (value >= 2.0) return '😐';
-  if (value >= 1.5) return '😞';
-  if (value >= 1.0) return '😤';
-
-  return '💀';
-}
-
-Color _ratingColor(double value) {
-  if (value == 5.0) return Colors.tealAccent;
-  if (value >= 4.5) return Colors.greenAccent;
-  if (value >= 4.0) return Colors.green;
-  if (value >= 3.5) return Colors.lightGreen;
-  if (value >= 3.0) return Colors.amberAccent;
-  if (value >= 2.5) return Colors.amberAccent;
-  if (value >= 2.0) return Colors.orangeAccent;
-  if (value >= 1.5) return Colors.deepOrangeAccent;
-  if (value >= 1.0) return WColors.accentRed;
-
-  return WColors.accentRed;
 }
 
 class _RecommendationsSection extends StatelessWidget {

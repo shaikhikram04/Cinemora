@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:watchary/core/constants/colors.dart';
+import 'package:watchary/core/utils/rating_display_utils.dart';
 import 'package:watchary/features/home/widgets/movie_details_content.dart';
 import 'package:watchary/features/home/widgets/post_rating_bottom_sheet.dart';
 
@@ -42,35 +43,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         movieImage: widget.movieImage,
         movieType: 'Movie',
         userRating: value,
-        ratingLabel: _labelFor(value),
-        ratingColor: _colorFor(value),
+        ratingLabel: ratingLabelFor(value),
+        ratingColor: ratingColorFor(value),
       );
     });
-  }
-
-  Color _colorFor(double v) {
-    if (v == 5.0) return Colors.tealAccent;
-    if (v >= 4.5) return Colors.greenAccent;
-    if (v >= 4.0) return Colors.green;
-    if (v >= 3.5) return Colors.lightGreen;
-    if (v >= 3.0) return Colors.amberAccent;
-    if (v >= 2.5) return Colors.amberAccent;
-    if (v >= 2.0) return Colors.orangeAccent;
-    if (v >= 1.5) return Colors.deepOrangeAccent;
-    return WColors.accentRed;
-  }
-
-  String _labelFor(double v) {
-    if (v == 5.0) return 'Masterpiece';
-    if (v >= 4.5) return 'Excellent';
-    if (v >= 4.0) return 'Great';
-    if (v >= 3.5) return 'Good';
-    if (v >= 3.0) return 'Decent';
-    if (v >= 2.5) return 'Below Average';
-    if (v >= 2.0) return 'Bad';
-    if (v >= 1.5) return 'Very Bad';
-    if (v >= 1.0) return 'Terrible';
-    return 'Avoid it';
   }
 
   void _toggleTags() {

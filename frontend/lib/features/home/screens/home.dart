@@ -6,6 +6,7 @@ import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/features/discover/screens/discover_screen.dart';
 import 'package:watchary/features/home/widgets/home_bottom_nav_bar.dart';
 import 'package:watchary/features/home/widgets/home_feed_page.dart';
+import 'package:watchary/features/library/screens/library_screen.dart';
 
 class WatcharyHomeShell extends StatefulWidget {
   const WatcharyHomeShell({super.key});
@@ -22,7 +23,7 @@ class _WatcharyHomeShellState extends State<WatcharyHomeShell> {
     final pages = <Widget>[
       const HomeFeedPage(),
       const DiscoverScreen(),
-      const _EmptyTabPage(),
+      const LibraryScreen(),
       const _EmptyTabPage(),
       const _EmptyTabPage(),
     ];
