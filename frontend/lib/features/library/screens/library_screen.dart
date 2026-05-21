@@ -515,6 +515,8 @@ class _LibraryHeader extends StatelessWidget {
                         fontSize: 28.sp,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
+                        fontFamily: 'Inter',
+                        height: 1.37,
                       ),
                     ),
                     TextSpan(
@@ -524,6 +526,8 @@ class _LibraryHeader extends StatelessWidget {
                         fontSize: 28.sp,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
+                        fontFamily: 'Inter',
+                        height: 1.37,
                       ),
                     ),
                   ],
@@ -536,7 +540,7 @@ class _LibraryHeader extends StatelessWidget {
                     '14 titles',
                     style: TextStyle(
                       color: WColors.mutedSecondary,
-                      fontSize: 13.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -553,7 +557,7 @@ class _LibraryHeader extends StatelessWidget {
                     '21h total',
                     style: TextStyle(
                       color: WColors.mutedSecondary,
-                      fontSize: 13.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

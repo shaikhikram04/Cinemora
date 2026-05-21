@@ -55,7 +55,9 @@ class WTheme {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(WSizes.radiusLg),
-            borderSide: const BorderSide(color: WColors.primary, width: 1.2),
+            borderSide: BorderSide(
+              color: WColors.primary.withValues(alpha: 0.6),
+            ),
           ),
           hintStyle: WTextTheme.body,
         ),

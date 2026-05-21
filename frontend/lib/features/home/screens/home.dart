@@ -7,6 +7,7 @@ import 'package:watchary/features/discover/screens/discover_screen.dart';
 import 'package:watchary/features/home/widgets/home_bottom_nav_bar.dart';
 import 'package:watchary/features/home/widgets/home_feed_page.dart';
 import 'package:watchary/features/library/screens/library_screen.dart';
+import 'package:watchary/features/rankings/screens/rankings_screen.dart';
 
 class WatcharyHomeShell extends StatefulWidget {
   const WatcharyHomeShell({super.key});
@@ -24,7 +25,7 @@ class _WatcharyHomeShellState extends State<WatcharyHomeShell> {
       const HomeFeedPage(),
       const DiscoverScreen(),
       const LibraryScreen(),
-      const _EmptyTabPage(),
+      const RankingsScreen(),
       const _EmptyTabPage(),
     ];
 
