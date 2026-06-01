@@ -7,6 +7,7 @@ import 'package:watchary/features/discover/screens/discover_screen.dart';
 import 'package:watchary/features/home/widgets/home_bottom_nav_bar.dart';
 import 'package:watchary/features/home/widgets/home_feed_page.dart';
 import 'package:watchary/features/library/screens/library_screen.dart';
+import 'package:watchary/features/profile/screens/profile_screen.dart';
 import 'package:watchary/features/rankings/screens/rankings_screen.dart';
 
 class WatcharyHomeShell extends StatefulWidget {
@@ -26,7 +27,7 @@ class _WatcharyHomeShellState extends State<WatcharyHomeShell> {
       const DiscoverScreen(),
       const LibraryScreen(),
       const RankingsScreen(),
-      const _EmptyTabPage(),
+      const ProfileScreen(),
     ];
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -56,17 +57,6 @@ class _WatcharyHomeShellState extends State<WatcharyHomeShell> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _EmptyTabPage extends StatelessWidget {
-  const _EmptyTabPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox.expand(
-      child: ColoredBox(color: WColors.background),
     );
   }
 }
