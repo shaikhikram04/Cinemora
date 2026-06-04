@@ -6,7 +6,7 @@ import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/shadows.dart';
 import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/features/authentication/widgets/index.dart';
-import 'package:watchary/features/home/screens/home.dart';
+import 'package:watchary/features/onboarding/screens/taste_setup_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -549,7 +549,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const WatcharyHomeShell(),
+                                builder: (_) => const TasteSetupScreen(),
                               ),
                             );
                           },
@@ -557,7 +557,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const WatcharyHomeShell(),
+                                builder: (_) => const TasteSetupScreen(),
                               ),
                             );
                           },

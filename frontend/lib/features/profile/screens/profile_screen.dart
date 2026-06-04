@@ -1346,18 +1346,19 @@ class _AchievementBadge extends StatelessWidget {
             clipBehavior: Clip.none,
             alignment: Alignment.center,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: item.glowColor,
-                      blurRadius: 42.r,
-                      spreadRadius: 8.r,
-                    ),
-                  ],
+              if (!item.isLocked && !item.isHidden)
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: item.glowColor,
+                        blurRadius: 42.r,
+                        spreadRadius: 8.r,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
               SizedBox(
                 width: 142.r,
                 height: 142.r,
