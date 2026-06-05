@@ -6,6 +6,7 @@ import 'package:watchary/common/widgets/section_header.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/features/home/screens/movie_details.dart';
+import 'package:watchary/features/notifications/screens/notifications_screen.dart';
 
 class HomeFeedPage extends StatefulWidget {
   const HomeFeedPage({super.key});
@@ -157,6 +158,12 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
             _Header(
               profileImage: _profileImage,
               onRankingTap: () {},
+              onNotificationTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const NotificationsScreen(),
+                ),
+              ),
             ),
             SizedBox(height: 12.h),
             _CategoryTabs(
@@ -349,8 +356,13 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
 class _Header extends StatelessWidget {
   final String profileImage;
   final VoidCallback? onRankingTap;
+  final VoidCallback? onNotificationTap;
 
-  const _Header({required this.profileImage, this.onRankingTap});
+  const _Header({
+    required this.profileImage,
+    this.onRankingTap,
+    this.onNotificationTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -429,36 +441,40 @@ class _Header extends StatelessWidget {
           ),
         ),
         SizedBox(width: 8.w),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              width: 40.w,
-              height: 40.w,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.elliptical(16, 18)),
-                color: WColors.surfaceMuted,
-                border: Border.all(color: WColors.borderStrong),
-              ),
-              child: Icon(
-                Icons.notifications_none_rounded,
-                color: WColors.foreground,
-                size: 21.sp,
-              ),
-            ),
-            Positioned(
-              right: 11.w,
-              top: 11.w,
-              child: Container(
-                width: 7.w,
-                height: 7.w,
-                decoration: const BoxDecoration(
-                  color: WColors.accentRed,
-                  shape: BoxShape.circle,
+        GestureDetector(
+          onTap: onNotificationTap,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 40.w,
+                height: 40.w,
+                decoration: BoxDecoration(
+                  borderRadius:
+                      const BorderRadius.all(Radius.elliptical(16, 18)),
+                  color: WColors.surfaceMuted,
+                  border: Border.all(color: WColors.borderStrong),
+                ),
+                child: Icon(
+                  Icons.notifications_none_rounded,
+                  color: WColors.foreground,
+                  size: 21.sp,
                 ),
               ),
-            ),
-          ],
+              Positioned(
+                right: 11.w,
+                top: 11.w,
+                child: Container(
+                  width: 7.w,
+                  height: 7.w,
+                  decoration: const BoxDecoration(
+                    color: WColors.accentRed,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
