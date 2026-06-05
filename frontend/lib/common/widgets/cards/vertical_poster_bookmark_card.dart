@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:watchary/core/constants/colors.dart';
@@ -8,7 +6,7 @@ import 'poster_image.dart';
 
 enum CinemaType { movie, anime, series }
 
-class VerticalPosterBookmarkCard extends StatelessWidget {
+class VerticalPosterBookmarkCard extends StatefulWidget {
   final String image;
   final double width;
   final double imageHeight;
@@ -33,26 +31,37 @@ class VerticalPosterBookmarkCard extends StatelessWidget {
   });
 
   @override
+  State<VerticalPosterBookmarkCard> createState() =>
+      _VerticalPosterBookmarkCardState();
+}
+
+class _VerticalPosterBookmarkCardState
+    extends State<VerticalPosterBookmarkCard> {
+  bool _inWatchlist = false;
+
+  @override
   Widget build(BuildContext context) {
     final poster = Container(
-      width: width + 8.w,
+      width: widget.width + 8.w,
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius.r),
+        borderRadius: BorderRadius.circular(widget.radius.r),
         color: WColors.surfaceChip,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PosterImage(
-            image: image,
-            height: imageHeight,
-            radius: radius,
-            rating: rating,
+            image: widget.image,
+            height: widget.imageHeight,
+            radius: widget.radius,
+            rating: widget.rating,
             showBookmark: true,
-            inWatchlist: Random().nextBool(),
+            inWatchlist: _inWatchlist,
             titleOnImage: false,
-            onAddToWatchlist: () {},
+            onAddToWatchlist: () {
+              setState(() => _inWatchlist = !_inWatchlist);
+            },
           ),
           SizedBox(height: 8.h),
           Padding(
@@ -61,7 +70,7 @@ class VerticalPosterBookmarkCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  widget.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -74,14 +83,11 @@ class VerticalPosterBookmarkCard extends StatelessWidget {
                 SizedBox(height: 4.h),
                 Row(
                   children: [
-                    Icon(
-                      Icons.star_rounded,
-                      color: WColors.tertiary,
-                      size: 12.sp,
-                    ),
+                    Icon(Icons.star_rounded,
+                        color: WColors.tertiary, size: 12.sp),
                     SizedBox(width: 4.w),
                     Text(
-                      rating,
+                      widget.rating,
                       style: TextStyle(
                         color: WColors.tertiary,
                         fontSize: 12.sp,
@@ -91,7 +97,7 @@ class VerticalPosterBookmarkCard extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  "${cinemaType.name} • $year",
+                  "${widget.cinemaType.name} • ${widget.year}",
                   style: TextStyle(
                     fontSize: 11.sp,
                     color: WColors.mutedSecondaryVibe,
@@ -104,7 +110,7 @@ class VerticalPosterBookmarkCard extends StatelessWidget {
       ),
     );
 
-    if (onTap == null) return poster;
-    return GestureDetector(onTap: onTap, child: poster);
+    if (widget.onTap == null) return poster;
+    return GestureDetector(onTap: widget.onTap, child: poster);
   }
 }

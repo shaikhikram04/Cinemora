@@ -6,6 +6,7 @@ import 'package:watchary/common/widgets/section_header.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/features/home/screens/movie_details.dart';
+import 'package:watchary/features/home/screens/series_details.dart';
 import 'package:watchary/features/notifications/screens/notifications_screen.dart';
 
 class HomeFeedPage extends StatefulWidget {
@@ -250,7 +251,18 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                     imageHeight: WSizes.posterImageHeight.h,
                     title: item.title,
                     rating: item.rating,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => SeriesDetailsScreen(
+                            seriesTitle: item.title,
+                            seriesImage: item.image,
+                            rating: item.rating,
+                          ),
+                        ),
+                      );
+                    },
                     cinemaType: CinemaType.anime,
                     year: '2008',
                   );
@@ -289,9 +301,9 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MovieDetailsScreen(
-                            movieTitle: item.title,
-                            movieImage: item.image,
+                          builder: (_) => SeriesDetailsScreen(
+                            seriesTitle: item.title,
+                            seriesImage: item.image,
                             rating: item.rating,
                           ),
                         ),
@@ -407,39 +419,6 @@ class _Header extends StatelessWidget {
           ],
         ),
         const Spacer(),
-        Material(
-          color: WColors.surfaceMuted,
-          borderRadius: BorderRadius.circular(999.r),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(999.r),
-            onTap: onRankingTap,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(999.r),
-                border: Border.all(
-                    color: WColors.accentRedAlt.withValues(alpha: 0.3)),
-                color: WColors.primary.withValues(alpha: 0.1),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.emoji_events_rounded,
-                      color: WColors.tertiary, size: 15.sp),
-                  SizedBox(width: 4.w),
-                  Text(
-                    'Rankings',
-                    style: TextStyle(
-                      color: WColors.accentRed,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
         SizedBox(width: 8.w),
         GestureDetector(
           onTap: onNotificationTap,
@@ -731,67 +710,70 @@ class _RankingListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            WColors.accentPurple.withValues(alpha: 0.12),
-            WColors.accentRed.withValues(alpha: 0.12),
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              WColors.accentPurple.withValues(alpha: 0.12),
+              WColors.accentRed.withValues(alpha: 0.12),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(
+            color: WColors.accentRed.withValues(alpha: 0.12),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 46.w,
+              height: 46.w,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [WColors.accentPink, WColors.accentPurple],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Icon(
+                Icons.trending_up_rounded,
+                color: Colors.white,
+                size: 22.sp,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'My Ranking Lists',
+                    style: TextStyle(
+                      color: WColors.foreground,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  SizedBox(height: 3.h),
+                  Text(
+                    '6 curated lists · Drag to reorder',
+                    style: TextStyle(
+                      color: WColors.mutedSecondary,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded,
+                color: WColors.mutedForeground, size: 22.sp),
           ],
         ),
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: WColors.accentRed.withValues(alpha: 0.12),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 46.w,
-            height: 46.w,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [WColors.accentPink, WColors.accentPurple],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16.r),
-            ),
-            child: Icon(
-              Icons.trending_up_rounded,
-              color: Colors.white,
-              size: 22.sp,
-            ),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'My Ranking Lists',
-                  style: TextStyle(
-                    color: WColors.foreground,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  '6 curated lists · Drag to reorder',
-                  style: TextStyle(
-                    color: WColors.mutedSecondary,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right_rounded,
-              color: WColors.mutedForeground, size: 22.sp),
-        ],
       ),
     );
   }

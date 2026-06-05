@@ -17,10 +17,12 @@ class MovieDetailsContent extends StatelessWidget {
   final bool isWatched;
   final double userRating;
   final bool showAllTags;
+  final bool showRatingSuccess;
   final VoidCallback onToggleWatchlist;
   final VoidCallback onToggleWatched;
   final ValueChanged<double> onRate;
   final VoidCallback onToggleTags;
+  final VoidCallback onManageRankings;
 
   const MovieDetailsContent({
     super.key,
@@ -31,15 +33,18 @@ class MovieDetailsContent extends StatelessWidget {
     required this.isWatched,
     required this.userRating,
     required this.showAllTags,
+    required this.showRatingSuccess,
     required this.onToggleWatchlist,
     required this.onToggleWatched,
     required this.onRate,
     required this.onToggleTags,
+    required this.onManageRankings,
   });
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -60,11 +65,13 @@ class MovieDetailsContent extends StatelessWidget {
                   onToggleWatchlist: onToggleWatchlist,
                   onToggleWatched: onToggleWatched,
                 ),
-                SizedBox(height: 12.h),
+                SizedBox(height: 16.h),
+                const _WhereToWatchSection(),
+                SizedBox(height: 20.h),
                 const Divider(color: WColors.border),
-                SizedBox(height: 12.h),
+                SizedBox(height: 16.h),
                 const _OverviewSection(),
-                SizedBox(height: 24.h),
+                SizedBox(height: 20.h),
                 const Divider(color: WColors.border),
                 SizedBox(height: 16.h),
                 const _CastSection(),
@@ -74,12 +81,14 @@ class MovieDetailsContent extends StatelessWidget {
                 _UserRatingSection(
                   userRating: userRating,
                   onRate: onRate,
+                  showRatingSuccess: showRatingSuccess,
+                  onManageRankings: onManageRankings,
                 ),
                 SizedBox(height: 28.h),
                 const Divider(color: WColors.border),
                 SizedBox(height: 16.h),
-                const _RecommendationsSection(),
-                SizedBox(height: 20.h),
+                _RecommendationsSection(movieTitle: movieTitle),
+                SizedBox(height: 24.h),
               ],
             ),
           ),
@@ -88,6 +97,8 @@ class MovieDetailsContent extends StatelessWidget {
     );
   }
 }
+
+// ─── Hero header ──────────────────────────────────────────────────────────────
 
 class _HeroHeader extends StatelessWidget {
   final String movieTitle;
@@ -118,10 +129,12 @@ class _HeroHeader extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
+                  Colors.black.withValues(alpha: 0.25),
                   Colors.transparent,
-                  WColors.background.withValues(alpha: 0.6),
-                  WColors.background.withValues(alpha: 0.9),
+                  WColors.background.withValues(alpha: 0.65),
+                  WColors.background.withValues(alpha: 0.96),
                 ],
+                stops: const [0.0, 0.3, 0.68, 1.0],
               ),
             ),
           ),
@@ -168,18 +181,22 @@ class _HeroHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Badges row
               Row(
                 children: [
                   Container(
                     padding:
-                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                        EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
                     decoration: BoxDecoration(
-                      color: WColors.tertiary.withValues(alpha: 0.3),
+                      color: WColors.tertiary.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(
+                          color: WColors.tertiary.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.star, color: WColors.tertiary, size: 12.sp),
+                        Icon(Icons.star_rounded,
+                            color: WColors.tertiary, size: 11.sp),
                         SizedBox(width: 4.w),
                         Text(
                           rating,
@@ -192,18 +209,40 @@ class _HeroHeader extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(width: 12.w),
+                  SizedBox(width: 8.w),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
+                    decoration: BoxDecoration(
+                      color: WColors.accentRed.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(
+                          color: WColors.accentRed.withValues(alpha: 0.4)),
+                    ),
+                    child: Text(
+                      'MOVIE',
+                      style: TextStyle(
+                        fontSize: 9.sp,
+                        fontWeight: FontWeight.w800,
+                        color: WColors.accentRed,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
                   const Expanded(
                     child: Row(
                       children: [
                         WPillChip(text: 'Action'),
-                        SizedBox(width: 8),
-                        WPillChip(text: 'Drama'),
+                        SizedBox(width: 6),
+                        WPillChip(text: 'Crime'),
                       ],
                     ),
                   ),
                 ],
               ),
+              SizedBox(height: 10.h),
+              // Title
               Text(
                 movieTitle,
                 style: TextStyle(
@@ -211,25 +250,39 @@ class _HeroHeader extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                   color: WColors.foreground,
                   fontFamily: 'Inter',
+                  letterSpacing: -0.5,
                 ),
               ),
+              SizedBox(height: 5.h),
+              // Year + runtime
               Text(
-                '2008   •   2h 32m   •   Christopher Nolan',
+                '2008  •  2h 32m',
                 style: TextStyle(
                   fontSize: 13.sp,
                   color: WColors.mutedForeground,
                   fontFamily: 'Inter',
-                  letterSpacing: 0,
+                ),
+              ),
+              SizedBox(height: 2.h),
+              // Director
+              Text(
+                'Dir. Christopher Nolan',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: WColors.mutedSecondaryDeep,
+                  fontFamily: 'Inter',
                 ),
               ),
               SizedBox(height: WSizes.sectionSpaceLg.h),
             ],
           ),
-        )
+        ),
       ],
     );
   }
 }
+
+// ─── Action buttons ───────────────────────────────────────────────────────────
 
 class _ActionButtons extends StatelessWidget {
   final bool isInWatchlist;
@@ -307,8 +360,188 @@ class _ActionButtons extends StatelessWidget {
   }
 }
 
-class _OverviewSection extends StatelessWidget {
+// ─── Where to watch ───────────────────────────────────────────────────────────
+
+class _WhereToWatchSection extends StatelessWidget {
+  const _WhereToWatchSection();
+
+  static const _platforms = [
+    {'name': 'Netflix', 'type': 'Subscription', 'color': 0xFFE50914},
+    {'name': 'Prime Video', 'type': 'Subscription', 'color': 0xFF00A8E1},
+    {'name': 'Disney+', 'type': 'Subscription', 'color': 0xFF0C3492},
+    {'name': 'Apple TV+', 'type': 'Buy / Rent', 'color': 0xFF323234},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'WATCH NOW',
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w700,
+                    color: WColors.accentRed,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                SizedBox(height: 3.h),
+                Text(
+                  'Available on ${_platforms.length} platforms',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: WColors.foreground,
+                  ),
+                ),
+              ],
+            ),
+            GestureDetector(
+              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Showing all platforms...')),
+              ),
+              child: Text(
+                'Show more >',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: WColors.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12.h),
+        SizedBox(
+          height: 90.h,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: _platforms.length,
+            separatorBuilder: (_, __) => SizedBox(width: 10.w),
+            itemBuilder: (context, i) {
+              return _ProviderCard(
+                name: _platforms[i]['name']! as String,
+                type: _platforms[i]['type']! as String,
+                color: Color(_platforms[i]['color']! as int),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProviderCard extends StatelessWidget {
+  final String name;
+  final String type;
+  final Color color;
+
+  const _ProviderCard({
+    required this.name,
+    required this.type,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 98.w,
+      padding: EdgeInsets.all(10.w),
+      decoration: BoxDecoration(
+        color: WColors.surfaceRaised,
+        borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+        border: Border.all(color: WColors.borderStrong, width: 0.7),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 30.w,
+                height: 30.h,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  name.substring(0, 1),
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    fontFamily: 'Inter',
+                  ),
+                ),
+              ),
+              Icon(Icons.open_in_new_rounded,
+                  size: 13.sp, color: WColors.mutedSecondaryDeep),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name,
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w700,
+                  color: WColors.foreground,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 2.h),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+                decoration: BoxDecoration(
+                  color: WColors.surfaceMuted,
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+                child: Text(
+                  type,
+                  style: TextStyle(
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.w600,
+                    color: WColors.mutedSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Overview ─────────────────────────────────────────────────────────────────
+
+class _OverviewSection extends StatefulWidget {
   const _OverviewSection();
+
+  @override
+  State<_OverviewSection> createState() => _OverviewSectionState();
+}
+
+class _OverviewSectionState extends State<_OverviewSection> {
+  bool _expanded = false;
+
+  static const _text =
+      'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice. With Commissioner Gordon and Harvey Dent, Batman sets out to dismantle the remaining criminal organizations that plague the streets — but the Joker has far darker plans in store.';
 
   @override
   Widget build(BuildContext context) {
@@ -324,14 +557,42 @@ class _OverviewSection extends StatelessWidget {
             fontFamily: 'Inter',
           ),
         ),
-        SizedBox(height: 12.h),
-        Text(
-          'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
-          style: TextStyle(
-            fontSize: 14.sp,
-            color: WColors.mutedForeground,
-            height: 1.6,
-            fontFamily: 'Inter',
+        SizedBox(height: 10.h),
+        AnimatedCrossFade(
+          firstChild: Text(
+            _text,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: WColors.mutedForeground,
+              height: 1.65,
+              fontFamily: 'Inter',
+            ),
+          ),
+          secondChild: Text(
+            _text,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: WColors.mutedForeground,
+              height: 1.65,
+              fontFamily: 'Inter',
+            ),
+          ),
+          crossFadeState:
+              _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          duration: const Duration(milliseconds: 200),
+        ),
+        SizedBox(height: 8.h),
+        GestureDetector(
+          onTap: () => setState(() => _expanded = !_expanded),
+          child: Text(
+            _expanded ? 'Read Less' : 'Read More',
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w600,
+              color: WColors.primary,
+            ),
           ),
         ),
       ],
@@ -339,27 +600,59 @@ class _OverviewSection extends StatelessWidget {
   }
 }
 
+// ─── Cast ─────────────────────────────────────────────────────────────────────
+
 class _CastSection extends StatelessWidget {
   const _CastSection();
 
+  static const _castMembers = [
+    {
+      'photo':
+          'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=200&h=200&fit=crop&crop=face',
+      'name': 'Christian Bale',
+      'character': 'Bruce Wayne',
+      'initials': 'CB',
+    },
+    {
+      'photo':
+          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=face',
+      'name': 'Heath Ledger',
+      'character': 'The Joker',
+      'initials': 'HL',
+    },
+    {
+      'photo':
+          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face',
+      'name': 'Aaron Eckhart',
+      'character': 'Harvey Dent',
+      'initials': 'AE',
+    },
+    {
+      'photo':
+          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face',
+      'name': 'Maggie Gyllenhaal',
+      'character': 'Rachel Dawes',
+      'initials': 'MG',
+    },
+    {
+      'photo':
+          'https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=200&h=200&fit=crop&crop=face',
+      'name': 'Michael Caine',
+      'character': 'Alfred',
+      'initials': 'MC',
+    },
+  ];
+
+  static const _fallbackColors = [
+    WColors.accentBlueMuted,
+    WColors.accentPink,
+    WColors.warning,
+    WColors.accentRed,
+    WColors.mutedSecondaryAlt,
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final castMembers = [
-      {'initials': 'CB', 'name': 'Christian Bale', 'actor': 'Bruce Wayne'},
-      {'initials': 'HL', 'name': 'Heath Ledger', 'actor': 'The Joker'},
-      {'initials': 'AE', 'name': 'Aaron Eckhart', 'actor': 'Harvey Dent'},
-      {'initials': 'MG', 'name': 'Maggie Gyllenhaal', 'actor': 'Rachel'},
-      {'initials': 'MC', 'name': 'Michael Caine', 'actor': 'Alfred'},
-    ];
-
-    final colors = [
-      WColors.accentBlueMuted,
-      WColors.accentPink,
-      WColors.warning,
-      WColors.accentRed,
-      WColors.mutedSecondaryAlt,
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -374,39 +667,53 @@ class _CastSection extends StatelessWidget {
         ),
         SizedBox(height: 12.h),
         SizedBox(
-          height: 120.h,
+          height: 130.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: castMembers.length,
+            itemCount: _castMembers.length,
             itemBuilder: (context, index) {
+              final member = _castMembers[index];
+              final fallbackColor =
+                  _fallbackColors[index % _fallbackColors.length];
               return Padding(
-                padding: EdgeInsets.only(right: 12.w),
+                padding: EdgeInsets.only(right: 16.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: 48.w,
-                      height: 48.h,
+                      width: 64.w,
+                      height: 64.h,
                       decoration: BoxDecoration(
-                        color: colors[index],
-                        borderRadius: BorderRadius.circular(18.r),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: WColors.borderStrong,
+                          width: 1.5,
+                        ),
                       ),
-                      child: Center(
-                        child: Text(
-                          castMembers[index]['initials']!,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                      child: ClipOval(
+                        child: Image.network(
+                          member['photo']!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: fallbackColor,
+                            alignment: Alignment.center,
+                            child: Text(
+                              member['initials']!,
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                     SizedBox(height: 8.h),
                     SizedBox(
-                      width: 70.w,
+                      width: 74.w,
                       child: Text(
-                        castMembers[index]['name']!,
+                        member['name']!,
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -418,11 +725,11 @@ class _CastSection extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 3.h),
                     SizedBox(
-                      width: 70.w,
+                      width: 74.w,
                       child: Text(
-                        castMembers[index]['actor']!,
+                        member['character']!,
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -443,19 +750,24 @@ class _CastSection extends StatelessWidget {
   }
 }
 
+// ─── User rating ──────────────────────────────────────────────────────────────
+
 class _UserRatingSection extends StatelessWidget {
   final double userRating;
   final ValueChanged<double> onRate;
+  final bool showRatingSuccess;
+  final VoidCallback onManageRankings;
 
   const _UserRatingSection({
     required this.userRating,
     required this.onRate,
+    required this.showRatingSuccess,
+    required this.onManageRankings,
   });
 
   @override
   Widget build(BuildContext context) {
     final displayRating = userRating <= 0 ? 4.5 : userRating;
-    // Compute once — reused by label, emoji, star color, and meter
     final ratingColor = ratingColorFor(displayRating);
     final ratingLabel = ratingLabelFor(displayRating);
     final ratingEmoji = ratingEmojiFor(displayRating);
@@ -481,7 +793,7 @@ class _UserRatingSection extends StatelessWidget {
                 ),
                 SizedBox(height: 6.h),
                 Text(
-                  'Tap star halves to rate · Drag meter to adjust',
+                  'Tap star halves to rate',
                   style: TextStyle(
                     fontSize: 11.sp,
                     color: WColors.mutedForeground,
@@ -511,11 +823,7 @@ class _UserRatingSection extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 4.w),
-                  Icon(
-                    Icons.star_rounded,
-                    size: 12.sp,
-                    color: ratingColor,
-                  ),
+                  Icon(Icons.star_rounded, size: 12.sp, color: ratingColor),
                 ],
               ),
             ),
@@ -567,16 +875,96 @@ class _UserRatingSection extends StatelessWidget {
                 starColor: ratingColor,
                 size: starSize.sp,
               ),
-              SizedBox(height: 24.h),
+              SizedBox(height: 16.h),
               _RatingMeter(
                 rating: displayRating,
                 starSize: starSize.sp,
                 ratingColor: ratingColor,
               ),
+              if (showRatingSuccess && userRating > 0) ...[
+                SizedBox(height: 18.h),
+                _RatingSuccessChip(
+                  emoji: ratingEmoji,
+                  ratingColor: ratingColor,
+                  onManageRankings: onManageRankings,
+                ),
+              ],
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _RatingSuccessChip extends StatelessWidget {
+  final String emoji;
+  final Color ratingColor;
+  final VoidCallback onManageRankings;
+
+  const _RatingSuccessChip({
+    required this.emoji,
+    required this.ratingColor,
+    required this.onManageRankings,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: ratingColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+        border: Border.all(color: ratingColor.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          Text(emoji, style: TextStyle(fontSize: 20.sp)),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Added to',
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    color: WColors.mutedSecondary,
+                  ),
+                ),
+                SizedBox(height: 1.h),
+                Text(
+                  'All-Time Favorites',
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: ratingColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: onManageRankings,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
+              decoration: BoxDecoration(
+                color: ratingColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                border: Border.all(color: ratingColor.withValues(alpha: 0.35)),
+              ),
+              child: Text(
+                'Manage Rankings',
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w600,
+                  color: ratingColor,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -609,9 +997,7 @@ class _StarRatingBar extends StatelessWidget {
           icon = Icons.star_border_rounded;
         }
 
-        // Each slot wraps only the star icon + its own padding.
-        // localPosition.dx is relative to this slot's top-left corner.
-        final slotWidth = size + 4.w; // size + 2×2.w padding
+        final slotWidth = size + 4.w;
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTapUp: (details) {
@@ -632,17 +1018,9 @@ class _StarRatingBar extends StatelessWidget {
   }
 }
 
-/// The full color scale for ratings 0.5 → 5.0 (9 stops for 9 half-steps).
-/// Stored as a top-level constant so it is created only once.
-
 class _RatingMeter extends StatelessWidget {
-  /// Current rating value (0.5 – 5.0).
   final double rating;
-
-  /// The rendered star size (sp) — used to compute exact meter width.
   final double starSize;
-
-  /// Colour of the active rating (passed in, already computed once).
   final Color ratingColor;
 
   const _RatingMeter({
@@ -653,14 +1031,10 @@ class _RatingMeter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Each star occupies starSize + 2×2.w horizontal padding (see _StarRatingBar).
     final starSlotWidth = starSize + 4.w;
     final totalWidth = starSlotWidth * 5;
-
-    // How far along the 0→5 scale the rating sits.
     final fillFraction = (rating / 5).clamp(0.0, 1.0);
 
-    // Slice gradient up to the current rating stop only.
     final stopCount = kRatingGradientColors.length;
     final lastStopIndex =
         (((rating / 5.0) * (stopCount - 1)).ceil()).clamp(1, stopCount - 1);
@@ -674,9 +1048,7 @@ class _RatingMeter extends StatelessWidget {
           height: 4.h,
           child: Stack(
             children: [
-              // Background track
               Container(color: WColors.border.withValues(alpha: 0.45)),
-              // Filled portion with gradient
               FractionallySizedBox(
                 widthFactor: fillFraction,
                 child: Container(
@@ -700,35 +1072,51 @@ class _RatingMeter extends StatelessWidget {
   }
 }
 
-class _RecommendationsSection extends StatelessWidget {
-  const _RecommendationsSection();
+// ─── Recommendations ──────────────────────────────────────────────────────────
+
+class _RecommendationsSection extends StatefulWidget {
+  final String movieTitle;
+
+  const _RecommendationsSection({required this.movieTitle});
+
+  @override
+  State<_RecommendationsSection> createState() =>
+      _RecommendationsSectionState();
+}
+
+class _RecommendationsSectionState extends State<_RecommendationsSection> {
+  int _selectedTab = 0;
+
+  static const _tabs = [
+    'Similar Titles',
+    'Same Director',
+    'Same Genre',
+    'Trending Now',
+  ];
+
+  static const _recommendations = [
+    {
+      'title': 'Breaking Bad',
+      'rating': '9.5',
+      'image':
+          'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=600&auto=format&fit=crop',
+    },
+    {
+      'title': 'Attack on Titan',
+      'rating': '9.1',
+      'image':
+          'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=600&auto=format&fit=crop',
+    },
+    {
+      'title': 'Interstellar',
+      'rating': '8.7',
+      'image':
+          'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=600&auto=format&fit=crop',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final recommendations = [
-      {
-        'title': 'Breaking Bad',
-        'rating': '9.5',
-        'tag': 'Series',
-        'image':
-            'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-      },
-      {
-        'title': 'Attack on Titan',
-        'rating': '9.1',
-        'tag': 'Anime',
-        'image':
-            'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-      },
-      {
-        'title': 'Fullmetal Alchemist: Brotherhood',
-        'rating': '9.1',
-        'tag': 'Anime',
-        'image':
-            'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-      },
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -746,23 +1134,22 @@ class _RecommendationsSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'You Might Also Love',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
-                color: WColors.foreground,
-                fontFamily: 'Inter',
+            Expanded(
+              child: Text(
+                'Because You Loved This',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: WColors.foreground,
+                  fontFamily: 'Inter',
+                ),
               ),
             ),
             GestureDetector(
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Viewing all recommendations...'),
-                  ),
-                );
-              },
+              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Viewing all recommendations...')),
+              ),
               child: Text(
                 'See all >',
                 style: TextStyle(
@@ -778,23 +1165,20 @@ class _RecommendationsSection extends StatelessWidget {
         SizedBox(height: 12.h),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
           child: Row(
-            children: [
-              _DiscoverChip(
-                label: 'Similar Action',
-                selected: true,
-              ),
-              SizedBox(width: 10.w),
-              _DiscoverChip(
-                label: 'Same Creator',
-                selected: false,
-              ),
-              SizedBox(width: 10.w),
-              _DiscoverChip(
-                label: 'Also Trending',
-                selected: false,
-              ),
-            ],
+            children: List.generate(_tabs.length, (i) {
+              return Padding(
+                padding: EdgeInsets.only(right: 8.w),
+                child: GestureDetector(
+                  onTap: () => setState(() => _selectedTab = i),
+                  child: _DiscoverChip(
+                    label: _tabs[i],
+                    selected: _selectedTab == i,
+                  ),
+                ),
+              );
+            }),
           ),
         ),
         SizedBox(height: 12.h),
@@ -802,14 +1186,14 @@ class _RecommendationsSection extends StatelessWidget {
           height: WSizes.imageCarouselHeight.h,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: recommendations.length,
+            itemCount: _recommendations.length,
             separatorBuilder: (_, __) => SizedBox(width: 12.w),
             itemBuilder: (context, index) {
-              final recommendation = recommendations[index];
+              final rec = _recommendations[index];
               return VerticalPosterBookmarkCard(
-                title: recommendation['title']!,
-                rating: recommendation['rating']!,
-                image: recommendation['image']!,
+                title: rec['title']!,
+                rating: rec['rating']!,
+                image: rec['image']!,
                 width: WSizes.posterImageWidth.w,
                 imageHeight: WSizes.posterImageHeight.h,
                 cinemaType: CinemaType.series,
@@ -827,10 +1211,7 @@ class _DiscoverChip extends StatelessWidget {
   final String label;
   final bool selected;
 
-  const _DiscoverChip({
-    required this.label,
-    required this.selected,
-  });
+  const _DiscoverChip({required this.label, required this.selected});
 
   @override
   Widget build(BuildContext context) {
@@ -840,10 +1221,11 @@ class _DiscoverChip extends StatelessWidget {
     final border = selected
         ? WColors.accentRed.withValues(alpha: 0.6)
         : WColors.border.withValues(alpha: 0.2);
-    final foreground = selected ? WColors.accentRed : WColors.mutedForeground;
+    final foreground =
+        selected ? WColors.accentRed : WColors.mutedForeground;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(18.r),

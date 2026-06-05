@@ -25,6 +25,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   bool _isWatched = false;
   double _userRating = 5.0;
   bool _showAllTags = false;
+  bool _showRatingSuccess = false;
 
   void _toggleWatchlist() {
     setState(() => _isInWatchlist = !_isInWatchlist);
@@ -35,18 +36,22 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   }
 
   void _updateRating(double value) {
-    setState(() => _userRating = value);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showPostRatingSheet(
-        context,
-        movieTitle: widget.movieTitle,
-        movieImage: widget.movieImage,
-        movieType: 'Movie',
-        userRating: value,
-        ratingLabel: ratingLabelFor(value),
-        ratingColor: ratingColorFor(value),
-      );
+    setState(() {
+      _userRating = value;
+      _showRatingSuccess = true;
     });
+  }
+
+  void _openRankingsSheet() {
+    showPostRatingSheet(
+      context,
+      movieTitle: widget.movieTitle,
+      movieImage: widget.movieImage,
+      movieType: 'Movie',
+      userRating: _userRating,
+      ratingLabel: ratingLabelFor(_userRating),
+      ratingColor: ratingColorFor(_userRating),
+    );
   }
 
   void _toggleTags() {
@@ -65,10 +70,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         isWatched: _isWatched,
         userRating: _userRating,
         showAllTags: _showAllTags,
+        showRatingSuccess: _showRatingSuccess,
         onToggleWatchlist: _toggleWatchlist,
         onToggleWatched: _toggleWatched,
         onRate: _updateRating,
         onToggleTags: _toggleTags,
+        onManageRankings: _openRankingsSheet,
       ),
     );
   }
