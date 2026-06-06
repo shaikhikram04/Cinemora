@@ -8,6 +8,7 @@ import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/features/home/screens/movie_details.dart';
 import 'package:watchary/features/home/screens/series_details.dart';
 import 'package:watchary/features/notifications/screens/notifications_screen.dart';
+import 'package:watchary/features/watch_together/widgets/watch_together_card.dart';
 
 class HomeFeedPage extends StatefulWidget {
   const HomeFeedPage({super.key});
@@ -172,6 +173,8 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
               onSelected: _selectTab,
             ),
             SizedBox(height: 14.h),
+            const WatchTogetherCard(),
+            SizedBox(height: 16.h),
             _HeroCard(
               image: _heroImage,
               onDetailsPressed: () {

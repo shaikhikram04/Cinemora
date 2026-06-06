@@ -302,8 +302,7 @@ class ProfileScreen extends StatelessWidget {
                 _SectionHeader(
                   title: 'My Rankings',
                   subtitle: 'Curated lists',
-                  trailing:
-                      const _IconPill(icon: Icons.add_rounded, label: 'New'),
+                  trailing: const _SeeAllChip(label: 'See all'),
                 ),
                 SizedBox(height: 16.h),
                 _RankingGrid(cards: _rankingCards),
@@ -1788,31 +1787,6 @@ class _SeeAllChip extends StatelessWidget {
         fontSize: 12.sp,
         fontWeight: FontWeight.w400,
       ),
-    );
-  }
-}
-
-class _IconPill extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _IconPill({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 14.sp, color: WColors.mutedSecondary),
-        SizedBox(width: 4.w),
-        Text(
-          label,
-          style: TextStyle(
-            color: WColors.mutedSecondary,
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 }
