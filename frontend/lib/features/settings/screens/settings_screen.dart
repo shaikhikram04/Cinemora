@@ -1,0 +1,426 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:watchary/core/constants/colors.dart';
+import 'package:watchary/core/constants/sizes.dart';
+import 'package:watchary/features/settings/screens/about_screen.dart';
+import 'package:watchary/features/settings/screens/appearance_screen.dart';
+import 'package:watchary/features/settings/screens/data_library_screen.dart';
+import 'package:watchary/features/settings/screens/edit_profile_screen.dart';
+import 'package:watchary/features/settings/screens/help_support_screen.dart';
+import 'package:watchary/features/settings/screens/notification_settings_screen.dart';
+import 'package:watchary/features/settings/screens/privacy_security_screen.dart';
+
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: WColors.background,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SettingsTopBar(title: 'Settings'),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(
+                  WSizes.screenPadding.w,
+                  16.h,
+                  WSizes.screenPadding.w,
+                  100.h,
+                ),
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  _buildSection(
+                    label: 'ACCOUNT',
+                    children: [
+                      _SettingsTile(
+                        icon: Icons.person_outline_rounded,
+                        iconColor: WColors.accentRed,
+                        iconBg: WColors.accentRed.withValues(alpha: 0.12),
+                        title: 'Edit Profile',
+                        subtitle: 'Name, bio, avatar & cover',
+                        onTap: () => _push(context, const EditProfileScreen()),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20.h),
+                  _buildSection(
+                    label: 'NOTIFICATIONS',
+                    children: [
+                      _SettingsTile(
+                        icon: Icons.notifications_none_rounded,
+                        iconColor: WColors.warning,
+                        iconBg: WColors.warning.withValues(alpha: 0.12),
+                        title: 'Notification Preferences',
+                        subtitle: 'Releases, watchlist, social, achievements',
+                        isLast: true,
+                        onTap: () =>
+                            _push(context, const NotificationSettingsScreen()),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20.h),
+                  _buildSection(
+                    label: 'APPEARANCE',
+                    children: [
+                      _SettingsTile(
+                        icon: Icons.dark_mode_outlined,
+                        iconColor: WColors.accentPurple,
+                        iconBg: WColors.accentPurple.withValues(alpha: 0.12),
+                        title: 'Theme',
+                        subtitle: 'Dark',
+                        onTap: () => _push(context, const AppearanceScreen()),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20.h),
+                  _buildSection(
+                    label: 'PRIVACY & SECURITY',
+                    children: [
+                      _SettingsTile(
+                        icon: Icons.visibility_outlined,
+                        iconColor: WColors.chartBlue,
+                        iconBg: WColors.chartBlue.withValues(alpha: 0.12),
+                        title: 'Privacy Controls',
+                        subtitle: 'Profile & content visibility',
+                        onTap: () =>
+                            _push(context, const PrivacySecurityScreen()),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20.h),
+                  _buildSection(
+                    label: 'DATA & LIBRARY',
+                    children: [
+                      _SettingsTile(
+                        icon: Icons.file_download_outlined,
+                        iconColor: WColors.chartGreen,
+                        iconBg: WColors.chartGreen.withValues(alpha: 0.12),
+                        title: 'Export Data',
+                        subtitle: 'Collection, rankings, history',
+                        onTap: () => _push(context, const DataLibraryScreen()),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20.h),
+                  _buildSection(
+                    label: 'SUPPORT',
+                    children: [
+                      _SettingsTile(
+                        icon: Icons.support_agent_rounded,
+                        iconColor: WColors.mutedSecondarySoft,
+                        iconBg:
+                            WColors.mutedSecondarySoft.withValues(alpha: 0.10),
+                        title: 'Contact Support',
+                        subtitle: 'Get help from the team',
+                        onTap: () => _push(context, const HelpSupportScreen()),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20.h),
+                  _buildSection(
+                    label: 'ABOUT',
+                    children: [
+                      _SettingsTile(
+                        icon: Icons.info_outline_rounded,
+                        iconColor: WColors.chartBlue,
+                        iconBg: WColors.chartBlue.withValues(alpha: 0.12),
+                        title: 'About Watchary',
+                        subtitle: 'Version 1.0.0 (Build 100)',
+                        onTap: () => _push(context, const AboutScreen()),
+                      ),
+                      _SettingsTile(
+                        icon: Icons.privacy_tip_outlined,
+                        iconColor: WColors.chartBlue,
+                        iconBg: WColors.chartBlue.withValues(alpha: 0.12),
+                        title: 'Privacy Policy',
+                        subtitle: 'How we handle your data',
+                        onTap: () {},
+                      ),
+                      _SettingsTile(
+                        icon: Icons.article_outlined,
+                        iconColor: WColors.chartBlue,
+                        iconBg: WColors.chartBlue.withValues(alpha: 0.12),
+                        title: 'Terms of Service',
+                        subtitle: 'Terms and conditions',
+                        isLast: true,
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 32.h),
+                  _SignOutButton(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSection({
+    required String label,
+    required List<_SettingsTile> children,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 4.w, bottom: 8.h),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: WColors.mutedSecondaryDeep,
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: WColors.surfaceRaised.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(color: WColors.borderStrong),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20.r),
+            child: Column(
+              children: List.generate(children.length, (i) {
+                return Column(
+                  children: [
+                    children[i],
+                    if (i < children.length - 1)
+                      Container(
+                        margin: EdgeInsets.only(left: 64.w),
+                        height: 0.5,
+                        color: WColors.borderStrong,
+                      ),
+                  ],
+                );
+              }),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _push(BuildContext context, Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+  }
+}
+
+// ── Shared top bar used by all settings screens ─────────────────────────────
+
+class _SettingsTopBar extends StatelessWidget {
+  final String title;
+
+  const _SettingsTopBar({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+          WSizes.screenPadding.w, 12.h, WSizes.screenPadding.w, 0),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.maybePop(context),
+            child: Container(
+              width: 34.w,
+              height: 34.w,
+              decoration: BoxDecoration(
+                color: WColors.surfaceRaised.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(color: WColors.border),
+              ),
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 16.sp,
+                color: WColors.mutedSecondary,
+              ),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                color: WColors.foreground,
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Settings tile ────────────────────────────────────────────────────────────
+
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBg;
+  final String title;
+  final String? subtitle;
+  final VoidCallback? onTap;
+  final bool isLast;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBg,
+    required this.title,
+    this.subtitle,
+    this.onTap,
+    this.isLast = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 13.h),
+          child: Row(
+            children: [
+              Container(
+                width: 38.w,
+                height: 38.w,
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Icon(icon, size: 19.sp, color: iconColor),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: WColors.foreground,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      SizedBox(height: 2.h),
+                      Text(
+                        subtitle!,
+                        style: TextStyle(
+                          color: WColors.mutedSecondary,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 18.sp,
+                color: WColors.mutedSecondaryHeader,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Sign out ─────────────────────────────────────────────────────────────────
+
+class _SignOutButton extends StatelessWidget {
+  const _SignOutButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showSignOutDialog(context),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 14.h),
+        decoration: BoxDecoration(
+          color: WColors.accentRed.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(color: WColors.accentRed.withValues(alpha: 0.20)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.logout_rounded, size: 18.sp, color: WColors.accentRed),
+            SizedBox(width: 8.w),
+            Text(
+              'Sign Out',
+              style: TextStyle(
+                color: WColors.accentRed,
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSignOutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: WColors.surfaceRaised,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+        title: Text(
+          'Sign Out',
+          style: TextStyle(
+            color: WColors.foreground,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to sign out of Watchary?',
+          style: TextStyle(
+            color: WColors.mutedSecondarySoft,
+            fontSize: 14.sp,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: WColors.mutedSecondarySoft),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Sign Out',
+              style: TextStyle(
+                color: WColors.accentRed,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

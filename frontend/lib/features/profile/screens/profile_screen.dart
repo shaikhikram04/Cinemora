@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
+import 'package:watchary/features/settings/screens/settings_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -192,34 +193,6 @@ class ProfileScreen extends StatelessWidget {
     ),
   ];
 
-  static const _settings = [
-    _SettingsItem(
-      icon: Icons.palette_outlined,
-      title: 'Appearance',
-      subtitle: 'Theme, accent',
-    ),
-    _SettingsItem(
-      icon: Icons.notifications_none_rounded,
-      title: 'Notifications',
-      subtitle: 'Releases, reminders',
-    ),
-    _SettingsItem(
-      icon: Icons.shield_outlined,
-      title: 'Privacy & Security',
-      subtitle: 'Account, data',
-    ),
-    _SettingsItem(
-      icon: Icons.support_agent_rounded,
-      title: 'Support',
-      subtitle: 'Help center',
-    ),
-    _SettingsItem(
-      icon: Icons.info_outline_rounded,
-      title: 'About',
-      subtitle: 'Version 1.0.0',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -341,23 +314,6 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 10.h),
                 _ActivityCard(items: _recentActivity),
-                SizedBox(height: 32.h),
-                const _SectionHeader(
-                  title: 'Settings',
-                  subtitle: 'Preferences & account',
-                ),
-                SizedBox(height: 10.h),
-                _SettingsCard(items: _settings),
-                SizedBox(height: 32.h),
-                Text(
-                  'Watchary - v1.0.0',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: WColors.mutedSecondaryHeader,
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
               ],
             ),
           ),
@@ -384,18 +340,24 @@ class _TopBar extends StatelessWidget {
             ),
           ),
         ),
-        Container(
-          width: 34.w,
-          height: 34.w,
-          decoration: BoxDecoration(
-            color: WColors.surfaceRaised.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: WColors.border),
+        GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SettingsScreen()),
           ),
-          child: Icon(
-            Icons.settings_rounded,
-            size: 18.sp,
-            color: WColors.mutedSecondary,
+          child: Container(
+            width: 38.w,
+            height: 38.w,
+            decoration: BoxDecoration(
+              color: WColors.surfaceRaised.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(color: WColors.border),
+            ),
+            child: Icon(
+              Icons.settings_rounded,
+              size: 20.sp,
+              color: WColors.mutedSecondary,
+            ),
           ),
         ),
       ],
@@ -1353,8 +1315,8 @@ class _AchievementBadge extends StatelessWidget {
                     boxShadow: [
                       BoxShadow(
                         color: item.glowColor,
-                        blurRadius: 42.r,
-                        spreadRadius: 8.r,
+                        blurRadius: 36.r,
+                        spreadRadius: 4.r,
                       ),
                     ],
                   ),
@@ -1777,95 +1739,6 @@ class _ActivityRow extends StatelessWidget {
   }
 }
 
-class _SettingsCard extends StatelessWidget {
-  final List<_SettingsItem> items;
-
-  const _SettingsCard({required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: WColors.borderStrong),
-      ),
-      child: Column(
-        children: List.generate(
-          items.length,
-          (index) => _SettingsRow(
-            item: items[index],
-            showDivider: index != items.length - 1,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SettingsRow extends StatelessWidget {
-  final _SettingsItem item;
-  final bool showDivider;
-
-  const _SettingsRow({required this.item, required this.showDivider});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: showDivider ? WColors.borderStrong : Colors.transparent,
-            width: 0.6,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36.w,
-            height: 36.w,
-            decoration: BoxDecoration(
-              color: WColors.surfaceRaised2,
-              shape: BoxShape.circle,
-            ),
-            child:
-                Icon(item.icon, size: 18.sp, color: WColors.mutedSecondarySoft),
-          ),
-          SizedBox(width: 10.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: TextStyle(
-                    color: WColors.foreground,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  item.subtitle,
-                  style: TextStyle(
-                    color: WColors.mutedSecondary,
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right_rounded,
-              size: 18.sp, color: WColors.mutedSecondaryHeader),
-        ],
-      ),
-    );
-  }
-}
-
 class _Pill extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -2044,17 +1917,5 @@ class _ActivityItem {
     required this.title,
     required this.subtitle,
     this.rating,
-  });
-}
-
-class _SettingsItem {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  const _SettingsItem({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
   });
 }
