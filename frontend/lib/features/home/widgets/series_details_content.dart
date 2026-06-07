@@ -8,36 +8,9 @@ import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/core/utils/rating_display_utils.dart';
-
-// ─── Data models ─────────────────────────────────────────────────────────────
-
-class SeriesEpisode {
-  final int number;
-  final String title;
-  final String runtime;
-
-  const SeriesEpisode({
-    required this.number,
-    required this.title,
-    required this.runtime,
-  });
-}
-
-class SeriesSeason {
-  final int number;
-  final String year;
-  final String rating;
-  final List<SeriesEpisode> episodes;
-
-  const SeriesSeason({
-    required this.number,
-    required this.year,
-    required this.rating,
-    required this.episodes,
-  });
-
-  int get episodeCount => episodes.length;
-}
+import 'package:watchary/features/home/models/series_season.dart';
+import 'package:watchary/features/home/widgets/discover_chip.dart';
+import 'package:watchary/features/home/widgets/rating_meter.dart';
 
 // ─── Root content widget ─────────────────────────────────────────────────────
 
@@ -51,12 +24,12 @@ class SeriesDetailsContent extends StatelessWidget {
   final int selectedSeasonIndex;
   final bool showInWatchlist;
   final bool isShowWatched;
-  final Set<int> seasonsInWatchlist;
-  final Set<int> seasonsWatched;
-  final Set<String> episodesWatched;
+  final List<int> seasonsInWatchlist;
+  final List<int> seasonsWatched;
+  final List<String> episodesWatched;
   final Map<int, double> seasonRatings;
   final double showRating;
-  final Set<int> expandedSeasons;
+  final List<int> expandedSeasons;
   final bool showRatingSuccess;
 
   // Callbacks
@@ -718,11 +691,11 @@ class _SeasonsSection extends StatelessWidget {
   final List<SeriesSeason> seasons;
   final int selectedSeasonIndex;
   final SeriesSeason currentSeason;
-  final Set<int> seasonsInWatchlist;
-  final Set<int> seasonsWatched;
-  final Set<String> episodesWatched;
+  final List<int> seasonsInWatchlist;
+  final List<int> seasonsWatched;
+  final List<String> episodesWatched;
   final Map<int, double> seasonRatings;
-  final Set<int> expandedSeasons;
+  final List<int> expandedSeasons;
   final ValueChanged<int> onSeasonSelected;
   final ValueChanged<int> onToggleSeasonWatchlist;
   final ValueChanged<int> onToggleSeasonWatched;
@@ -805,10 +778,8 @@ class _SeasonsSection extends StatelessWidget {
                     padding:
                         EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
                     decoration: BoxDecoration(
-                      color:
-                          selected ? WColors.primary : WColors.surfaceChip,
-                      borderRadius:
-                          BorderRadius.circular(WSizes.radiusXl.r),
+                      color: selected ? WColors.primary : WColors.surfaceChip,
+                      borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
                       border: Border.all(
                         color: selected
                             ? WColors.primary
@@ -817,8 +788,7 @@ class _SeasonsSection extends StatelessWidget {
                       boxShadow: selected
                           ? [
                               BoxShadow(
-                                color:
-                                    WColors.primary.withValues(alpha: 0.35),
+                                color: WColors.primary.withValues(alpha: 0.35),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -834,9 +804,8 @@ class _SeasonsSection extends StatelessWidget {
                                 ? Colors.white
                                 : WColors.mutedSecondary,
                             fontSize: 13.sp,
-                            fontWeight: selected
-                                ? FontWeight.w700
-                                : FontWeight.w500,
+                            fontWeight:
+                                selected ? FontWeight.w700 : FontWeight.w500,
                           ),
                         ),
                         SizedBox(height: 2.h),
@@ -897,8 +866,7 @@ class _SeasonsSection extends StatelessWidget {
                               SizedBox(width: 6.w),
                               _MetaPill(
                                 icon: Icons.play_circle_outline_rounded,
-                                label:
-                                    '${currentSeason.episodeCount} episodes',
+                                label: '${currentSeason.episodeCount} episodes',
                               ),
                             ],
                           ),
@@ -907,8 +875,8 @@ class _SeasonsSection extends StatelessWidget {
                     ),
                     // Season rating badge
                     Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 10.w, vertical: 7.h),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
                       decoration: BoxDecoration(
                         color: WColors.tertiary.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(14.r),
@@ -1064,7 +1032,7 @@ class _MetaPill extends StatelessWidget {
 
 class _EpisodeList extends StatelessWidget {
   final SeriesSeason season;
-  final Set<String> episodesWatched;
+  final List<String> episodesWatched;
   final bool isExpanded;
   final ValueChanged<String> onToggleEpisodeWatched;
   final VoidCallback onToggleExpanded;
@@ -1172,8 +1140,7 @@ class _EpisodeRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w700,
-                  color:
-                      watched ? WColors.success : WColors.mutedSecondaryDeep,
+                  color: watched ? WColors.success : WColors.mutedSecondaryDeep,
                 ),
               ),
             ),
@@ -1186,8 +1153,7 @@ class _EpisodeRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w500,
-                  color:
-                      watched ? WColors.mutedSecondary : WColors.foreground,
+                  color: watched ? WColors.mutedSecondary : WColors.foreground,
                   decoration: watched ? TextDecoration.lineThrough : null,
                   decorationColor: WColors.mutedSecondary,
                 ),
@@ -1211,8 +1177,7 @@ class _EpisodeRow extends StatelessWidget {
                     : Icons.radio_button_unchecked_rounded,
                 key: ValueKey(watched),
                 size: 20.sp,
-                color:
-                    watched ? WColors.success : WColors.mutedSecondaryDeep,
+                color: watched ? WColors.success : WColors.mutedSecondaryDeep,
               ),
             ),
           ],
@@ -1286,14 +1251,12 @@ class _SeasonRatingSection extends StatelessWidget {
             ),
             if (hasRated)
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
+                padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
                 decoration: BoxDecoration(
                   color: ratingColor.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(
-                      color: ratingColor.withValues(alpha: 0.35),
-                      width: 0.6),
+                      color: ratingColor.withValues(alpha: 0.35), width: 0.6),
                 ),
                 child: Row(
                   children: [
@@ -1306,8 +1269,7 @@ class _SeasonRatingSection extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 3.w),
-                    Icon(Icons.star_rounded,
-                        size: 11.sp, color: ratingColor),
+                    Icon(Icons.star_rounded, size: 11.sp, color: ratingColor),
                   ],
                 ),
               )
@@ -1448,8 +1410,7 @@ class _CastSection extends StatelessWidget {
             itemCount: _castMembers.length,
             itemBuilder: (context, i) {
               final member = _castMembers[i];
-              final fallbackColor =
-                  _fallbackColors[i % _fallbackColors.length];
+              final fallbackColor = _fallbackColors[i % _fallbackColors.length];
               return Padding(
                 padding: EdgeInsets.only(right: 16.w),
                 child: Column(
@@ -1646,7 +1607,7 @@ class _ShowRatingSection extends StatelessWidget {
                 size: starSize.sp,
               ),
               SizedBox(height: 16.h),
-              _RatingMeter(
+              RatingMeter(
                 rating: displayRating,
                 starSize: starSize.sp,
                 ratingColor: ratingColor,
@@ -1697,8 +1658,8 @@ class _RatingSuccessChip extends StatelessWidget {
               children: [
                 Text(
                   'Added to',
-                  style: TextStyle(
-                      fontSize: 10.sp, color: WColors.mutedSecondary),
+                  style:
+                      TextStyle(fontSize: 10.sp, color: WColors.mutedSecondary),
                 ),
                 SizedBox(height: 1.h),
                 Text(
@@ -1719,8 +1680,7 @@ class _RatingSuccessChip extends StatelessWidget {
               decoration: BoxDecoration(
                 color: ratingColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
-                border:
-                    Border.all(color: ratingColor.withValues(alpha: 0.35)),
+                border: Border.all(color: ratingColor.withValues(alpha: 0.35)),
               ),
               child: Text(
                 'Manage Rankings',
@@ -1782,60 +1742,6 @@ class _FullStarBar extends StatelessWidget {
           ),
         );
       }),
-    );
-  }
-}
-
-class _RatingMeter extends StatelessWidget {
-  final double rating;
-  final double starSize;
-  final Color ratingColor;
-
-  const _RatingMeter({
-    required this.rating,
-    required this.starSize,
-    required this.ratingColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final starSlotWidth = starSize + 4.w;
-    final totalWidth = starSlotWidth * 5;
-    final fillFraction = (rating / 5).clamp(0.0, 1.0);
-
-    final stopCount = kRatingGradientColors.length;
-    final lastStopIndex =
-        (((rating / 5.0) * (stopCount - 1)).ceil()).clamp(1, stopCount - 1);
-    final activeColors = kRatingGradientColors.sublist(0, lastStopIndex + 1);
-
-    return SizedBox(
-      width: totalWidth,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.r),
-        child: SizedBox(
-          height: 4.h,
-          child: Stack(
-            children: [
-              Container(color: WColors.border.withValues(alpha: 0.45)),
-              FractionallySizedBox(
-                widthFactor: fillFraction,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: activeColors),
-                    boxShadow: [
-                      BoxShadow(
-                        color: ratingColor.withValues(alpha: 0.5),
-                        blurRadius: 6,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
@@ -1934,7 +1840,7 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
                 padding: EdgeInsets.only(right: 8.w),
                 child: GestureDetector(
                   onTap: () => setState(() => _selectedTab = i),
-                  child: _DiscoverChip(
+                  child: DiscoverChip(
                     label: _tabs[i],
                     selected: _selectedTab == i,
                   ),
@@ -1964,42 +1870,6 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _DiscoverChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-
-  const _DiscoverChip({required this.label, required this.selected});
-
-  @override
-  Widget build(BuildContext context) {
-    final background = selected
-        ? WColors.accentRed.withValues(alpha: 0.2)
-        : WColors.surfaceOverlay.withValues(alpha: 0.2);
-    final border = selected
-        ? WColors.accentRed.withValues(alpha: 0.6)
-        : WColors.border.withValues(alpha: 0.2);
-    final foreground =
-        selected ? WColors.accentRed : WColors.mutedForeground;
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: border, width: 0.8),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11.sp,
-          fontWeight: FontWeight.w600,
-          color: foreground,
-        ),
-      ),
     );
   }
 }

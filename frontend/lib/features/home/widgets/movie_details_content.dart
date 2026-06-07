@@ -8,6 +8,8 @@ import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/core/utils/rating_display_utils.dart';
+import 'package:watchary/features/home/widgets/discover_chip.dart';
+import 'package:watchary/features/home/widgets/rating_meter.dart';
 
 class MovieDetailsContent extends StatelessWidget {
   final String movieTitle;
@@ -876,7 +878,7 @@ class _UserRatingSection extends StatelessWidget {
                 size: starSize.sp,
               ),
               SizedBox(height: 16.h),
-              _RatingMeter(
+              RatingMeter(
                 rating: displayRating,
                 starSize: starSize.sp,
                 ratingColor: ratingColor,
@@ -1018,60 +1020,6 @@ class _StarRatingBar extends StatelessWidget {
   }
 }
 
-class _RatingMeter extends StatelessWidget {
-  final double rating;
-  final double starSize;
-  final Color ratingColor;
-
-  const _RatingMeter({
-    required this.rating,
-    required this.starSize,
-    required this.ratingColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final starSlotWidth = starSize + 4.w;
-    final totalWidth = starSlotWidth * 5;
-    final fillFraction = (rating / 5).clamp(0.0, 1.0);
-
-    final stopCount = kRatingGradientColors.length;
-    final lastStopIndex =
-        (((rating / 5.0) * (stopCount - 1)).ceil()).clamp(1, stopCount - 1);
-    final activeColors = kRatingGradientColors.sublist(0, lastStopIndex + 1);
-
-    return SizedBox(
-      width: totalWidth,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.r),
-        child: SizedBox(
-          height: 4.h,
-          child: Stack(
-            children: [
-              Container(color: WColors.border.withValues(alpha: 0.45)),
-              FractionallySizedBox(
-                widthFactor: fillFraction,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: activeColors),
-                    boxShadow: [
-                      BoxShadow(
-                        color: ratingColor.withValues(alpha: 0.5),
-                        blurRadius: 6,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // ─── Recommendations ──────────────────────────────────────────────────────────
 
 class _RecommendationsSection extends StatefulWidget {
@@ -1147,8 +1095,7 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
             ),
             GestureDetector(
               onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Viewing all recommendations...')),
+                const SnackBar(content: Text('Viewing all recommendations...')),
               ),
               child: Text(
                 'See all >',
@@ -1172,7 +1119,7 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
                 padding: EdgeInsets.only(right: 8.w),
                 child: GestureDetector(
                   onTap: () => setState(() => _selectedTab = i),
-                  child: _DiscoverChip(
+                  child: DiscoverChip(
                     label: _tabs[i],
                     selected: _selectedTab == i,
                   ),
@@ -1203,42 +1150,6 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _DiscoverChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-
-  const _DiscoverChip({required this.label, required this.selected});
-
-  @override
-  Widget build(BuildContext context) {
-    final background = selected
-        ? WColors.accentRed.withValues(alpha: 0.2)
-        : WColors.surfaceOverlay.withValues(alpha: 0.2);
-    final border = selected
-        ? WColors.accentRed.withValues(alpha: 0.6)
-        : WColors.border.withValues(alpha: 0.2);
-    final foreground =
-        selected ? WColors.accentRed : WColors.mutedForeground;
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: border, width: 0.8),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11.sp,
-          fontWeight: FontWeight.w600,
-          color: foreground,
-        ),
-      ),
     );
   }
 }

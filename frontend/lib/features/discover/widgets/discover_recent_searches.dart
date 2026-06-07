@@ -3,28 +3,25 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
 
-class DiscoverRecentSearches extends StatefulWidget {
-  const DiscoverRecentSearches({super.key});
+class DiscoverRecentSearches extends StatelessWidget {
+  final List<String> recentSearches;
+  final ValueChanged<String> onRemove;
 
-  @override
-  State<DiscoverRecentSearches> createState() => _DiscoverRecentSearchesState();
-}
-
-class _DiscoverRecentSearchesState extends State<DiscoverRecentSearches> {
-  final List<String> _recent = ['Death Note', 'Sci-Fi', 'Dark Series'];
-
-  void _remove(String item) => setState(() => _recent.remove(item));
+  const DiscoverRecentSearches({
+    super.key,
+    required this.recentSearches,
+    required this.onRemove,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (_recent.isEmpty) return const SizedBox.shrink();
+    if (recentSearches.isEmpty) return const SizedBox.shrink();
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section header
           Row(
             children: [
               Icon(
@@ -44,15 +41,14 @@ class _DiscoverRecentSearchesState extends State<DiscoverRecentSearches> {
             ],
           ),
           SizedBox(height: 12.h),
-          // Chips row
           Wrap(
             spacing: 8.w,
             runSpacing: 8.h,
-            children: _recent
+            children: recentSearches
                 .map((item) => _RecentChip(
                       label: item,
                       onTap: () {},
-                      onRemove: () => _remove(item),
+                      onRemove: () => onRemove(item),
                     ))
                 .toList(),
           ),

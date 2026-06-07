@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/core/constants/colors.dart';
+import 'package:watchary/common/widgets/chips/tappable_icon_text_chip.dart';
+import 'package:watchary/common/widgets/chips/tappable_text_chip.dart';
 import 'package:watchary/core/constants/sizes.dart';
 
 // ── Top-level filter chips (All / Movies / Anime / Series) ─────────────────
-class DiscoverFilterChips extends StatefulWidget {
-  const DiscoverFilterChips({super.key});
+class DiscoverFilterChips extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
 
-  @override
-  State<DiscoverFilterChips> createState() => _DiscoverFilterChipsState();
-}
+  const DiscoverFilterChips({
+    super.key,
+    required this.selectedIndex,
+    required this.onSelect,
+  });
 
-class _DiscoverFilterChipsState extends State<DiscoverFilterChips> {
-  int _selected = 0;
-
-  final List<_FilterOption> _options = const [
+  static const _options = [
     _FilterOption(label: 'All', icon: Icons.apps_rounded, isGlobe: true),
     _FilterOption(label: 'Movies', icon: Icons.movie_filter_outlined),
     _FilterOption(label: 'Anime', icon: Icons.animation_outlined),
@@ -30,7 +31,7 @@ class _DiscoverFilterChipsState extends State<DiscoverFilterChips> {
       child: Row(
         children: List.generate(_options.length, (i) {
           final opt = _options[i];
-          final isSelected = i == _selected;
+          final isSelected = i == selectedIndex;
           return Padding(
             padding: EdgeInsets.only(right: 8.w),
             child: _TopFilterChip(
@@ -38,7 +39,7 @@ class _DiscoverFilterChipsState extends State<DiscoverFilterChips> {
               icon: opt.icon,
               isGlobe: opt.isGlobe,
               selected: isSelected,
-              onTap: () => setState(() => _selected = i),
+              onTap: () => onSelect(i),
             ),
           );
         }),
@@ -75,52 +76,27 @@ class _TopFilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return TappableIconTextChip(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-        decoration: BoxDecoration(
-          color: selected ? WColors.primary : WColors.surfaceChip,
-          borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
-          border: Border.all(
-            color: selected ? WColors.primary : WColors.surfaceChipBorder,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 15.sp,
-              color: selected ? Colors.white : WColors.mutedForeground,
-            ),
-            SizedBox(width: 6.w),
-            Text(
-              label,
-              style: TextStyle(
-                color: selected ? Colors.white : WColors.mutedSecondaryAlt,
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
+      selected: selected,
+      icon: icon,
+      label: label,
     );
   }
 }
 
 // ── Genre sub-filter chips (Action / Drama / Thriller / Sci-Fi / Horror) ───
-class DiscoverGenreChips extends StatefulWidget {
-  const DiscoverGenreChips({super.key});
+class DiscoverGenreChips extends StatelessWidget {
+  final List<int> selectedIndices;
+  final ValueChanged<int> onToggle;
 
-  @override
-  State<DiscoverGenreChips> createState() => _DiscoverGenreChipsState();
-}
+  const DiscoverGenreChips({
+    super.key,
+    required this.selectedIndices,
+    required this.onToggle,
+  });
 
-class _DiscoverGenreChipsState extends State<DiscoverGenreChips> {
-  final List<String> _genres = const [
+  static const _genres = [
     'Action',
     'Drama',
     'Thriller',
@@ -131,8 +107,6 @@ class _DiscoverGenreChipsState extends State<DiscoverGenreChips> {
     'Mystery',
   ];
 
-  final Set<int> _selected = {};
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -141,42 +115,13 @@ class _DiscoverGenreChipsState extends State<DiscoverGenreChips> {
       padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
       child: Row(
         children: List.generate(_genres.length, (i) {
-          final isSelected = _selected.contains(i);
+          final isSelected = selectedIndices.contains(i);
           return Padding(
             padding: EdgeInsets.only(right: 8.w),
-            child: GestureDetector(
-              onTap: () => setState(() {
-                if (isSelected) {
-                  _selected.remove(i);
-                } else {
-                  _selected.add(i);
-                }
-              }),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 160),
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? WColors.primary.withValues(alpha: 0.15)
-                      : WColors.surfaceChip.withValues(alpha: 0.8),
-                  borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
-                  border: Border.all(
-                    color: isSelected
-                        ? WColors.primary.withValues(alpha: 0.6)
-                        : WColors.surfaceChipBorder,
-                  ),
-                ),
-                child: Text(
-                  _genres[i],
-                  style: TextStyle(
-                    color: isSelected
-                        ? WColors.primary
-                        : WColors.mutedSecondaryAlt,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
+            child: TappableTextChip(
+              onToggle: () => onToggle(i),
+              isSelected: isSelected,
+              text: _genres[i],
             ),
           );
         }),

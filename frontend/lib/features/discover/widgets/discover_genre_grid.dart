@@ -209,9 +209,6 @@ class _GenreBackground extends StatelessWidget {
               colors: gradient,
             ),
           ),
-          child: CustomPaint(
-            painter: _NoisePainter(baseColor: gradient.last),
-          ),
         ),
 
         // ── 2. Photo overlay (semi-transparent) ────────────────
@@ -232,43 +229,6 @@ class _GenreBackground extends StatelessWidget {
       ],
     );
   }
-}
-
-/// Paints subtle abstract shapes to simulate the textured cards in the design.
-class _NoisePainter extends CustomPainter {
-  final Color baseColor;
-  const _NoisePainter({required this.baseColor});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = baseColor.withValues(alpha: 0.35)
-      ..style = PaintingStyle.fill;
-
-    // Large blob top-right
-    final path1 = Path()
-      ..addOval(Rect.fromCenter(
-        center: Offset(size.width * 0.82, size.height * 0.2),
-        width: size.width * 0.55,
-        height: size.height * 0.85,
-      ));
-    canvas.drawPath(path1, paint);
-
-    // Small blob bottom-left
-    final paint2 = Paint()
-      ..color = Colors.white.withValues(alpha: 0.07)
-      ..style = PaintingStyle.fill;
-    final path2 = Path()
-      ..addOval(Rect.fromCenter(
-        center: Offset(size.width * 0.15, size.height * 0.75),
-        width: size.width * 0.35,
-        height: size.height * 0.5,
-      ));
-    canvas.drawPath(path2, paint2);
-  }
-
-  @override
-  bool shouldRepaint(covariant _NoisePainter oldDelegate) => false;
 }
 
 class _GenreData {

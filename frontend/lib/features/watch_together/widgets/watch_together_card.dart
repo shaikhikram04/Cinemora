@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/features/watch_together/screens/watch_together_intro_screen.dart';
+import 'package:watchary/features/watch_together/views/watch_together_intro_view.dart';
 
 class WatchTogetherCard extends StatefulWidget {
   const WatchTogetherCard({super.key});
@@ -44,7 +44,7 @@ class _WatchTogetherCardState extends State<WatchTogetherCard>
         child: _TapScaleCard(
           onTap: () => Navigator.push(
             context,
-            _sharedAxisPageRoute(const WatchTogetherIntroScreen()),
+            _sharedAxisPageRoute(const WatchTogetherIntroView()),
           ),
         ),
       ),

@@ -1,35 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
-import 'package:watchary/features/discover/screens/discover_screen.dart';
 import 'package:watchary/features/home/widgets/home_bottom_nav_bar.dart';
-import 'package:watchary/features/home/widgets/home_feed_page.dart';
-import 'package:watchary/features/library/screens/library_screen.dart';
-import 'package:watchary/features/profile/screens/profile_screen.dart';
-import 'package:watchary/features/rankings/screens/rankings_screen.dart';
 
-class WatcharyHomeShell extends StatefulWidget {
-  const WatcharyHomeShell({super.key});
+class WatcharyHomeShell extends StatelessWidget {
+  final StatefulNavigationShell navigationShell;
 
-  @override
-  State<WatcharyHomeShell> createState() => _WatcharyHomeShellState();
-}
-
-class _WatcharyHomeShellState extends State<WatcharyHomeShell> {
-  int _index = 0;
+  const WatcharyHomeShell({super.key, required this.navigationShell});
 
   @override
   Widget build(BuildContext context) {
-    final pages = <Widget>[
-      const HomeFeedPage(),
-      const DiscoverScreen(),
-      const LibraryScreen(),
-      const RankingsScreen(),
-      const ProfileScreen(),
-    ];
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -40,7 +23,7 @@ class _WatcharyHomeShellState extends State<WatcharyHomeShell> {
       ),
       child: Scaffold(
         backgroundColor: WColors.background,
-        body: IndexedStack(index: _index, children: pages),
+        body: navigationShell,
         bottomNavigationBar: SafeArea(
           top: false,
           child: Padding(
@@ -51,8 +34,11 @@ class _WatcharyHomeShellState extends State<WatcharyHomeShell> {
               10.h,
             ),
             child: HomeBottomNavBar(
-              currentIndex: _index,
-              onChanged: (value) => setState(() => _index = value),
+              currentIndex: navigationShell.currentIndex,
+              onChanged: (index) => navigationShell.goBranch(
+                index,
+                initialLocation: index == navigationShell.currentIndex,
+              ),
             ),
           ),
         ),

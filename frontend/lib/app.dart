@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:watchary/core/router/app_router.dart';
 import 'package:watchary/core/themes/theme.dart';
-import 'package:watchary/features/authentication/screens/welcome.dart';
 
 class WatcharyApp extends StatelessWidget {
   const WatcharyApp({super.key});
@@ -13,13 +13,13 @@ class WatcharyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
+        return MaterialApp.router(
           title: 'Watchary',
           debugShowCheckedModeBanner: false,
           themeMode: ThemeMode.dark,
           theme: WTheme.lightTheme,
           darkTheme: WTheme.darkTheme,
-          home: const WelcomeScreen(),
+          routerConfig: appRouter,
         );
       },
     );

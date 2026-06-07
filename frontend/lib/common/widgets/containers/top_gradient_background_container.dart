@@ -1,0 +1,26 @@
+import 'package:flutter/material.dart';
+import 'package:watchary/core/constants/colors.dart';
+
+class TopGradientBackgroundContainer extends StatelessWidget {
+  const TopGradientBackgroundContainer({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomCenter,
+          colors: [
+            WColors.primary.withAlpha(38),
+            WColors.background,
+            WColors.background,
+          ],
+        ),
+      ),
+      child: child,
+    );
+  }
+}
