@@ -1,28 +1,29 @@
+require("dotenv").config();
 const express = require("express");
-const mongoose = require("mongoose");
-const session = require("express-session");
-const passport = require("passport");
-const authRoutes = require("./routes/auth");
-
-const User = require("./models/user");
-
-require("./config/passport");
+const connectDB = require("./config/database");
+require("./config/firebase"); // initialize firebase-admin
 
 const app = express();
 
-app.use(express.json);
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  session({
-    secret: "watchary - secret",
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+// Routes (added as features are built)
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/library", require("./routes/library"));
+app.use("/api/rankings", require("./routes/rankings"));
+app.use("/api/tmdb", require("./routes/tmdb"));
+app.use("/api/users", require("./routes/users"));
+app.use("/api/watch-together", require("./routes/watchTogether"));
+app.use("/api/notifications", require("./routes/notifications"));
 
-//* passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json({ error: err.message || "Server error" });
+});
 
-app.use("/auth", authRoutes);
+const PORT = process.env.PORT || 3000;
+
+connectDB().then(() => {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+});

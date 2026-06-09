@@ -1,0 +1,30 @@
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema(
+  {
+    firebaseUid: { type: String, required: true, unique: true, index: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    avatar: { type: String },
+    framePoster: { type: String },
+    authProviders: {
+      type: [String],
+      enum: ["google", "apple"],
+      default: [],
+    },
+    isOnboarded: { type: Boolean, default: false },
+    preferences: {
+      contentTypes: {
+        type: [String],
+        enum: ["movies", "series", "anime", "documentaries"],
+        default: [],
+      },
+      genres: { type: [String], default: [] },
+      language: { type: String, default: "hi" },
+    },
+    fcmToken: { type: String },
+  },
+  { timestamps: true },
+);
+
+module.exports = mongoose.model("User", userSchema);

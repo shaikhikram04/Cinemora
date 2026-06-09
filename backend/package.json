@@ -9,16 +9,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "dotenv": "^17.2.1",
+    "axios": "^1.17.0",
+    "dotenv": "^17.4.2",
     "express": "^5.1.0",
-    "express-session": "^1.18.2",
+    "firebase-admin": "^13.10.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.1",
-    "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0",
-    "passport-jwt": "^4.0.1",
-    "passport-local": "^1.0.0"
+    "node-cache": "^5.1.2"
   },
   "description": ""
 }
