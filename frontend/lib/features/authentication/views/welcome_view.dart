@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:watchary/common/widgets/containers/top_gradient_background_container.dart';
 import 'package:watchary/common/widgets/cards/poster_image.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/shadows.dart';
 import 'package:watchary/core/constants/sizes.dart';
-import 'package:watchary/core/router/app_routes.dart';
 import 'package:watchary/core/utils/device_utils.dart';
-import 'package:watchary/features/authentication/viewmodels/auth_cubit.dart';
-import 'package:watchary/features/authentication/viewmodels/auth_state.dart';
+import 'package:watchary/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:watchary/features/authentication/viewmodels/app_auth_state.dart';
+import 'package:watchary/features/authentication/viewmodels/welcome_cubit.dart';
+import 'package:watchary/features/authentication/viewmodels/welcome_state.dart';
 import 'package:watchary/features/authentication/widgets/index.dart';
 import 'package:watchary/common/widgets/progress_bars/page_view_progress_bar.dart';
 
@@ -25,20 +25,20 @@ const _kPosterImages = [
   'https://images.unsplash.com/photo-1451187863213-d1bcbaae3fa3?auto=format&fit=crop&w=600&q=80',
 ];
 
-/// Entry point — provides [AuthCubit] and delegates to [_WelcomeContent].
+/// Entry point — provides [WelcomeCubit] and delegates to [_WelcomeContent].
 class WelcomeView extends StatelessWidget {
   const WelcomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AuthCubit(),
+      create: (_) => WelcomeCubit(),
       child: const _WelcomeContent(),
     );
   }
 }
 
-/// Holds the [PageController] (UI-only lifecycle) and reacts to [AuthState].
+/// Holds the [PageController] (UI-only lifecycle) and reacts to [WelcomeState].
 class _WelcomeContent extends StatefulWidget {
   const _WelcomeContent();
 
@@ -63,74 +63,86 @@ class _WelcomeContentState extends State<_WelcomeContent> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthCubit, AuthState>(
-      listenWhen: (prev, curr) => prev.currentPage != curr.currentPage,
-      listener: (context, state) {
-        // Only animate when the cubit drove the change (e.g. Next / Skip).
-        // If the user swiped, PageController is already on the right page.
-        if (_pageController.page?.round() != state.currentPage) {
-          _pageController.animateToPage(
-            state.currentPage,
-            duration: const Duration(milliseconds: 280),
-            curve: Curves.easeOut,
+    return BlocListener<AppAuthCubit, AppAuthState>(
+      listener: (context, authState) {
+        if (authState is AppAuthError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authState.message),
+              backgroundColor: Colors.red.shade800,
+            ),
           );
         }
+        // Navigation on success is handled automatically by the router's
+        // refreshListenable — no explicit context.go needed here.
       },
-      builder: (context, state) {
-        final cubit = context.read<AuthCubit>();
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: const SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.light,
-            statusBarBrightness: Brightness.dark,
-            systemNavigationBarColor: WColors.background,
-            systemNavigationBarIconBrightness: Brightness.light,
-          ),
-          child: Scaffold(
-            extendBody: true,
-            extendBodyBehindAppBar: true,
-            body: Container(
-              decoration: const BoxDecoration(color: WColors.background),
-              child: SafeArea(
-                top: false,
-                child: TopGradientBackgroundContainer(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height:
-                            DeviceUtils.getStatusBarHeight(context) + WSizes.sm,
-                      ),
-                      PageViewProgressBar(
-                        totalPages: 4,
-                        currentPage: state.currentPage,
-                        onSkip: cubit.jumpToLast,
-                      ),
-                      Expanded(
-                        child: PageView(
-                          controller: _pageController,
-                          onPageChanged: cubit.pageChanged,
-                          children: [
-                            _buildPage0(cubit),
-                            _buildPage1(cubit),
-                            _buildPage2(cubit),
-                            _buildPage3(context),
-                          ],
+      child: BlocConsumer<WelcomeCubit, WelcomeState>(
+        listenWhen: (prev, curr) => prev.currentPage != curr.currentPage,
+        listener: (context, state) {
+          if (_pageController.page?.round() != state.currentPage) {
+            _pageController.animateToPage(
+              state.currentPage,
+              duration: const Duration(milliseconds: 280),
+              curve: Curves.easeOut,
+            );
+          }
+        },
+        builder: (context, state) {
+          final cubit = context.read<WelcomeCubit>();
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: const SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.light,
+              statusBarBrightness: Brightness.dark,
+              systemNavigationBarColor: WColors.background,
+              systemNavigationBarIconBrightness: Brightness.light,
+            ),
+            child: Scaffold(
+              extendBody: true,
+              extendBodyBehindAppBar: true,
+              body: Container(
+                decoration: const BoxDecoration(color: WColors.background),
+                child: SafeArea(
+                  top: false,
+                  child: TopGradientBackgroundContainer(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: DeviceUtils.getStatusBarHeight(context) +
+                              WSizes.sm,
                         ),
-                      ),
-                    ],
+                        PageViewProgressBar(
+                          totalPages: 4,
+                          currentPage: state.currentPage,
+                          onSkip: cubit.jumpToLast,
+                        ),
+                        Expanded(
+                          child: PageView(
+                            controller: _pageController,
+                            onPageChanged: cubit.pageChanged,
+                            children: [
+                              _buildPage0(cubit),
+                              _buildPage1(cubit),
+                              _buildPage2(cubit),
+                              _buildPage3(context),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
   // ── Page 0 — Track ─────────────────────────────────────────────────────────
 
-  Widget _buildPage0(AuthCubit cubit) {
+  Widget _buildPage0(WelcomeCubit cubit) {
     return OnboardingPageLayout(
       visual: Stack(
         clipBehavior: Clip.none,
@@ -224,7 +236,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
 
   // ── Page 1 — Organize ──────────────────────────────────────────────────────
 
-  Widget _buildPage1(AuthCubit cubit) {
+  Widget _buildPage1(WelcomeCubit cubit) {
     return OnboardingPageLayout(
       visual: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -266,7 +278,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
 
   // ── Page 2 — Discover ──────────────────────────────────────────────────────
 
-  Widget _buildPage2(AuthCubit cubit) {
+  Widget _buildPage2(WelcomeCubit cubit) {
     return OnboardingPageLayout(
       visual: Padding(
         padding: const EdgeInsets.symmetric(horizontal: WSizes.sm),
@@ -419,7 +431,11 @@ class _WelcomeContentState extends State<_WelcomeContent> {
   // ── Page 3 — Sign In ───────────────────────────────────────────────────────
 
   Widget _buildPage3(BuildContext context) {
+    final isLoading = context.select<AppAuthCubit, bool>(
+      (c) => c.state is AppAuthLoading,
+    );
     return OnboardingPageLayout(
+      isLoading: isLoading,
       visual: Column(
         children: [
           Flexible(
@@ -471,8 +487,8 @@ class _WelcomeContentState extends State<_WelcomeContent> {
           'Join millions of film lovers tracking, sharing and\ndiscovering together.',
       primaryButton: 'Sign In with Google',
       secondaryButton: 'Sign In with Apple',
-      onPrimaryPressed: () => context.go(AppRoutes.onboarding),
-      onSecondaryPressed: () => context.go(AppRoutes.onboarding),
+      onPrimaryPressed: () => context.read<AppAuthCubit>().signInWithGoogle(),
+      onSecondaryPressed: () => context.read<AppAuthCubit>().signInWithApple(),
     );
   }
 }

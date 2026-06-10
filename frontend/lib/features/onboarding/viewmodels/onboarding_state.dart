@@ -6,6 +6,9 @@ class OnboardingState extends Equatable {
   final List<String> selectedGenres;
   final List<String> selectedLanguages;
   final List<String> selectedPlatforms;
+  final bool isSubmitting;
+  final bool submitSuccess;
+  final String? submitError;
 
   const OnboardingState({
     this.currentStep = 0,
@@ -13,6 +16,9 @@ class OnboardingState extends Equatable {
     this.selectedGenres = const [],
     this.selectedLanguages = const [],
     this.selectedPlatforms = const [],
+    this.isSubmitting = false,
+    this.submitSuccess = false,
+    this.submitError,
   });
 
   bool get canContinue {
@@ -31,6 +37,10 @@ class OnboardingState extends Equatable {
     List<String>? selectedGenres,
     List<String>? selectedLanguages,
     List<String>? selectedPlatforms,
+    bool? isSubmitting,
+    bool? submitSuccess,
+    String? submitError,
+    bool clearSubmitError = false,
   }) {
     return OnboardingState(
       currentStep: currentStep ?? this.currentStep,
@@ -38,15 +48,21 @@ class OnboardingState extends Equatable {
       selectedGenres: selectedGenres ?? this.selectedGenres,
       selectedLanguages: selectedLanguages ?? this.selectedLanguages,
       selectedPlatforms: selectedPlatforms ?? this.selectedPlatforms,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      submitSuccess: submitSuccess ?? this.submitSuccess,
+      submitError: clearSubmitError ? null : (submitError ?? this.submitError),
     );
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         currentStep,
         selectedContentTypes,
         selectedGenres,
         selectedLanguages,
         selectedPlatforms,
+        isSubmitting,
+        submitSuccess,
+        submitError,
       ];
 }

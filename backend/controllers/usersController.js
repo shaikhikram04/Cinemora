@@ -16,7 +16,7 @@ const updateProfile = async (req, res) => {
 
 // PUT /api/users/preferences
 const updatePreferences = async (req, res) => {
-  const { contentTypes, genres, language } = req.body;
+  const { contentTypes, genres, languages } = req.body;
 
   const user = await User.findByIdAndUpdate(
     req.user.userId,
@@ -24,7 +24,7 @@ const updatePreferences = async (req, res) => {
       $set: {
         "preferences.contentTypes": contentTypes,
         "preferences.genres": genres,
-        "preferences.language": language,
+        "preferences.languages": languages,
         isOnboarded: true,
       },
     },

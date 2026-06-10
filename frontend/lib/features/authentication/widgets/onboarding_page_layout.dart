@@ -13,6 +13,7 @@ class OnboardingPageLayout extends StatelessWidget {
   final String? secondaryButton;
   final VoidCallback onPrimaryPressed;
   final VoidCallback? onSecondaryPressed;
+  final bool isLoading;
 
   const OnboardingPageLayout({
     super.key,
@@ -24,6 +25,7 @@ class OnboardingPageLayout extends StatelessWidget {
     required this.onPrimaryPressed,
     this.secondaryButton,
     this.onSecondaryPressed,
+    this.isLoading = false,
   });
 
   @override
@@ -65,15 +67,24 @@ class OnboardingPageLayout extends StatelessWidget {
                 shadowColor: WColors.primary.withAlpha(120),
                 elevation: 2,
               ),
-              onPressed: onPrimaryPressed,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(primaryButton),
-                  const SizedBox(width: WSizes.sm),
-                  Icon(Icons.arrow_forward, size: 20.sp),
-                ],
-              ),
+              onPressed: isLoading ? null : onPrimaryPressed,
+              child: isLoading
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(primaryButton),
+                        const SizedBox(width: WSizes.sm),
+                        Icon(Icons.arrow_forward, size: 20.sp),
+                      ],
+                    ),
             ),
           ),
           if (secondaryButton != null) ...[
@@ -93,7 +104,7 @@ class OnboardingPageLayout extends StatelessWidget {
                     borderRadius: BorderRadius.circular(18.r),
                   ),
                 ),
-                onPressed: onSecondaryPressed,
+                onPressed: isLoading ? null : onSecondaryPressed,
                 child: Text(secondaryButton!),
               ),
             ),

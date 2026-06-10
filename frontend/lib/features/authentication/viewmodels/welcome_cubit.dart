@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:watchary/features/authentication/viewmodels/auth_state.dart';
+import 'package:watchary/features/authentication/viewmodels/welcome_state.dart';
 
-class AuthCubit extends Cubit<AuthState> {
+class WelcomeCubit extends Cubit<WelcomeState> {
   static const int _totalPages = 4;
 
-  AuthCubit() : super(const AuthState());
+  WelcomeCubit() : super(const WelcomeState());
 
   void nextPage() {
     if (state.currentPage < _totalPages - 1) {

@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
         default: [],
       },
       genres: { type: [String], default: [] },
-      language: { type: String, default: "hi" },
+      languages: { type: [String], default: [] },
     },
     fcmToken: { type: String },
   },

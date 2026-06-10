@@ -6,7 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:watchary/common/widgets/progress_bars/page_view_progress_bar.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
+import 'package:watchary/core/repositories/user_repository.dart';
 import 'package:watchary/core/router/app_routes.dart';
+import 'package:watchary/features/authentication/viewmodels/app_auth_cubit.dart';
 import 'package:watchary/features/onboarding/viewmodels/onboarding_cubit.dart';
 import 'package:watchary/features/onboarding/viewmodels/onboarding_state.dart';
 import 'package:watchary/features/onboarding/widgets/content_type_card.dart';
@@ -136,7 +138,7 @@ class TasteSetupView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => OnboardingCubit(),
+      create: (context) => OnboardingCubit(context.read<UserRepository>()),
       child: const _TasteSetupContent(),
     );
   }
@@ -169,13 +171,28 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OnboardingCubit, OnboardingState>(
-      listenWhen: (prev, curr) => prev.currentStep != curr.currentStep,
+      listenWhen: (prev, curr) =>
+          prev.currentStep != curr.currentStep ||
+          prev.submitSuccess != curr.submitSuccess ||
+          prev.submitError != curr.submitError,
       listener: (context, state) {
         if (_pageController.page?.round() != state.currentStep) {
           _pageController.animateToPage(
             state.currentStep,
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
+          );
+        }
+        if (state.submitSuccess) {
+          context.read<AppAuthCubit>().markOnboarded();
+          context.go(AppRoutes.onboardingSuccess);
+        }
+        if (state.submitError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.submitError!),
+              backgroundColor: Colors.red.shade800,
+            ),
           );
         }
       },
@@ -765,7 +782,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
     OnboardingCubit cubit,
   ) {
     final isLast = state.currentStep == OnboardingCubit.totalSteps - 1;
-    final disabled = !state.canContinue;
+    final disabled = !state.canContinue || state.isSubmitting;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -780,7 +797,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
             : () {
                 FocusScope.of(context).unfocus();
                 if (isLast) {
-                  context.go(AppRoutes.onboardingSuccess);
+                  cubit.submitPreferences();
                 } else {
                   cubit.nextStep();
                 }
@@ -799,25 +816,34 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
             border: disabled ? Border.all(color: WColors.border) : null,
           ),
           child: Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  isLast ? 'Confirm & Finish' : 'Continue',
-                  style: TextStyle(
-                    color: disabled ? WColors.mutedForeground : Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15.sp,
+            child: state.isSubmitting
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        isLast ? 'Confirm & Finish' : 'Continue',
+                        style: TextStyle(
+                          color: disabled ? WColors.mutedForeground : Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15.sp,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Icon(
+                        isLast ? Icons.check_rounded : Icons.arrow_forward_rounded,
+                        color: disabled ? WColors.mutedForeground : Colors.white,
+                        size: 18.sp,
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(width: 8.w),
-                Icon(
-                  isLast ? Icons.check_rounded : Icons.arrow_forward_rounded,
-                  color: disabled ? WColors.mutedForeground : Colors.white,
-                  size: 18.sp,
-                ),
-              ],
-            ),
           ),
         ),
       ),
