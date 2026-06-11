@@ -57,7 +57,6 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         contentTypes: state.selectedContentTypes,
         genres: state.selectedGenres,
         languages: state.selectedLanguages,
-        platforms: state.selectedPlatforms,
       );
       emit(state.copyWith(isSubmitting: false, submitSuccess: true));
     } catch (e) {

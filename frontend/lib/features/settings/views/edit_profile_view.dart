@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:watchary/core/models/user_model.dart';
+import 'package:watchary/core/repositories/user_repository.dart';
+import 'package:watchary/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:watchary/features/authentication/viewmodels/app_auth_state.dart';
 import 'package:watchary/features/settings/viewmodels/edit_profile_cubit.dart';
 import 'package:watchary/features/settings/viewmodels/edit_profile_state.dart';
 
@@ -11,12 +15,20 @@ class EditProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.read<AppAuthCubit>().state;
+    final user = authState is AppAuthAuthenticated ? authState.user : null;
+
     return BlocProvider(
-      create: (_) => EditProfileCubit(),
+      create: (ctx) => EditProfileCubit(
+        ctx.read<UserRepository>(),
+        user ?? const UserModel(id: '', name: '', email: '', isOnboarded: true),
+      ),
       child: const _EditProfileContent(),
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _EditProfileContent extends StatefulWidget {
   const _EditProfileContent();
@@ -26,14 +38,14 @@ class _EditProfileContent extends StatefulWidget {
 }
 
 class _EditProfileContentState extends State<_EditProfileContent> {
-  final _nameController = TextEditingController(text: 'Ikram');
-  final _usernameController = TextEditingController(text: 'ikram_watches');
-  final _bioController =
-      TextEditingController(text: 'Film • Anime • Series\nEnthusiast');
+  late final TextEditingController _nameController;
+  late final TextEditingController _usernameController;
+  late final TextEditingController _bioController;
 
   static const _allGenres = [
     'Drama', 'Thriller', 'Sci-Fi', 'Crime', 'Horror', 'Action',
-    'Psychological', 'Mystery', 'Romance', 'Fantasy', 'Documentary', 'Animation',
+    'Psychological', 'Mystery', 'Romance', 'Fantasy', 'Documentary',
+    'Animation',
   ];
 
   static const _languages = [
@@ -51,6 +63,22 @@ class _EditProfileContentState extends State<_EditProfileContent> {
       'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80';
 
   @override
+  void initState() {
+    super.initState();
+    // Pre-populate from the AppAuthCubit user so fields reflect live data.
+    final authState = context.read<AppAuthCubit>().state;
+    final user =
+        authState is AppAuthAuthenticated ? authState.user : null;
+
+    _nameController =
+        TextEditingController(text: user?.name ?? '');
+    _usernameController =
+        TextEditingController(text: user?.displayUsername ?? '');
+    _bioController =
+        TextEditingController(text: user?.bio ?? '');
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _usernameController.dispose();
@@ -58,199 +86,269 @@ class _EditProfileContentState extends State<_EditProfileContent> {
     super.dispose();
   }
 
+  void _handleSave(BuildContext context) {
+    context.read<EditProfileCubit>().save(
+          name: _nameController.text,
+          username: _usernameController.text,
+          bio: _bioController.text,
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EditProfileCubit, EditProfileState>(
-      builder: (context, state) {
-        final cubit = context.read<EditProfileCubit>();
-        return Scaffold(
-      backgroundColor: WColors.background,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            _TopBar(
-              onSave: () => _handleSave(context),
+    return BlocListener<EditProfileCubit, EditProfileState>(
+      listener: (context, state) {
+        if (state.status == EditProfileStatus.success && state.savedUser != null) {
+          // Propagate the updated user up to AppAuthCubit so every screen
+          // that reads auth state (profile card, settings, etc.) refreshes.
+          context.read<AppAuthCubit>().updateUser(state.savedUser!);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Profile updated successfully',
+                style: TextStyle(fontSize: 14.sp),
+              ),
+              backgroundColor: WColors.chartGreen,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r)),
+              margin:
+                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             ),
-            SizedBox(height: 12.h),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(0, 0, 0, 100.h),
-                physics: const BouncingScrollPhysics(),
+          );
+          Navigator.maybePop(context);
+        }
+
+        if (state.status == EditProfileStatus.error &&
+            state.error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.error!, style: TextStyle(fontSize: 14.sp)),
+              backgroundColor: WColors.accentRed,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r)),
+              margin:
+                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            ),
+          );
+          context.read<EditProfileCubit>().clearError();
+        }
+      },
+      child: BlocBuilder<EditProfileCubit, EditProfileState>(
+        builder: (context, state) {
+          final cubit = context.read<EditProfileCubit>();
+          final isSaving = state.status == EditProfileStatus.saving;
+
+          return Scaffold(
+            backgroundColor: WColors.background,
+            body: SafeArea(
+              bottom: false,
+              child: Column(
                 children: [
-                  _CoverAvatarSection(
-                    coverImage: _coverImage,
-                    profileImage: _profileImage,
+                  _TopBar(
+                    onSave: isSaving ? null : () => _handleSave(context),
+                    isSaving: isSaving,
                   ),
-                  SizedBox(height: 24.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: WSizes.screenPadding.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  SizedBox(height: 12.h),
+                  Expanded(
+                    child: ListView(
+                      padding: EdgeInsets.fromLTRB(0, 0, 0, 100.h),
+                      physics: const BouncingScrollPhysics(),
                       children: [
-                        _FormCard(
-                          children: [
-                            _PremiumTextField(
-                              label: 'DISPLAY NAME',
-                              controller: _nameController,
-                              hint: 'Your display name',
-                            ),
-                            _Divider(),
-                            _PremiumTextField(
-                              label: 'USERNAME',
-                              controller: _usernameController,
-                              hint: 'your_username',
-                              prefix: '@',
-                            ),
-                            _Divider(),
-                            _PremiumTextField(
-                              label: 'BIO',
-                              controller: _bioController,
-                              hint: 'Tell us about yourself...',
-                              maxLines: 3,
-                            ),
-                          ],
+                        _CoverAvatarSection(
+                          coverImage: _coverImage,
+                          profileImage: _profileImage,
                         ),
                         SizedBox(height: 24.h),
-                        _SectionLabel(label: 'TASTE'),
-                        SizedBox(height: 12.h),
-                        _FormCard(
-                          children: [
-                            _FieldLabel(label: 'FAVORITE GENRES'),
-                            SizedBox(height: 10.h),
-                            Wrap(
-                              spacing: 8.w,
-                              runSpacing: 8.h,
-                              children: _allGenres.map((genre) {
-                                final selected =
-                                    state.selectedGenres.contains(genre);
-                                return GestureDetector(
-                                  onTap: () => cubit.toggleGenre(genre),
-                                  child: _GenreChip(
-                                      label: genre, selected: selected),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12.h),
-                        _FormCard(
-                          children: [
-                            _FieldLabel(label: 'FAVORITE LANGUAGE'),
-                            SizedBox(height: 10.h),
-                            SizedBox(
-                              height: 36.h,
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                physics: const BouncingScrollPhysics(),
-                                itemCount: _languages.length,
-                                itemBuilder: (_, i) => GestureDetector(
-                                  onTap: () => cubit.selectLanguage(_languages[i]),
-                                  child: _SelectChip(
-                                    label: _languages[i],
-                                    selected:
-                                        state.selectedLanguage == _languages[i],
-                                  ),
-                                ),
-                                separatorBuilder: (_, __) =>
-                                    SizedBox(width: 8.w),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12.h),
-                        _FormCard(
-                          children: [
-                            _FieldLabel(label: 'FAVORITE ERA'),
-                            SizedBox(height: 10.h),
-                            SizedBox(
-                              height: 36.h,
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                physics: const BouncingScrollPhysics(),
-                                itemCount: _eras.length,
-                                itemBuilder: (_, i) => GestureDetector(
-                                  onTap: () => cubit.selectEra(_eras[i]),
-                                  child: _SelectChip(
-                                    label: _eras[i],
-                                    selected: state.selectedEra == _eras[i],
-                                  ),
-                                ),
-                                separatorBuilder: (_, __) =>
-                                    SizedBox(width: 8.w),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 24.h),
-                        GestureDetector(
-                          onTap: () =>
-                              cubit.togglePreview,
-                          child: Row(
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: WSizes.screenPadding.w),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _SectionLabel(label: 'PROFILE PREVIEW'),
-                              const Spacer(),
-                              Text(
-                                state.showPreview ? 'Hide' : 'Show',
-                                style: TextStyle(
-                                  color: WColors.accentRed,
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
+                              _FormCard(
+                                children: [
+                                  _PremiumTextField(
+                                    label: 'DISPLAY NAME',
+                                    controller: _nameController,
+                                    hint: 'Your display name',
+                                  ),
+                                  const _Divider(),
+                                  _PremiumTextField(
+                                    label: 'USERNAME',
+                                    controller: _usernameController,
+                                    hint: 'your_username',
+                                    prefix: '@',
+                                  ),
+                                  const _Divider(),
+                                  _PremiumTextField(
+                                    label: 'BIO',
+                                    controller: _bioController,
+                                    hint: 'Tell us about yourself...',
+                                    maxLines: 3,
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 24.h),
+                              const _SectionLabel(label: 'TASTE'),
+                              SizedBox(height: 12.h),
+                              _FormCard(
+                                children: [
+                                  const _FieldLabel(
+                                      label: 'FAVORITE GENRES'),
+                                  SizedBox(height: 10.h),
+                                  Wrap(
+                                    spacing: 8.w,
+                                    runSpacing: 8.h,
+                                    children: _allGenres.map((genre) {
+                                      final selected = state.selectedGenres
+                                          .contains(genre);
+                                      return GestureDetector(
+                                        onTap: () =>
+                                            cubit.toggleGenre(genre),
+                                        child: _GenreChip(
+                                          label: genre,
+                                          selected: selected,
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 12.h),
+                              _FormCard(
+                                children: [
+                                  const _FieldLabel(
+                                      label: 'FAVORITE LANGUAGE'),
+                                  SizedBox(height: 10.h),
+                                  SizedBox(
+                                    height: 36.h,
+                                    child: ListView.separated(
+                                      scrollDirection: Axis.horizontal,
+                                      physics:
+                                          const BouncingScrollPhysics(),
+                                      itemCount: _languages.length,
+                                      itemBuilder: (_, i) =>
+                                          GestureDetector(
+                                        onTap: () => cubit
+                                            .selectLanguage(_languages[i]),
+                                        child: _SelectChip(
+                                          label: _languages[i],
+                                          selected: state.selectedLanguage ==
+                                              _languages[i],
+                                        ),
+                                      ),
+                                      separatorBuilder: (_, __) =>
+                                          SizedBox(width: 8.w),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 12.h),
+                              _FormCard(
+                                children: [
+                                  const _FieldLabel(label: 'FAVORITE ERA'),
+                                  SizedBox(height: 10.h),
+                                  SizedBox(
+                                    height: 36.h,
+                                    child: ListView.separated(
+                                      scrollDirection: Axis.horizontal,
+                                      physics:
+                                          const BouncingScrollPhysics(),
+                                      itemCount: _eras.length,
+                                      itemBuilder: (_, i) =>
+                                          GestureDetector(
+                                        onTap: () =>
+                                            cubit.selectEra(_eras[i]),
+                                        child: _SelectChip(
+                                          label: _eras[i],
+                                          selected:
+                                              state.selectedEra == _eras[i],
+                                        ),
+                                      ),
+                                      separatorBuilder: (_, __) =>
+                                          SizedBox(width: 8.w),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 24.h),
+                              GestureDetector(
+                                onTap: cubit.togglePreview,
+                                child: Row(
+                                  children: [
+                                    const _SectionLabel(
+                                        label: 'PROFILE PREVIEW'),
+                                    const Spacer(),
+                                    Text(
+                                      state.showPreview ? 'Hide' : 'Show',
+                                      style: TextStyle(
+                                        color: WColors.accentRed,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                              ),
+                              if (state.showPreview) ...[
+                                SizedBox(height: 12.h),
+                                // Rebuild the preview on every keystroke by
+                                // listening to the controllers via ValueListenableBuilder.
+                                ValueListenableBuilder(
+                                  valueListenable: _nameController,
+                                  builder: (_, __, ___) =>
+                                      ValueListenableBuilder(
+                                    valueListenable: _usernameController,
+                                    builder: (_, __, ___) =>
+                                        ValueListenableBuilder(
+                                      valueListenable: _bioController,
+                                      builder: (_, __, ___) =>
+                                          _ProfilePreviewCard(
+                                        name: _nameController.text,
+                                        username:
+                                            _usernameController.text,
+                                        bio: _bioController.text,
+                                        profileImage: _profileImage,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              SizedBox(height: 24.h),
+                              _SaveButton(
+                                onSave: isSaving
+                                    ? null
+                                    : () => _handleSave(context),
+                                isSaving: isSaving,
                               ),
                             ],
                           ),
                         ),
-                        if (state.showPreview) ...[
-                          SizedBox(height: 12.h),
-                          _ProfilePreviewCard(
-                            name: _nameController.text,
-                            username: _usernameController.text,
-                            bio: _bioController.text,
-                            profileImage: _profileImage,
-                          ),
-                        ],
-                        SizedBox(height: 24.h),
-                        _SaveButton(onSave: () => _handleSave(context)),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-        );
-      },
-    );
-  }
-
-  void _handleSave(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Profile updated successfully',
-          style: TextStyle(fontSize: 14.sp),
-        ),
-        backgroundColor: WColors.chartGreen,
-        behavior: SnackBarBehavior.floating,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+          );
+        },
       ),
     );
-    Navigator.maybePop(context);
   }
 }
 
-// ── Top bar ──────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Top bar
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _TopBar extends StatelessWidget {
   final VoidCallback? onSave;
+  final bool isSaving;
 
-  const _TopBar({this.onSave});
+  const _TopBar({this.onSave, required this.isSaving});
 
   @override
   Widget build(BuildContext context) {
@@ -290,21 +388,36 @@ class _TopBar extends StatelessWidget {
           GestureDetector(
             onTap: onSave,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              padding:
+                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [WColors.accentRed, WColors.accentRedAlt],
-                ),
+                gradient: onSave != null
+                    ? const LinearGradient(
+                        colors: [WColors.accentRed, WColors.accentRedAlt],
+                      )
+                    : null,
+                color: onSave == null
+                    ? WColors.surfaceRaised.withValues(alpha: 0.5)
+                    : null,
                 borderRadius: BorderRadius.circular(14.r),
               ),
-              child: Text(
-                'Save',
-                style: TextStyle(
-                  color: WColors.primaryForeground,
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              child: isSaving
+                  ? SizedBox(
+                      width: 16.w,
+                      height: 16.w,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: WColors.primaryForeground,
+                      ),
+                    )
+                  : Text(
+                      'Save',
+                      style: TextStyle(
+                        color: WColors.primaryForeground,
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
             ),
           ),
         ],
@@ -313,7 +426,9 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-// ── Cover + avatar ───────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Cover + avatar
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _CoverAvatarSection extends StatelessWidget {
   final String coverImage;
@@ -326,12 +441,17 @@ class _CoverAvatarSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Read live avatar from auth state so it reflects the real photo.
+    final authState = context.read<AppAuthCubit>().state;
+    final avatarUrl = authState is AppAuthAuthenticated
+        ? authState.user.avatar
+        : null;
+
     return SizedBox(
       height: 200.h,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // Cover image
           Container(
             height: 150.h,
             width: double.infinity,
@@ -354,13 +474,11 @@ class _CoverAvatarSection extends StatelessWidget {
               ),
             ),
           ),
-          // Edit cover overlay
           Positioned(
             top: 12.h,
             right: 16.w,
-            child: _EditOverlay(label: 'Cover'),
+            child: const _EditOverlay(label: 'Cover'),
           ),
-          // Avatar
           Positioned(
             bottom: 0,
             left: 0,
@@ -381,7 +499,9 @@ class _CoverAvatarSection extends StatelessWidget {
                     ),
                     child: CircleAvatar(
                       radius: 48.r,
-                      backgroundImage: NetworkImage(profileImage),
+                      backgroundImage: avatarUrl != null
+                          ? NetworkImage(avatarUrl)
+                          : NetworkImage(profileImage),
                       backgroundColor: WColors.surfaceRaised2,
                     ),
                   ),
@@ -449,7 +569,9 @@ class _EditOverlay extends StatelessWidget {
   }
 }
 
-// ── Form components ──────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Form components
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _FormCard extends StatelessWidget {
   final List<Widget> children;
@@ -600,7 +722,8 @@ class _GenreChip extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: selected ? WColors.accentRed : WColors.mutedSecondarySoft,
+          color:
+              selected ? WColors.accentRed : WColors.mutedSecondarySoft,
           fontSize: 12.sp,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
         ),
@@ -633,7 +756,8 @@ class _SelectChip extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: selected ? WColors.accentRed : WColors.mutedSecondarySoft,
+          color:
+              selected ? WColors.accentRed : WColors.mutedSecondarySoft,
           fontSize: 13.sp,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
         ),
@@ -642,7 +766,9 @@ class _SelectChip extends StatelessWidget {
   }
 }
 
-// ── Profile preview ──────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Profile preview
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _ProfilePreviewCard extends StatelessWidget {
   final String name;
@@ -659,6 +785,11 @@ class _ProfilePreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.read<AppAuthCubit>().state;
+    final avatarUrl = authState is AppAuthAuthenticated
+        ? authState.user.avatar
+        : null;
+
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -669,7 +800,8 @@ class _ProfilePreviewCard extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+            padding:
+                EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
             decoration: BoxDecoration(
               color: WColors.accentPurple.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8.r),
@@ -702,7 +834,9 @@ class _ProfilePreviewCard extends StatelessWidget {
                 ),
                 child: CircleAvatar(
                   radius: 24.r,
-                  backgroundImage: NetworkImage(profileImage),
+                  backgroundImage: avatarUrl != null
+                      ? NetworkImage(avatarUrl)
+                      : NetworkImage(profileImage),
                   backgroundColor: WColors.surfaceRaised2,
                 ),
               ),
@@ -750,12 +884,15 @@ class _ProfilePreviewCard extends StatelessWidget {
   }
 }
 
-// ── Save button ──────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Save button
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _SaveButton extends StatelessWidget {
   final VoidCallback? onSave;
+  final bool isSaving;
 
-  const _SaveButton({this.onSave});
+  const _SaveButton({this.onSave, required this.isSaving});
 
   @override
   Widget build(BuildContext context) {
@@ -765,20 +902,36 @@ class _SaveButton extends StatelessWidget {
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 15.h),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [WColors.accentRed, WColors.accentRedAlt],
-          ),
+          gradient: onSave != null
+              ? const LinearGradient(
+                  colors: [WColors.accentRed, WColors.accentRedAlt],
+                )
+              : null,
+          color: onSave == null
+              ? WColors.surfaceRaised.withValues(alpha: 0.5)
+              : null,
           borderRadius: BorderRadius.circular(18.r),
         ),
-        child: Text(
-          'Save Changes',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: WColors.primaryForeground,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        child: isSaving
+            ? Center(
+                child: SizedBox(
+                  width: 20.w,
+                  height: 20.w,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: WColors.primaryForeground,
+                  ),
+                ),
+              )
+            : Text(
+                'Save Changes',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: WColors.primaryForeground,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
       ),
     );
   }

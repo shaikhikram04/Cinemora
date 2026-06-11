@@ -62,6 +62,8 @@ const firebaseLogin = async (req, res) => {
     user: {
       id: user._id,
       name: user.name,
+      username: user.username,
+      bio: user.bio,
       email: user.email,
       avatar: user.avatar,
       framePoster: user.framePoster,

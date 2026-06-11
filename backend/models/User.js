@@ -4,6 +4,8 @@ const userSchema = new mongoose.Schema(
   {
     firebaseUid: { type: String, required: true, unique: true, index: true },
     name: { type: String, required: true },
+    username: { type: String },
+    bio: { type: String },
     email: { type: String, required: true, unique: true },
     avatar: { type: String },
     framePoster: { type: String },
@@ -21,6 +23,7 @@ const userSchema = new mongoose.Schema(
       },
       genres: { type: [String], default: [] },
       languages: { type: [String], default: [] },
+      era: { type: String },
     },
     fcmToken: { type: String },
   },

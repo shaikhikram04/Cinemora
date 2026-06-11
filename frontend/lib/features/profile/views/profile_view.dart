@@ -1,43 +1,47 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
-import 'package:go_router/go_router.dart';
+import 'package:watchary/core/models/library_entry_model.dart';
+import 'package:watchary/core/models/library_stats_model.dart';
+import 'package:watchary/core/models/user_model.dart';
+import 'package:watchary/core/repositories/user_repository.dart';
 import 'package:watchary/core/router/app_routes.dart';
+import 'package:watchary/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:watchary/features/authentication/viewmodels/app_auth_state.dart';
+import 'package:watchary/features/profile/viewmodels/profile_cubit.dart';
+import 'package:watchary/features/profile/viewmodels/profile_state.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Entry point
+// ─────────────────────────────────────────────────────────────────────────────
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
 
-  static const _profileImage =
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80';
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (ctx) =>
+          ProfileCubit(ctx.read<UserRepository>())..loadProfile(),
+      child: const _ProfileContent(),
+    );
+  }
+}
 
-  static const _favoritePosters = [
-    _PosterItem(
-      image:
-          'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80',
-      title: 'Interstellar',
-      rating: 5.0,
-      tag: 'Movie',
-    ),
-    _PosterItem(
-      image:
-          'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80',
-      title: 'Whiplash',
-      rating: 4.8,
-      tag: 'Movie',
-    ),
-    _PosterItem(
-      image:
-          'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=400&q=80',
-      title: 'Monster',
-      rating: 5.0,
-      tag: 'Anime',
-    ),
-  ];
+// ─────────────────────────────────────────────────────────────────────────────
+// Content
+// ─────────────────────────────────────────────────────────────────────────────
 
+class _ProfileContent extends StatelessWidget {
+  const _ProfileContent();
+
+  // Static achievement data — not yet backed by an API.
   static const _achievementItems = [
     _AchievementItem(
       title: 'Marathoner',
@@ -120,15 +124,7 @@ class ProfileView extends StatelessWidget {
     ),
   ];
 
-  static const _tasteTags = [
-    _TasteTag('Drama', WColors.accentRedAlt),
-    _TasteTag('Thriller', WColors.warning),
-    _TasteTag('Psychological', WColors.chartYellow),
-    _TasteTag('Crime', WColors.chartBlue),
-    _TasteTag('Sci-Fi', WColors.chartPurple),
-    _TasteTag('Mystery', Color.fromARGB(255, 188, 113, 225)),
-  ];
-
+  // Static ranking data — will be replaced when the Rankings feature is wired.
   static const _rankingCards = [
     _RankingCardData(
       title: 'Top Sci-Fi Movies',
@@ -164,164 +160,156 @@ class ProfileView extends StatelessWidget {
     ),
   ];
 
-  static const _recentActivity = [
-    _ActivityItem(
-      icon: Icons.star_border_rounded,
-      title: 'Rated Dune: Part Two',
-      subtitle: '2h ago',
-      rating: 4.5,
-    ),
-    _ActivityItem(
-      icon: Icons.remove_red_eye_rounded,
-      title: 'Finished Attack on Titan',
-      subtitle: 'Anime  •  Yesterday',
-    ),
-    _ActivityItem(
-      icon: Icons.favorite_border_rounded,
-      title: 'Added Interstellar to Favorites',
-      subtitle: 'Movie  •  2d ago',
-    ),
-    _ActivityItem(
-      icon: Icons.list_alt_rounded,
-      title: 'Created ranking: Best Sci-Fi Movies',
-      subtitle: '12 titles  •  3d ago',
-    ),
-    _ActivityItem(
-      icon: Icons.star_border_rounded,
-      title: 'Rated Frieren',
-      subtitle: '5d ago',
-      rating: 4.5,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: WColors.background,
-      child: Stack(
-        children: [
-          SafeArea(
-            bottom: false,
-            child: ListView(
-              padding: EdgeInsets.fromLTRB(
-                WSizes.screenPadding.w,
-                12.h,
-                WSizes.screenPadding.w,
-                90.h,
-              ),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                const _TopBar(),
-                SizedBox(height: 14.h),
-                _ProfileCard(profileImage: _profileImage),
-                SizedBox(height: 14.h),
-                const _StatGrid(),
-                SizedBox(height: 32.h),
-                const _SectionHeader(
-                  title: 'Your Cinema Journey',
-                  subtitle: 'An evolving portrait of your taste',
-                ),
-                SizedBox(height: 10.h),
-                const _InsightCard(),
-                SizedBox(height: 32.h),
-                const _SectionHeader(
-                  title: 'Collection',
-                  subtitle: 'Your library at a glance',
-                ),
-                SizedBox(height: 10.h),
-                const _CollectionCard(),
-                SizedBox(height: 32.h),
-                const _SectionHeader(
-                  title: 'Taste Profile',
-                  subtitle: 'What defines your watch list',
-                ),
-                SizedBox(height: 10.h),
-                _TasteProfileSection(tags: _tasteTags),
-                SizedBox(height: 32.h),
-                _SectionHeader(
-                  title: 'Top Favorites',
-                  subtitle: 'Your trophy shelf',
-                  trailing: const _SeeAllChip(label: 'See all'),
-                ),
-                SizedBox(height: 16.h),
-                SizedBox(
-                  height: WSizes.imageCarouselHeight.h,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    itemBuilder: (context, index) => VerticalPosterBookmarkCard(
-                      image: _favoritePosters[index].image,
-                      width: WSizes.posterImageWidth,
-                      imageHeight: WSizes.posterImageHeight,
-                      title: _favoritePosters[index].title,
-                      rating: _favoritePosters[index].rating.toStringAsFixed(1),
-                      cinemaType: CinemaType.movie,
-                      year: '2022',
+    return BlocBuilder<AppAuthCubit, AppAuthState>(
+      builder: (context, authState) {
+        final user = authState is AppAuthAuthenticated ? authState.user : null;
+
+        return BlocBuilder<ProfileCubit, ProfileState>(
+          builder: (context, profileState) {
+            return Container(
+              color: WColors.background,
+              child: SafeArea(
+                bottom: false,
+                child: RefreshIndicator(
+                  color: WColors.accentRed,
+                  backgroundColor: WColors.surfaceRaised,
+                  onRefresh: () =>
+                      context.read<ProfileCubit>().loadProfile(),
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      WSizes.screenPadding.w,
+                      12.h,
+                      WSizes.screenPadding.w,
+                      90.h,
                     ),
-                    separatorBuilder: (_, __) => SizedBox(width: 12.w),
-                    itemCount: _favoritePosters.length,
-                  ),
-                ),
-                SizedBox(height: 32.h),
-                _SectionHeader(
-                  title: '🏆 Hall of Achievements',
-                  subtitle: 'A trophy cabinet of your cinema journey',
-                  trailing: Column(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
                     children: [
-                      Text.rich(
-                        TextSpan(children: [
-                          TextSpan(
-                            text: '6',
-                            style: TextStyle(
-                              color: WColors.foreground,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          TextSpan(
-                            text: ' / 9',
-                            style: TextStyle(
-                              color: WColors.mutedSecondaryVibe,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ]),
+                      const _TopBar(),
+                      SizedBox(height: 14.h),
+                      _ProfileCard(user: user),
+                      SizedBox(height: 14.h),
+                      _StatGrid(
+                        stats: profileState.stats,
+                        isLoading: profileState.status == ProfileStatus.loading,
                       ),
-                      SizedBox(height: 2.h),
-                      Text(
-                        'EARNED',
-                        style: TextStyle(
-                            color: WColors.mutedSecondary, fontSize: 10.sp),
+                      SizedBox(height: 32.h),
+                      const _SectionHeader(
+                        title: 'Your Cinema Journey',
+                        subtitle: 'An evolving portrait of your taste',
+                      ),
+                      SizedBox(height: 10.h),
+                      _InsightCard(
+                        stats: profileState.stats,
+                        user: user,
+                        isLoading:
+                            profileState.status == ProfileStatus.loading,
+                      ),
+                      SizedBox(height: 32.h),
+                      const _SectionHeader(
+                        title: 'Collection',
+                        subtitle: 'Your library at a glance',
+                      ),
+                      SizedBox(height: 10.h),
+                      _CollectionCard(
+                        stats: profileState.stats,
+                        isLoading:
+                            profileState.status == ProfileStatus.loading,
+                      ),
+                      SizedBox(height: 32.h),
+                      const _SectionHeader(
+                        title: 'Taste Profile',
+                        subtitle: 'What defines your watch list',
+                      ),
+                      SizedBox(height: 10.h),
+                      _TasteProfileSection(user: user),
+                      SizedBox(height: 32.h),
+                      _SectionHeader(
+                        title: 'Top Favorites',
+                        subtitle: 'Your trophy shelf',
+                        trailing: const _SeeAllChip(label: 'See all'),
+                      ),
+                      SizedBox(height: 16.h),
+                      _TopFavoritesRow(
+                        entries: profileState.topFavorites,
+                        isLoading:
+                            profileState.status == ProfileStatus.loading,
+                      ),
+                      SizedBox(height: 32.h),
+                      _SectionHeader(
+                        title: '🏆 Hall of Achievements',
+                        subtitle: 'A trophy cabinet of your cinema journey',
+                        trailing: Column(
+                          children: [
+                            Text.rich(
+                              TextSpan(children: [
+                                TextSpan(
+                                  text: '6',
+                                  style: TextStyle(
+                                    color: WColors.foreground,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: ' / 9',
+                                  style: TextStyle(
+                                    color: WColors.mutedSecondaryVibe,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ]),
+                            ),
+                            SizedBox(height: 2.h),
+                            Text(
+                              'EARNED',
+                              style: TextStyle(
+                                  color: WColors.mutedSecondary,
+                                  fontSize: 10.sp),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      _AchievementHallCard(items: _achievementItems),
+                      SizedBox(height: 32.h),
+                      _SectionHeader(
+                        title: 'My Rankings',
+                        subtitle: 'Curated lists',
+                        trailing: const _SeeAllChip(label: 'See all'),
+                      ),
+                      SizedBox(height: 16.h),
+                      _RankingGrid(cards: _rankingCards),
+                      SizedBox(height: 32.h),
+                      const _SectionHeader(
+                        title: 'Recent Activity',
+                        subtitle: 'The latest from your archive',
+                      ),
+                      SizedBox(height: 10.h),
+                      _ActivityCard(
+                        entries: profileState.recentActivity,
+                        isLoading:
+                            profileState.status == ProfileStatus.loading,
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 16.h),
-                _AchievementHallCard(items: _achievementItems),
-                SizedBox(height: 32.h),
-                _SectionHeader(
-                  title: 'My Rankings',
-                  subtitle: 'Curated lists',
-                  trailing: const _SeeAllChip(label: 'See all'),
-                ),
-                SizedBox(height: 16.h),
-                _RankingGrid(cards: _rankingCards),
-                SizedBox(height: 32.h),
-                const _SectionHeader(
-                  title: 'Recent Activity',
-                  subtitle: 'The latest from your archive',
-                ),
-                SizedBox(height: 10.h),
-                _ActivityCard(items: _recentActivity),
-              ],
-            ),
-          ),
-        ],
-      ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Top bar
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _TopBar extends StatelessWidget {
   const _TopBar();
@@ -362,13 +350,22 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-class _ProfileCard extends StatelessWidget {
-  final String profileImage;
+// ─────────────────────────────────────────────────────────────────────────────
+// Profile card
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const _ProfileCard({required this.profileImage});
+class _ProfileCard extends StatelessWidget {
+  final UserModel? user;
+
+  const _ProfileCard({required this.user});
 
   @override
   Widget build(BuildContext context) {
+    final name = user?.name ?? '—';
+    final username = user?.displayUsername ?? '—';
+    final bio = user?.bio ?? 'Film • Anime • Series';
+    final avatarUrl = user?.avatar;
+
     return Container(
       clipBehavior: Clip.hardEdge,
       padding: EdgeInsets.all(16.w),
@@ -433,12 +430,17 @@ class _ProfileCard extends StatelessWidget {
                 child: CircleAvatar(
                   radius: 48.r,
                   backgroundColor: WColors.surfaceRaised2,
-                  backgroundImage: NetworkImage(profileImage),
+                  backgroundImage:
+                      avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                  child: avatarUrl == null
+                      ? Icon(Icons.person_rounded,
+                          size: 40.sp, color: WColors.mutedSecondary)
+                      : null,
                 ),
               ),
               SizedBox(height: 12.h),
               Text(
-                'Ikram',
+                name,
                 style: TextStyle(
                   color: WColors.foreground,
                   fontSize: 24.sp,
@@ -446,7 +448,7 @@ class _ProfileCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '@ikram_watches',
+                '@$username',
                 style: TextStyle(
                   color: WColors.mutedSecondary,
                   fontSize: 14.sp,
@@ -455,7 +457,7 @@ class _ProfileCard extends StatelessWidget {
               ),
               SizedBox(height: 4.h),
               Text(
-                'Film • Anime • Series\nEnthusiast',
+                bio,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: WColors.mutedSecondarySoft,
@@ -468,21 +470,25 @@ class _ProfileCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _ActionButton(
-                    label: 'Edit Profile',
-                    icon: Icons.edit_rounded,
-                    gradient: LinearGradient(
-                      colors: [
-                        WColors.accentRed,
-                        WColors.accentRedAlt,
-                      ],
+                  GestureDetector(
+                    onTap: () => context.push(AppRoutes.editProfile),
+                    child: _ActionButton(
+                      label: 'Edit Profile',
+                      icon: Icons.edit_rounded,
+                      gradient: LinearGradient(
+                        colors: [
+                          WColors.accentRed,
+                          WColors.accentRedAlt,
+                        ],
+                      ),
                     ),
                   ),
                   SizedBox(width: 10.w),
                   _ActionButton(
                     label: 'Share',
                     icon: Icons.share_rounded,
-                    background: WColors.surfaceRaised.withValues(alpha: 0.2),
+                    background:
+                        WColors.surfaceRaised.withValues(alpha: 0.2),
                     border: WColors.borderStrong,
                   ),
                 ],
@@ -539,31 +545,44 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Stats grid
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _StatGrid extends StatelessWidget {
-  const _StatGrid();
+  final LibraryStatsModel? stats;
+  final bool isLoading;
+
+  const _StatGrid({required this.stats, required this.isLoading});
 
   @override
   Widget build(BuildContext context) {
+    final total = stats?.totalEntries ?? 0;
+    final movies = stats?.movies ?? 0;
+    final series = stats?.tvShows ?? 0;
+    final anime = stats?.anime ?? 0;
+    final moviePct = total > 0 ? '${((movies / total) * 100).round()}%' : null;
+
     return Column(
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: _StatCard(
                 label: 'Titles Watched',
-                value: '523',
+                value: isLoading ? '—' : total.toString(),
                 icon: Icons.movie_filter_rounded,
                 color: WColors.accentRed,
               ),
             ),
             SizedBox(width: 12.w),
-            const Expanded(
+            Expanded(
               child: _StatCard(
                 label: 'Movies',
-                value: '325',
+                value: isLoading ? '—' : movies.toString(),
                 icon: Icons.local_movies_rounded,
                 color: WColors.accentRedAlt,
-                badge: '62% ',
+                badge: isLoading ? null : moviePct,
               ),
             ),
           ],
@@ -571,19 +590,19 @@ class _StatGrid extends StatelessWidget {
         SizedBox(height: 12.h),
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: _StatCard(
                 label: 'Series',
-                value: '132',
+                value: isLoading ? '—' : series.toString(),
                 icon: Icons.tv_rounded,
                 color: WColors.chartPurple,
               ),
             ),
             SizedBox(width: 12.w),
-            const Expanded(
+            Expanded(
               child: _StatCard(
                 label: 'Anime',
-                value: '66',
+                value: isLoading ? '—' : anime.toString(),
                 icon: Icons.auto_awesome_rounded,
                 color: WColors.chartYellow,
               ),
@@ -662,6 +681,10 @@ class _StatCard extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Section header
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _SectionHeader extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -708,8 +731,36 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Insight card
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _InsightCard extends StatelessWidget {
-  const _InsightCard();
+  final LibraryStatsModel? stats;
+  final UserModel? user;
+  final bool isLoading;
+
+  const _InsightCard({
+    required this.stats,
+    required this.user,
+    required this.isLoading,
+  });
+
+  String _buildInsightText() {
+    if (stats == null) {
+      return "Start watching to build your cinema journey.";
+    }
+    final total = stats!.totalEntries;
+    final hours = stats!.totalWatchHours;
+    final topGenre = stats!.topGenreName ??
+        (user?.preferences.genres.isNotEmpty == true
+            ? user!.preferences.genres.first
+            : 'Drama');
+
+    return "You've watched $total titles across Movies, Series and Anime. "
+        "$topGenre stories dominate your collection. "
+        "You've spent $hours hours watching.";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -765,17 +816,20 @@ class _InsightCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _Pill(label: 'INSIGHT', icon: Icons.auto_awesome_rounded),
+                _Pill(
+                    label: 'INSIGHT', icon: Icons.auto_awesome_rounded),
                 SizedBox(height: 10.h),
-                Text(
-                  "You've watched 523 titles across Movies, Series and Anime. Drama and Psychological stories dominate your collection. Your average rating of 4.3 suggests you're selective about what you watch.",
-                  style: TextStyle(
-                    color: WColors.mutedSecondarySoft,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                    height: 1.4,
-                  ),
-                ),
+                isLoading
+                    ? _LoadingPlaceholder(height: 60.h)
+                    : Text(
+                        _buildInsightText(),
+                        style: TextStyle(
+                          color: WColors.mutedSecondarySoft,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
+                      ),
               ],
             ),
           ),
@@ -785,11 +839,32 @@ class _InsightCard extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Collection card (ring chart)
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _CollectionCard extends StatelessWidget {
-  const _CollectionCard();
+  final LibraryStatsModel? stats;
+  final bool isLoading;
+
+  const _CollectionCard({required this.stats, required this.isLoading});
 
   @override
   Widget build(BuildContext context) {
+    final total = stats?.totalEntries ?? 0;
+    final movies = stats?.movies ?? 0;
+    final series = stats?.tvShows ?? 0;
+    final anime = stats?.anime ?? 0;
+
+    final movieFrac = total > 0 ? movies / total : 0.62;
+    final seriesFrac = total > 0 ? series / total : 0.25;
+    final animeFrac = total > 0 ? anime / total : 0.13;
+
+    final moviePct = total > 0 ? '${((movies / total) * 100).round()}%' : '0%';
+    final seriesPct =
+        total > 0 ? '${((series / total) * 100).round()}%' : '0%';
+    final animePct = total > 0 ? '${((anime / total) * 100).round()}%' : '0%';
+
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -799,83 +874,85 @@ class _CollectionCard extends StatelessWidget {
           color: WColors.surfaceChipBorder.withValues(alpha: 0.6),
         ),
       ),
-      child: Column(
-        children: [
-          SizedBox(
-            width: 180.w,
-            height: 180.w,
-            child: Stack(
-              alignment: Alignment.center,
+      child: isLoading
+          ? _LoadingPlaceholder(height: 180.h + 80.h)
+          : Column(
               children: [
-                CustomPaint(
-                  size: Size(180.w, 180.w),
-                  painter: _RingChartPainter(
-                    values: const [0.62, 0.25, 0.13],
-                    colors: const [
-                      WColors.accentRed,
-                      WColors.chartPurple,
-                      WColors.chartYellow,
+                SizedBox(
+                  width: 180.w,
+                  height: 180.w,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CustomPaint(
+                        size: Size(180.w, 180.w),
+                        painter: _RingChartPainter(
+                          values: [movieFrac, seriesFrac, animeFrac],
+                          colors: const [
+                            WColors.accentRed,
+                            WColors.chartPurple,
+                            WColors.chartYellow,
+                          ],
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            total.toString(),
+                            style: TextStyle(
+                              color: WColors.foreground,
+                              fontSize: 28.sp,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          Text(
+                            'TITLES',
+                            style: TextStyle(
+                              color: WColors.mutedSecondaryDeep,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
+                SizedBox(height: 24.h),
+                Row(
                   children: [
-                    Text(
-                      '523',
-                      style: TextStyle(
-                        color: WColors.foreground,
-                        fontSize: 28.sp,
-                        fontWeight: FontWeight.w800,
+                    Expanded(
+                      child: _LegendItem(
+                        label: 'Movies',
+                        value: movies.toString(),
+                        percent: moviePct,
+                        color: WColors.accentRed,
                       ),
                     ),
-                    Text(
-                      'TITLES',
-                      style: TextStyle(
-                        color: WColors.mutedSecondaryDeep,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.3,
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: _LegendItem(
+                        label: 'Series',
+                        value: series.toString(),
+                        percent: seriesPct,
+                        color: WColors.chartPurple,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: _LegendItem(
+                        label: 'Anime',
+                        value: anime.toString(),
+                        percent: animePct,
+                        color: WColors.chartYellow,
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-          ),
-          SizedBox(height: 24.h),
-          Row(
-            children: [
-              const Expanded(
-                child: _LegendItem(
-                  label: 'Movies',
-                  value: '325',
-                  percent: '62%',
-                  color: WColors.accentRed,
-                ),
-              ),
-              SizedBox(width: 8.w),
-              const Expanded(
-                child: _LegendItem(
-                  label: 'Series',
-                  value: '132',
-                  percent: '25%',
-                  color: WColors.chartPurple,
-                ),
-              ),
-              SizedBox(width: 8.w),
-              const Expanded(
-                child: _LegendItem(
-                  label: 'Anime',
-                  value: '66',
-                  percent: '13%',
-                  color: WColors.chartYellow,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
@@ -956,23 +1033,97 @@ class _LegendItem extends StatelessWidget {
   }
 }
 
-class _TasteProfileSection extends StatelessWidget {
-  final List<_TasteTag> tags;
+// ─────────────────────────────────────────────────────────────────────────────
+// Taste profile
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const _TasteProfileSection({required this.tags});
+class _TasteProfileSection extends StatelessWidget {
+  final UserModel? user;
+
+  const _TasteProfileSection({required this.user});
+
+  static const _genreColors = {
+    'Drama': WColors.accentRedAlt,
+    'Thriller': WColors.warning,
+    'Psychological': WColors.chartYellow,
+    'Crime': WColors.chartBlue,
+    'Sci-Fi': WColors.chartPurple,
+    'Mystery': Color.fromARGB(255, 188, 113, 225),
+    'Action': WColors.accentRed,
+    'Horror': WColors.accentRedAlt,
+    'Romance': Color(0xFFFF6B8A),
+    'Fantasy': WColors.chartPurple,
+    'Documentary': WColors.chartGreen,
+    'Animation': WColors.chartYellow,
+  };
+
+  static const Color _defaultColor = WColors.mutedSecondary;
+
+  String _computePersonality(List<String> genres) {
+    if (genres.contains('Psychological') || genres.contains('Drama')) {
+      return 'The Story Seeker';
+    }
+    if (genres.contains('Sci-Fi') || genres.contains('Fantasy')) {
+      return 'The World Builder';
+    }
+    if (genres.contains('Action') || genres.contains('Thriller')) {
+      return 'The Thrill Seeker';
+    }
+    if (genres.contains('Crime') || genres.contains('Mystery')) {
+      return 'The Detective';
+    }
+    if (genres.contains('Horror')) return 'The Brave Soul';
+    if (genres.contains('Romance')) return 'The Romantic';
+    return 'The Explorer';
+  }
+
+  String _personalityDesc(String personality) {
+    switch (personality) {
+      case 'The Story Seeker':
+        return 'You enjoy emotionally driven stories, psychological mysteries and character-focused narratives.';
+      case 'The World Builder':
+        return 'You love expansive universes, speculative fiction and stories that challenge imagination.';
+      case 'The Thrill Seeker':
+        return 'You crave high-stakes action, suspense and edge-of-your-seat storytelling.';
+      case 'The Detective':
+        return 'You\'re drawn to puzzles, moral ambiguity and stories where secrets slowly unravel.';
+      case 'The Brave Soul':
+        return 'You embrace tension, atmosphere and the art of facing the unknown.';
+      case 'The Romantic':
+        return 'You appreciate human connection, heartfelt stories and emotional depth.';
+      default:
+        return 'Your taste spans genres and styles — you watch everything.';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final genres = user?.preferences.genres ?? [];
+    final era = user?.preferences.era ?? '2010s';
+    final language = user?.preferences.languages.isNotEmpty == true
+        ? user!.preferences.languages.first
+        : 'English';
+    final personality = _computePersonality(genres);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          spacing: 8.w,
-          runSpacing: 8.h,
-          children: tags
-              .map((tag) => _TagChip(label: tag.label, color: tag.color))
-              .toList(growable: false),
-        ),
+        genres.isEmpty
+            ? Text(
+                'No genres set yet — edit your profile to add taste.',
+                style: TextStyle(
+                    color: WColors.mutedSecondary, fontSize: 13.sp),
+              )
+            : Wrap(
+                spacing: 8.w,
+                runSpacing: 8.h,
+                children: genres
+                    .map((g) => _TagChip(
+                          label: g,
+                          color: _genreColors[g] ?? _defaultColor,
+                        ))
+                    .toList(growable: false),
+              ),
         SizedBox(height: 16.h),
         Container(
           clipBehavior: Clip.hardEdge,
@@ -1037,7 +1188,7 @@ class _TasteProfileSection extends StatelessWidget {
                     ),
                     SizedBox(height: 6.h),
                     Text(
-                      'The Story Seeker',
+                      personality,
                       style: TextStyle(
                         color: WColors.accentRedAlt,
                         fontSize: 18.sp,
@@ -1046,7 +1197,7 @@ class _TasteProfileSection extends StatelessWidget {
                     ),
                     SizedBox(height: 6.h),
                     Text(
-                      'You enjoy emotionally driven stories, psychological mysteries and character-focused narratives.',
+                      _personalityDesc(personality),
                       style: TextStyle(
                         color: WColors.mutedSecondarySoft,
                         fontSize: 14.sp,
@@ -1063,38 +1214,17 @@ class _TasteProfileSection extends StatelessWidget {
         SizedBox(height: 16.h),
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: _InfoTile(
                 title: 'FAVORITE ERA',
-                value: '2010s',
+                value: era,
               ),
             ),
             SizedBox(width: 10.w),
-            const Expanded(
+            Expanded(
               child: _InfoTile(
-                title: 'MOST WATCHED',
-                value: 'Movies',
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12.h),
-        Row(
-          children: [
-            const Expanded(
-              child: _InfoTile(
-                title: 'AVERAGE RATING',
-                value: '4.3',
-                accent: '⭐',
-                valueColor: Color(0xFFF8DF3C),
-              ),
-            ),
-            SizedBox(width: 10.w),
-            const Expanded(
-              child: _InfoTile(
-                title: 'FAVORITE GENRE',
-                value: 'Drama',
-                valueColor: WColors.accentRedAlt,
+                title: 'LANGUAGE',
+                value: language,
               ),
             ),
           ],
@@ -1134,15 +1264,8 @@ class _TagChip extends StatelessWidget {
 class _InfoTile extends StatelessWidget {
   final String title;
   final String value;
-  final String? accent;
-  final Color? valueColor;
 
-  const _InfoTile({
-    required this.title,
-    required this.value,
-    this.accent,
-    this.valueColor,
-  });
+  const _InfoTile({required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -1166,33 +1289,78 @@ class _InfoTile extends StatelessWidget {
             ),
           ),
           SizedBox(height: 6.h),
-          Row(
-            children: [
-              Text(
-                value,
-                style: TextStyle(
-                  color: valueColor ?? WColors.foreground,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (accent != null) ...[
-                SizedBox(width: 4.w),
-                Text(
-                  accent!,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ],
+          Text(
+            value,
+            style: TextStyle(
+              color: WColors.foreground,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Top Favorites
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _TopFavoritesRow extends StatelessWidget {
+  final List<LibraryEntryModel> entries;
+  final bool isLoading;
+
+  const _TopFavoritesRow({required this.entries, required this.isLoading});
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return SizedBox(
+        height: WSizes.imageCarouselHeight.h,
+        child: const Center(child: _LoadingSpinner()),
+      );
+    }
+
+    if (entries.isEmpty) {
+      return Container(
+        height: 80.h,
+        alignment: Alignment.center,
+        child: Text(
+          'Rate watched titles to see your top favorites.',
+          style: TextStyle(
+              color: WColors.mutedSecondary, fontSize: 13.sp),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: WSizes.imageCarouselHeight.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: entries.length,
+        itemBuilder: (context, index) {
+          final entry = entries[index];
+          return VerticalPosterBookmarkCard(
+            image: entry.posterUrl,
+            width: WSizes.posterImageWidth,
+            imageHeight: WSizes.posterImageHeight,
+            title: entry.title,
+            rating: (entry.userRating ?? 0).toStringAsFixed(1),
+            cinemaType: CinemaType.movie,
+            year: entry.releaseYear ?? '',
+          );
+        },
+        separatorBuilder: (_, __) => SizedBox(width: 12.w),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Achievements (static)
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _AchievementHallCard extends StatelessWidget {
   final List<_AchievementItem> items;
@@ -1240,21 +1408,15 @@ class _AchievementHallCard extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 8.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(999.r),
-                      child: LinearProgressIndicator(
-                        value: unlockedCount / totalCount,
-                        minHeight: 8.h,
-                        backgroundColor:
-                            WColors.surfaceTint.withValues(alpha: 0.7),
-                        valueColor: AlwaysStoppedAnimation(WColors.warning),
-                      ),
-                    ),
-                  ),
-                ],
+              ClipRRect(
+                borderRadius: BorderRadius.circular(999.r),
+                child: LinearProgressIndicator(
+                  value: unlockedCount / totalCount,
+                  minHeight: 8.h,
+                  backgroundColor:
+                      WColors.surfaceTint.withValues(alpha: 0.7),
+                  valueColor: AlwaysStoppedAnimation(WColors.warning),
+                ),
               ),
               SizedBox(height: 8.h),
               Text(
@@ -1343,43 +1505,30 @@ class _AchievementBadge extends StatelessWidget {
                         height: 136.r,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: WColors.background.withValues(alpha: 0.8),
+                          color:
+                              WColors.background.withValues(alpha: 0.8),
                         ),
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
                             if (item.badgeImage != null)
                               Opacity(
-                                opacity:
-                                    item.isHidden || item.isLocked ? 0.2 : 1.0,
+                                opacity: item.isHidden || item.isLocked
+                                    ? 0.2
+                                    : 1.0,
                                 child: Image.asset(
                                   item.badgeImage!,
                                   fit: BoxFit.contain,
-                                  scale: 1.0,
                                 ),
                               ),
                             if (item.isHidden)
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.question_mark,
-                                    size: 32.sp,
-                                    color: WColors.mutedSecondary,
-                                  ),
-                                ],
-                              )
+                              Icon(Icons.question_mark,
+                                  size: 32.sp,
+                                  color: WColors.mutedSecondary)
                             else if (item.isLocked)
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.lock_outline_rounded,
-                                    size: 28.sp,
-                                    color: WColors.mutedSecondary,
-                                  ),
-                                ],
-                              ),
+                              Icon(Icons.lock_outline_rounded,
+                                  size: 28.sp,
+                                  color: WColors.mutedSecondary),
                           ],
                         ),
                       ),
@@ -1434,57 +1583,9 @@ class _AchievementBadge extends StatelessWidget {
   }
 }
 
-class _ProgressRingPainter extends CustomPainter {
-  final double progress;
-  final Color color;
-  final Color backgroundColor;
-  final double strokeWidth;
-
-  const _ProgressRingPainter({
-    required this.progress,
-    required this.color,
-    required this.backgroundColor,
-    required this.strokeWidth,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.shortestSide - strokeWidth) / 2;
-    final basePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawCircle(
-      center,
-      radius,
-      basePaint..color = backgroundColor,
-    );
-
-    if (progress <= 0) {
-      return;
-    }
-
-    final sweep = (progress.clamp(0.0, 1.0)) * 2 * math.pi;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-    canvas.drawArc(
-      rect,
-      -math.pi / 2,
-      sweep,
-      false,
-      basePaint..color = color,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _ProgressRingPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.color != color ||
-        oldDelegate.backgroundColor != backgroundColor ||
-        oldDelegate.strokeWidth != strokeWidth;
-  }
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// Rankings (static)
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _RankingGrid extends StatelessWidget {
   final List<_RankingCardData> cards;
@@ -1534,7 +1635,8 @@ class _RankingCard extends StatelessWidget {
           Container(
             height: 108.h,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
+              borderRadius:
+                  BorderRadius.vertical(top: Radius.circular(18.r)),
               color: item.color,
               image: DecorationImage(
                 image: NetworkImage(item.image),
@@ -1547,8 +1649,8 @@ class _RankingCard extends StatelessWidget {
                   right: 10.w,
                   top: 10.h,
                   child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 8.w, vertical: 4.h),
                     decoration: BoxDecoration(
                       color: WColors.surface.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(999.r),
@@ -1556,7 +1658,8 @@ class _RankingCard extends StatelessWidget {
                     child: Row(
                       children: [
                         Icon(Icons.list_rounded,
-                            size: 12.sp, color: WColors.primaryForeground),
+                            size: 12.sp,
+                            color: WColors.primaryForeground),
                         SizedBox(width: 4.w),
                         Text(
                           item.count.toString(),
@@ -1574,8 +1677,8 @@ class _RankingCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 12.0, vertical: 10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1608,13 +1711,88 @@ class _RankingCard extends StatelessWidget {
   }
 }
 
-class _ActivityCard extends StatelessWidget {
-  final List<_ActivityItem> items;
+// ─────────────────────────────────────────────────────────────────────────────
+// Recent Activity
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const _ActivityCard({required this.items});
+class _ActivityCard extends StatelessWidget {
+  final List<LibraryEntryModel> entries;
+  final bool isLoading;
+
+  const _ActivityCard({required this.entries, required this.isLoading});
+
+  static String _timeAgo(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays == 1) return 'Yesterday';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    if (diff.inDays < 30) return '${(diff.inDays / 7).round()}w ago';
+    return '${(diff.inDays / 30).round()}mo ago';
+  }
+
+  static _ActivityData _toActivity(LibraryEntryModel e) {
+    final time = '${e.displayType}  •  ${_timeAgo(e.updatedAt)}';
+    if (e.status == 'watched' && (e.userRating ?? 0) > 0) {
+      return _ActivityData(
+        icon: Icons.star_border_rounded,
+        title: 'Rated ${e.title}',
+        subtitle: time,
+        rating: e.userRating,
+      );
+    }
+    if (e.status == 'watched') {
+      return _ActivityData(
+        icon: Icons.remove_red_eye_rounded,
+        title: 'Finished ${e.title}',
+        subtitle: time,
+      );
+    }
+    if (e.status == 'watching') {
+      return _ActivityData(
+        icon: Icons.play_circle_outline_rounded,
+        title: 'Watching ${e.title}',
+        subtitle: time,
+      );
+    }
+    if (e.status == 'dropped') {
+      return _ActivityData(
+        icon: Icons.cancel_outlined,
+        title: 'Dropped ${e.title}',
+        subtitle: time,
+      );
+    }
+    return _ActivityData(
+      icon: Icons.bookmark_border_rounded,
+      title: 'Added ${e.title} to Watchlist',
+      subtitle: time,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Container(
+        height: 80.h,
+        alignment: Alignment.center,
+        child: const _LoadingSpinner(),
+      );
+    }
+
+    if (entries.isEmpty) {
+      return Container(
+        height: 80.h,
+        alignment: Alignment.center,
+        child: Text(
+          'No activity yet — add titles to your library.',
+          style: TextStyle(
+              color: WColors.mutedSecondary, fontSize: 13.sp),
+        ),
+      );
+    }
+
+    final items = entries.map(_toActivity).toList();
+
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
@@ -1625,9 +1803,9 @@ class _ActivityCard extends StatelessWidget {
       child: Column(
         children: List.generate(
           items.length,
-          (index) => _ActivityRow(
-            item: items[index],
-            showDivider: index != items.length - 1,
+          (i) => _ActivityRow(
+            item: items[i],
+            showDivider: i != items.length - 1,
           ),
         ),
       ),
@@ -1636,7 +1814,7 @@ class _ActivityCard extends StatelessWidget {
 }
 
 class _ActivityRow extends StatelessWidget {
-  final _ActivityItem item;
+  final _ActivityData item;
   final bool showDivider;
 
   const _ActivityRow({required this.item, required this.showDivider});
@@ -1658,8 +1836,8 @@ class _ActivityRow extends StatelessWidget {
                   shape: BoxShape.circle,
                   border: Border.all(color: WColors.borderStrong),
                 ),
-                child:
-                    Icon(item.icon, size: 18.sp, color: WColors.mutedSecondary),
+                child: Icon(item.icon,
+                    size: 18.sp, color: WColors.mutedSecondary),
               ),
               SizedBox(width: 10.w),
               Expanded(
@@ -1685,12 +1863,12 @@ class _ActivityRow extends StatelessWidget {
                             child: Row(
                               children: List.generate(
                                 5,
-                                (index) => Padding(
+                                (i) => Padding(
                                   padding: EdgeInsets.only(right: 2.w),
                                   child: Icon(
                                     Icons.star_rounded,
                                     size: 10.sp,
-                                    color: index < item.rating!.floor()
+                                    color: i < item.rating!.floor()
                                         ? WColors.mutedSecondary
                                         : WColors.surfaceTint,
                                   ),
@@ -1699,13 +1877,10 @@ class _ActivityRow extends StatelessWidget {
                             ),
                           ),
                           SizedBox(width: 6.w),
-                          Text(
-                            '•  ',
-                            style: TextStyle(
-                              color: WColors.mutedSecondary,
-                              fontSize: 10.sp,
-                            ),
-                          ),
+                          Text('•  ',
+                              style: TextStyle(
+                                  color: WColors.mutedSecondary,
+                                  fontSize: 10.sp)),
                         ],
                         Text(
                           item.subtitle,
@@ -1722,19 +1897,22 @@ class _ActivityRow extends StatelessWidget {
               ),
             ],
           ),
-          if (showDivider) ...[
+          if (showDivider)
             Container(
               margin: EdgeInsets.only(left: 16.w),
               width: 1.2,
               height: 28.h,
               color: WColors.borderStrong,
-            )
-          ],
+            ),
         ],
       ),
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared small widgets
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _Pill extends StatelessWidget {
   final String label;
@@ -1789,6 +1967,87 @@ class _SeeAllChip extends StatelessWidget {
   }
 }
 
+class _LoadingPlaceholder extends StatelessWidget {
+  final double height;
+
+  const _LoadingPlaceholder({required this.height});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: WColors.surfaceTint.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+    );
+  }
+}
+
+class _LoadingSpinner extends StatelessWidget {
+  const _LoadingSpinner();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 24.w,
+      height: 24.w,
+      child: CircularProgressIndicator(
+        strokeWidth: 2,
+        color: WColors.accentRed,
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Painters
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ProgressRingPainter extends CustomPainter {
+  final double progress;
+  final Color color;
+  final Color backgroundColor;
+  final double strokeWidth;
+
+  const _ProgressRingPainter({
+    required this.progress,
+    required this.color,
+    required this.backgroundColor,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.shortestSide - strokeWidth) / 2;
+    final basePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius, basePaint..color = backgroundColor);
+
+    if (progress <= 0) return;
+
+    final sweep = progress.clamp(0.0, 1.0) * 2 * math.pi;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2,
+      sweep,
+      false,
+      basePaint..color = color,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _ProgressRingPainter old) =>
+      old.progress != progress ||
+      old.color != color ||
+      old.backgroundColor != backgroundColor ||
+      old.strokeWidth != strokeWidth;
+}
+
 class _RingChartPainter extends CustomPainter {
   final List<double> values;
   final List<Color> colors;
@@ -1814,22 +2073,12 @@ class _RingChartPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter old) => false;
 }
 
-class _PosterItem {
-  final String image;
-  final String title;
-  final double rating;
-  final String tag;
-
-  const _PosterItem({
-    required this.image,
-    required this.title,
-    required this.rating,
-    required this.tag,
-  });
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// Data classes
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _AchievementItem {
   final String title;
@@ -1855,13 +2104,6 @@ class _AchievementItem {
   });
 }
 
-class _TasteTag {
-  final String label;
-  final Color color;
-
-  const _TasteTag(this.label, this.color);
-}
-
 class _RankingCardData {
   final String title;
   final String updated;
@@ -1878,13 +2120,13 @@ class _RankingCardData {
   });
 }
 
-class _ActivityItem {
+class _ActivityData {
   final IconData icon;
   final String title;
   final String subtitle;
   final double? rating;
 
-  const _ActivityItem({
+  const _ActivityData({
     required this.icon,
     required this.title,
     required this.subtitle,

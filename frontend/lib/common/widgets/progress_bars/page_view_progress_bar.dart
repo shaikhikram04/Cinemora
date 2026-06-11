@@ -60,7 +60,11 @@ class PageViewProgressBar extends StatelessWidget {
             ] else
               SizedBox(width: 36.w),
           Expanded(
-            child: BrandHero(iconSize: 32.w, fontSize: 20.sp, centered: true),
+            child: BrandHero(
+              iconSize: 32.w,
+              fontSize: 20.sp,
+              centered: showBackButton,
+            ),
           ),
           if (onSkip != null && currentPage < totalPages - 1)
             GestureDetector(
