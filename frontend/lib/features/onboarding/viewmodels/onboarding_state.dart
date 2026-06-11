@@ -22,8 +22,13 @@ class OnboardingState extends Equatable {
   });
 
   bool get canContinue {
-    if (currentStep == 1) return selectedGenres.length >= 3;
-    return true;
+    switch (currentStep) {
+      case 0: return selectedContentTypes.isNotEmpty;
+      case 1: return selectedGenres.length >= 3;
+      case 2: return selectedLanguages.isNotEmpty;
+      case 3: return selectedPlatforms.isNotEmpty;
+      default: return true;
+    }
   }
 
   bool isContentTypeSelected(String key) => selectedContentTypes.contains(key);

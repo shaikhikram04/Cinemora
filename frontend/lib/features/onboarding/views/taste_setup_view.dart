@@ -216,7 +216,6 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                   PageViewProgressBar(
                     totalPages: OnboardingCubit.totalSteps,
                     currentPage: state.currentStep,
-                    onSkip: () => context.go(AppRoutes.onboardingSuccess),
                     showBackButton: true,
                     onBack: () {
                       FocusScope.of(context).unfocus();
@@ -294,6 +293,30 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
     );
   }
 
+  // ── Shared validation hint ────────────────────────────────────────────────────
+
+  Widget _buildValidationHint({required bool show, required String message}) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: show
+          ? Padding(
+              key: const ValueKey('hint'),
+              padding: EdgeInsets.only(bottom: 6.h),
+              child: Center(
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    color: WColors.primary,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            )
+          : SizedBox(key: const ValueKey('none'), height: 6.h),
+    );
+  }
+
   // ── Step 1: Content Types ─────────────────────────────────────────────────────
 
   Widget _buildStep1(OnboardingState state, OnboardingCubit cubit) {
@@ -327,6 +350,10 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
               }).toList(),
             ),
           ),
+        ),
+        _buildValidationHint(
+          show: state.selectedContentTypes.isEmpty,
+          message: 'Select at least 1 content type to continue',
         ),
       ],
     );
@@ -414,24 +441,10 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
             ),
           ),
         ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: remaining > 0
-              ? Padding(
-                  key: const ValueKey('validation'),
-                  padding: EdgeInsets.only(bottom: 6.h),
-                  child: Center(
-                    child: Text(
-                      'Select $remaining more ${remaining == 1 ? 'genre' : 'genres'} to continue',
-                      style: TextStyle(
-                        color: WColors.primary,
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                )
-              : SizedBox(key: const ValueKey('none'), height: 6.h),
+        _buildValidationHint(
+          show: remaining > 0,
+          message:
+              'Select $remaining more ${remaining == 1 ? 'genre' : 'genres'} to continue',
         ),
       ],
     );
@@ -532,6 +545,10 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
             ),
           ),
         ),
+        _buildValidationHint(
+          show: state.selectedLanguages.isEmpty,
+          message: 'Select at least 1 language to continue',
+        ),
       ],
     );
   }
@@ -627,6 +644,10 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
             },
           ),
         ),
+        _buildValidationHint(
+          show: state.selectedPlatforms.isEmpty,
+          message: 'Select at least 1 platform to continue',
+        ),
       ],
     );
   }
@@ -634,6 +655,8 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
   // ── Step 5: Review ────────────────────────────────────────────────────────────
 
   Widget _buildStep5(OnboardingState state) {
+    const divider = Divider(color: WColors.border, height: 1, thickness: 1);
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -643,45 +666,37 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
             title: 'Your taste profile',
             subtitle: "Everything looks good? Let's go!",
           ),
+          SizedBox(height: WSizes.xs.h),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: WSizes.md.w),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildReviewSection(
                   dotColor: WColors.primary,
                   label: 'CONTENT TYPES',
                   chips: state.selectedContentTypes,
-                  emptyText: 'Not selected',
                 ),
-                SizedBox(height: WSizes.sm.h),
+                divider,
                 _buildReviewSection(
                   dotColor: WColors.accentPurple,
                   label: 'GENRES',
-                  trailing: state.selectedGenres.isNotEmpty
-                      ? Text(
-                          '${state.selectedGenres.length} selected',
-                          style: TextStyle(
-                            color: WColors.mutedForeground,
-                            fontSize: 11.sp,
-                          ),
-                        )
-                      : null,
                   chips: state.selectedGenres,
-                  emptyText: 'Not selected',
+                  count: state.selectedGenres.isNotEmpty
+                      ? state.selectedGenres.length
+                      : null,
                 ),
-                SizedBox(height: WSizes.sm.h),
+                divider,
                 _buildReviewSection(
                   dotColor: WColors.chartGreen,
                   label: 'LANGUAGES',
                   chips: state.selectedLanguages,
-                  emptyText: 'Not selected',
                 ),
-                SizedBox(height: WSizes.sm.h),
+                divider,
                 _buildReviewSection(
                   dotColor: WColors.tertiary,
                   label: 'PLATFORMS',
                   chips: state.selectedPlatforms,
-                  emptyText: 'Not selected',
                 ),
                 SizedBox(height: 100.h),
               ],
@@ -696,29 +711,19 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
     required Color dotColor,
     required String label,
     required List<String> chips,
-    required String emptyText,
-    Widget? trailing,
+    int? count,
   }) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(WSizes.md.w),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
-        color: WColors.surfaceRaised.withValues(alpha: 0.8),
-        border: Border.all(color: WColors.border),
-      ),
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: WSizes.md.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 8.w,
-                height: 8.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: dotColor,
-                ),
+                width: 6.w,
+                height: 6.w,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: dotColor),
               ),
               SizedBox(width: 8.w),
               Text(
@@ -730,17 +735,26 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                   letterSpacing: 1.2,
                 ),
               ),
-              const Spacer(),
-              if (trailing != null) trailing,
-            ],
-          ),
-          SizedBox(height: WSizes.sm.h),
-          chips.isEmpty
-              ? Text(
-                  emptyText,
+              if (count != null) ...[
+                const Spacer(),
+                Text(
+                  '$count selected',
                   style: TextStyle(
                     color: WColors.mutedForeground,
+                    fontSize: 11.sp,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          SizedBox(height: 10.h),
+          chips.isEmpty
+              ? Text(
+                  'Skipped',
+                  style: TextStyle(
+                    color: WColors.mutedForeground.withAlpha(120),
                     fontSize: 13.sp,
+                    fontStyle: FontStyle.italic,
                   ),
                 )
               : Wrap(
@@ -750,19 +764,18 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                     return Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 10.w,
-                        vertical: 4.h,
+                        vertical: 5.h,
                       ),
                       decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(WSizes.radiusFull.r),
-                        color: WColors.surfaceChip,
-                        border: Border.all(color: WColors.surfaceChipBorder),
+                        borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                        color: dotColor.withAlpha(18),
+                        border: Border.all(color: dotColor.withAlpha(55)),
                       ),
                       child: Text(
                         text,
                         style: TextStyle(
                           color: WColors.foreground,
-                          fontSize: 11.sp,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -791,61 +804,92 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
         WSizes.md.w,
         WSizes.md.h,
       ),
-      child: GestureDetector(
-        onTap: disabled
-            ? null
-            : () {
-                FocusScope.of(context).unfocus();
-                if (isLast) {
-                  cubit.submitPreferences();
-                } else {
-                  cubit.nextStep();
-                }
-              },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: 52.h,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
-            gradient: disabled
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: disabled
                 ? null
-                : const LinearGradient(
-                    colors: [Color(0xFFE63946), Color(0xFFCF2F3B)],
-                  ),
-            color: disabled ? WColors.surfaceRaised : null,
-            border: disabled ? Border.all(color: WColors.border) : null,
-          ),
-          child: Center(
-            child: state.isSubmitting
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        isLast ? 'Confirm & Finish' : 'Continue',
-                        style: TextStyle(
-                          color: disabled ? WColors.mutedForeground : Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15.sp,
+                : () {
+                    FocusScope.of(context).unfocus();
+                    if (isLast) {
+                      cubit.submitPreferences();
+                    } else {
+                      cubit.nextStep();
+                    }
+                  },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 52.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                gradient: disabled
+                    ? null
+                    : const LinearGradient(
+                        colors: [Color(0xFFE63946), Color(0xFFCF2F3B)],
+                      ),
+                color: disabled ? WColors.surfaceRaised : null,
+                border: disabled ? Border.all(color: WColors.border) : null,
+              ),
+              child: Center(
+                child: state.isSubmitting
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
                         ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            isLast ? 'Confirm & Finish' : 'Continue',
+                            style: TextStyle(
+                              color: disabled
+                                  ? WColors.mutedForeground
+                                  : Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15.sp,
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          Icon(
+                            isLast
+                                ? Icons.check_rounded
+                                : Icons.arrow_forward_rounded,
+                            color: disabled
+                                ? WColors.mutedForeground
+                                : Colors.white,
+                            size: 18.sp,
+                          ),
+                        ],
                       ),
-                      SizedBox(width: 8.w),
-                      Icon(
-                        isLast ? Icons.check_rounded : Icons.arrow_forward_rounded,
-                        color: disabled ? WColors.mutedForeground : Colors.white,
-                        size: 18.sp,
-                      ),
-                    ],
-                  ),
+              ),
+            ),
           ),
-        ),
+          if (!isLast) ...[
+            SizedBox(height: 12.h),
+            GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                cubit.skipCurrentStep();
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 4.h),
+                child: Text(
+                  'Skip this step',
+                  style: TextStyle(
+                    color: WColors.mutedForeground.withValues(alpha: 0.6),
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -23,6 +23,21 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     }
   }
 
+  void skipCurrentStep() {
+    final step = state.currentStep;
+    if (step >= totalSteps - 1) return;
+    switch (step) {
+      case 0:
+        emit(state.copyWith(selectedContentTypes: const [], currentStep: step + 1));
+      case 1:
+        emit(state.copyWith(selectedGenres: const [], currentStep: step + 1));
+      case 2:
+        emit(state.copyWith(selectedLanguages: const [], currentStep: step + 1));
+      case 3:
+        emit(state.copyWith(selectedPlatforms: const [], currentStep: step + 1));
+    }
+  }
+
   void toggleContentType(String key) => emit(state.copyWith(
       selectedContentTypes: _toggle(state.selectedContentTypes, key)));
 
@@ -42,6 +57,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         contentTypes: state.selectedContentTypes,
         genres: state.selectedGenres,
         languages: state.selectedLanguages,
+        platforms: state.selectedPlatforms,
       );
       emit(state.copyWith(isSubmitting: false, submitSuccess: true));
     } catch (e) {

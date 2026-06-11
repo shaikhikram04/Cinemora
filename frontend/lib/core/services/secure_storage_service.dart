@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class SecureStorageService {
   static const _accessKey = 'access_token';
   static const _refreshKey = 'refresh_token';
+  static const _welcomeSeenKey = 'has_seen_welcome';
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -22,4 +23,12 @@ class SecureStorageService {
   Future<String?> getRefreshToken() => _storage.read(key: _refreshKey);
 
   Future<void> clearAll() => _storage.deleteAll();
+
+  Future<bool> getHasSeenWelcome() async {
+    final value = await _storage.read(key: _welcomeSeenKey);
+    return value == 'true';
+  }
+
+  Future<void> setHasSeenWelcome() =>
+      _storage.write(key: _welcomeSeenKey, value: 'true');
 }

@@ -5,11 +5,14 @@ import 'app_auth_state.dart';
 class AppAuthCubit extends Cubit<AppAuthState> {
   final AuthService _authService;
 
+  bool hasSeenWelcome = false;
+
   AppAuthCubit(this._authService) : super(const AppAuthInitial());
 
   Future<void> checkAuthStatus() async {
     emit(const AppAuthLoading());
     try {
+      hasSeenWelcome = await _authService.getHasSeenWelcome();
       final user = await _authService.restoreSession();
       emit(user != null
           ? AppAuthAuthenticated(user)
@@ -17,6 +20,12 @@ class AppAuthCubit extends Cubit<AppAuthState> {
     } catch (_) {
       emit(const AppAuthUnauthenticated());
     }
+  }
+
+  Future<void> markWelcomeSeen() async {
+    if (hasSeenWelcome) return;
+    hasSeenWelcome = true;
+    await _authService.setHasSeenWelcome();
   }
 
   Future<void> signInWithGoogle() async {

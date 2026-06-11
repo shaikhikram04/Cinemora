@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/common/widgets/headers/app_title_with_logo.dart';
+import 'package:watchary/common/widgets/headers/branding_hero.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
 
@@ -9,16 +9,18 @@ class PageViewProgressBar extends StatelessWidget {
     super.key,
     required this.totalPages,
     required this.currentPage,
-    required this.onSkip,
     this.showBackButton = false,
     this.onBack,
+    this.onSkip,
   });
 
   final int totalPages;
   final int currentPage;
-  final VoidCallback onSkip;
   final bool showBackButton;
   final VoidCallback? onBack;
+
+  /// When provided, a Skip chip is shown in the header (hidden on the last page).
+  final VoidCallback? onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -57,15 +59,14 @@ class PageViewProgressBar extends StatelessWidget {
               ),
             ] else
               SizedBox(width: 36.w),
-          Expanded(child: AppTitleWithLogo(centered: showBackButton)),
-          if (currentPage < totalPages - 1)
+          Expanded(
+            child: BrandHero(iconSize: 32.w, fontSize: 20.sp, centered: true),
+          ),
+          if (onSkip != null && currentPage < totalPages - 1)
             GestureDetector(
               onTap: onSkip,
               child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12.w,
-                  vertical: 6.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
                   border: Border.all(color: WColors.border),
@@ -89,7 +90,7 @@ class PageViewProgressBar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: WSizes.md),
       child: Row(
-        children: List.generate(4, (index) {
+        children: List.generate(totalPages, (index) {
           final isActive = index == currentPage;
           return Expanded(
             child: Container(

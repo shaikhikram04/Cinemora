@@ -3,8 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:watchary/core/router/app_routes.dart';
 import 'package:watchary/features/authentication/viewmodels/app_auth_cubit.dart';
 import 'package:watchary/features/authentication/viewmodels/app_auth_state.dart';
+import 'package:watchary/features/authentication/views/login_view.dart';
 import 'package:watchary/features/authentication/views/welcome_view.dart';
-import 'package:watchary/features/splash/views/animated_loading_screen.dart';
+import 'package:watchary/features/splash/views/splash_screen.dart';
 import 'package:watchary/features/discover/views/discover_view.dart';
 import 'package:watchary/features/home/screens/home.dart';
 import 'package:watchary/features/home/views/home_feed_view.dart';
@@ -52,13 +53,19 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
       final authState = authCubit.state;
       final location = state.matchedLocation;
 
-      if (authState is AppAuthInitial || authState is AppAuthLoading) {
+      if (authState is AppAuthInitial) {
         if (location != AppRoutes.splash) return AppRoutes.splash;
         return null;
       }
 
+      if (authState is AppAuthLoading) return null;
+
       if (authState is AppAuthUnauthenticated || authState is AppAuthError) {
-        if (location != AppRoutes.welcome) return AppRoutes.welcome;
+        if (authCubit.hasSeenWelcome) {
+          if (location != AppRoutes.login) return AppRoutes.login;
+        } else {
+          if (location != AppRoutes.welcome) return AppRoutes.welcome;
+        }
         return null;
       }
 
@@ -75,6 +82,7 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
 
         // Fully authenticated + onboarded — bounce away from auth/onboarding/splash routes
         if (location == AppRoutes.welcome ||
+            location == AppRoutes.login ||
             location == AppRoutes.onboarding ||
             location == AppRoutes.splash) {
           return AppRoutes.home;
@@ -88,13 +96,17 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
       // ── Splash ────────────────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.splash,
-        builder: (context, state) => const AnimatedLoadingScreen(),
+        builder: (context, state) => const SplashScreen(),
       ),
 
       // ── Auth ──────────────────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.welcome,
         builder: (context, state) => const WelcomeView(),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => const LoginView(),
       ),
 
       // ── Onboarding ────────────────────────────────────────────────────────

@@ -53,6 +53,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
   void initState() {
     super.initState();
     _pageController = PageController();
+    context.read<AppAuthCubit>().markWelcomeSeen();
   }
 
   @override

@@ -16,11 +16,13 @@ class UserRepository {
     required List<String> contentTypes,
     required List<String> genres,
     required List<String> languages,
+    required List<String> platforms,
   }) async {
     await _apiClient.dio.put('/users/preferences', data: {
       'contentTypes': contentTypes.map((c) => _contentTypeToEnum[c] ?? c).toList(),
       'genres': genres,
       'languages': languages,
+      'platforms': platforms,
     });
   }
 }

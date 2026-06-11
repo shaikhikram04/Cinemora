@@ -4,6 +4,7 @@ abstract class AppRoutes {
 
   // ── Auth ──────────────────────────────────────────────────────────────────
   static const welcome = '/';
+  static const login = '/login';
 
   // ── Onboarding ────────────────────────────────────────────────────────────
   static const onboarding = '/onboarding';

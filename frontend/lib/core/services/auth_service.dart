@@ -41,7 +41,8 @@ class AuthService {
       accessToken: appleCredential.authorizationCode,
     );
 
-    final userCredential = await _firebaseAuth.signInWithCredential(oauthCredential);
+    final userCredential =
+        await _firebaseAuth.signInWithCredential(oauthCredential);
     final idToken = await userCredential.user!.getIdToken();
     return _loginToBackend(idToken!);
   }
@@ -57,6 +58,9 @@ class AuthService {
       return null;
     }
   }
+
+  Future<bool> getHasSeenWelcome() => _storage.getHasSeenWelcome();
+  Future<void> setHasSeenWelcome() => _storage.setHasSeenWelcome();
 
   Future<void> signOut() async {
     await Future.wait([
