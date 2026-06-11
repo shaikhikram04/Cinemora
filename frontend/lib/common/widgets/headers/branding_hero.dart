@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:watchary/core/constants/assets_path.dart';
 import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/core/themes/custom_theme/text_theme.dart';
 
@@ -25,7 +26,7 @@ class BrandHero extends StatelessWidget {
             centered ? MainAxisAlignment.center : MainAxisAlignment.start,
         children: [
           Image.asset(
-            'assets/icons/cinemora_transparent_icon.png',
+            AppIcons.cinemoraTransparent,
             width: iconSize.w,
             height: iconSize.w,
             fit: BoxFit.contain,

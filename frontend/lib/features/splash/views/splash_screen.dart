@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:watchary/core/constants/assets_path.dart';
 import 'package:watchary/core/constants/colors.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -82,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen>
               children: [
                 const Spacer(flex: 3),
                 Image.asset(
-                  'assets/icons/cinemora_transparent_icon.png',
+                  AppIcons.cinemoraTransparent,
                   width: 160.w,
                   height: 160.w,
                 ),

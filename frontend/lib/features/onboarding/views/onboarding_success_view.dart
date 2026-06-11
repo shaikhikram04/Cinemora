@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+import 'package:watchary/core/constants/assets_path.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/core/router/app_routes.dart';
@@ -90,7 +91,7 @@ class _OnboardingSuccessViewState extends State<OnboardingSuccessView>
           fit: StackFit.expand,
           children: [
             Lottie.asset(
-              'assets/animations/confetti.json',
+              AppAnimations.confetti,
               fit: BoxFit.cover,
               repeat: false,
               animate: true,

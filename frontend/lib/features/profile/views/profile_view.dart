@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart';
+import 'package:watchary/core/constants/assets_path.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/core/models/library_entry_model.dart';
@@ -47,7 +48,7 @@ class _ProfileContent extends StatelessWidget {
       title: 'Marathoner',
       subtitle: '1000+ hours watched',
       tier: 'LEGENDARY',
-      badgeImage: 'assets/images/achievement_badges/marathoner_badge.png',
+      badgeImage: AppImages.marathonerBadge,
       ringColor: Color(0xFFF2B64A),
       glowColor: Color(0xFF6D4A1E),
     ),
@@ -55,7 +56,7 @@ class _ProfileContent extends StatelessWidget {
       title: 'Cinephile',
       subtitle: 'Watched 100 Titles',
       tier: 'RARE',
-      badgeImage: 'assets/images/achievement_badges/cinephile_badge.png',
+      badgeImage: AppImages.cinephileBadge,
       ringColor: Color(0xFF2CB6FF),
       glowColor: Color(0xFF3A5895),
     ),
@@ -63,7 +64,7 @@ class _ProfileContent extends StatelessWidget {
       title: 'Critic',
       subtitle: 'Rated 200 Titles',
       tier: 'EPIC',
-      badgeImage: 'assets/images/achievement_badges/critic_badge.png',
+      badgeImage: AppImages.criticBadge,
       ringColor: Color(0xFF8C5CFF),
       glowColor: Color(0xFF60409A),
     ),
@@ -71,7 +72,7 @@ class _ProfileContent extends StatelessWidget {
       title: 'Anime Explorer',
       subtitle: 'Watched 50 Anime',
       tier: 'RARE',
-      badgeImage: 'assets/images/achievement_badges/anime_exploler_badge.png',
+      badgeImage: AppImages.animeExplorerBadge,
       ringColor: Color(0xFF2CB6FF),
       glowColor: Color(0xFF3B5589),
     ),
@@ -79,7 +80,7 @@ class _ProfileContent extends StatelessWidget {
       title: 'List Curator',
       subtitle: 'Created 10 Rankings',
       tier: 'EPIC',
-      badgeImage: 'assets/images/achievement_badges/list_curator_badge.png',
+      badgeImage: AppImages.listCuratorBadge,
       ringColor: Color(0xFF8C5CFF),
       glowColor: Color(0xFF5D3A9E),
     ),
@@ -87,14 +88,14 @@ class _ProfileContent extends StatelessWidget {
       title: 'Completionist',
       subtitle: 'Finished 25 series',
       tier: 'COMMON',
-      badgeImage: 'assets/images/achievement_badges/completionist_badge.png',
+      badgeImage: AppImages.completionistBadge,
       ringColor: Color(0xFF8C949F),
       glowColor: Color(0xFF4A556A),
     ),
     _AchievementItem(
       title: 'World Cinema Master',
       subtitle: '18 / 50 countries',
-      badgeImage: 'assets/images/achievement_badges/marathoner_badge.png',
+      badgeImage: AppImages.marathonerBadge,
       tier: 'LEGENDARY',
       ringColor: Color(0xFFF2B64A),
       glowColor: Color(0xFFAE8D6B),
@@ -104,7 +105,7 @@ class _ProfileContent extends StatelessWidget {
     _AchievementItem(
       title: "Director's Eye",
       subtitle: '11 / 20 directors',
-      badgeImage: 'assets/images/achievement_badges/cinephile_badge.png',
+      badgeImage: AppImages.cinephileBadge,
       tier: 'EPIC',
       ringColor: Color(0xFF8C5CFF),
       glowColor: Color(0xFF635090),
@@ -114,7 +115,7 @@ class _ProfileContent extends StatelessWidget {
     _AchievementItem(
       title: '???',
       subtitle: 'Hidden Achievement',
-      badgeImage: 'assets/images/achievement_badges/critic_badge.png',
+      badgeImage: AppImages.criticBadge,
       tier: 'HIDDEN',
       ringColor: Color(0xFF3C414D),
       glowColor: Color(0xFF3A4251),
