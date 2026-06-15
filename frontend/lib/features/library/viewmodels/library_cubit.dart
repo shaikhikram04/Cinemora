@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:watchary/features/library/models/library_item.dart';
+import 'package:cinemora/features/library/models/library_item.dart';
 import 'library_state.dart';
 
 class LibraryCubit extends Cubit<LibraryState> {

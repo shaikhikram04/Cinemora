@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/core/constants/sizes.dart';
+import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/sizes.dart';
 
 // ─── Public entry point ───────────────────────────────────────────────────────
 

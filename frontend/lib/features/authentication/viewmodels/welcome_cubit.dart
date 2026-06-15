@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:watchary/features/authentication/viewmodels/welcome_state.dart';
+import 'package:cinemora/features/authentication/viewmodels/welcome_state.dart';
 
 class WelcomeCubit extends Cubit<WelcomeState> {
   static const int _totalPages = 4;

@@ -3,16 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:watchary/common/widgets/progress_bars/page_view_progress_bar.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/core/constants/sizes.dart';
-import 'package:watchary/core/repositories/user_repository.dart';
-import 'package:watchary/core/router/app_routes.dart';
-import 'package:watchary/features/authentication/viewmodels/app_auth_cubit.dart';
-import 'package:watchary/features/onboarding/viewmodels/onboarding_cubit.dart';
-import 'package:watchary/features/onboarding/viewmodels/onboarding_state.dart';
-import 'package:watchary/core/constants/assets_path.dart';
-import 'package:watchary/features/onboarding/widgets/content_type_card.dart';
+import 'package:cinemora/common/widgets/progress_bars/page_view_progress_bar.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/repositories/user_repository.dart';
+import 'package:cinemora/core/router/app_routes.dart';
+import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:cinemora/features/onboarding/viewmodels/onboarding_cubit.dart';
+import 'package:cinemora/features/onboarding/viewmodels/onboarding_state.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/features/onboarding/widgets/content_type_card.dart';
 
 // ── Static configuration data (not business state) ────────────────────────────
 

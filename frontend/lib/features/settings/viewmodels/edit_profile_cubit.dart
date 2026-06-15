@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:watchary/core/models/user_model.dart';
-import 'package:watchary/core/repositories/user_repository.dart';
+import 'package:cinemora/core/models/user_model.dart';
+import 'package:cinemora/core/repositories/user_repository.dart';
 import 'edit_profile_state.dart';
 
 class EditProfileCubit extends Cubit<EditProfileState> {

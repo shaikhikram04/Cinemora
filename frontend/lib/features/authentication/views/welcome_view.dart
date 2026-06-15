@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/common/widgets/containers/top_gradient_background_container.dart';
-import 'package:watchary/common/widgets/cards/poster_image.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/core/constants/shadows.dart';
-import 'package:watchary/core/constants/sizes.dart';
-import 'package:watchary/core/utils/device_utils.dart';
-import 'package:watchary/features/authentication/viewmodels/app_auth_cubit.dart';
-import 'package:watchary/features/authentication/viewmodels/app_auth_state.dart';
-import 'package:watchary/features/authentication/viewmodels/welcome_cubit.dart';
-import 'package:watchary/features/authentication/viewmodels/welcome_state.dart';
-import 'package:watchary/features/authentication/widgets/index.dart';
-import 'package:watchary/common/widgets/progress_bars/page_view_progress_bar.dart';
+import 'package:cinemora/common/widgets/containers/top_gradient_background_container.dart';
+import 'package:cinemora/common/widgets/cards/poster_image.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/shadows.dart';
+import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/utils/device_utils.dart';
+import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:cinemora/features/authentication/viewmodels/app_auth_state.dart';
+import 'package:cinemora/features/authentication/viewmodels/welcome_cubit.dart';
+import 'package:cinemora/features/authentication/viewmodels/welcome_state.dart';
+import 'package:cinemora/features/authentication/widgets/index.dart';
+import 'package:cinemora/common/widgets/progress_bars/page_view_progress_bar.dart';
 
 // Poster images are static visual content — not business state.
 const _kPosterImages = [

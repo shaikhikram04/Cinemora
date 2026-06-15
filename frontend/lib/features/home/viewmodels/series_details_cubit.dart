@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:watchary/features/home/models/series_season.dart';
+import 'package:cinemora/features/home/models/series_season.dart';
 import 'series_details_state.dart';
 
 class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {

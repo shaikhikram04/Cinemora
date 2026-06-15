@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/core/constants/sizes.dart';
-import 'package:watchary/features/discover/viewmodels/discover_cubit.dart';
-import 'package:watchary/features/discover/viewmodels/discover_state.dart';
-import 'package:watchary/features/discover/widgets/discover_filter_chips.dart';
-import 'package:watchary/features/discover/widgets/discover_genre_grid.dart';
-import 'package:watchary/features/discover/widgets/discover_recent_searches.dart';
-import 'package:watchary/features/discover/widgets/discover_search_bar.dart';
-import 'package:watchary/features/discover/widgets/discover_trending_section.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/features/discover/viewmodels/discover_cubit.dart';
+import 'package:cinemora/features/discover/viewmodels/discover_state.dart';
+import 'package:cinemora/features/discover/widgets/discover_filter_chips.dart';
+import 'package:cinemora/features/discover/widgets/discover_genre_grid.dart';
+import 'package:cinemora/features/discover/widgets/discover_recent_searches.dart';
+import 'package:cinemora/features/discover/widgets/discover_search_bar.dart';
+import 'package:cinemora/features/discover/widgets/discover_trending_section.dart';
 
 class DiscoverView extends StatelessWidget {
   const DiscoverView({super.key});

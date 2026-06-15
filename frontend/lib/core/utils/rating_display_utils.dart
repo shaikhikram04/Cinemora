@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:watchary/core/constants/colors.dart';
+import 'package:cinemora/core/constants/colors.dart';
 
 String ratingLabelFor(double value) {
   if (value == 5.0) return 'Masterpiece';

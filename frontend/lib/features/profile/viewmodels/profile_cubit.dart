@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:watchary/core/models/library_entry_model.dart';
-import 'package:watchary/core/models/library_stats_model.dart';
-import 'package:watchary/core/repositories/user_repository.dart';
+import 'package:cinemora/core/models/library_entry_model.dart';
+import 'package:cinemora/core/models/library_stats_model.dart';
+import 'package:cinemora/core/repositories/user_repository.dart';
 import 'profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {

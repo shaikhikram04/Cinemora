@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/core/constants/sizes.dart';
-import 'package:watchary/features/settings/viewmodels/notification_settings_cubit.dart';
-import 'package:watchary/features/settings/viewmodels/notification_settings_state.dart';
-import 'package:watchary/features/settings/widgets/settings_top_bar.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/features/settings/viewmodels/notification_settings_cubit.dart';
+import 'package:cinemora/features/settings/viewmodels/notification_settings_state.dart';
+import 'package:cinemora/features/settings/widgets/settings_top_bar.dart';
 
 // ─── View ─────────────────────────────────────────────────────────────────────
 

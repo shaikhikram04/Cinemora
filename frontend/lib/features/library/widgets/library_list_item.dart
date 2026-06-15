@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/core/utils/rating_display_utils.dart';
-import 'package:watchary/features/library/models/library_item.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/utils/rating_display_utils.dart';
+import 'package:cinemora/features/library/models/library_item.dart';
 
 class LibraryListItem extends StatelessWidget {
   final LibraryItem item;

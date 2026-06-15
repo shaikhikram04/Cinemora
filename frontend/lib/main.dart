@@ -1,15 +1,17 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:watchary/app.dart';
-import 'package:watchary/core/network/api_client.dart';
-import 'package:watchary/core/repositories/user_repository.dart';
-import 'package:watchary/core/services/auth_service.dart';
-import 'package:watchary/core/services/secure_storage_service.dart';
-import 'package:watchary/features/authentication/viewmodels/app_auth_cubit.dart';
-import 'package:watchary/firebase_options.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:cinemora/app.dart';
+import 'package:cinemora/core/network/api_client.dart';
+import 'package:cinemora/core/repositories/user_repository.dart';
+import 'package:cinemora/core/services/auth_service.dart';
+import 'package:cinemora/core/services/secure_storage_service.dart';
+import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:cinemora/firebase_options.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final storage = SecureStorageService();
@@ -18,5 +20,6 @@ void main() async {
   final authCubit = AppAuthCubit(authService);
   final userRepository = UserRepository(apiClient);
 
+  FlutterNativeSplash.remove();
   runApp(WatcharyApp(authCubit: authCubit, userRepository: userRepository));
 }

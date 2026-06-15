@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/common/widgets/chips/tappable_icon_text_chip.dart';
-import 'package:watchary/common/widgets/chips/tappable_text_chip.dart';
-import 'package:watchary/core/constants/sizes.dart';
+import 'package:cinemora/common/widgets/chips/tappable_icon_text_chip.dart';
+import 'package:cinemora/common/widgets/chips/tappable_text_chip.dart';
+import 'package:cinemora/core/constants/sizes.dart';
 
 // ── Top-level filter chips (All / Movies / Anime / Series) ─────────────────
 class DiscoverFilterChips extends StatelessWidget {

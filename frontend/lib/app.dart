@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:watchary/core/repositories/user_repository.dart';
-import 'package:watchary/core/router/app_router.dart';
-import 'package:watchary/core/themes/theme.dart';
-import 'package:watchary/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:cinemora/core/repositories/user_repository.dart';
+import 'package:cinemora/core/router/app_router.dart';
+import 'package:cinemora/core/themes/theme.dart';
+import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
 
 class WatcharyApp extends StatefulWidget {
   final AppAuthCubit authCubit;

@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:watchary/core/constants/assets_path.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/core/constants/sizes.dart';
-import 'package:watchary/core/router/app_routes.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/router/app_routes.dart';
 
 const _kPosterUrls = [
   'https://images.unsplash.com/photo-1612036781124-847f8939b154?auto=format&fit=crop&w=200&q=80',

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/common/widgets/buttons/action_button.dart';
-import 'package:watchary/common/widgets/buttons/circle_icon_button.dart';
-import 'package:watchary/common/widgets/buttons/pill_chip.dart';
-import 'package:watchary/common/widgets/buttons/toggle_action_button.dart';
-import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/core/constants/sizes.dart';
-import 'package:watchary/core/utils/rating_display_utils.dart';
-import 'package:watchary/features/home/models/series_season.dart';
-import 'package:watchary/features/home/widgets/discover_chip.dart';
-import 'package:watchary/features/home/widgets/rating_meter.dart';
+import 'package:cinemora/common/widgets/buttons/action_button.dart';
+import 'package:cinemora/common/widgets/buttons/circle_icon_button.dart';
+import 'package:cinemora/common/widgets/buttons/pill_chip.dart';
+import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
+import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/utils/rating_display_utils.dart';
+import 'package:cinemora/features/home/models/series_season.dart';
+import 'package:cinemora/features/home/widgets/discover_chip.dart';
+import 'package:cinemora/features/home/widgets/rating_meter.dart';
 
 // ─── Root content widget ─────────────────────────────────────────────────────
 

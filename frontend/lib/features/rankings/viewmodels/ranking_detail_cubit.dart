@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:watchary/features/rankings/models/ranking_item.dart';
+import 'package:cinemora/features/rankings/models/ranking_item.dart';
 import 'ranking_detail_state.dart';
 
 class RankingDetailCubit extends Cubit<RankingDetailState> {

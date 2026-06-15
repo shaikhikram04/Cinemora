@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:watchary/common/widgets/buttons/action_button.dart';
-import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart';
-import 'package:watchary/common/widgets/headers/section_header.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/core/constants/sizes.dart';
-import 'package:watchary/core/router/app_router.dart';
-import 'package:watchary/core/router/app_routes.dart';
-import 'package:watchary/features/home/models/movie_poster.dart';
-import 'package:watchary/features/home/viewmodels/home_feed_cubit.dart';
-import 'package:watchary/features/home/viewmodels/home_feed_state.dart';
-import 'package:watchary/features/watch_together/widgets/watch_together_card.dart';
+import 'package:cinemora/common/widgets/buttons/action_button.dart';
+import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
+import 'package:cinemora/common/widgets/headers/section_header.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/router/app_router.dart';
+import 'package:cinemora/core/router/app_routes.dart';
+import 'package:cinemora/features/home/models/movie_poster.dart';
+import 'package:cinemora/features/home/viewmodels/home_feed_cubit.dart';
+import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
+import 'package:cinemora/features/watch_together/widgets/watch_together_card.dart';
 
 // ── Static content (not business state) ───────────────────────────────────────
 

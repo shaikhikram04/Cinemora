@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:watchary/features/home/viewmodels/home_feed_state.dart';
+import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
 
 class HomeFeedCubit extends Cubit<HomeFeedState> {
   HomeFeedCubit() : super(const HomeFeedState());

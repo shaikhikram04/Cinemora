@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/core/utils/rating_display_utils.dart';
-import 'package:watchary/features/home/viewmodels/movie_details_cubit.dart';
-import 'package:watchary/features/home/viewmodels/movie_details_state.dart';
-import 'package:watchary/features/home/widgets/movie_details_content.dart';
-import 'package:watchary/features/home/widgets/post_rating_bottom_sheet.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/utils/rating_display_utils.dart';
+import 'package:cinemora/features/home/viewmodels/movie_details_cubit.dart';
+import 'package:cinemora/features/home/viewmodels/movie_details_state.dart';
+import 'package:cinemora/features/home/widgets/movie_details_content.dart';
+import 'package:cinemora/features/home/widgets/post_rating_bottom_sheet.dart';
 
 class MovieDetailsView extends StatelessWidget {
   final String movieTitle;

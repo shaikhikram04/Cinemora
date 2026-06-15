@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:watchary/features/notifications/models/notification.dart';
+import 'package:cinemora/features/notifications/models/notification.dart';
 
 class NotificationsState extends Equatable {
   final List<WNotif> notifications;

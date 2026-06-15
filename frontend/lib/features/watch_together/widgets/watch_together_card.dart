@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/features/watch_together/views/watch_together_intro_view.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/features/watch_together/views/watch_together_intro_view.dart';
 
 class WatchTogetherCard extends StatefulWidget {
   const WatchTogetherCard({super.key});

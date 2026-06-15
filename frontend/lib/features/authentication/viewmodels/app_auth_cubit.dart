@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:watchary/core/models/user_model.dart';
-import 'package:watchary/core/services/auth_service.dart';
+import 'package:cinemora/core/models/user_model.dart';
+import 'package:cinemora/core/services/auth_service.dart';
 import 'app_auth_state.dart';
 
 class AppAuthCubit extends Cubit<AppAuthState> {

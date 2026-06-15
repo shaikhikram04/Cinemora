@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:watchary/common/widgets/cards/vertical_poster_bookmark_card.dart';
-import 'package:watchary/core/constants/assets_path.dart';
-import 'package:watchary/core/constants/colors.dart';
-import 'package:watchary/core/constants/sizes.dart';
-import 'package:watchary/core/models/library_entry_model.dart';
-import 'package:watchary/core/models/library_stats_model.dart';
-import 'package:watchary/core/models/user_model.dart';
-import 'package:watchary/core/repositories/user_repository.dart';
-import 'package:watchary/core/router/app_routes.dart';
-import 'package:watchary/features/authentication/viewmodels/app_auth_cubit.dart';
-import 'package:watchary/features/authentication/viewmodels/app_auth_state.dart';
-import 'package:watchary/features/profile/viewmodels/profile_cubit.dart';
-import 'package:watchary/features/profile/viewmodels/profile_state.dart';
+import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/models/library_entry_model.dart';
+import 'package:cinemora/core/models/library_stats_model.dart';
+import 'package:cinemora/core/models/user_model.dart';
+import 'package:cinemora/core/repositories/user_repository.dart';
+import 'package:cinemora/core/router/app_routes.dart';
+import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:cinemora/features/authentication/viewmodels/app_auth_state.dart';
+import 'package:cinemora/features/profile/viewmodels/profile_cubit.dart';
+import 'package:cinemora/features/profile/viewmodels/profile_state.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Entry point

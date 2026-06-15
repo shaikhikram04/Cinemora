@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:watchary/core/models/user_model.dart';
+import 'package:cinemora/core/models/user_model.dart';
 
 enum EditProfileStatus { idle, saving, success, error }
 

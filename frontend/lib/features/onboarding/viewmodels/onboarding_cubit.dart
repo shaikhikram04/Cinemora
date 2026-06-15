@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:watchary/core/repositories/user_repository.dart';
-import 'package:watchary/features/onboarding/viewmodels/onboarding_state.dart';
+import 'package:cinemora/core/repositories/user_repository.dart';
+import 'package:cinemora/features/onboarding/viewmodels/onboarding_state.dart';
 
 class OnboardingCubit extends Cubit<OnboardingState> {
   static const int totalSteps = 5;

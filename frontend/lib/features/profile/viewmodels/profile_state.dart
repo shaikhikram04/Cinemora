@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:watchary/core/models/library_entry_model.dart';
-import 'package:watchary/core/models/library_stats_model.dart';
+import 'package:cinemora/core/models/library_entry_model.dart';
+import 'package:cinemora/core/models/library_stats_model.dart';
 
 enum ProfileStatus { initial, loading, loaded, error }
 

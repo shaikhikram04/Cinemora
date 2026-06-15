@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:watchary/core/constants/colors.dart';
+import 'package:cinemora/core/constants/colors.dart';
 
 class LibraryStatsCard extends StatelessWidget {
   const LibraryStatsCard({super.key});
