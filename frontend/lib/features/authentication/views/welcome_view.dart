@@ -144,7 +144,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
   // ── Page 0 — Track ─────────────────────────────────────────────────────────
 
   Widget _buildPage0(WelcomeCubit cubit) {
-    return OnboardingPageLayout(
+    return WelcomePageLayout(
       visual: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
@@ -238,7 +238,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
   // ── Page 1 — Organize ──────────────────────────────────────────────────────
 
   Widget _buildPage1(WelcomeCubit cubit) {
-    return OnboardingPageLayout(
+    return WelcomePageLayout(
       visual: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -280,7 +280,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
   // ── Page 2 — Discover ──────────────────────────────────────────────────────
 
   Widget _buildPage2(WelcomeCubit cubit) {
-    return OnboardingPageLayout(
+    return WelcomePageLayout(
       visual: Padding(
         padding: const EdgeInsets.symmetric(horizontal: WSizes.sm),
         child: Column(
@@ -435,7 +435,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
     final isLoading = context.select<AppAuthCubit, bool>(
       (c) => c.state is AppAuthLoading,
     );
-    return OnboardingPageLayout(
+    return WelcomePageLayout(
       isLoading: isLoading,
       visual: Column(
         children: [

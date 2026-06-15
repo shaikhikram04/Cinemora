@@ -4,7 +4,7 @@ import 'package:watchary/core/constants/sizes.dart';
 import 'package:watchary/core/constants/colors.dart';
 import 'package:watchary/core/themes/custom_theme/text_theme.dart';
 
-class OnboardingPageLayout extends StatelessWidget {
+class WelcomePageLayout extends StatelessWidget {
   final Widget visual;
   final String label;
   final String title;
@@ -15,7 +15,7 @@ class OnboardingPageLayout extends StatelessWidget {
   final VoidCallback? onSecondaryPressed;
   final bool isLoading;
 
-  const OnboardingPageLayout({
+  const WelcomePageLayout({
     super.key,
     required this.visual,
     required this.label,

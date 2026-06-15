@@ -11,6 +11,7 @@ import 'package:watchary/core/router/app_routes.dart';
 import 'package:watchary/features/authentication/viewmodels/app_auth_cubit.dart';
 import 'package:watchary/features/onboarding/viewmodels/onboarding_cubit.dart';
 import 'package:watchary/features/onboarding/viewmodels/onboarding_state.dart';
+import 'package:watchary/core/constants/assets_path.dart';
 import 'package:watchary/features/onboarding/widgets/content_type_card.dart';
 
 // ── Static configuration data (not business state) ────────────────────────────
@@ -119,15 +120,15 @@ const _kLanguages = [
 ];
 
 const _kPlatforms = [
-  {'key': 'Netflix', 'abbr': 'N', 'color': Color(0xFFE50914)},
-  {'key': 'Prime Video', 'abbr': 'P', 'color': Color(0xFF00A8E1)},
-  {'key': 'Disney+', 'abbr': 'D+', 'color': Color(0xFF1F318C)},
-  {'key': 'Crunchyroll', 'abbr': 'CR', 'color': Color(0xFFF47521)},
-  {'key': 'JioHotstar', 'abbr': 'HS', 'color': Color(0xFF1A3CB5)},
-  {'key': 'SonyLIV', 'abbr': 'SL', 'color': Color(0xFF0070C0)},
-  {'key': 'ZEE5', 'abbr': 'Z5', 'color': Color(0xFF8B5CF6)},
-  {'key': 'Apple TV+', 'abbr': 'A+', 'color': Color(0xFF555555)},
-  {'key': 'Mubi', 'abbr': 'M', 'color': Color(0xFF33BBFF)},
+  {'key': 'Netflix', 'image': AppImages.netflix, 'color': Color(0xFFE50914)},
+  {'key': 'Prime Video', 'image': AppImages.amazonPrimeVideo, 'color': Color(0xFF00A8E1)},
+  {'key': 'Disney+', 'image': AppImages.disneyPlus, 'color': Color(0xFF1F318C)},
+  {'key': 'Crunchyroll', 'image': AppImages.crunchyroll, 'color': Color(0xFFF47521)},
+  {'key': 'JioHotstar', 'image': AppImages.jioHotstar, 'color': Color(0xFF1A3CB5)},
+  {'key': 'SonyLIV', 'image': AppImages.sonyLiv, 'color': Color(0xFF0070C0)},
+  {'key': 'ZEE5', 'image': AppImages.zee5, 'color': Color(0xFF8B5CF6)},
+  {'key': 'Apple TV+', 'image': AppImages.appleTv, 'color': Color(0xFF555555)},
+  {'key': 'Mubi', 'image': AppImages.mubi, 'color': Color(0xFF33BBFF)},
 ];
 
 // ── Entry point — provides OnboardingCubit ─────────────────────────────────────
@@ -583,23 +584,27 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                   padding: EdgeInsets.symmetric(vertical: 14.h),
                   child: Row(
                     children: [
-                      Container(
-                        width: 40.w,
-                        height: 40.w,
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 160),
+                        width: 44.w,
+                        height: 44.w,
                         decoration: BoxDecoration(
                           borderRadius:
                               BorderRadius.circular(WSizes.radiusMd.r),
-                          color: color.withAlpha(35),
-                          border: Border.all(color: color.withAlpha(80)),
+                          color: WColors.surfaceRaised,
+                          border: Border.all(
+                            color: isSelected
+                                ? color.withAlpha(180)
+                                : WColors.border,
+                            width: isSelected ? 1.5 : 1,
+                          ),
                         ),
-                        child: Center(
-                          child: Text(
-                            item['abbr'] as String,
-                            style: TextStyle(
-                              color: color,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 11.sp,
-                            ),
+                        child: ClipRRect(
+                          borderRadius:
+                              BorderRadius.circular(WSizes.radiusMd.r - 1),
+                          child: Image.asset(
+                            item['image'] as String,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),

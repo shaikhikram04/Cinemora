@@ -35,6 +35,7 @@ flutter:
 
   assets:
     - assets/images/achievement_badges/
+    - assets/images/streaming_platforms/
     - assets/icons/
     - assets/animations/
 
