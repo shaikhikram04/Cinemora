@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class TappableIconTextChip extends StatelessWidget {
@@ -29,10 +29,10 @@ class TappableIconTextChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: selected ? WColors.primary : WColors.surfaceChip,
+          color: selected ? context.colors.primary : context.colors.surfaceChip,
           borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
           border: Border.all(
-            color: selected ? WColors.primary : WColors.surfaceChipBorder,
+            color: selected ? context.colors.primary : context.colors.surfaceChipBorder,
           ),
         ),
         child: Row(
@@ -41,13 +41,13 @@ class TappableIconTextChip extends StatelessWidget {
             Icon(
               icon,
               size: iconSize.sp,
-              color: selected ? Colors.white : WColors.mutedForeground,
+              color: selected ? Colors.white : context.colors.mutedForeground,
             ),
             SizedBox(width: 6.w),
             Text(
               label,
               style: TextStyle(
-                color: selected ? Colors.white : WColors.mutedSecondaryAlt,
+                color: selected ? Colors.white : context.colors.mutedSecondaryAlt,
                 fontSize: textSize.sp,
                 fontWeight: FontWeight.w600,
               ),

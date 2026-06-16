@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/rankings/models/ranking_item.dart';
 import 'package:cinemora/features/rankings/viewmodels/ranking_detail_cubit.dart';
@@ -32,7 +32,7 @@ class RankingsView extends StatelessWidget {
     const topCount = 6;
 
     return Container(
-      color: WColors.background,
+      color: context.colors.background,
       child: SafeArea(
         bottom: false,
         child: CustomScrollView(
@@ -56,7 +56,7 @@ class RankingsView extends StatelessWidget {
                           Text(
                             'My Rankings',
                             style: TextStyle(
-                              color: WColors.foreground,
+                              color: context.colors.foreground,
                               fontSize: 28.sp,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.5,
@@ -66,7 +66,7 @@ class RankingsView extends StatelessWidget {
                           Text(
                             '$listCount curated lists',
                             style: TextStyle(
-                              color: WColors.mutedSecondary,
+                              color: context.colors.mutedSecondary,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w500,
                             ),
@@ -82,9 +82,9 @@ class RankingsView extends StatelessWidget {
                           vertical: 8.h,
                         ),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             colors: [
-                              WColors.accentRed,
+                              context.colors.accentRed,
                               Color(0xFFC81B23),
                             ],
                           ),
@@ -127,7 +127,7 @@ class RankingsView extends StatelessWidget {
                     _StatCard(
                       value: '$listCount',
                       label: 'Lists',
-                      accent: WColors.accentRed,
+                      accent: context.colors.accentRed,
                     ),
                     SizedBox(width: 12.w),
                     _StatCard(
@@ -220,7 +220,7 @@ class _RankingDetailContent extends StatelessWidget {
         final cubit = context.read<RankingDetailCubit>();
         final entries = state.entries;
         return Scaffold(
-          backgroundColor: WColors.background,
+          backgroundColor: context.colors.background,
           body: SafeArea(
             bottom: false,
             child: Column(
@@ -240,13 +240,13 @@ class _RankingDetailContent extends StatelessWidget {
                           width: 36.w,
                           height: 36.w,
                           decoration: BoxDecoration(
-                            color: WColors.surfaceChip,
+                            color: context.colors.surfaceChip,
                             borderRadius: BorderRadius.circular(14.r),
                           ),
                           child: Icon(
                             Icons.arrow_back_rounded,
                             size: 18.sp,
-                            color: WColors.foreground,
+                            color: context.colors.foreground,
                           ),
                         ),
                       ),
@@ -263,7 +263,7 @@ class _RankingDetailContent extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     inherit: false,
-                                    color: WColors.foreground,
+                                    color: context.colors.foreground,
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -273,7 +273,7 @@ class _RankingDetailContent extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    color: WColors.foreground,
+                                    color: context.colors.foreground,
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.w800,
                                   ),
@@ -284,7 +284,7 @@ class _RankingDetailContent extends StatelessWidget {
                             Text(
                               '${entries.length} titles ranked',
                               style: TextStyle(
-                                color: WColors.mutedSecondaryDeep,
+                                color: context.colors.mutedSecondaryDeep,
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -416,10 +416,10 @@ class _StatCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 8.h),
         decoration: BoxDecoration(
-          color: WColors.surfaceChip.withValues(alpha: 0.6),
+          color: context.colors.surfaceChip.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
-            color: WColors.surfaceChipBorder.withValues(alpha: 0.6),
+            color: context.colors.surfaceChipBorder.withValues(alpha: 0.6),
           ),
         ),
         child: Column(
@@ -435,7 +435,7 @@ class _StatCard extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: WColors.mutedSecondaryDeep,
+                color: context.colors.mutedSecondaryDeep,
                 fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
               ),
@@ -463,7 +463,7 @@ class _RankingCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
-          color: WColors.surfaceChip.withValues(alpha: 0.6),
+          color: context.colors.surfaceChip.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(24.r),
           border: Border.all(
             color: list.accent.withValues(alpha: 0.2),
@@ -494,7 +494,7 @@ class _RankingCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: WColors.foreground,
+                      color: context.colors.foreground,
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                     ),
@@ -599,11 +599,11 @@ class _NewListCard extends StatelessWidget {
         strokeWidth: 1.2,
         dashWidth: 6,
         dashGap: 6,
-        color: WColors.borderStrong,
+        color: context.colors.borderStrong,
         child: Container(
           padding: EdgeInsets.all(14.w),
           decoration: BoxDecoration(
-            color: WColors.surfaceChip.withValues(alpha: 0.6),
+            color: context.colors.surfaceChip.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(18.r),
           ),
           child: Column(
@@ -613,14 +613,14 @@ class _NewListCard extends StatelessWidget {
                 width: 44.w,
                 height: 44.w,
                 decoration: BoxDecoration(
-                  color: WColors.accentRed.withValues(alpha: 0.1),
+                  color: context.colors.accentRed.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(14.r),
                   border:
-                      Border.all(color: WColors.primary.withValues(alpha: 0.3)),
+                      Border.all(color: context.colors.primary.withValues(alpha: 0.3)),
                 ),
                 child: Icon(
                   Icons.add,
-                  color: WColors.accentRed,
+                  color: context.colors.accentRed,
                   size: 20.sp,
                 ),
               ),
@@ -628,7 +628,7 @@ class _NewListCard extends StatelessWidget {
               Text(
                 'New List',
                 style: TextStyle(
-                  color: WColors.accentRed,
+                  color: context.colors.accentRed,
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -637,7 +637,7 @@ class _NewListCard extends StatelessWidget {
               Text(
                 'Create ranking',
                 style: TextStyle(
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -758,9 +758,9 @@ class _RankingEntryTile extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 16.h),
       decoration: BoxDecoration(
-        color: WColors.surfaceChip,
+        color: context.colors.surfaceChip,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Row(
         children: [
@@ -769,7 +769,7 @@ class _RankingEntryTile extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(color: WColors.backgroundAlt, width: 0.8),
+              border: Border.all(color: context.colors.backgroundAlt, width: 0.8),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(14.r),
@@ -789,7 +789,7 @@ class _RankingEntryTile extends StatelessWidget {
                 Text(
                   entry.title,
                   style: TextStyle(
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -819,7 +819,7 @@ class _RankingEntryTile extends StatelessWidget {
                     Text(
                       '★ ${entry.rating}  ·  ${entry.year}',
                       style: TextStyle(
-                        color: WColors.mutedSecondary,
+                        color: context.colors.mutedSecondary,
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w600,
                       ),
@@ -894,14 +894,14 @@ class _MoveButton extends StatelessWidget {
         width: 26.w,
         height: 26.w,
         decoration: BoxDecoration(
-          color: enabled ? WColors.surface : null,
+          color: enabled ? context.colors.surface : null,
           borderRadius: BorderRadius.circular(8.r),
-          border: enabled ? Border.all(color: WColors.borderStrong) : null,
+          border: enabled ? Border.all(color: context.colors.borderStrong) : null,
         ),
         child: Icon(
           icon,
           size: 16.sp,
-          color: enabled ? WColors.mutedSecondary : WColors.mutedSecondaryHeader,
+          color: enabled ? context.colors.mutedSecondary : context.colors.mutedSecondaryHeader,
         ),
       ),
     );
@@ -934,9 +934,9 @@ class _CreateListSheetState extends State<_CreateListSheet> {
       child: Container(
         padding: EdgeInsets.fromLTRB(20.w, 14.h, 20.w, 24.h),
         decoration: BoxDecoration(
-          color: WColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-          border: Border.all(color: WColors.borderStrong),
+          border: Border.all(color: context.colors.borderStrong),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -946,14 +946,14 @@ class _CreateListSheetState extends State<_CreateListSheet> {
               height: 4.h,
               margin: EdgeInsets.only(bottom: 12.h),
               decoration: BoxDecoration(
-                color: WColors.mutedSecondaryDeep,
+                color: context.colors.mutedSecondaryDeep,
                 borderRadius: BorderRadius.circular(999.r),
               ),
             ),
             Text(
               'Create New List',
               style: TextStyle(
-                color: WColors.foreground,
+                color: context.colors.foreground,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w800,
               ),
@@ -962,7 +962,7 @@ class _CreateListSheetState extends State<_CreateListSheet> {
             Text(
               'Curate your perfect ranking',
               style: TextStyle(
-                color: WColors.mutedSecondary,
+                color: context.colors.mutedSecondary,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,
               ),
@@ -985,8 +985,8 @@ class _CreateListSheetState extends State<_CreateListSheet> {
                 padding: EdgeInsets.symmetric(vertical: 14.h),
                 decoration: BoxDecoration(
                   color: canSubmit
-                      ? WColors.primary.withValues(alpha: 0.9)
-                      : WColors.surfaceRaised,
+                      ? context.colors.primary.withValues(alpha: 0.9)
+                      : context.colors.surfaceRaised,
                   borderRadius: BorderRadius.circular(18.r),
                 ),
                 child: Center(
@@ -994,8 +994,8 @@ class _CreateListSheetState extends State<_CreateListSheet> {
                     'Create List',
                     style: TextStyle(
                       color: canSubmit
-                          ? WColors.foreground
-                          : WColors.mutedSecondary,
+                          ? context.colors.foreground
+                          : context.colors.mutedSecondary,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
                     ),
@@ -1051,13 +1051,13 @@ class _EmojiPickerState extends State<_EmojiPicker> {
             height: 38.w,
             decoration: BoxDecoration(
               color: isSelected
-                  ? WColors.accentRed.withValues(alpha: 0.18)
-                  : WColors.surfaceRaised,
+                  ? context.colors.accentRed.withValues(alpha: 0.18)
+                  : context.colors.surfaceRaised,
               borderRadius: BorderRadius.circular(16.r),
               border: Border.all(
                 color: isSelected
-                    ? WColors.accentRed.withValues(alpha: 0.3)
-                    : WColors.borderStrong,
+                    ? context.colors.accentRed.withValues(alpha: 0.3)
+                    : context.colors.borderStrong,
                 width: isSelected ? 1.4 : 1,
               ),
             ),
@@ -1094,33 +1094,33 @@ class _InputField extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       style: TextStyle(
-        color: WColors.foreground,
+        color: context.colors.foreground,
         fontSize: 14.sp,
         fontWeight: FontWeight.w600,
       ),
       cursorHeight: 20.h,
-      cursorColor: WColors.foreground,
+      cursorColor: context.colors.foreground,
       cursorWidth: 1,
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color: WColors.mutedSecondaryDeep,
+          color: context.colors.mutedSecondaryDeep,
           fontSize: 14.sp,
           fontWeight: FontWeight.w500,
         ),
         filled: true,
-        fillColor: WColors.surfaceChip,
+        fillColor: context.colors.surfaceChip,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: WColors.border),
+          borderSide: BorderSide(color: context.colors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: WColors.border),
+          borderSide: BorderSide(color: context.colors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: WColors.border),
+          borderSide: BorderSide(color: context.colors.border),
         ),
       ),
     );

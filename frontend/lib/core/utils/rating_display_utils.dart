@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 
 String ratingLabelFor(double value) {
   if (value == 5.0) return 'Masterpiece';
@@ -24,9 +24,9 @@ Color ratingColorFor(double value) {
   if (value >= 2.5) return Colors.amberAccent;
   if (value >= 2.0) return Colors.orangeAccent;
   if (value >= 1.5) return Colors.deepOrangeAccent;
-  if (value >= 1.0) return WColors.accentRed;
+  if (value >= 1.0) return AppColors.dark.accentRed;
 
-  return WColors.accentRed;
+  return AppColors.dark.accentRed;
 }
 
 String ratingEmojiFor(double value) {
@@ -44,7 +44,7 @@ String ratingEmojiFor(double value) {
 }
 
 const List<Color> kRatingGradientColors = [
-  WColors.accentRed, // 0.5
+  Color(0xFFE84B57), // 0.5
   Colors.deepOrangeAccent, // 1.0
   Colors.orangeAccent, // 1.5
   Colors.amber, // 2.0

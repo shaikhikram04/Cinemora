@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class WToggleActionButton extends StatelessWidget {
@@ -10,12 +10,12 @@ class WToggleActionButton extends StatelessWidget {
   final IconData selectedIcon;
   final IconData unselectedIcon;
   final VoidCallback onTap;
-  final Color selectedBackground;
-  final Color unselectedBackground;
-  final Color selectedBorder;
-  final Color unselectedBorder;
-  final Color selectedForeground;
-  final Color unselectedForeground;
+  final Color? selectedBackground;
+  final Color? unselectedBackground;
+  final Color? selectedBorder;
+  final Color? unselectedBorder;
+  final Color? selectedForeground;
+  final Color? unselectedForeground;
 
   const WToggleActionButton({
     super.key,
@@ -25,19 +25,26 @@ class WToggleActionButton extends StatelessWidget {
     required this.selectedIcon,
     required this.unselectedIcon,
     required this.onTap,
-    this.selectedBackground = WColors.successSoft,
-    this.unselectedBackground = WColors.surfaceOverlay,
-    this.selectedBorder = WColors.success,
-    this.unselectedBorder = WColors.border,
-    this.selectedForeground = WColors.success,
-    this.unselectedForeground = WColors.foreground,
+    this.selectedBackground,
+    this.unselectedBackground,
+    this.selectedBorder,
+    this.unselectedBorder,
+    this.selectedForeground,
+    this.unselectedForeground,
   });
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = selected ? selectedBackground : unselectedBackground;
-    final borderColor = selected ? selectedBorder : unselectedBorder;
-    final foregroundColor = selected ? selectedForeground : unselectedForeground;
+    final colors = context.colors;
+    final backgroundColor = selected
+        ? (selectedBackground ?? colors.successSoft)
+        : (unselectedBackground ?? colors.surfaceOverlay);
+    final borderColor = selected
+        ? (selectedBorder ?? colors.success)
+        : (unselectedBorder ?? colors.border);
+    final foregroundColor = selected
+        ? (selectedForeground ?? colors.success)
+        : (unselectedForeground ?? colors.foreground);
     final icon = selected ? selectedIcon : unselectedIcon;
     final label = selected ? selectedLabel : unselectedLabel;
 

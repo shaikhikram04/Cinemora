@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'poster_image.dart';
 
@@ -46,7 +46,7 @@ class _VerticalPosterBookmarkCardState
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(widget.radius.r),
-        color: WColors.surfaceChip,
+        color: context.colors.surfaceChip,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +74,7 @@ class _VerticalPosterBookmarkCardState
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     fontSize: 13.sp,
                     height: 1.1,
                     fontWeight: FontWeight.w700,
@@ -84,12 +84,12 @@ class _VerticalPosterBookmarkCardState
                 Row(
                   children: [
                     Icon(Icons.star_rounded,
-                        color: WColors.tertiary, size: 12.sp),
+                        color: context.colors.tertiary, size: 12.sp),
                     SizedBox(width: 4.w),
                     Text(
                       widget.rating,
                       style: TextStyle(
-                        color: WColors.tertiary,
+                        color: context.colors.tertiary,
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w700,
                       ),
@@ -100,7 +100,7 @@ class _VerticalPosterBookmarkCardState
                   "${widget.cinemaType.name} • ${widget.year}",
                   style: TextStyle(
                     fontSize: 11.sp,
-                    color: WColors.mutedSecondaryVibe,
+                    color: context.colors.mutedSecondaryVibe,
                   ),
                 ),
               ],

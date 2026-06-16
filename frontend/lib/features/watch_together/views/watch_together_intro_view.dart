@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/features/watch_together/views/create_session_view.dart';
 import 'package:cinemora/features/watch_together/views/join_session_view.dart';
 
@@ -10,7 +10,7 @@ class WatchTogetherIntroView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: WColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -35,7 +35,7 @@ class WatchTogetherIntroView extends StatelessWidget {
                       'Find Your\nPerfect Match',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: WColors.foreground,
+                        color: context.colors.foreground,
                         fontSize: 34.sp,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -1.2,
@@ -47,7 +47,7 @@ class WatchTogetherIntroView extends StatelessWidget {
                       'Swipe independently.\nWe\'ll reveal only the movies\nand shows both of you love.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: WColors.mutedSecondary,
+                        color: context.colors.mutedSecondary,
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w500,
                         height: 1.65,
@@ -96,11 +96,11 @@ class _BackButton extends StatelessWidget {
         width: 38.w,
         height: 38.w,
         decoration: BoxDecoration(
-          color: WColors.surfaceMuted,
+          color: context.colors.surfaceMuted,
           borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: WColors.borderStrong),
+          border: Border.all(color: context.colors.borderStrong),
         ),
-        child: Icon(Icons.arrow_back_rounded, color: WColors.foreground, size: 18.sp),
+        child: Icon(Icons.arrow_back_rounded, color: context.colors.foreground, size: 18.sp),
       ),
     );
   }
@@ -140,7 +140,7 @@ class _HeroIllustration extends StatelessWidget {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  WColors.accentRed.withValues(alpha: 0.10),
+                  context.colors.accentRed.withValues(alpha: 0.10),
                   Colors.transparent,
                 ],
               ),
@@ -164,7 +164,7 @@ class _HeroIllustration extends StatelessWidget {
                   spreadRadius: 0,
                 ),
                 BoxShadow(
-                  color: WColors.accentRed.withValues(alpha: 0.20),
+                  color: context.colors.accentRed.withValues(alpha: 0.20),
                   blurRadius: 32,
                   spreadRadius: 0,
                 ),
@@ -175,7 +175,7 @@ class _HeroIllustration extends StatelessWidget {
               children: [
                 Icon(Icons.movie_creation_rounded, color: Colors.white, size: 44.sp),
                 SizedBox(height: 4.h),
-                Icon(Icons.favorite_rounded, color: WColors.accentPink, size: 18.sp),
+                Icon(Icons.favorite_rounded, color: context.colors.accentPink, size: 18.sp),
               ],
             ),
           ),
@@ -211,7 +211,7 @@ class _HeroIllustration extends StatelessWidget {
             left: 92.w,
             child: Icon(
               Icons.favorite_rounded,
-              color: WColors.accentPink.withValues(alpha: 0.55),
+              color: context.colors.accentPink.withValues(alpha: 0.55),
               size: 14.sp,
             ),
           ),
@@ -310,19 +310,19 @@ class _FeaturePill extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised,
+        color: context.colors.surfaceRaised,
         borderRadius: BorderRadius.circular(999.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: WColors.accentPurple, size: 14.sp),
+          Icon(icon, color: context.colors.accentPurple, size: 14.sp),
           SizedBox(width: 5.w),
           Text(
             label,
             style: TextStyle(
-              color: WColors.mutedSecondary,
+              color: context.colors.mutedSecondary,
               fontSize: 11.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -347,14 +347,14 @@ class _PrimaryButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.r),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF9B1C35), WColors.accentRed],
+        gradient: LinearGradient(
+          colors: [Color(0xFF9B1C35), context.colors.accentRed],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: WColors.accentRed.withValues(alpha: 0.35),
+            color: context.colors.accentRed.withValues(alpha: 0.35),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -402,10 +402,10 @@ class _SecondaryButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Material(
-        color: WColors.surfaceRaised,
+        color: context.colors.surfaceRaised,
         borderRadius: BorderRadius.circular(16.r),
         child: InkWell(
           borderRadius: BorderRadius.circular(16.r),
@@ -415,12 +415,12 @@ class _SecondaryButton extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: WColors.foreground, size: 20.sp),
+                Icon(icon, color: context.colors.foreground, size: 20.sp),
                 SizedBox(width: 8.w),
                 Text(
                   label,
                   style: TextStyle(
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
                   ),

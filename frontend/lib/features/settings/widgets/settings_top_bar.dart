@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class SettingsTopBar extends StatelessWidget {
@@ -21,14 +21,14 @@ class SettingsTopBar extends StatelessWidget {
               width: 34.w,
               height: 34.w,
               decoration: BoxDecoration(
-                color: WColors.surfaceRaised.withValues(alpha: 0.8),
+                color: context.colors.surfaceRaised.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(14.r),
-                border: Border.all(color: WColors.border),
+                border: Border.all(color: context.colors.border),
               ),
               child: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 size: 16.sp,
-                color: WColors.mutedSecondary,
+                color: context.colors.mutedSecondary,
               ),
             ),
           ),
@@ -37,7 +37,7 @@ class SettingsTopBar extends StatelessWidget {
             child: Text(
               title,
               style: TextStyle(
-                color: WColors.foreground,
+                color: context.colors.foreground,
                 fontSize: 24.sp,
                 fontWeight: FontWeight.w800,
               ),

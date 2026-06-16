@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cinemora/core/constants/colors.dart';
 
 class RankingList {
   final String emoji;
@@ -43,7 +42,7 @@ const kRankingLists = [
     title: 'All-Time Favorites',
     subtitle: 'The absolute best content I\'ve ever seen',
     count: 3,
-    accent: WColors.accentRed,
+    accent: Color(0xFFE84B57),
     images: [
       'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=300&q=80',
       'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&w=300&q=80',
@@ -78,7 +77,7 @@ const kRankingLists = [
     title: 'Best Sci-Fi',
     subtitle: 'Mind-expanding science fiction',
     count: 4,
-    accent: WColors.chartPurple,
+    accent: Color(0xFFA78BFA),
     images: [
       'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=300&q=80',
       'https://images.unsplash.com/photo-1612036781124-847f8939b154?auto=format&fit=crop&w=300&q=80',
@@ -120,7 +119,7 @@ const kRankingLists = [
     title: 'Top Anime',
     subtitle: 'Essential anime that never miss',
     count: 4,
-    accent: WColors.accentRedSoft,
+    accent: Color(0xFFED5A61),
     images: [
       'https://images.unsplash.com/photo-1779029314445-b20031dfd4e3?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=300&q=80',
@@ -162,7 +161,7 @@ const kRankingLists = [
     title: 'Mind-Blowing',
     subtitle: 'Unforgettable finales and twists',
     count: 3,
-    accent: WColors.accentPurple,
+    accent: Color(0xFFA94EF2),
     images: [
       'https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=300&q=80',
       'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=300&q=80',
@@ -197,7 +196,7 @@ const kRankingLists = [
     title: 'Binge-Worthy',
     subtitle: 'Can\'t stop watching',
     count: 3,
-    accent: WColors.success,
+    accent: Color(0xFF00D9A3),
     images: [
       'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=300&q=80',
       'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=300&q=80',
@@ -232,7 +231,7 @@ const kRankingLists = [
     title: 'Dark & Intense',
     subtitle: 'Psychologically gripping stories',
     count: 3,
-    accent: WColors.mutedSecondaryDeep,
+    accent: Color(0xFF6E6E7D),
     images: [
       'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=300&q=80',
       'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=300&q=80',

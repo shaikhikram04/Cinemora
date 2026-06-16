@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/features/settings/viewmodels/data_library_cubit.dart';
@@ -28,7 +28,7 @@ class _DataLibraryContent extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<DataLibraryCubit>();
         return Scaffold(
-      backgroundColor: WColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -54,9 +54,9 @@ class _DataLibraryContent extends StatelessWidget {
                   SizedBox(height: 10.h),
                   Container(
                     decoration: BoxDecoration(
-                      color: WColors.surfaceRaised.withValues(alpha: 0.6),
+                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: WColors.borderStrong),
+                      border: Border.all(color: context.colors.borderStrong),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.r),
@@ -64,7 +64,7 @@ class _DataLibraryContent extends StatelessWidget {
                         children: [
                           _ExportRow(
                             icon: Icons.movie_filter_rounded,
-                            iconColor: WColors.accentRed,
+                            iconColor: context.colors.accentRed,
                             title: 'Export Collection',
                             subtitle: '523 titles • CSV or JSON',
                             onTap: () =>
@@ -73,7 +73,7 @@ class _DataLibraryContent extends StatelessWidget {
                           _Divider(),
                           _ExportRow(
                             icon: Icons.format_list_numbered_rounded,
-                            iconColor: WColors.chartBlue,
+                            iconColor: context.colors.chartBlue,
                             title: 'Export Rankings',
                             subtitle: '4 lists • 55 total titles',
                             onTap: () => _showExportDialog(context, 'Rankings'),
@@ -81,7 +81,7 @@ class _DataLibraryContent extends StatelessWidget {
                           _Divider(),
                           _ExportRow(
                             icon: Icons.history_rounded,
-                            iconColor: WColors.chartGreen,
+                            iconColor: context.colors.chartGreen,
                             title: 'Export Watch History',
                             subtitle: 'Activity log • CSV format',
                             isLast: true,
@@ -105,7 +105,7 @@ class _DataLibraryContent extends StatelessWidget {
                         SnackBar(
                           content: Text('Cache cleared',
                               style: TextStyle(fontSize: 14.sp)),
-                          backgroundColor: WColors.chartGreen,
+                          backgroundColor: context.colors.chartGreen,
                           behavior: SnackBarBehavior.floating,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12.r)),
@@ -131,13 +131,13 @@ class _DataLibraryContent extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: WColors.surfaceRaised,
+        backgroundColor: context.colors.surfaceRaised,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
         title: Text(
           'Export $type',
           style: TextStyle(
-            color: WColors.foreground,
+            color: context.colors.foreground,
             fontSize: 18.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -149,7 +149,7 @@ class _DataLibraryContent extends StatelessWidget {
             Text(
               'Choose export format:',
               style: TextStyle(
-                color: WColors.mutedSecondarySoft,
+                color: context.colors.mutedSecondarySoft,
                 fontSize: 14.sp,
               ),
             ),
@@ -167,7 +167,7 @@ class _DataLibraryContent extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text('Cancel',
-                style: TextStyle(color: WColors.mutedSecondarySoft)),
+                style: TextStyle(color: context.colors.mutedSecondarySoft)),
           ),
         ],
       ),
@@ -188,14 +188,14 @@ class _FormatButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: WColors.chartGreen.withValues(alpha: 0.12),
+          color: context.colors.chartGreen.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: WColors.chartGreen.withValues(alpha: 0.3)),
+          border: Border.all(color: context.colors.chartGreen.withValues(alpha: 0.3)),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: WColors.chartGreen,
+            color: context.colors.chartGreen,
             fontSize: 14.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -218,7 +218,7 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: WColors.mutedSecondaryDeep,
+          color: context.colors.mutedSecondaryDeep,
           fontSize: 11.sp,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.2,
@@ -236,7 +236,7 @@ class _Divider extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(left: 64.w),
       height: 0.5,
-      color: WColors.borderStrong,
+      color: context.colors.borderStrong,
     );
   }
 }
@@ -251,9 +251,9 @@ class _CollectionStatsCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,11 +264,11 @@ class _CollectionStatsCard extends StatelessWidget {
                 width: 38.w,
                 height: 38.w,
                 decoration: BoxDecoration(
-                  color: WColors.chartGreen.withValues(alpha: 0.12),
+                  color: context.colors.chartGreen.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(Icons.library_books_outlined,
-                    size: 19.sp, color: WColors.chartGreen),
+                    size: 19.sp, color: context.colors.chartGreen),
               ),
               SizedBox(width: 12.w),
               Column(
@@ -277,7 +277,7 @@ class _CollectionStatsCard extends StatelessWidget {
                   Text(
                     'Your Collection',
                     style: TextStyle(
-                      color: WColors.foreground,
+                      color: context.colors.foreground,
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -285,7 +285,7 @@ class _CollectionStatsCard extends StatelessWidget {
                   Text(
                     'Complete overview',
                     style: TextStyle(
-                      color: WColors.mutedSecondary,
+                      color: context.colors.mutedSecondary,
                       fontSize: 11.sp,
                     ),
                   ),
@@ -297,32 +297,32 @@ class _CollectionStatsCard extends StatelessWidget {
           Row(
             children: [
               _StatPill(
-                  value: '523', label: 'Total', color: WColors.foreground),
+                  value: '523', label: 'Total', color: context.colors.foreground),
               SizedBox(width: 10.w),
               _StatPill(
-                  value: '325', label: 'Movies', color: WColors.accentRed),
+                  value: '325', label: 'Movies', color: context.colors.accentRed),
               SizedBox(width: 10.w),
               _StatPill(
-                  value: '132', label: 'Series', color: WColors.chartPurple),
+                  value: '132', label: 'Series', color: context.colors.chartPurple),
               SizedBox(width: 10.w),
               _StatPill(
-                  value: '66', label: 'Anime', color: WColors.chartYellow),
+                  value: '66', label: 'Anime', color: context.colors.chartYellow),
             ],
           ),
           SizedBox(height: 14.h),
-          Container(height: 0.5, color: WColors.borderStrong),
+          Container(height: 0.5, color: context.colors.borderStrong),
           SizedBox(height: 14.h),
           Row(
             children: [
               _StatPill(
-                  value: '4', label: 'Rankings', color: WColors.chartBlue),
+                  value: '4', label: 'Rankings', color: context.colors.chartBlue),
               SizedBox(width: 10.w),
-              _StatPill(value: '6', label: 'Badges', color: WColors.warning),
+              _StatPill(value: '6', label: 'Badges', color: context.colors.warning),
               SizedBox(width: 10.w),
               _StatPill(
                   value: '4.3★',
                   label: 'Avg Rating',
-                  color: WColors.chartYellow),
+                  color: context.colors.chartYellow),
             ],
           ),
         ],
@@ -348,9 +348,9 @@ class _StatPill extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: WColors.surfaceRaised2,
+          color: context.colors.surfaceRaised2,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: WColors.borderStrong),
+          border: Border.all(color: context.colors.borderStrong),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,7 +367,7 @@ class _StatPill extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: WColors.mutedSecondaryDeep,
+                color: context.colors.mutedSecondaryDeep,
                 fontSize: 9.sp,
                 fontWeight: FontWeight.w500,
               ),
@@ -425,7 +425,7 @@ class _ExportRow extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        color: WColors.foreground,
+                        color: context.colors.foreground,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -434,7 +434,7 @@ class _ExportRow extends StatelessWidget {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: WColors.mutedSecondary,
+                        color: context.colors.mutedSecondary,
                         fontSize: 11.sp,
                       ),
                     ),
@@ -442,7 +442,7 @@ class _ExportRow extends StatelessWidget {
                 ),
               ),
               Icon(Icons.file_download_outlined,
-                  size: 18.sp, color: WColors.mutedSecondaryHeader),
+                  size: 18.sp, color: context.colors.mutedSecondaryHeader),
             ],
           ),
         ),
@@ -471,9 +471,9 @@ class _StorageCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -484,12 +484,12 @@ class _StorageCard extends StatelessWidget {
               Row(
                 children: [
                   Icon(Icons.storage_outlined,
-                      size: 16.sp, color: WColors.chartGreen),
+                      size: 16.sp, color: context.colors.chartGreen),
                   SizedBox(width: 6.w),
                   Text(
                     'Cache',
                     style: TextStyle(
-                      color: WColors.foreground,
+                      color: context.colors.foreground,
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -499,7 +499,7 @@ class _StorageCard extends StatelessWidget {
               Text(
                 cacheCleared ? '0 MB / 1 GB' : '124 MB / 1 GB',
                 style: TextStyle(
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                   fontSize: 12.sp,
                 ),
               ),
@@ -511,9 +511,9 @@ class _StorageCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: fraction,
               minHeight: 6.h,
-              backgroundColor: WColors.surfaceTint.withValues(alpha: 0.5),
+              backgroundColor: context.colors.surfaceTint.withValues(alpha: 0.5),
               valueColor: AlwaysStoppedAnimation(
-                cacheCleared ? WColors.chartGreen : WColors.warning,
+                cacheCleared ? context.colors.chartGreen : context.colors.warning,
               ),
             ),
           ),
@@ -525,13 +525,13 @@ class _StorageCard extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 12.h),
               decoration: BoxDecoration(
                 color: cacheCleared
-                    ? WColors.surfaceRaised2
-                    : WColors.chartGreen.withValues(alpha: 0.08),
+                    ? context.colors.surfaceRaised2
+                    : context.colors.chartGreen.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(14.r),
                 border: Border.all(
                   color: cacheCleared
-                      ? WColors.borderStrong
-                      : WColors.chartGreen.withValues(alpha: 0.25),
+                      ? context.colors.borderStrong
+                      : context.colors.chartGreen.withValues(alpha: 0.25),
                 ),
               ),
               child: Row(
@@ -543,16 +543,16 @@ class _StorageCard extends StatelessWidget {
                         : Icons.cleaning_services_rounded,
                     size: 16.sp,
                     color: cacheCleared
-                        ? WColors.mutedSecondary
-                        : WColors.chartGreen,
+                        ? context.colors.mutedSecondary
+                        : context.colors.chartGreen,
                   ),
                   SizedBox(width: 6.w),
                   Text(
                     cacheCleared ? 'Cache Cleared' : 'Clear Cache',
                     style: TextStyle(
                       color: cacheCleared
-                          ? WColors.mutedSecondary
-                          : WColors.chartGreen,
+                          ? context.colors.mutedSecondary
+                          : context.colors.chartGreen,
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                     ),

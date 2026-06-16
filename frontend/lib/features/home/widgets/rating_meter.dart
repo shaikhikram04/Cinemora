@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 
 class RatingMeter extends StatelessWidget {
@@ -34,7 +34,7 @@ class RatingMeter extends StatelessWidget {
           height: 4.h,
           child: Stack(
             children: [
-              Container(color: WColors.border.withValues(alpha: 0.45)),
+              Container(color: context.colors.border.withValues(alpha: 0.45)),
               FractionallySizedBox(
                 widthFactor: fillFraction,
                 child: Container(

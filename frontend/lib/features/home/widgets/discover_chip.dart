@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 
 // Shared between movie_details_content and series_details_content.
 
@@ -13,12 +13,12 @@ class DiscoverChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final background = selected
-        ? WColors.accentRed.withValues(alpha: 0.2)
-        : WColors.surfaceOverlay.withValues(alpha: 0.2);
+        ? context.colors.accentRed.withValues(alpha: 0.2)
+        : context.colors.surfaceOverlay.withValues(alpha: 0.2);
     final border = selected
-        ? WColors.accentRed.withValues(alpha: 0.6)
-        : WColors.border.withValues(alpha: 0.2);
-    final foreground = selected ? WColors.accentRed : WColors.mutedForeground;
+        ? context.colors.accentRed.withValues(alpha: 0.6)
+        : context.colors.border.withValues(alpha: 0.2);
+    final foreground = selected ? context.colors.accentRed : context.colors.mutedForeground;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),

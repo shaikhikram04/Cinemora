@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/settings/viewmodels/notification_settings_cubit.dart';
 import 'package:cinemora/features/settings/viewmodels/notification_settings_state.dart';
@@ -31,7 +31,7 @@ class _NotificationSettingsContent extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<NotificationSettingsCubit>();
         return Scaffold(
-          backgroundColor: WColors.background,
+          backgroundColor: context.colors.background,
           body: SafeArea(
             bottom: false,
             child: Column(
@@ -52,7 +52,7 @@ class _NotificationSettingsContent extends StatelessWidget {
                       SizedBox(height: 24.h),
                       _NotifGroupCard(
                         icon: Icons.movie_filter_rounded,
-                        iconColor: WColors.accentRed,
+                        iconColor: context.colors.accentRed,
                         title: 'Release Alerts',
                         subtitle: 'Movies, shows & streaming updates',
                         masterValue: state.releaseAlertsEnabled,
@@ -88,7 +88,7 @@ class _NotificationSettingsContent extends StatelessWidget {
                       SizedBox(height: 16.h),
                       _NotifGroupCard(
                         icon: Icons.bookmark_outline_rounded,
-                        iconColor: WColors.warning,
+                        iconColor: context.colors.warning,
                         title: 'Watchlist Alerts',
                         subtitle: 'Updates from your watchlist',
                         masterValue: state.watchlistAlertsEnabled,
@@ -111,7 +111,7 @@ class _NotificationSettingsContent extends StatelessWidget {
                       SizedBox(height: 16.h),
                       _NotifGroupCard(
                         icon: Icons.people_outline_rounded,
-                        iconColor: WColors.chartBlue,
+                        iconColor: context.colors.chartBlue,
                         title: 'Social',
                         subtitle: 'Activity from your network',
                         masterValue: state.socialEnabled,
@@ -147,7 +147,7 @@ class _NotificationSettingsContent extends StatelessWidget {
                       SizedBox(height: 16.h),
                       _NotifGroupCard(
                         icon: Icons.emoji_events_outlined,
-                        iconColor: WColors.chartYellow,
+                        iconColor: context.colors.chartYellow,
                         title: 'Achievements',
                         subtitle: 'Badges, milestones & progress',
                         masterValue: state.achievementsEnabled,
@@ -177,7 +177,7 @@ class _NotificationSettingsContent extends StatelessWidget {
                       SizedBox(height: 16.h),
                       _NotifGroupCard(
                         icon: Icons.settings_outlined,
-                        iconColor: WColors.mutedSecondarySoft,
+                        iconColor: context.colors.mutedSecondarySoft,
                         title: 'System',
                         subtitle: 'App updates & announcements',
                         masterValue: state.systemEnabled,
@@ -221,20 +221,20 @@ class _NotifBanner extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: WColors.warning.withValues(alpha: 0.08),
+        color: context.colors.warning.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: WColors.warning.withValues(alpha: 0.2)),
+        border: Border.all(color: context.colors.warning.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Icon(Icons.notifications_active_rounded,
-              size: 18.sp, color: WColors.warning),
+              size: 18.sp, color: context.colors.warning),
           SizedBox(width: 10.w),
           Expanded(
             child: Text(
               'Manage which notifications Watchary can send you.',
               style: TextStyle(
-                color: WColors.mutedSecondarySoft,
+                color: context.colors.mutedSecondarySoft,
                 fontSize: 12.sp,
                 height: 1.4,
               ),
@@ -271,9 +271,9 @@ class _NotifGroupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20.r),
@@ -301,7 +301,7 @@ class _NotifGroupCard extends StatelessWidget {
                         Text(
                           title,
                           style: TextStyle(
-                            color: WColors.foreground,
+                            color: context.colors.foreground,
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                           ),
@@ -310,7 +310,7 @@ class _NotifGroupCard extends StatelessWidget {
                         Text(
                           subtitle,
                           style: TextStyle(
-                            color: WColors.mutedSecondary,
+                            color: context.colors.mutedSecondary,
                             fontSize: 11.sp,
                           ),
                         ),
@@ -320,7 +320,7 @@ class _NotifGroupCard extends StatelessWidget {
                   CupertinoSwitch(
                     value: masterValue,
                     onChanged: onMasterChanged,
-                    activeTrackColor: WColors.accentRed,
+                    activeTrackColor: context.colors.accentRed,
                   ),
                 ],
               ),
@@ -328,7 +328,7 @@ class _NotifGroupCard extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(left: 14.w, right: 14.w),
               height: 0.5,
-              color: WColors.borderStrong,
+              color: context.colors.borderStrong,
             ),
             ...items,
           ],
@@ -372,8 +372,8 @@ class _NotifToggleItem extends StatelessWidget {
                       title,
                       style: TextStyle(
                         color: onChanged != null
-                            ? WColors.foreground
-                            : WColors.mutedSecondaryDeep,
+                            ? context.colors.foreground
+                            : context.colors.mutedSecondaryDeep,
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -382,7 +382,7 @@ class _NotifToggleItem extends StatelessWidget {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: WColors.mutedSecondary,
+                        color: context.colors.mutedSecondary,
                         fontSize: 10.sp,
                       ),
                     ),
@@ -392,7 +392,7 @@ class _NotifToggleItem extends StatelessWidget {
               CupertinoSwitch(
                 value: value,
                 onChanged: onChanged,
-                activeTrackColor: WColors.accentRed,
+                activeTrackColor: context.colors.accentRed,
               ),
             ],
           ),
@@ -401,7 +401,7 @@ class _NotifToggleItem extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(left: 64.w),
             height: 0.5,
-            color: WColors.borderStrong,
+            color: context.colors.borderStrong,
           ),
       ],
     );

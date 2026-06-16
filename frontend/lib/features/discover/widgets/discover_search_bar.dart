@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 
 class DiscoverSearchBar extends StatelessWidget {
   final TextEditingController controller;
@@ -22,16 +22,16 @@ class DiscoverSearchBar extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       height: 48.h,
       decoration: BoxDecoration(
-        color: WColors.surfaceChip,
+        color: context.colors.surfaceChip,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: WColors.surfaceChipBorder, width: 1),
+        border: Border.all(color: context.colors.surfaceChipBorder, width: 1),
       ),
       child: Row(
         children: [
           SizedBox(width: 14.w),
           Icon(
             Icons.search_rounded,
-            color: WColors.mutedForeground,
+            color: context.colors.mutedForeground,
             size: 20.sp,
           ),
           SizedBox(width: 10.w),
@@ -41,16 +41,16 @@ class DiscoverSearchBar extends StatelessWidget {
               focusNode: focusNode,
               onChanged: onChanged,
               style: TextStyle(
-                color: WColors.foreground,
+                color: context.colors.foreground,
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w400,
               ),
               cursorWidth: 1.w,
-              cursorColor: WColors.foreground,
+              cursorColor: context.colors.foreground,
               decoration: InputDecoration(
                 hintText: 'Movies, anime, series, genres…',
                 hintStyle: TextStyle(
-                  color: WColors.mutedForeground,
+                  color: context.colors.mutedForeground,
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w400,
                 ),
@@ -73,7 +73,7 @@ class DiscoverSearchBar extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 10.w),
                   child: Icon(
                     Icons.close_rounded,
-                    color: WColors.mutedForeground,
+                    color: context.colors.mutedForeground,
                     size: 18.sp,
                   ),
                 ),

@@ -5,7 +5,7 @@ import 'package:cinemora/common/widgets/buttons/circle_icon_button.dart';
 import 'package:cinemora/common/widgets/buttons/pill_chip.dart';
 import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
 import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
@@ -103,11 +103,11 @@ class SeriesDetailsContent extends StatelessWidget {
                 SizedBox(height: 16.h),
                 const _WhereToWatchSection(),
                 SizedBox(height: 20.h),
-                const Divider(color: WColors.border),
+                Divider(color: context.colors.border),
                 SizedBox(height: 16.h),
                 const _OverviewSection(),
                 SizedBox(height: 20.h),
-                const Divider(color: WColors.border),
+                Divider(color: context.colors.border),
                 SizedBox(height: 16.h),
                 _SeasonsSection(
                   seasons: seasons,
@@ -126,11 +126,11 @@ class SeriesDetailsContent extends StatelessWidget {
                   onToggleSeasonExpanded: onToggleSeasonExpanded,
                 ),
                 SizedBox(height: 24.h),
-                const Divider(color: WColors.border),
+                Divider(color: context.colors.border),
                 SizedBox(height: 16.h),
                 const _CastSection(),
                 SizedBox(height: 16.h),
-                const Divider(color: WColors.border),
+                Divider(color: context.colors.border),
                 SizedBox(height: 16.h),
                 _ShowRatingSection(
                   showRating: showRating,
@@ -139,7 +139,7 @@ class SeriesDetailsContent extends StatelessWidget {
                   onManageRankings: onManageRankings,
                 ),
                 SizedBox(height: 28.h),
-                const Divider(color: WColors.border),
+                Divider(color: context.colors.border),
                 SizedBox(height: 16.h),
                 _RecommendationsSection(seriesTitle: seriesTitle),
                 SizedBox(height: 32.h),
@@ -187,8 +187,8 @@ class _SeriesHeroHeader extends StatelessWidget {
                 colors: [
                   Colors.black.withValues(alpha: 0.25),
                   Colors.transparent,
-                  WColors.background.withValues(alpha: 0.65),
-                  WColors.background.withValues(alpha: 0.96),
+                  context.colors.background.withValues(alpha: 0.65),
+                  context.colors.background.withValues(alpha: 0.96),
                 ],
                 stops: const [0.0, 0.3, 0.68, 1.0],
               ),
@@ -242,22 +242,22 @@ class _SeriesHeroHeader extends StatelessWidget {
                     padding:
                         EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
                     decoration: BoxDecoration(
-                      color: WColors.tertiary.withValues(alpha: 0.18),
+                      color: context.colors.tertiary.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(16.r),
                       border: Border.all(
-                          color: WColors.tertiary.withValues(alpha: 0.4)),
+                          color: context.colors.tertiary.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       children: [
                         Icon(Icons.star_rounded,
-                            color: WColors.tertiary, size: 11.sp),
+                            color: context.colors.tertiary, size: 11.sp),
                         SizedBox(width: 4.w),
                         Text(
                           rating,
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w800,
-                            color: WColors.tertiary,
+                            color: context.colors.tertiary,
                           ),
                         ),
                       ],
@@ -268,17 +268,17 @@ class _SeriesHeroHeader extends StatelessWidget {
                     padding:
                         EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
                     decoration: BoxDecoration(
-                      color: WColors.accentPurple.withValues(alpha: 0.22),
+                      color: context.colors.accentPurple.withValues(alpha: 0.22),
                       borderRadius: BorderRadius.circular(16.r),
                       border: Border.all(
-                          color: WColors.accentPurple.withValues(alpha: 0.45)),
+                          color: context.colors.accentPurple.withValues(alpha: 0.45)),
                     ),
                     child: Text(
                       'SERIES',
                       style: TextStyle(
                         fontSize: 9.sp,
                         fontWeight: FontWeight.w800,
-                        color: WColors.accentPurple,
+                        color: context.colors.accentPurple,
                         letterSpacing: 0.8,
                       ),
                     ),
@@ -301,7 +301,7 @@ class _SeriesHeroHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: WSizes.fontSize3xl.sp,
                   fontWeight: FontWeight.w800,
-                  color: WColors.foreground,
+                  color: context.colors.foreground,
                   fontFamily: 'Inter',
                   letterSpacing: -0.5,
                 ),
@@ -310,13 +310,13 @@ class _SeriesHeroHeader extends StatelessWidget {
               Row(
                 children: [
                   Icon(Icons.layers_rounded,
-                      size: 13.sp, color: WColors.mutedSecondary),
+                      size: 13.sp, color: context.colors.mutedSecondary),
                   SizedBox(width: 4.w),
                   Text(
                     '$seasonCount Season${seasonCount > 1 ? 's' : ''}',
                     style: TextStyle(
                       fontSize: 13.sp,
-                      color: WColors.mutedForeground,
+                      color: context.colors.mutedForeground,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -324,7 +324,7 @@ class _SeriesHeroHeader extends StatelessWidget {
                     '  •  2022 – Present',
                     style: TextStyle(
                       fontSize: 13.sp,
-                      color: WColors.mutedForeground,
+                      color: context.colors.mutedForeground,
                     ),
                   ),
                 ],
@@ -334,7 +334,7 @@ class _SeriesHeroHeader extends StatelessWidget {
                 'Created by Ryan Condal',
                 style: TextStyle(
                   fontSize: 12.sp,
-                  color: WColors.mutedSecondaryDeep,
+                  color: context.colors.mutedSecondaryDeep,
                   fontFamily: 'Inter',
                 ),
               ),
@@ -378,12 +378,12 @@ class _ShowActionButtons extends StatelessWidget {
                 selectedIcon: Icons.bookmark_rounded,
                 unselectedIcon: Icons.bookmark_add_outlined,
                 onTap: onToggleShowWatchlist,
-                selectedBackground: WColors.primary.withValues(alpha: 0.14),
-                unselectedBackground: WColors.accentRed.withValues(alpha: 0.9),
-                selectedBorder: WColors.primary,
-                unselectedBorder: WColors.border,
-                selectedForeground: WColors.primary,
-                unselectedForeground: WColors.primaryForeground,
+                selectedBackground: context.colors.primary.withValues(alpha: 0.14),
+                unselectedBackground: context.colors.accentRed.withValues(alpha: 0.9),
+                selectedBorder: context.colors.primary,
+                unselectedBorder: context.colors.border,
+                selectedForeground: context.colors.primary,
+                unselectedForeground: context.colors.primaryForeground,
               ),
             ),
             SizedBox(width: 12.w),
@@ -395,13 +395,13 @@ class _ShowActionButtons extends StatelessWidget {
                 selectedIcon: Icons.check_circle_rounded,
                 unselectedIcon: Icons.check_circle_outline_rounded,
                 onTap: onToggleShowWatched,
-                selectedBackground: WColors.success.withValues(alpha: 0.1),
+                selectedBackground: context.colors.success.withValues(alpha: 0.1),
                 unselectedBackground:
-                    WColors.surfaceOverlay.withValues(alpha: 0.15),
-                selectedBorder: WColors.success,
-                unselectedBorder: WColors.border,
-                selectedForeground: WColors.success,
-                unselectedForeground: WColors.foreground,
+                    context.colors.surfaceOverlay.withValues(alpha: 0.15),
+                selectedBorder: context.colors.success,
+                unselectedBorder: context.colors.border,
+                selectedForeground: context.colors.success,
+                unselectedForeground: context.colors.foreground,
               ),
             ),
           ],
@@ -416,8 +416,8 @@ class _ShowActionButtons extends StatelessWidget {
             onTap: () => ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Opening trailer...')),
             ),
-            outlinedBackgroundColor: WColors.surfaceOverlay,
-            filledBackgroundColor: WColors.accentRed,
+            outlinedBackgroundColor: context.colors.surfaceOverlay,
+            filledBackgroundColor: context.colors.accentRed,
           ),
         ),
       ],
@@ -474,7 +474,7 @@ class _WhereToWatchSection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w700,
-                    color: WColors.accentRed,
+                    color: context.colors.accentRed,
                     letterSpacing: 1.2,
                   ),
                 ),
@@ -484,7 +484,7 @@ class _WhereToWatchSection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                   ),
                 ),
               ],
@@ -498,7 +498,7 @@ class _WhereToWatchSection extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
-                  color: WColors.primary,
+                  color: context.colors.primary,
                 ),
               ),
             ),
@@ -545,9 +545,9 @@ class _ProviderCard extends StatelessWidget {
       width: 98.w,
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised,
+        color: context.colors.surfaceRaised,
         borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
-        border: Border.all(color: WColors.borderStrong, width: 0.7),
+        border: Border.all(color: context.colors.borderStrong, width: 0.7),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -576,7 +576,7 @@ class _ProviderCard extends StatelessWidget {
                 ),
               ),
               Icon(Icons.open_in_new_rounded,
-                  size: 13.sp, color: WColors.mutedSecondaryDeep),
+                  size: 13.sp, color: context.colors.mutedSecondaryDeep),
             ],
           ),
           Column(
@@ -587,7 +587,7 @@ class _ProviderCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
-                  color: WColors.foreground,
+                  color: context.colors.foreground,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -596,7 +596,7 @@ class _ProviderCard extends StatelessWidget {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
                 decoration: BoxDecoration(
-                  color: WColors.surfaceMuted,
+                  color: context.colors.surfaceMuted,
                   borderRadius: BorderRadius.circular(4.r),
                 ),
                 child: Text(
@@ -604,7 +604,7 @@ class _ProviderCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 9.sp,
                     fontWeight: FontWeight.w600,
-                    color: WColors.mutedSecondary,
+                    color: context.colors.mutedSecondary,
                   ),
                 ),
               ),
@@ -641,7 +641,7 @@ class _OverviewSectionState extends State<_OverviewSection> {
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,
-            color: WColors.foreground,
+            color: context.colors.foreground,
           ),
         ),
         SizedBox(height: 10.h),
@@ -652,7 +652,7 @@ class _OverviewSectionState extends State<_OverviewSection> {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 14.sp,
-              color: WColors.mutedForeground,
+              color: context.colors.mutedForeground,
               height: 1.65,
             ),
           ),
@@ -660,7 +660,7 @@ class _OverviewSectionState extends State<_OverviewSection> {
             _text,
             style: TextStyle(
               fontSize: 14.sp,
-              color: WColors.mutedForeground,
+              color: context.colors.mutedForeground,
               height: 1.65,
             ),
           ),
@@ -676,7 +676,7 @@ class _OverviewSectionState extends State<_OverviewSection> {
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w600,
-              color: WColors.primary,
+              color: context.colors.primary,
             ),
           ),
         ),
@@ -737,7 +737,7 @@ class _SeasonsSection extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11.sp,
                 fontWeight: FontWeight.w700,
-                color: WColors.accentRed,
+                color: context.colors.accentRed,
                 letterSpacing: 1.2,
               ),
             ),
@@ -745,16 +745,16 @@ class _SeasonsSection extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 2.h),
               decoration: BoxDecoration(
-                color: WColors.surfaceRaised,
+                color: context.colors.surfaceRaised,
                 borderRadius: BorderRadius.circular(999.r),
-                border: Border.all(color: WColors.borderStrong),
+                border: Border.all(color: context.colors.borderStrong),
               ),
               child: Text(
                 '${seasons.length}',
                 style: TextStyle(
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w700,
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                 ),
               ),
             ),
@@ -778,17 +778,17 @@ class _SeasonsSection extends StatelessWidget {
                     padding:
                         EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
                     decoration: BoxDecoration(
-                      color: selected ? WColors.primary : WColors.surfaceChip,
+                      color: selected ? context.colors.primary : context.colors.surfaceChip,
                       borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
                       border: Border.all(
                         color: selected
-                            ? WColors.primary
-                            : WColors.surfaceChipBorder,
+                            ? context.colors.primary
+                            : context.colors.surfaceChipBorder,
                       ),
                       boxShadow: selected
                           ? [
                               BoxShadow(
-                                color: WColors.primary.withValues(alpha: 0.35),
+                                color: context.colors.primary.withValues(alpha: 0.35),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -802,7 +802,7 @@ class _SeasonsSection extends StatelessWidget {
                           style: TextStyle(
                             color: selected
                                 ? Colors.white
-                                : WColors.mutedSecondary,
+                                : context.colors.mutedSecondary,
                             fontSize: 13.sp,
                             fontWeight:
                                 selected ? FontWeight.w700 : FontWeight.w500,
@@ -814,7 +814,7 @@ class _SeasonsSection extends StatelessWidget {
                           style: TextStyle(
                             color: selected
                                 ? Colors.white.withValues(alpha: 0.85)
-                                : WColors.mutedSecondaryDeep,
+                                : context.colors.mutedSecondaryDeep,
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w500,
                           ),
@@ -832,9 +832,9 @@ class _SeasonsSection extends StatelessWidget {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: WColors.surfaceRaised,
+            color: context.colors.surfaceRaised,
             borderRadius: BorderRadius.circular(WSizes.radius3xl.r),
-            border: Border.all(color: WColors.borderStrong),
+            border: Border.all(color: context.colors.borderStrong),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -850,7 +850,7 @@ class _SeasonsSection extends StatelessWidget {
                           Text(
                             'Season ${currentSeason.number}',
                             style: TextStyle(
-                              color: WColors.foreground,
+                              color: context.colors.foreground,
                               fontSize: 17.sp,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.3,
@@ -878,22 +878,22 @@ class _SeasonsSection extends StatelessWidget {
                       padding:
                           EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
                       decoration: BoxDecoration(
-                        color: WColors.tertiary.withValues(alpha: 0.18),
+                        color: context.colors.tertiary.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(14.r),
                         border: Border.all(
-                            color: WColors.tertiary.withValues(alpha: 0.35)),
+                            color: context.colors.tertiary.withValues(alpha: 0.35)),
                       ),
                       child: Row(
                         children: [
                           Icon(Icons.star_rounded,
-                              color: WColors.tertiary, size: 13.sp),
+                              color: context.colors.tertiary, size: 13.sp),
                           SizedBox(width: 4.w),
                           Text(
                             currentSeason.rating,
                             style: TextStyle(
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w800,
-                              color: WColors.tertiary,
+                              color: context.colors.tertiary,
                             ),
                           ),
                         ],
@@ -918,12 +918,12 @@ class _SeasonsSection extends StatelessWidget {
                         onTap: () =>
                             onToggleSeasonWatchlist(currentSeason.number),
                         selectedBackground:
-                            WColors.primary.withValues(alpha: 0.14),
-                        unselectedBackground: WColors.surfaceMuted,
-                        selectedBorder: WColors.primary,
-                        unselectedBorder: WColors.borderStrong,
-                        selectedForeground: WColors.primary,
-                        unselectedForeground: WColors.mutedSecondary,
+                            context.colors.primary.withValues(alpha: 0.14),
+                        unselectedBackground: context.colors.surfaceMuted,
+                        selectedBorder: context.colors.primary,
+                        unselectedBorder: context.colors.borderStrong,
+                        selectedForeground: context.colors.primary,
+                        unselectedForeground: context.colors.mutedSecondary,
                       ),
                     ),
                     SizedBox(width: 10.w),
@@ -937,12 +937,12 @@ class _SeasonsSection extends StatelessWidget {
                         onTap: () =>
                             onToggleSeasonWatched(currentSeason.number),
                         selectedBackground:
-                            WColors.success.withValues(alpha: 0.1),
-                        unselectedBackground: WColors.surfaceMuted,
-                        selectedBorder: WColors.success,
-                        unselectedBorder: WColors.borderStrong,
-                        selectedForeground: WColors.success,
-                        unselectedForeground: WColors.mutedSecondary,
+                            context.colors.success.withValues(alpha: 0.1),
+                        unselectedBackground: context.colors.surfaceMuted,
+                        selectedBorder: context.colors.success,
+                        unselectedBorder: context.colors.borderStrong,
+                        selectedForeground: context.colors.success,
+                        unselectedForeground: context.colors.mutedSecondary,
                       ),
                     ),
                   ],
@@ -959,13 +959,13 @@ class _SeasonsSection extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w700,
-                        color: WColors.mutedSecondaryDeep,
+                        color: context.colors.mutedSecondaryDeep,
                         letterSpacing: 1.0,
                       ),
                     ),
                     SizedBox(width: 8.w),
                     Expanded(
-                        child: Container(height: 1, color: WColors.border)),
+                        child: Container(height: 1, color: context.colors.border)),
                   ],
                 ),
               ),
@@ -1006,20 +1006,20 @@ class _MetaPill extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
       decoration: BoxDecoration(
-        color: WColors.surfaceBorderAlt,
+        color: context.colors.surfaceBorderAlt,
         borderRadius: BorderRadius.circular(999.r),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 10.sp, color: WColors.mutedSecondary),
+          Icon(icon, size: 10.sp, color: context.colors.mutedSecondary),
           SizedBox(width: 4.w),
           Text(
             label,
             style: TextStyle(
               fontSize: 11.sp,
               fontWeight: FontWeight.w600,
-              color: WColors.mutedSecondary,
+              color: context.colors.mutedSecondary,
             ),
           ),
         ],
@@ -1080,7 +1080,7 @@ class _EpisodeList extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w600,
-                      color: WColors.accentRed,
+                      color: context.colors.accentRed,
                     ),
                   ),
                   SizedBox(width: 4.w),
@@ -1088,7 +1088,7 @@ class _EpisodeList extends StatelessWidget {
                     isExpanded
                         ? Icons.keyboard_arrow_up_rounded
                         : Icons.keyboard_arrow_down_rounded,
-                    color: WColors.accentRed,
+                    color: context.colors.accentRed,
                     size: 16.sp,
                   ),
                 ],
@@ -1126,13 +1126,13 @@ class _EpisodeRow extends StatelessWidget {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: watched
-                    ? WColors.success.withValues(alpha: 0.12)
-                    : WColors.surfaceBorderAlt,
+                    ? context.colors.success.withValues(alpha: 0.12)
+                    : context.colors.surfaceBorderAlt,
                 borderRadius: BorderRadius.circular(6.r),
                 border: Border.all(
                   color: watched
-                      ? WColors.success.withValues(alpha: 0.4)
-                      : WColors.border,
+                      ? context.colors.success.withValues(alpha: 0.4)
+                      : context.colors.border,
                 ),
               ),
               child: Text(
@@ -1140,7 +1140,7 @@ class _EpisodeRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w700,
-                  color: watched ? WColors.success : WColors.mutedSecondaryDeep,
+                  color: watched ? context.colors.success : context.colors.mutedSecondaryDeep,
                 ),
               ),
             ),
@@ -1153,9 +1153,9 @@ class _EpisodeRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w500,
-                  color: watched ? WColors.mutedSecondary : WColors.foreground,
+                  color: watched ? context.colors.mutedSecondary : context.colors.foreground,
                   decoration: watched ? TextDecoration.lineThrough : null,
-                  decorationColor: WColors.mutedSecondary,
+                  decorationColor: context.colors.mutedSecondary,
                 ),
               ),
             ),
@@ -1164,7 +1164,7 @@ class _EpisodeRow extends StatelessWidget {
               episode.runtime,
               style: TextStyle(
                 fontSize: 11.sp,
-                color: WColors.mutedSecondaryDeep,
+                color: context.colors.mutedSecondaryDeep,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -1177,7 +1177,7 @@ class _EpisodeRow extends StatelessWidget {
                     : Icons.radio_button_unchecked_rounded,
                 key: ValueKey(watched),
                 size: 20.sp,
-                color: watched ? WColors.success : WColors.mutedSecondaryDeep,
+                color: watched ? context.colors.success : context.colors.mutedSecondaryDeep,
               ),
             ),
           ],
@@ -1201,12 +1201,12 @@ class _SeasonRatingDivider extends StatelessWidget {
             style: TextStyle(
               fontSize: 10.sp,
               fontWeight: FontWeight.w700,
-              color: WColors.mutedSecondaryDeep,
+              color: context.colors.mutedSecondaryDeep,
               letterSpacing: 1.0,
             ),
           ),
           SizedBox(width: 8.w),
-          Expanded(child: Container(height: 1, color: WColors.border)),
+          Expanded(child: Container(height: 1, color: context.colors.border)),
         ],
       ),
     );
@@ -1231,7 +1231,7 @@ class _SeasonRatingSection extends StatelessWidget {
     final hasRated = rating > 0;
     final displayRating = hasRated ? rating : 0.0;
     final ratingColor =
-        hasRated ? ratingColorFor(displayRating) : WColors.mutedSecondaryDeep;
+        hasRated ? ratingColorFor(displayRating) : context.colors.mutedSecondaryDeep;
     final ratingLabel =
         hasRated ? ratingLabelFor(displayRating) : 'Tap to rate';
 
@@ -1246,7 +1246,7 @@ class _SeasonRatingSection extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w600,
-                color: WColors.foreground,
+                color: context.colors.foreground,
               ),
             ),
             if (hasRated)
@@ -1277,7 +1277,7 @@ class _SeasonRatingSection extends StatelessWidget {
               Text(
                 ratingLabel,
                 style: TextStyle(
-                    fontSize: 11.sp, color: WColors.mutedSecondaryDeep),
+                    fontSize: 11.sp, color: context.colors.mutedSecondaryDeep),
               ),
           ],
         ),
@@ -1329,7 +1329,7 @@ class _CompactStarBar extends StatelessWidget {
             child: Icon(
               icon,
               size: size,
-              color: rating >= value - 0.5 ? starColor : WColors.border,
+              color: rating >= value - 0.5 ? starColor : context.colors.border,
             ),
           ),
         );
@@ -1381,12 +1381,12 @@ class _CastSection extends StatelessWidget {
     },
   ];
 
-  static const _fallbackColors = [
-    WColors.accentBlueMuted,
-    WColors.accentPink,
-    WColors.warning,
-    WColors.accentRed,
-    WColors.mutedSecondaryAlt,
+  static final _fallbackColors = [
+    const Color(0xFF718096), // accentBlueMuted
+    const Color(0xFFEB4B6B), // accentPink
+    const Color(0xFFE0A838), // warning
+    const Color(0xFFE84B57), // accentRed
+    const Color(0xFF8C8C97), // mutedSecondaryAlt
   ];
 
   @override
@@ -1399,7 +1399,7 @@ class _CastSection extends StatelessWidget {
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,
-            color: WColors.foreground,
+            color: context.colors.foreground,
           ),
         ),
         SizedBox(height: 12.h),
@@ -1421,7 +1421,7 @@ class _CastSection extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: WColors.borderStrong,
+                          color: context.colors.borderStrong,
                           width: 1.5,
                         ),
                       ),
@@ -1455,7 +1455,7 @@ class _CastSection extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w600,
-                          color: WColors.foreground,
+                          color: context.colors.foreground,
                           height: 1.3,
                         ),
                       ),
@@ -1470,7 +1470,7 @@ class _CastSection extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 10.sp,
-                          color: WColors.mutedForeground,
+                          color: context.colors.mutedForeground,
                         ),
                       ),
                     ),
@@ -1522,7 +1522,7 @@ class _ShowRatingSection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                   ),
                 ),
                 SizedBox(height: 6.h),
@@ -1530,7 +1530,7 @@ class _ShowRatingSection extends StatelessWidget {
                   'Rate the whole show',
                   style: TextStyle(
                     fontSize: 11.sp,
-                    color: WColors.mutedForeground,
+                    color: context.colors.mutedForeground,
                   ),
                 ),
               ],
@@ -1565,10 +1565,10 @@ class _ShowRatingSection extends StatelessWidget {
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
           decoration: BoxDecoration(
-            color: WColors.surfaceTint.withValues(alpha: 0.18),
+            color: context.colors.surfaceTint.withValues(alpha: 0.18),
             borderRadius: BorderRadius.all(Radius.elliptical(20.r, 18.r)),
             border: Border.all(
-              color: WColors.surfaceChipBorder.withValues(alpha: 0.8),
+              color: context.colors.surfaceChipBorder.withValues(alpha: 0.8),
               width: 0.7,
             ),
           ),
@@ -1659,7 +1659,7 @@ class _RatingSuccessChip extends StatelessWidget {
                 Text(
                   'Added to',
                   style:
-                      TextStyle(fontSize: 10.sp, color: WColors.mutedSecondary),
+                      TextStyle(fontSize: 10.sp, color: context.colors.mutedSecondary),
                 ),
                 SizedBox(height: 1.h),
                 Text(
@@ -1702,17 +1702,18 @@ class _FullStarBar extends StatelessWidget {
   final double rating;
   final ValueChanged<double> onRate;
   final double size;
-  final Color starColor;
+  final Color? starColor;
 
   const _FullStarBar({
     required this.rating,
     required this.onRate,
     required this.size,
-    this.starColor = WColors.border,
+    this.starColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final resolvedStarColor = starColor ?? context.colors.border;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(5, (index) {
@@ -1737,7 +1738,7 @@ class _FullStarBar extends StatelessWidget {
             child: Icon(
               icon,
               size: size,
-              color: rating >= value - 0.5 ? starColor : WColors.border,
+              color: rating >= value - 0.5 ? resolvedStarColor : context.colors.border,
             ),
           ),
         );
@@ -1799,7 +1800,7 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
           style: TextStyle(
             fontSize: 11.sp,
             fontWeight: FontWeight.w700,
-            color: WColors.accentRed,
+            color: context.colors.accentRed,
             letterSpacing: 1.2,
           ),
         ),
@@ -1813,7 +1814,7 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
-                  color: WColors.foreground,
+                  color: context.colors.foreground,
                 ),
               ),
             ),
@@ -1824,7 +1825,7 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
-                  color: WColors.primary,
+                  color: context.colors.primary,
                 ),
               ),
             ),

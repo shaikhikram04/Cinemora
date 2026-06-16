@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
 import 'package:cinemora/features/settings/viewmodels/appearance_cubit.dart';
 import 'package:cinemora/features/settings/viewmodels/appearance_state.dart';
 import 'package:cinemora/features/settings/widgets/settings_top_bar.dart';
@@ -13,7 +14,7 @@ class AppearanceView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AppearanceCubit(),
+      create: (ctx) => AppearanceCubit(ctx.read<ThemeModeCubit>()),
       child: const _AppearanceContent(),
     );
   }
@@ -28,7 +29,7 @@ class _AppearanceContent extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<AppearanceCubit>();
         return Scaffold(
-          backgroundColor: WColors.background,
+          backgroundColor: context.colors.background,
           body: SafeArea(
             bottom: false,
             child: Column(
@@ -98,7 +99,7 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: WColors.mutedSecondaryDeep,
+          color: context.colors.mutedSecondaryDeep,
           fontSize: 11.sp,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.2,
@@ -128,13 +129,13 @@ class _ThemeOptionCard extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 16.h),
       decoration: BoxDecoration(
         color: selected
-            ? WColors.accentPurple.withValues(alpha: 0.10)
-            : WColors.surfaceRaised.withValues(alpha: 0.6),
+            ? context.colors.accentPurple.withValues(alpha: 0.10)
+            : context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(18.r),
         border: Border.all(
           color: selected
-              ? WColors.accentPurple.withValues(alpha: 0.4)
-              : WColors.borderStrong,
+              ? context.colors.accentPurple.withValues(alpha: 0.4)
+              : context.colors.borderStrong,
           width: selected ? 1.5 : 0.8,
         ),
       ),
@@ -143,13 +144,13 @@ class _ThemeOptionCard extends StatelessWidget {
           Icon(
             icon,
             size: 22.sp,
-            color: selected ? WColors.accentPurple : WColors.mutedSecondaryDeep,
+            color: selected ? context.colors.accentPurple : context.colors.mutedSecondaryDeep,
           ),
           SizedBox(height: 6.h),
           Text(
             label,
             style: TextStyle(
-              color: selected ? WColors.foreground : WColors.mutedSecondary,
+              color: selected ? context.colors.foreground : context.colors.mutedSecondary,
               fontSize: 12.sp,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             ),
@@ -159,8 +160,8 @@ class _ThemeOptionCard extends StatelessWidget {
             Container(
               width: 6.w,
               height: 6.w,
-              decoration: const BoxDecoration(
-                color: WColors.accentPurple,
+              decoration: BoxDecoration(
+                color: context.colors.accentPurple,
                 shape: BoxShape.circle,
               ),
             ),

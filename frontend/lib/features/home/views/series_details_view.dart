@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
 import 'package:cinemora/features/home/viewmodels/series_details_cubit.dart';
@@ -127,7 +127,7 @@ class _SeriesDetailsContent extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<SeriesDetailsCubit>();
         return Scaffold(
-          backgroundColor: WColors.background,
+          backgroundColor: context.colors.background,
           body: SeriesDetailsContent(
             seriesTitle: seriesTitle,
             seriesImage: seriesImage,

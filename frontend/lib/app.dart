@@ -6,16 +6,19 @@ import 'package:go_router/go_router.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/themes/theme.dart';
+import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
 
 class WatcharyApp extends StatefulWidget {
   final AppAuthCubit authCubit;
   final UserRepository userRepository;
+  final ThemeModeCubit themeModeCubit;
 
   const WatcharyApp({
     super.key,
     required this.authCubit,
     required this.userRepository,
+    required this.themeModeCubit,
   });
 
   @override
@@ -45,19 +48,22 @@ class _WatcharyAppState extends State<WatcharyApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: widget.authCubit),
+        BlocProvider.value(value: widget.themeModeCubit),
         RepositoryProvider.value(value: widget.userRepository),
       ],
       child: ScreenUtilInit(
         designSize: const Size(390, 844),
         minTextAdapt: true,
         splitScreenMode: true,
-        builder: (_, __) => MaterialApp.router(
-          title: 'Watchary',
-          debugShowCheckedModeBanner: false,
-          themeMode: ThemeMode.dark,
-          theme: WTheme.lightTheme,
-          darkTheme: WTheme.darkTheme,
-          routerConfig: _router,
+        builder: (_, __) => BlocBuilder<ThemeModeCubit, ThemeMode>(
+          builder: (context, themeMode) => MaterialApp.router(
+            title: 'Watchary',
+            debugShowCheckedModeBanner: false,
+            themeMode: themeMode,
+            theme: WTheme.lightTheme,
+            darkTheme: WTheme.darkTheme,
+            routerConfig: _router,
+          ),
         ),
       ),
     );

@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 
 class LibraryStatsCard extends StatelessWidget {
   const LibraryStatsCard({super.key});
@@ -12,9 +12,9 @@ class LibraryStatsCard extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised,
+        color: context.colors.surfaceRaised,
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Stack(
         children: [
@@ -28,7 +28,7 @@ class LibraryStatsCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: WColors.accentPurple.withValues(alpha: 0.4),
+                    color: context.colors.accentPurple.withValues(alpha: 0.4),
                     blurRadius: 100,
                     offset: const Offset(0, 10),
                     spreadRadius: 40,
@@ -47,7 +47,7 @@ class LibraryStatsCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: WColors.accentRed.withValues(alpha: 0.4),
+                    color: context.colors.accentRed.withValues(alpha: 0.4),
                     blurRadius: 100,
                     offset: const Offset(0, 10),
                     spreadRadius: 40,
@@ -69,7 +69,10 @@ class LibraryStatsCard extends StatelessWidget {
                       children: [
                         CustomPaint(
                           size: Size(90.w, 90.w),
-                          painter: _RingPainter(progress: 5 / 12),
+                          painter: _RingPainter(
+                            progress: 5 / 12,
+                            trackColor: context.colors.surfaceRaised,
+                          ),
                         ),
                         Column(
                           mainAxisSize: MainAxisSize.min,
@@ -77,7 +80,7 @@ class LibraryStatsCard extends StatelessWidget {
                             Text(
                               '5/10',
                               style: TextStyle(
-                                color: WColors.foreground,
+                                color: context.colors.foreground,
                                 fontSize: 18.sp,
                                 fontWeight: FontWeight.w800,
                                 height: 1.0,
@@ -97,7 +100,7 @@ class LibraryStatsCard extends StatelessWidget {
                         Text(
                           'TOTAL WATCH TIME',
                           style: TextStyle(
-                            color: WColors.mutedSecondary,
+                            color: context.colors.mutedSecondary,
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.8,
@@ -110,7 +113,7 @@ class LibraryStatsCard extends StatelessWidget {
                               TextSpan(
                                 text: '21h',
                                 style: TextStyle(
-                                  color: WColors.accentRed,
+                                  color: context.colors.accentRed,
                                   fontSize: 28.sp,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: -0.5,
@@ -119,7 +122,7 @@ class LibraryStatsCard extends StatelessWidget {
                               TextSpan(
                                 text: '  across 14 titles',
                                 style: TextStyle(
-                                  color: WColors.mutedSecondary,
+                                  color: context.colors.mutedSecondary,
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -138,21 +141,21 @@ class LibraryStatsCard extends StatelessWidget {
                 children: [
                   _CategoryChip(
                     icon: Icons.movie_outlined,
-                    iconColor: WColors.accentRed,
+                    iconColor: context.colors.accentRed,
                     label: 'MOVIES',
                     value: '6 watched',
                   ),
                   SizedBox(width: 8.w),
                   _CategoryChip(
                     icon: Icons.tv_outlined,
-                    iconColor: WColors.accentPurple,
+                    iconColor: context.colors.accentPurple,
                     label: 'SERIES',
                     value: '4 watched',
                   ),
                   SizedBox(width: 8.w),
                   _CategoryChip(
                     icon: Icons.auto_awesome_outlined,
-                    iconColor: WColors.warning,
+                    iconColor: context.colors.warning,
                     label: 'ANIME',
                     value: '4 watched',
                   ),
@@ -185,9 +188,9 @@ class _CategoryChip extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: WColors.surfaceOverlay.withValues(alpha: 0.12),
+          color: context.colors.surfaceOverlay.withValues(alpha: 0.12),
           borderRadius: BorderRadius.all(Radius.elliptical(20.r, 18.r)),
-          border: Border.all(color: WColors.borderStrong),
+          border: Border.all(color: context.colors.borderStrong),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,7 +202,7 @@ class _CategoryChip extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    color: WColors.mutedSecondary,
+                    color: context.colors.mutedSecondary,
                     fontSize: 9.sp,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
@@ -211,7 +214,7 @@ class _CategoryChip extends StatelessWidget {
             Text(
               value,
               style: TextStyle(
-                color: WColors.foreground,
+                color: context.colors.foreground,
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w700,
               ),
@@ -227,8 +230,9 @@ class _CategoryChip extends StatelessWidget {
 
 class _RingPainter extends CustomPainter {
   final double progress;
+  final Color trackColor;
 
-  const _RingPainter({required this.progress});
+  const _RingPainter({required this.progress, required this.trackColor});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -240,7 +244,7 @@ class _RingPainter extends CustomPainter {
 
     // Track
     final trackPaint = Paint()
-      ..color = WColors.surfaceRaised
+      ..color = trackColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeW
       ..strokeCap = StrokeCap.round;
@@ -268,5 +272,5 @@ class _RingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RingPainter oldDelegate) =>
-      oldDelegate.progress != progress;
+      oldDelegate.progress != progress || oldDelegate.trackColor != trackColor;
 }

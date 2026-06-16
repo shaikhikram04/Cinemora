@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 
 class JoinSessionView extends StatefulWidget {
   const JoinSessionView({super.key});
@@ -34,7 +34,7 @@ class _JoinSessionViewState extends State<JoinSessionView> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: WColors.surfaceMuted,
+        backgroundColor: context.colors.surfaceMuted,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
         duration: const Duration(seconds: 2),
@@ -45,7 +45,7 @@ class _JoinSessionViewState extends State<JoinSessionView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: WColors.background,
+      backgroundColor: context.colors.background,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Column(
@@ -60,7 +60,7 @@ class _JoinSessionViewState extends State<JoinSessionView> {
                   Text(
                     'Join Session',
                     style: TextStyle(
-                      color: WColors.foreground,
+                      color: context.colors.foreground,
                       fontSize: 20.sp,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.4,
@@ -84,14 +84,14 @@ class _JoinSessionViewState extends State<JoinSessionView> {
                         height: 96.w,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF2B1259), WColors.accentRed],
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF2B1259), context.colors.accentRed],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: WColors.accentRed.withValues(alpha: 0.28),
+                              color: context.colors.accentRed.withValues(alpha: 0.28),
                               blurRadius: 32,
                               spreadRadius: 0,
                             ),
@@ -114,7 +114,7 @@ class _JoinSessionViewState extends State<JoinSessionView> {
                       'Enter Invite Code',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: WColors.foreground,
+                        color: context.colors.foreground,
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
@@ -125,7 +125,7 @@ class _JoinSessionViewState extends State<JoinSessionView> {
                       'Ask your partner to share their\nsession code with you.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: WColors.mutedSecondary,
+                        color: context.colors.mutedSecondary,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                         height: 1.5,
@@ -139,19 +139,19 @@ class _JoinSessionViewState extends State<JoinSessionView> {
                     // OR divider
                     Row(
                       children: [
-                        Expanded(child: Divider(color: WColors.borderStrong, thickness: 1)),
+                        Expanded(child: Divider(color: context.colors.borderStrong, thickness: 1)),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 14.w),
                           child: Text(
                             'OR',
                             style: TextStyle(
-                              color: WColors.mutedSecondary,
+                              color: context.colors.mutedSecondary,
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                        Expanded(child: Divider(color: WColors.borderStrong, thickness: 1)),
+                        Expanded(child: Divider(color: context.colors.borderStrong, thickness: 1)),
                       ],
                     ),
                     SizedBox(height: 20.h),
@@ -179,11 +179,11 @@ class _BackButton extends StatelessWidget {
         width: 38.w,
         height: 38.w,
         decoration: BoxDecoration(
-          color: WColors.surfaceMuted,
+          color: context.colors.surfaceMuted,
           borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: WColors.borderStrong),
+          border: Border.all(color: context.colors.borderStrong),
         ),
-        child: Icon(Icons.arrow_back_rounded, color: WColors.foreground, size: 18.sp),
+        child: Icon(Icons.arrow_back_rounded, color: context.colors.foreground, size: 18.sp),
       ),
     );
   }
@@ -199,12 +199,12 @@ class _CodeField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised,
+        color: context.colors.surfaceRaised,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: WColors.accentRed.withValues(alpha: 0.28)),
+        border: Border.all(color: context.colors.accentRed.withValues(alpha: 0.28)),
         boxShadow: [
           BoxShadow(
-            color: WColors.accentRed.withValues(alpha: 0.06),
+            color: context.colors.accentRed.withValues(alpha: 0.06),
             blurRadius: 24,
           ),
         ],
@@ -215,7 +215,7 @@ class _CodeField extends StatelessWidget {
         textAlign: TextAlign.center,
         maxLength: 8,
         style: TextStyle(
-          color: WColors.foreground,
+          color: context.colors.foreground,
           fontSize: 26.sp,
           fontWeight: FontWeight.w800,
           letterSpacing: 8.0,
@@ -223,7 +223,7 @@ class _CodeField extends StatelessWidget {
         decoration: InputDecoration(
           hintText: 'ABCD1234',
           hintStyle: TextStyle(
-            color: WColors.mutedSecondary.withValues(alpha: 0.4),
+            color: context.colors.mutedSecondary.withValues(alpha: 0.4),
             fontSize: 26.sp,
             fontWeight: FontWeight.w800,
             letterSpacing: 8.0,
@@ -247,14 +247,14 @@ class _JoinButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.r),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF9B1C35), WColors.accentRed],
+        gradient: LinearGradient(
+          colors: [Color(0xFF9B1C35), context.colors.accentRed],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: WColors.accentRed.withValues(alpha: 0.35),
+            color: context.colors.accentRed.withValues(alpha: 0.35),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -294,10 +294,10 @@ class _QrButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Material(
-        color: WColors.surfaceRaised,
+        color: context.colors.surfaceRaised,
         borderRadius: BorderRadius.circular(16.r),
         child: InkWell(
           borderRadius: BorderRadius.circular(16.r),
@@ -308,12 +308,12 @@ class _QrButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.qr_code_scanner_rounded,
-                    color: WColors.foreground, size: 20.sp),
+                    color: context.colors.foreground, size: 20.sp),
                 SizedBox(width: 8.w),
                 Text(
                   'Scan QR Code',
                   style: TextStyle(
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -336,7 +336,7 @@ class _JoiningDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: WColors.surfaceRaised,
+      backgroundColor: context.colors.surfaceRaised,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
       child: Padding(
         padding: EdgeInsets.all(24.w),
@@ -348,14 +348,14 @@ class _JoiningDialog extends StatelessWidget {
               height: 64.w,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF2B1259), WColors.accentRed],
+                gradient: LinearGradient(
+                  colors: [Color(0xFF2B1259), context.colors.accentRed],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: WColors.accentRed.withValues(alpha: 0.28),
+                    color: context.colors.accentRed.withValues(alpha: 0.28),
                     blurRadius: 24,
                   ),
                 ],
@@ -366,7 +366,7 @@ class _JoiningDialog extends StatelessWidget {
             Text(
               'Joining Session',
               style: TextStyle(
-                color: WColors.foreground,
+                color: context.colors.foreground,
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.4,
@@ -376,7 +376,7 @@ class _JoiningDialog extends StatelessWidget {
             Text(
               code,
               style: TextStyle(
-                color: WColors.accentRed,
+                color: context.colors.accentRed,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 4,
@@ -387,7 +387,7 @@ class _JoiningDialog extends StatelessWidget {
               'Connecting you with your partner...',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: WColors.mutedSecondary,
+                color: context.colors.mutedSecondary,
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w500,
               ),
@@ -398,7 +398,7 @@ class _JoiningDialog extends StatelessWidget {
               child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                 ),

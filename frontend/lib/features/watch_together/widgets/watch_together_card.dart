@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/features/watch_together/views/watch_together_intro_view.dart';
 
 class WatchTogetherCard extends StatefulWidget {
@@ -130,7 +130,7 @@ class _CardBody extends StatelessWidget {
             spreadRadius: -4,
           ),
           BoxShadow(
-            color: WColors.accentRed.withValues(alpha: 0.16),
+            color: context.colors.accentRed.withValues(alpha: 0.16),
             blurRadius: 22,
             offset: const Offset(0, 18),
             spreadRadius: -8,
@@ -262,7 +262,7 @@ class _AvatarStack extends StatelessWidget {
               ),
               child: Icon(
                 Icons.favorite_rounded,
-                color: WColors.accentPink,
+                color: context.colors.accentPink,
                 size: 13.sp,
               ),
             ),

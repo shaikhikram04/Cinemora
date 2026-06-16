@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class MoodChip extends StatelessWidget {
@@ -16,10 +16,10 @@ class MoodChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final borderColor =
-        highlighted ? WColors.primary : const Color.fromARGB(18, 108, 108, 108);
-    final textColor = highlighted ? WColors.primary : WColors.mutedForeground;
+        highlighted ? context.colors.primary : const Color.fromARGB(18, 108, 108, 108);
+    final textColor = highlighted ? context.colors.primary : context.colors.mutedForeground;
     final backgroundColor = highlighted
-        ? WColors.primary.withAlpha(30)
+        ? context.colors.primary.withAlpha(30)
         : const Color.fromARGB(255, 54, 54, 54).withAlpha(130);
 
     return Container(

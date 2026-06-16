@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/models/user_model.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
@@ -109,7 +109,7 @@ class _EditProfileContentState extends State<_EditProfileContent> {
                 'Profile updated successfully',
                 style: TextStyle(fontSize: 14.sp),
               ),
-              backgroundColor: WColors.chartGreen,
+              backgroundColor: context.colors.chartGreen,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r)),
@@ -125,7 +125,7 @@ class _EditProfileContentState extends State<_EditProfileContent> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.error!, style: TextStyle(fontSize: 14.sp)),
-              backgroundColor: WColors.accentRed,
+              backgroundColor: context.colors.accentRed,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r)),
@@ -142,7 +142,7 @@ class _EditProfileContentState extends State<_EditProfileContent> {
           final isSaving = state.status == EditProfileStatus.saving;
 
           return Scaffold(
-            backgroundColor: WColors.background,
+            backgroundColor: context.colors.background,
             body: SafeArea(
               bottom: false,
               child: Column(
@@ -285,7 +285,7 @@ class _EditProfileContentState extends State<_EditProfileContent> {
                                     Text(
                                       state.showPreview ? 'Hide' : 'Show',
                                       style: TextStyle(
-                                        color: WColors.accentRed,
+                                        color: context.colors.accentRed,
                                         fontSize: 12.sp,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -363,14 +363,14 @@ class _TopBar extends StatelessWidget {
               width: 34.w,
               height: 34.w,
               decoration: BoxDecoration(
-                color: WColors.surfaceRaised.withValues(alpha: 0.8),
+                color: context.colors.surfaceRaised.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(14.r),
-                border: Border.all(color: WColors.border),
+                border: Border.all(color: context.colors.border),
               ),
               child: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 size: 16.sp,
-                color: WColors.mutedSecondary,
+                color: context.colors.mutedSecondary,
               ),
             ),
           ),
@@ -379,7 +379,7 @@ class _TopBar extends StatelessWidget {
             child: Text(
               'Edit Profile',
               style: TextStyle(
-                color: WColors.foreground,
+                color: context.colors.foreground,
                 fontSize: 24.sp,
                 fontWeight: FontWeight.w800,
               ),
@@ -392,12 +392,12 @@ class _TopBar extends StatelessWidget {
                   EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               decoration: BoxDecoration(
                 gradient: onSave != null
-                    ? const LinearGradient(
-                        colors: [WColors.accentRed, WColors.accentRedAlt],
+                    ? LinearGradient(
+                        colors: [context.colors.accentRed, context.colors.accentRedAlt],
                       )
                     : null,
                 color: onSave == null
-                    ? WColors.surfaceRaised.withValues(alpha: 0.5)
+                    ? context.colors.surfaceRaised.withValues(alpha: 0.5)
                     : null,
                 borderRadius: BorderRadius.circular(14.r),
               ),
@@ -407,13 +407,13 @@ class _TopBar extends StatelessWidget {
                       height: 16.w,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: WColors.primaryForeground,
+                        color: context.colors.primaryForeground,
                       ),
                     )
                   : Text(
                       'Save',
                       style: TextStyle(
-                        color: WColors.primaryForeground,
+                        color: context.colors.primaryForeground,
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
                       ),
@@ -468,7 +468,7 @@ class _CoverAvatarSection extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    WColors.background.withValues(alpha: 0.7),
+                    context.colors.background.withValues(alpha: 0.7),
                   ],
                 ),
               ),
@@ -492,8 +492,8 @@ class _CoverAvatarSection extends StatelessWidget {
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
                         colors: [
-                          WColors.accentPurple.withValues(alpha: 0.8),
-                          WColors.accentRed.withValues(alpha: 0.8),
+                          context.colors.accentPurple.withValues(alpha: 0.8),
+                          context.colors.accentRed.withValues(alpha: 0.8),
                         ],
                       ),
                     ),
@@ -502,7 +502,7 @@ class _CoverAvatarSection extends StatelessWidget {
                       backgroundImage: avatarUrl != null
                           ? NetworkImage(avatarUrl)
                           : NetworkImage(profileImage),
-                      backgroundColor: WColors.surfaceRaised2,
+                      backgroundColor: context.colors.surfaceRaised2,
                     ),
                   ),
                   Positioned(
@@ -512,17 +512,17 @@ class _CoverAvatarSection extends StatelessWidget {
                       width: 28.w,
                       height: 28.w,
                       decoration: BoxDecoration(
-                        color: WColors.accentRed,
+                        color: context.colors.accentRed,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: WColors.background,
+                          color: context.colors.background,
                           width: 2,
                         ),
                       ),
                       child: Icon(
                         Icons.camera_alt_rounded,
                         size: 14.sp,
-                        color: WColors.primaryForeground,
+                        color: context.colors.primaryForeground,
                       ),
                     ),
                   ),
@@ -546,19 +546,19 @@ class _EditOverlay extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
-        color: WColors.surface.withValues(alpha: 0.75),
+        color: context.colors.surface.withValues(alpha: 0.75),
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.edit_rounded, size: 13.sp, color: WColors.foreground),
+          Icon(Icons.edit_rounded, size: 13.sp, color: context.colors.foreground),
           SizedBox(width: 4.w),
           Text(
             'Edit $label',
             style: TextStyle(
-              color: WColors.foreground,
+              color: context.colors.foreground,
               fontSize: 11.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -583,9 +583,9 @@ class _FormCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,7 +605,7 @@ class _SectionLabel extends StatelessWidget {
     return Text(
       label,
       style: TextStyle(
-        color: WColors.mutedSecondaryDeep,
+        color: context.colors.mutedSecondaryDeep,
         fontSize: 11.sp,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.2,
@@ -624,7 +624,7 @@ class _FieldLabel extends StatelessWidget {
     return Text(
       label,
       style: TextStyle(
-        color: WColors.mutedSecondaryDeep,
+        color: context.colors.mutedSecondaryDeep,
         fontSize: 10.sp,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.1,
@@ -659,19 +659,19 @@ class _PremiumTextField extends StatelessWidget {
           controller: controller,
           maxLines: maxLines,
           style: TextStyle(
-            color: WColors.foreground,
+            color: context.colors.foreground,
             fontSize: 15.sp,
             fontWeight: FontWeight.w500,
           ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: WColors.mutedSecondaryDeep,
+              color: context.colors.mutedSecondaryDeep,
               fontSize: 15.sp,
             ),
             prefixText: prefix,
             prefixStyle: TextStyle(
-              color: WColors.mutedSecondary,
+              color: context.colors.mutedSecondary,
               fontSize: 15.sp,
             ),
             border: InputBorder.none,
@@ -693,7 +693,7 @@ class _Divider extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 12.h),
       height: 0.5,
-      color: WColors.borderStrong,
+      color: context.colors.borderStrong,
     );
   }
 }
@@ -710,20 +710,20 @@ class _GenreChip extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: selected
-            ? WColors.accentRed.withValues(alpha: 0.12)
-            : WColors.surfaceRaised2,
+            ? context.colors.accentRed.withValues(alpha: 0.12)
+            : context.colors.surfaceRaised2,
         borderRadius: BorderRadius.circular(999.r),
         border: Border.all(
           color: selected
-              ? WColors.accentRed.withValues(alpha: 0.4)
-              : WColors.borderStrong,
+              ? context.colors.accentRed.withValues(alpha: 0.4)
+              : context.colors.borderStrong,
         ),
       ),
       child: Text(
         label,
         style: TextStyle(
           color:
-              selected ? WColors.accentRed : WColors.mutedSecondarySoft,
+              selected ? context.colors.accentRed : context.colors.mutedSecondarySoft,
           fontSize: 12.sp,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
         ),
@@ -744,20 +744,20 @@ class _SelectChip extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: selected
-            ? WColors.accentRed.withValues(alpha: 0.12)
-            : WColors.surfaceRaised2,
+            ? context.colors.accentRed.withValues(alpha: 0.12)
+            : context.colors.surfaceRaised2,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
           color: selected
-              ? WColors.accentRed.withValues(alpha: 0.4)
-              : WColors.borderStrong,
+              ? context.colors.accentRed.withValues(alpha: 0.4)
+              : context.colors.borderStrong,
         ),
       ),
       child: Text(
         label,
         style: TextStyle(
           color:
-              selected ? WColors.accentRed : WColors.mutedSecondarySoft,
+              selected ? context.colors.accentRed : context.colors.mutedSecondarySoft,
           fontSize: 13.sp,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
         ),
@@ -793,9 +793,9 @@ class _ProfilePreviewCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Column(
         children: [
@@ -803,15 +803,15 @@ class _ProfilePreviewCard extends StatelessWidget {
             padding:
                 EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
             decoration: BoxDecoration(
-              color: WColors.accentPurple.withValues(alpha: 0.08),
+              color: context.colors.accentPurple.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8.r),
               border: Border.all(
-                  color: WColors.accentPurple.withValues(alpha: 0.2)),
+                  color: context.colors.accentPurple.withValues(alpha: 0.2)),
             ),
             child: Text(
               'PREVIEW',
               style: TextStyle(
-                color: WColors.accentPurple,
+                color: context.colors.accentPurple,
                 fontSize: 9.sp,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.2,
@@ -827,8 +827,8 @@ class _ProfilePreviewCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     colors: [
-                      WColors.accentPurple.withValues(alpha: 0.6),
-                      WColors.accentRed.withValues(alpha: 0.6),
+                      context.colors.accentPurple.withValues(alpha: 0.6),
+                      context.colors.accentRed.withValues(alpha: 0.6),
                     ],
                   ),
                 ),
@@ -837,7 +837,7 @@ class _ProfilePreviewCard extends StatelessWidget {
                   backgroundImage: avatarUrl != null
                       ? NetworkImage(avatarUrl)
                       : NetworkImage(profileImage),
-                  backgroundColor: WColors.surfaceRaised2,
+                  backgroundColor: context.colors.surfaceRaised2,
                 ),
               ),
               SizedBox(width: 12.w),
@@ -848,7 +848,7 @@ class _ProfilePreviewCard extends StatelessWidget {
                     Text(
                       name.isEmpty ? 'Display Name' : name,
                       style: TextStyle(
-                        color: WColors.foreground,
+                        color: context.colors.foreground,
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w700,
                       ),
@@ -856,7 +856,7 @@ class _ProfilePreviewCard extends StatelessWidget {
                     Text(
                       '@${username.isEmpty ? "username" : username}',
                       style: TextStyle(
-                        color: WColors.mutedSecondary,
+                        color: context.colors.mutedSecondary,
                         fontSize: 12.sp,
                       ),
                     ),
@@ -867,7 +867,7 @@ class _ProfilePreviewCard extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: WColors.mutedSecondarySoft,
+                          color: context.colors.mutedSecondarySoft,
                           fontSize: 11.sp,
                           height: 1.3,
                         ),
@@ -903,12 +903,12 @@ class _SaveButton extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 15.h),
         decoration: BoxDecoration(
           gradient: onSave != null
-              ? const LinearGradient(
-                  colors: [WColors.accentRed, WColors.accentRedAlt],
+              ? LinearGradient(
+                  colors: [context.colors.accentRed, context.colors.accentRedAlt],
                 )
               : null,
           color: onSave == null
-              ? WColors.surfaceRaised.withValues(alpha: 0.5)
+              ? context.colors.surfaceRaised.withValues(alpha: 0.5)
               : null,
           borderRadius: BorderRadius.circular(18.r),
         ),
@@ -919,7 +919,7 @@ class _SaveButton extends StatelessWidget {
                   height: 20.w,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: WColors.primaryForeground,
+                    color: context.colors.primaryForeground,
                   ),
                 ),
               )
@@ -927,7 +927,7 @@ class _SaveButton extends StatelessWidget {
                 'Save Changes',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: WColors.primaryForeground,
+                  color: context.colors.primaryForeground,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                 ),

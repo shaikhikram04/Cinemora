@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 
 class HomeBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -73,8 +73,8 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = WColors.accentRed;
-    final inactiveColor = WColors.mutedSecondaryHeader;
+    final activeColor = context.colors.accentRed;
+    final inactiveColor = context.colors.mutedSecondaryHeader;
 
     return Expanded(
       child: GestureDetector(

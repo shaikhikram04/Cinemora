@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/home/viewmodels/movie_details_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/movie_details_state.dart';
@@ -61,7 +61,7 @@ class _MovieDetailsContent extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<MovieDetailsCubit>();
         return Scaffold(
-          backgroundColor: WColors.background,
+          backgroundColor: context.colors.background,
           body: MovieDetailsContent(
             movieTitle: movieTitle,
             movieImage: movieImage,

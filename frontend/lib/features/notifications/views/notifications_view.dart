@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/notifications/models/notification.dart';
 import 'package:cinemora/features/notifications/viewmodels/notifications_cubit.dart';
@@ -37,7 +37,7 @@ class _NotificationsContent extends StatelessWidget {
             statusBarBrightness: Brightness.dark,
           ),
           child: Scaffold(
-            backgroundColor: WColors.background,
+            backgroundColor: context.colors.background,
             body: SafeArea(
               bottom: false,
               child: Column(
@@ -47,15 +47,15 @@ class _NotificationsContent extends StatelessWidget {
                   SizedBox(height: 4.h),
                   Expanded(
                     child: grouped.isEmpty
-                        ? _buildEmptyState()
+                        ? _buildEmptyState(context)
                         : ListView(
                             physics: const BouncingScrollPhysics(),
                             padding: EdgeInsets.only(bottom: 48.h),
                             children: [
                               for (final entry in grouped.entries) ...[
-                                _buildGroupLabel(entry.key),
+                                _buildGroupLabel(context, entry.key),
                                 ...entry.value.map(
-                                  (n) => _buildNotifCard(n, cubit),
+                                  (n) => _buildNotifCard(context, n, cubit),
                                 ),
                               ],
                             ],
@@ -89,12 +89,12 @@ class _NotificationsContent extends StatelessWidget {
               height: 38.w,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
-                color: WColors.surfaceMuted,
-                border: Border.all(color: WColors.borderStrong),
+                color: context.colors.surfaceMuted,
+                border: Border.all(color: context.colors.borderStrong),
               ),
               child: Icon(
                 Icons.arrow_back_ios_new_rounded,
-                color: WColors.foreground,
+                color: context.colors.foreground,
                 size: 16.sp,
               ),
             ),
@@ -106,7 +106,7 @@ class _NotificationsContent extends StatelessWidget {
                 Text(
                   'Notifications',
                   style: TextStyle(
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     fontSize: 22.sp,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
@@ -119,7 +119,7 @@ class _NotificationsContent extends StatelessWidget {
                     padding:
                         EdgeInsets.symmetric(horizontal: 7.w, vertical: 2.h),
                     decoration: BoxDecoration(
-                      color: WColors.primary,
+                      color: context.colors.primary,
                       borderRadius:
                           BorderRadius.circular(WSizes.radiusFull.r),
                     ),
@@ -142,7 +142,7 @@ class _NotificationsContent extends StatelessWidget {
               child: Text(
                 'Mark all read',
                 style: TextStyle(
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
                 ),
@@ -155,7 +155,7 @@ class _NotificationsContent extends StatelessWidget {
 
   // ── Group label ─────────────────────────────────────────────────────────────
 
-  Widget _buildGroupLabel(String label) {
+  Widget _buildGroupLabel(BuildContext context, String label) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
           WSizes.screenPadding.w, 22.h, WSizes.screenPadding.w, 8.h),
@@ -164,14 +164,14 @@ class _NotificationsContent extends StatelessWidget {
           Text(
             label.toUpperCase(),
             style: TextStyle(
-              color: WColors.mutedSecondaryDeep,
+              color: context.colors.mutedSecondaryDeep,
               fontSize: 10.sp,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.2,
             ),
           ),
           SizedBox(width: 10.w),
-          Expanded(child: Container(height: 1, color: WColors.border)),
+          Expanded(child: Container(height: 1, color: context.colors.border)),
         ],
       ),
     );
@@ -179,18 +179,18 @@ class _NotificationsContent extends StatelessWidget {
 
   // ── Card dispatcher ─────────────────────────────────────────────────────────
 
-  Widget _buildNotifCard(WNotif notif, NotificationsCubit cubit) {
+  Widget _buildNotifCard(BuildContext context, WNotif notif, NotificationsCubit cubit) {
     return switch (notif.variant) {
-      NotifCardVariant.media => _buildMediaCard(notif, cubit),
+      NotifCardVariant.media => _buildMediaCard(context, notif, cubit),
       NotifCardVariant.recommendation =>
-        _buildRecommendationCard(notif, cubit),
-      NotifCardVariant.compact => _buildCompactCard(notif, cubit),
+        _buildRecommendationCard(context, notif, cubit),
+      NotifCardVariant.compact => _buildCompactCard(context, notif, cubit),
     };
   }
 
   // ── Media card ──────────────────────────────────────────────────────────────
 
-  Widget _buildMediaCard(WNotif notif, NotificationsCubit cubit) {
+  Widget _buildMediaCard(BuildContext context, WNotif notif, NotificationsCubit cubit) {
     final isUnread = !notif.isRead;
 
     return GestureDetector(
@@ -201,13 +201,13 @@ class _NotificationsContent extends StatelessWidget {
             horizontal: WSizes.screenPadding.w, vertical: 4.h),
         decoration: BoxDecoration(
           color: isUnread
-              ? WColors.surfaceRaised
-              : WColors.surfaceBorderAlt.withValues(alpha: 0.5),
+              ? context.colors.surfaceRaised
+              : context.colors.surfaceBorderAlt.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
           border: Border.all(
             color: isUnread
-                ? WColors.primary.withValues(alpha: 0.35)
-                : WColors.border,
+                ? context.colors.primary.withValues(alpha: 0.35)
+                : context.colors.border,
           ),
         ),
         child: Padding(
@@ -250,13 +250,13 @@ class _NotificationsContent extends StatelessWidget {
                             padding: EdgeInsets.symmetric(
                                 horizontal: 6.w, vertical: 2.h),
                             decoration: BoxDecoration(
-                              color: WColors.primary.withValues(alpha: 0.14),
+                              color: context.colors.primary.withValues(alpha: 0.14),
                               borderRadius: BorderRadius.circular(4.r),
                             ),
                             child: Text(
                               notif.tag!,
                               style: TextStyle(
-                                color: WColors.primary,
+                                color: context.colors.primary,
                                 fontSize: 9.sp,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.6,
@@ -267,7 +267,7 @@ class _NotificationsContent extends StatelessWidget {
                         Text(
                           notif.timeLabel,
                           style: TextStyle(
-                            color: WColors.mutedSecondaryDeep,
+                            color: context.colors.mutedSecondaryDeep,
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w500,
                           ),
@@ -280,8 +280,8 @@ class _NotificationsContent extends StatelessWidget {
                         notif.seriesTitle!,
                         style: TextStyle(
                           color: isUnread
-                              ? WColors.foreground
-                              : WColors.mutedSecondarySoft,
+                              ? context.colors.foreground
+                              : context.colors.mutedSecondarySoft,
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.3,
@@ -294,8 +294,8 @@ class _NotificationsContent extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: isUnread
-                            ? WColors.mutedForeground
-                            : WColors.mutedSecondaryDeep,
+                            ? context.colors.mutedForeground
+                            : context.colors.mutedSecondaryDeep,
                         fontSize: 11.sp,
                         height: 1.4,
                       ),
@@ -307,14 +307,14 @@ class _NotificationsContent extends StatelessWidget {
                           Text(
                             notif.ctaLabel!,
                             style: TextStyle(
-                              color: WColors.primary,
+                              color: context.colors.primary,
                               fontSize: 11.sp,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           SizedBox(width: 3.w),
                           Icon(Icons.arrow_forward_rounded,
-                              color: WColors.primary, size: 12.sp),
+                              color: context.colors.primary, size: 12.sp),
                         ],
                       ),
                     ],
@@ -330,7 +330,7 @@ class _NotificationsContent extends StatelessWidget {
 
   // ── Recommendation card ─────────────────────────────────────────────────────
 
-  Widget _buildRecommendationCard(WNotif notif, NotificationsCubit cubit) {
+  Widget _buildRecommendationCard(BuildContext context, WNotif notif, NotificationsCubit cubit) {
     final isUnread = !notif.isRead;
 
     return GestureDetector(
@@ -341,11 +341,11 @@ class _NotificationsContent extends StatelessWidget {
             horizontal: WSizes.screenPadding.w, vertical: 4.h),
         decoration: BoxDecoration(
           color: isUnread
-              ? WColors.surfaceRaised
-              : WColors.surfaceBorderAlt.withValues(alpha: 0.5),
+              ? context.colors.surfaceRaised
+              : context.colors.surfaceBorderAlt.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
           border: Border.all(
-            color: isUnread ? WColors.borderStrong : WColors.border,
+            color: isUnread ? context.colors.borderStrong : context.colors.border,
           ),
         ),
         child: Padding(
@@ -358,14 +358,14 @@ class _NotificationsContent extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.auto_awesome_rounded,
-                      color: WColors.mutedSecondaryHighlight,
+                      color: context.colors.mutedSecondaryHighlight,
                       size: 11.sp,
                     ),
                     SizedBox(width: 5.w),
                     Text(
                       notif.becauseOf!,
                       style: TextStyle(
-                        color: WColors.mutedSecondaryHighlight,
+                        color: context.colors.mutedSecondaryHighlight,
                         fontSize: 11.sp,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.1,
@@ -385,8 +385,8 @@ class _NotificationsContent extends StatelessWidget {
                           notif.title,
                           style: TextStyle(
                             color: isUnread
-                                ? WColors.foreground
-                                : WColors.mutedSecondarySoft,
+                                ? context.colors.foreground
+                                : context.colors.mutedSecondarySoft,
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.4,
@@ -397,8 +397,8 @@ class _NotificationsContent extends StatelessWidget {
                           notif.body,
                           style: TextStyle(
                             color: isUnread
-                                ? WColors.mutedForeground
-                                : WColors.mutedSecondaryDeep,
+                                ? context.colors.mutedForeground
+                                : context.colors.mutedSecondaryDeep,
                             fontSize: 11.sp,
                             height: 1.4,
                           ),
@@ -407,7 +407,7 @@ class _NotificationsContent extends StatelessWidget {
                         Text(
                           notif.timeLabel,
                           style: TextStyle(
-                            color: WColors.mutedSecondaryDeep,
+                            color: context.colors.mutedSecondaryDeep,
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w500,
                           ),
@@ -450,9 +450,9 @@ class _NotificationsContent extends StatelessWidget {
 
   // ── Compact card ────────────────────────────────────────────────────────────
 
-  Widget _buildCompactCard(WNotif notif, NotificationsCubit cubit) {
+  Widget _buildCompactCard(BuildContext context, WNotif notif, NotificationsCubit cubit) {
     final isUnread = !notif.isRead;
-    final iconColor = notif.compactIconColor ?? WColors.mutedSecondary;
+    final iconColor = notif.compactIconColor ?? context.colors.mutedSecondary;
 
     return GestureDetector(
       onTap: () => cubit.markRead(notif.id),
@@ -463,11 +463,11 @@ class _NotificationsContent extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: isUnread
-              ? WColors.surfaceRaised
-              : WColors.surfaceBorderAlt.withValues(alpha: 0.4),
+              ? context.colors.surfaceRaised
+              : context.colors.surfaceBorderAlt.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
           border: Border.all(
-            color: isUnread ? WColors.borderStrong : WColors.border,
+            color: isUnread ? context.colors.borderStrong : context.colors.border,
           ),
         ),
         child: Row(
@@ -494,8 +494,8 @@ class _NotificationsContent extends StatelessWidget {
                     notif.title,
                     style: TextStyle(
                       color: isUnread
-                          ? WColors.foreground
-                          : WColors.mutedSecondarySoft,
+                          ? context.colors.foreground
+                          : context.colors.mutedSecondarySoft,
                       fontSize: 13.sp,
                       fontWeight:
                           isUnread ? FontWeight.w700 : FontWeight.w500,
@@ -506,7 +506,7 @@ class _NotificationsContent extends StatelessWidget {
                   Text(
                     notif.body,
                     style: TextStyle(
-                      color: WColors.mutedSecondaryDeep,
+                      color: context.colors.mutedSecondaryDeep,
                       fontSize: 11.sp,
                       height: 1.35,
                     ),
@@ -524,8 +524,8 @@ class _NotificationsContent extends StatelessWidget {
                   child: Container(
                     width: 6.w,
                     height: 6.w,
-                    decoration: const BoxDecoration(
-                      color: WColors.primary,
+                    decoration: BoxDecoration(
+                      color: context.colors.primary,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -534,7 +534,7 @@ class _NotificationsContent extends StatelessWidget {
                 Text(
                   notif.timeLabel,
                   style: TextStyle(
-                    color: WColors.mutedSecondaryDeep,
+                    color: context.colors.mutedSecondaryDeep,
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w500,
                   ),
@@ -549,7 +549,7 @@ class _NotificationsContent extends StatelessWidget {
 
   // ── Empty state ─────────────────────────────────────────────────────────────
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(WSizes.xl.w),
@@ -561,7 +561,7 @@ class _NotificationsContent extends StatelessWidget {
             Text(
               "You're all caught up",
               style: TextStyle(
-                color: WColors.foreground,
+                color: context.colors.foreground,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.3,
@@ -572,7 +572,7 @@ class _NotificationsContent extends StatelessWidget {
               "We'll let you know when new episodes,\nseasons, and recommendations arrive.",
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: WColors.mutedSecondaryDeep,
+                color: context.colors.mutedSecondaryDeep,
                 fontSize: 13.sp,
                 height: 1.55,
               ),

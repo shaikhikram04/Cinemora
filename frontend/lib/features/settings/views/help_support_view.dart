@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/settings/widgets/settings_top_bar.dart';
 
@@ -38,7 +38,7 @@ class HelpSupportView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: WColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -61,7 +61,7 @@ class HelpSupportView extends StatelessWidget {
                       Expanded(
                         child: _QuickActionCard(
                           icon: Icons.bug_report_outlined,
-                          color: WColors.accentRed,
+                          color: context.colors.accentRed,
                           label: 'Report Bug',
                           onTap: () {},
                         ),
@@ -70,7 +70,7 @@ class HelpSupportView extends StatelessWidget {
                       Expanded(
                         child: _QuickActionCard(
                           icon: Icons.lightbulb_outline_rounded,
-                          color: WColors.chartYellow,
+                          color: context.colors.chartYellow,
                           label: 'Feature Request',
                           onTap: () {},
                         ),
@@ -79,7 +79,7 @@ class HelpSupportView extends StatelessWidget {
                       Expanded(
                         child: _QuickActionCard(
                           icon: Icons.star_outline_rounded,
-                          color: WColors.chartGreen,
+                          color: context.colors.chartGreen,
                           label: 'Rate App',
                           onTap: () {},
                         ),
@@ -93,9 +93,9 @@ class HelpSupportView extends StatelessWidget {
                   SizedBox(height: 10.h),
                   Container(
                     decoration: BoxDecoration(
-                      color: WColors.surfaceRaised.withValues(alpha: 0.6),
+                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: WColors.borderStrong),
+                      border: Border.all(color: context.colors.borderStrong),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.r),
@@ -103,7 +103,7 @@ class HelpSupportView extends StatelessWidget {
                         children: [
                           _ContactRow(
                             icon: Icons.support_agent_rounded,
-                            iconColor: WColors.accentPurple,
+                            iconColor: context.colors.accentPurple,
                             title: 'Contact Support',
                             subtitle: 'Avg response time: 24 hours',
                             onTap: () {},
@@ -111,7 +111,7 @@ class HelpSupportView extends StatelessWidget {
                           _DividerLine(),
                           _ContactRow(
                             icon: Icons.email_outlined,
-                            iconColor: WColors.chartBlue,
+                            iconColor: context.colors.chartBlue,
                             title: 'Email Us',
                             subtitle: 'support@watchary.app',
                             onTap: () {},
@@ -159,7 +159,7 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: WColors.mutedSecondaryDeep,
+          color: context.colors.mutedSecondaryDeep,
           fontSize: 11.sp,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.2,
@@ -177,7 +177,7 @@ class _DividerLine extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(left: 64.w),
       height: 0.5,
-      color: WColors.borderStrong,
+      color: context.colors.borderStrong,
     );
   }
 }
@@ -216,7 +216,7 @@ class _QuickActionCard extends StatelessWidget {
               label,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: WColors.foreground,
+                color: context.colors.foreground,
                 fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
               ),
@@ -274,7 +274,7 @@ class _ContactRow extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        color: WColors.foreground,
+                        color: context.colors.foreground,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -283,7 +283,7 @@ class _ContactRow extends StatelessWidget {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: WColors.mutedSecondary,
+                        color: context.colors.mutedSecondary,
                         fontSize: 11.sp,
                       ),
                     ),
@@ -291,7 +291,7 @@ class _ContactRow extends StatelessWidget {
                 ),
               ),
               Icon(Icons.arrow_outward_rounded,
-                  size: 16.sp, color: WColors.mutedSecondaryHeader),
+                  size: 16.sp, color: context.colors.mutedSecondaryHeader),
             ],
           ),
         ),
@@ -318,9 +318,9 @@ class _FaqSectionState extends State<_FaqSection> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20.r),
@@ -346,13 +346,13 @@ class _FaqSectionState extends State<_FaqSection> {
                             height: 28.w,
                             decoration: BoxDecoration(
                               color:
-                                  WColors.accentPurple.withValues(alpha: 0.10),
+                                  context.colors.accentPurple.withValues(alpha: 0.10),
                               borderRadius: BorderRadius.circular(9.r),
                             ),
                             child: Icon(
                               Icons.question_mark_rounded,
                               size: 14.sp,
-                              color: WColors.accentPurple,
+                              color: context.colors.accentPurple,
                             ),
                           ),
                           SizedBox(width: 12.w),
@@ -360,7 +360,7 @@ class _FaqSectionState extends State<_FaqSection> {
                             child: Text(
                               item.question,
                               style: TextStyle(
-                                color: WColors.foreground,
+                                color: context.colors.foreground,
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w500,
                                 height: 1.3,
@@ -374,7 +374,7 @@ class _FaqSectionState extends State<_FaqSection> {
                             child: Icon(
                               Icons.keyboard_arrow_down_rounded,
                               size: 18.sp,
-                              color: WColors.mutedSecondaryHeader,
+                              color: context.colors.mutedSecondaryHeader,
                             ),
                           ),
                         ],
@@ -390,7 +390,7 @@ class _FaqSectionState extends State<_FaqSection> {
                     child: Text(
                       item.answer,
                       style: TextStyle(
-                        color: WColors.mutedSecondarySoft,
+                        color: context.colors.mutedSecondarySoft,
                         fontSize: 12.sp,
                         height: 1.5,
                       ),
@@ -405,7 +405,7 @@ class _FaqSectionState extends State<_FaqSection> {
                   Container(
                     margin: EdgeInsets.only(left: 14.w),
                     height: 0.5,
-                    color: WColors.borderStrong,
+                    color: context.colors.borderStrong,
                   ),
               ],
             );

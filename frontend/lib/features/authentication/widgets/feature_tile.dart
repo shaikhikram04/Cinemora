@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/themes/custom_theme/text_theme.dart';
 
@@ -26,8 +26,8 @@ class FeatureTile extends StatelessWidget {
       padding: const EdgeInsets.all(WSizes.md),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(WSizes.radiusLg),
-        color: WColors.card.withAlpha(150),
-        border: Border.all(color: WColors.border),
+        color: context.colors.card.withAlpha(150),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -48,11 +48,11 @@ class FeatureTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: WTextTheme.h3.copyWith(fontSize: 16.sp),
+                  style: WTextTheme.of(context).h3.copyWith(fontSize: 16.sp),
                 ),
                 Text(
                   subtitle,
-                  style: WTextTheme.body.copyWith(fontSize: 13.sp),
+                  style: WTextTheme.of(context).body.copyWith(fontSize: 13.sp),
                 ),
               ],
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/library/models/library_item.dart';
 
@@ -13,9 +13,9 @@ class LibraryListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised,
+        color: context.colors.surfaceRaised,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Row(
         children: [
@@ -34,7 +34,7 @@ class LibraryListItem extends StatelessWidget {
                       item.image,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(
-                        color: WColors.surfaceMuted,
+                        color: context.colors.surfaceMuted,
                       ),
                     ),
                   ),
@@ -69,7 +69,7 @@ class LibraryListItem extends StatelessWidget {
                   Text(
                     item.title,
                     style: TextStyle(
-                      color: WColors.foreground,
+                      color: context.colors.foreground,
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.2,
@@ -82,28 +82,28 @@ class LibraryListItem extends StatelessWidget {
                       Text(
                         item.year,
                         style: TextStyle(
-                          color: WColors.mutedSecondary,
+                          color: context.colors.mutedSecondary,
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      _dot(),
+                      _dot(context),
                       Text(
                         item.type.toUpperCase(),
                         style: TextStyle(
-                          color: _typeColor(item.type),
+                          color: _typeColor(context, item.type),
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      _dot(),
+                      _dot(context),
                       Icon(Icons.star_rounded,
-                          color: WColors.tertiary, size: 13.sp),
+                          color: context.colors.tertiary, size: 13.sp),
                       SizedBox(width: 3.w),
                       Text(
                         item.rating,
                         style: TextStyle(
-                          color: WColors.tertiary,
+                          color: context.colors.tertiary,
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w700,
                         ),
@@ -111,7 +111,7 @@ class LibraryListItem extends StatelessWidget {
                       Text(
                         ' TMDb',
                         style: TextStyle(
-                          color: WColors.mutedSecondaryDeep,
+                          color: context.colors.mutedSecondaryDeep,
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w500,
                         ),
@@ -148,21 +148,21 @@ class LibraryListItem extends StatelessWidget {
     );
   }
 
-  Widget _dot() => Padding(
+  Widget _dot(BuildContext context) => Padding(
         padding: EdgeInsets.symmetric(horizontal: 5.w),
         child: Text('•',
             style:
-                TextStyle(color: WColors.mutedSecondaryDeep, fontSize: 11.sp)),
+                TextStyle(color: context.colors.mutedSecondaryDeep, fontSize: 11.sp)),
       );
 
-  Color _typeColor(String type) {
+  Color _typeColor(BuildContext context, String type) {
     switch (type) {
       case 'Anime':
-        return WColors.warning;
+        return context.colors.warning;
       case 'Series':
-        return WColors.accentPurple;
+        return context.colors.accentPurple;
       default:
-        return WColors.accentRed;
+        return context.colors.accentRed;
     }
   }
 }
@@ -184,7 +184,7 @@ class _StarRow extends StatelessWidget {
           size: 24.sp,
           color: full || half
               ? ratingColorFor(rating)
-              : WColors.mutedSecondaryHeader,
+              : context.colors.mutedSecondaryHeader,
         );
       }),
     );

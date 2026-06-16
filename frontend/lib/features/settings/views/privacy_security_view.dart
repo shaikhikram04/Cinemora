@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/settings/viewmodels/privacy_security_cubit.dart';
 import 'package:cinemora/features/settings/viewmodels/privacy_security_state.dart';
@@ -29,7 +29,7 @@ class _PrivacySecurityContent extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<PrivacySecurityCubit>();
         return Scaffold(
-      backgroundColor: WColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -52,9 +52,9 @@ class _PrivacySecurityContent extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
-                      color: WColors.surfaceRaised.withValues(alpha: 0.6),
+                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: WColors.borderStrong),
+                      border: Border.all(color: context.colors.borderStrong),
                     ),
                     child: Column(
                       children: [
@@ -84,22 +84,22 @@ class _PrivacySecurityContent extends StatelessWidget {
                           Container(
                             padding: EdgeInsets.all(10.w),
                             decoration: BoxDecoration(
-                              color: WColors.warning.withValues(alpha: 0.08),
+                              color: context.colors.warning.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(12.r),
                               border: Border.all(
                                   color:
-                                      WColors.warning.withValues(alpha: 0.2)),
+                                      context.colors.warning.withValues(alpha: 0.2)),
                             ),
                             child: Row(
                               children: [
                                 Icon(Icons.info_outline_rounded,
-                                    size: 14.sp, color: WColors.warning),
+                                    size: 14.sp, color: context.colors.warning),
                                 SizedBox(width: 8.w),
                                 Expanded(
                                   child: Text(
                                     'Private profiles cannot be found in search or rankings discovery.',
                                     style: TextStyle(
-                                      color: WColors.warning,
+                                      color: context.colors.warning,
                                       fontSize: 11.sp,
                                       height: 1.4,
                                     ),
@@ -119,9 +119,9 @@ class _PrivacySecurityContent extends StatelessWidget {
                   SizedBox(height: 10.h),
                   Container(
                     decoration: BoxDecoration(
-                      color: WColors.surfaceRaised.withValues(alpha: 0.6),
+                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: WColors.borderStrong),
+                      border: Border.all(color: context.colors.borderStrong),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.r),
@@ -129,7 +129,7 @@ class _PrivacySecurityContent extends StatelessWidget {
                         children: [
                           _ToggleRow(
                             icon: Icons.star_outline_rounded,
-                            iconColor: WColors.chartYellow,
+                            iconColor: context.colors.chartYellow,
                             title: 'Show Ratings',
                             subtitle: 'Your ratings are visible to others',
                             value: state.showRatings,
@@ -138,7 +138,7 @@ class _PrivacySecurityContent extends StatelessWidget {
                           _Divider(),
                           _ToggleRow(
                             icon: Icons.list_alt_rounded,
-                            iconColor: WColors.chartBlue,
+                            iconColor: context.colors.chartBlue,
                             title: 'Show Rankings',
                             subtitle: 'Your ranking lists are discoverable',
                             value: state.showRankings,
@@ -147,7 +147,7 @@ class _PrivacySecurityContent extends StatelessWidget {
                           _Divider(),
                           _ToggleRow(
                             icon: Icons.history_rounded,
-                            iconColor: WColors.chartGreen,
+                            iconColor: context.colors.chartGreen,
                             title: 'Show Watch History',
                             subtitle: 'Others can see what you\'ve watched',
                             value: state.showWatchHistory,
@@ -165,9 +165,9 @@ class _PrivacySecurityContent extends StatelessWidget {
                   SizedBox(height: 10.h),
                   Container(
                     decoration: BoxDecoration(
-                      color: WColors.surfaceRaised.withValues(alpha: 0.6),
+                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: WColors.borderStrong),
+                      border: Border.all(color: context.colors.borderStrong),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.r),
@@ -175,7 +175,7 @@ class _PrivacySecurityContent extends StatelessWidget {
                         children: [
                           _ActionRow(
                             icon: Icons.lock_reset_rounded,
-                            iconColor: WColors.chartBlue,
+                            iconColor: context.colors.chartBlue,
                             title: 'Change Password',
                             subtitle: 'Last changed 3 months ago',
                             onTap: () {},
@@ -183,17 +183,17 @@ class _PrivacySecurityContent extends StatelessWidget {
                           _Divider(),
                           _ActionRow(
                             icon: Icons.devices_rounded,
-                            iconColor: WColors.chartBlue,
+                            iconColor: context.colors.chartBlue,
                             title: 'Active Sessions',
                             subtitle: '2 devices currently signed in',
                             trailing:
-                                _Badge(label: '2', color: WColors.chartBlue),
+                                _Badge(label: '2', color: context.colors.chartBlue),
                             onTap: () {},
                           ),
                           _Divider(),
                           _ActionRow(
                             icon: Icons.logout_rounded,
-                            iconColor: WColors.warning,
+                            iconColor: context.colors.warning,
                             title: 'Logout All Devices',
                             subtitle: 'Sign out from every device',
                             isLast: true,
@@ -210,9 +210,9 @@ class _PrivacySecurityContent extends StatelessWidget {
                   SizedBox(height: 10.h),
                   Container(
                     decoration: BoxDecoration(
-                      color: WColors.surfaceRaised.withValues(alpha: 0.6),
+                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: WColors.borderStrong),
+                      border: Border.all(color: context.colors.borderStrong),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.r),
@@ -220,7 +220,7 @@ class _PrivacySecurityContent extends StatelessWidget {
                         children: [
                           _ActionRow(
                             icon: Icons.download_rounded,
-                            iconColor: WColors.chartGreen,
+                            iconColor: context.colors.chartGreen,
                             title: 'Download My Data',
                             subtitle: 'Get a copy of all your Watchary data',
                             onTap: () {},
@@ -228,10 +228,10 @@ class _PrivacySecurityContent extends StatelessWidget {
                           _Divider(),
                           _ActionRow(
                             icon: Icons.delete_outline_rounded,
-                            iconColor: WColors.accentRed,
+                            iconColor: context.colors.accentRed,
                             title: 'Delete Account',
                             subtitle: 'Permanently delete your account',
-                            titleColor: WColors.accentRed,
+                            titleColor: context.colors.accentRed,
                             isLast: true,
                             onTap: () => _showDeleteAccountDialog(context),
                           ),
@@ -254,13 +254,13 @@ class _PrivacySecurityContent extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: WColors.surfaceRaised,
+        backgroundColor: context.colors.surfaceRaised,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
         title: Text(
           'Logout All Devices',
           style: TextStyle(
-            color: WColors.foreground,
+            color: context.colors.foreground,
             fontSize: 18.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -268,7 +268,7 @@ class _PrivacySecurityContent extends StatelessWidget {
         content: Text(
           'You will be signed out from all devices including this one. Are you sure?',
           style: TextStyle(
-            color: WColors.mutedSecondarySoft,
+            color: context.colors.mutedSecondarySoft,
             fontSize: 14.sp,
           ),
         ),
@@ -276,14 +276,14 @@ class _PrivacySecurityContent extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text('Cancel',
-                style: TextStyle(color: WColors.mutedSecondarySoft)),
+                style: TextStyle(color: context.colors.mutedSecondarySoft)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               'Logout All',
               style: TextStyle(
-                  color: WColors.warning, fontWeight: FontWeight.w700),
+                  color: context.colors.warning, fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -295,13 +295,13 @@ class _PrivacySecurityContent extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: WColors.surfaceRaised,
+        backgroundColor: context.colors.surfaceRaised,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
         title: Text(
           'Delete Account',
           style: TextStyle(
-            color: WColors.accentRed,
+            color: context.colors.accentRed,
             fontSize: 18.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -309,7 +309,7 @@ class _PrivacySecurityContent extends StatelessWidget {
         content: Text(
           'This is permanent and cannot be undone. All your data — collection, rankings, achievements — will be deleted forever.',
           style: TextStyle(
-            color: WColors.mutedSecondarySoft,
+            color: context.colors.mutedSecondarySoft,
             fontSize: 14.sp,
             height: 1.5,
           ),
@@ -318,14 +318,14 @@ class _PrivacySecurityContent extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text('Cancel',
-                style: TextStyle(color: WColors.mutedSecondarySoft)),
+                style: TextStyle(color: context.colors.mutedSecondarySoft)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               'Delete',
               style: TextStyle(
-                  color: WColors.accentRed, fontWeight: FontWeight.w700),
+                  color: context.colors.accentRed, fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -347,7 +347,7 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: WColors.mutedSecondaryDeep,
+          color: context.colors.mutedSecondaryDeep,
           fontSize: 11.sp,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.2,
@@ -365,7 +365,7 @@ class _Divider extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(left: 64.w),
       height: 0.5,
-      color: WColors.borderStrong,
+      color: context.colors.borderStrong,
     );
   }
 }
@@ -397,13 +397,13 @@ class _VisibilityOption extends StatelessWidget {
           padding: EdgeInsets.all(12.w),
           decoration: BoxDecoration(
             color: selected
-                ? WColors.chartBlue.withValues(alpha: 0.10)
-                : WColors.surfaceRaised2,
+                ? context.colors.chartBlue.withValues(alpha: 0.10)
+                : context.colors.surfaceRaised2,
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: selected
-                  ? WColors.chartBlue.withValues(alpha: 0.4)
-                  : WColors.borderStrong,
+                  ? context.colors.chartBlue.withValues(alpha: 0.4)
+                  : context.colors.borderStrong,
               width: selected ? 1.5 : 0.8,
             ),
           ),
@@ -417,15 +417,15 @@ class _VisibilityOption extends StatelessWidget {
                     icon,
                     size: 18.sp,
                     color: selected
-                        ? WColors.chartBlue
-                        : WColors.mutedSecondaryDeep,
+                        ? context.colors.chartBlue
+                        : context.colors.mutedSecondaryDeep,
                   ),
                   if (selected)
                     Container(
                       width: 16.w,
                       height: 16.w,
-                      decoration: const BoxDecoration(
-                        color: WColors.chartBlue,
+                      decoration: BoxDecoration(
+                        color: context.colors.chartBlue,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.check_rounded,
@@ -437,7 +437,7 @@ class _VisibilityOption extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: selected ? WColors.foreground : WColors.mutedSecondary,
+                  color: selected ? context.colors.foreground : context.colors.mutedSecondary,
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
                 ),
@@ -446,7 +446,7 @@ class _VisibilityOption extends StatelessWidget {
               Text(
                 description,
                 style: TextStyle(
-                  color: WColors.mutedSecondaryDeep,
+                  color: context.colors.mutedSecondaryDeep,
                   fontSize: 10.sp,
                   height: 1.3,
                 ),
@@ -503,7 +503,7 @@ class _ToggleRow extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                   ),
@@ -512,7 +512,7 @@ class _ToggleRow extends StatelessWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: WColors.mutedSecondary,
+                    color: context.colors.mutedSecondary,
                     fontSize: 11.sp,
                   ),
                 ),
@@ -522,7 +522,7 @@ class _ToggleRow extends StatelessWidget {
           CupertinoSwitch(
             value: value,
             onChanged: onChanged,
-            activeTrackColor: WColors.accentRed,
+            activeTrackColor: context.colors.accentRed,
           ),
         ],
       ),
@@ -580,7 +580,7 @@ class _ActionRow extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        color: titleColor ?? WColors.foreground,
+                        color: titleColor ?? context.colors.foreground,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -589,7 +589,7 @@ class _ActionRow extends StatelessWidget {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: WColors.mutedSecondary,
+                        color: context.colors.mutedSecondary,
                         fontSize: 11.sp,
                       ),
                     ),
@@ -600,7 +600,7 @@ class _ActionRow extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 size: 18.sp,
-                color: WColors.mutedSecondaryHeader,
+                color: context.colors.mutedSecondaryHeader,
               ),
             ],
           ),

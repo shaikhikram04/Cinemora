@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 typedef BadgeBuilder = Widget Function(BuildContext context, String rating);
@@ -50,9 +50,9 @@ class PosterImage extends StatelessWidget {
       width: width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius.r),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: WColors.shadowMedium,
+            color: context.colors.shadowMedium,
             blurRadius: 18,
             offset: Offset(0, 10),
           ),
@@ -67,11 +67,11 @@ class PosterImage extends StatelessWidget {
               image,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
-                color: WColors.surfaceMuted,
+                color: context.colors.surfaceMuted,
                 alignment: Alignment.center,
                 child: Icon(
                   Icons.image_not_supported_outlined,
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                   size: 22.sp,
                 ),
               ),
@@ -91,7 +91,7 @@ class PosterImage extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    color: tagColor ?? WColors.accentRed,
+                    color: tagColor ?? context.colors.accentRed,
                     borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
                   ),
                   child: Text(
@@ -134,14 +134,14 @@ class PosterImage extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.star_rounded,
-                            color: WColors.tertiary,
+                            color: context.colors.tertiary,
                             size: 11.sp,
                           ),
                           SizedBox(width: 2.w),
                           Text(
                             rating!,
                             style: TextStyle(
-                              color: WColors.tertiary,
+                              color: context.colors.tertiary,
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w800,
                               height: (1.8).h,
@@ -168,7 +168,7 @@ class PosterImage extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Icon(
                       actionAdded ? Icons.check_rounded : Icons.add,
-                      color: actionAdded ? WColors.accentRed : Colors.white,
+                      color: actionAdded ? context.colors.accentRed : Colors.white,
                       size: 18.sp,
                     ),
                   ),
@@ -362,7 +362,7 @@ class _AddToWatchlistCornerState extends State<_AddToWatchlistCorner>
           child: Container(
             width: 46.w,
             height: 46.w,
-            color: WColors.surfaceMuted.withValues(alpha: 0.7),
+            color: context.colors.surfaceMuted.withValues(alpha: 0.7),
             alignment: Alignment.topRight,
             child: Padding(
               padding: EdgeInsets.only(top: 8.h, right: 8.w),
@@ -399,7 +399,7 @@ class _WatchlistRibbon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: WColors.accentRed,
+      color: context.colors.accentRed,
       padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 28.w),
       child: Text(
         label,

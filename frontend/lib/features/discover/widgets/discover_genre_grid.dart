@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class DiscoverGenreGrid extends StatelessWidget {
@@ -67,7 +67,7 @@ class DiscoverGenreGrid extends StatelessWidget {
           Text(
             'Browse by Genre',
             style: TextStyle(
-              color: WColors.foreground,
+              color: context.colors.foreground,
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
             ),

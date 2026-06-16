@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class WSectionHeader extends StatelessWidget {
@@ -36,7 +36,7 @@ class WSectionHeader extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: WColors.foreground,
+            color: context.colors.foreground,
             fontSize: 17.sp,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.2,
@@ -54,7 +54,7 @@ class WSectionHeader extends StatelessWidget {
                 child: Text(
                   suffixLabel,
                   style: TextStyle(
-                    color: WColors.accentRedAlt,
+                    color: context.colors.accentRedAlt,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -66,7 +66,7 @@ class WSectionHeader extends StatelessWidget {
           Text(
             suffixLabel,
             style: TextStyle(
-              color: WColors.accentRedAlt,
+              color: context.colors.accentRedAlt,
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
             ),

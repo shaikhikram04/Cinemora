@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cinemora/common/widgets/buttons/action_button.dart';
 import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:cinemora/common/widgets/headers/section_header.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
@@ -152,7 +152,7 @@ class _HomeFeedContent extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<HomeFeedCubit>();
         return Container(
-          decoration: const BoxDecoration(color: WColors.background),
+          decoration: BoxDecoration(color: context.colors.background),
           child: SafeArea(
             bottom: false,
             child: ListView(
@@ -190,9 +190,9 @@ class _HomeFeedContent extends StatelessWidget {
                   onWatchlistPressed: () {},
                 ),
                 SizedBox(height: 24.h),
-                const WSectionHeader(
+                WSectionHeader(
                   icon: Icons.local_fire_department_rounded,
-                  iconColor: WColors.accentRed,
+                  iconColor: context.colors.accentRed,
                   title: 'Trending Now',
                 ),
                 SizedBox(height: 10.h),
@@ -209,9 +209,9 @@ class _HomeFeedContent extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 24.h),
-                const WSectionHeader(
+                WSectionHeader(
                   icon: Icons.movie_filter_rounded,
-                  iconColor: WColors.accentPurple,
+                  iconColor: context.colors.accentPurple,
                   title: 'Top Anime This Season',
                 ),
                 SizedBox(height: 10.h),
@@ -233,9 +233,9 @@ class _HomeFeedContent extends StatelessWidget {
                   onSelected: cubit.toggleMood,
                 ),
                 SizedBox(height: 24.h),
-                const WSectionHeader(
+                WSectionHeader(
                   icon: Icons.live_tv_rounded,
-                  iconColor: WColors.warning,
+                  iconColor: context.colors.warning,
                   title: 'Binge-Worthy Series',
                 ),
                 SizedBox(height: 10.h),
@@ -252,9 +252,9 @@ class _HomeFeedContent extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 24.h),
-                const WSectionHeader(
+                WSectionHeader(
                   icon: Icons.star_rounded,
-                  iconColor: WColors.tertiary,
+                  iconColor: context.colors.tertiary,
                   title: 'Critically Acclaimed',
                 ),
                 SizedBox(height: 10.h),
@@ -339,7 +339,7 @@ class _Header extends StatelessWidget {
           height: 40.w,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: WColors.accentRedSoft, width: 2),
+            border: Border.all(color: context.colors.accentRedSoft, width: 2),
             image: DecorationImage(
               image: NetworkImage(profileImage),
               fit: BoxFit.cover,
@@ -353,7 +353,7 @@ class _Header extends StatelessWidget {
             Text(
               'Good evening',
               style: TextStyle(
-                color: WColors.mutedForeground,
+                color: context.colors.mutedForeground,
                 fontSize: 12.sp,
                 height: 1.1,
                 fontWeight: FontWeight.w500,
@@ -363,7 +363,7 @@ class _Header extends StatelessWidget {
             Text(
               'Hey, Ikram 👋',
               style: TextStyle(
-                color: WColors.foreground,
+                color: context.colors.foreground,
                 fontSize: 18.sp,
                 height: 1.05,
                 fontWeight: FontWeight.w800,
@@ -384,12 +384,12 @@ class _Header extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius:
                       const BorderRadius.all(Radius.elliptical(16, 18)),
-                  color: WColors.surfaceMuted,
-                  border: Border.all(color: WColors.borderStrong),
+                  color: context.colors.surfaceMuted,
+                  border: Border.all(color: context.colors.borderStrong),
                 ),
                 child: Icon(
                   Icons.notifications_none_rounded,
-                  color: WColors.foreground,
+                  color: context.colors.foreground,
                   size: 21.sp,
                 ),
               ),
@@ -399,8 +399,8 @@ class _Header extends StatelessWidget {
                 child: Container(
                   width: 7.w,
                   height: 7.w,
-                  decoration: const BoxDecoration(
-                    color: WColors.accentRed,
+                  decoration: BoxDecoration(
+                    color: context.colors.accentRed,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -434,7 +434,7 @@ class _CategoryTabs extends StatelessWidget {
           final tab = _kTabs[index];
           final selected = tab == selectedTab;
           return Material(
-            color: selected ? WColors.accentRed : WColors.surfaceRaised,
+            color: selected ? context.colors.accentRed : context.colors.surfaceRaised,
             borderRadius: BorderRadius.circular(999.r),
             child: InkWell(
               borderRadius: BorderRadius.circular(999.r),
@@ -444,12 +444,12 @@ class _CategoryTabs extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(999.r),
                   border: Border.all(
-                    color: selected ? Colors.transparent : WColors.borderStrong,
+                    color: selected ? Colors.transparent : context.colors.borderStrong,
                   ),
                   boxShadow: selected
                       ? [
                           BoxShadow(
-                            color: WColors.accentRed.withValues(alpha: 0.25),
+                            color: context.colors.accentRed.withValues(alpha: 0.25),
                             blurRadius: 14,
                             offset: const Offset(0, 6),
                           ),
@@ -459,7 +459,7 @@ class _CategoryTabs extends StatelessWidget {
                 child: Text(
                   tab,
                   style: TextStyle(
-                    color: selected ? Colors.white : WColors.mutedForeground,
+                    color: selected ? Colors.white : context.colors.mutedForeground,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -492,7 +492,7 @@ class _HeroCard extends StatelessWidget {
       height: 284.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28.r),
-        border: Border.all(color: WColors.surfaceBorder),
+        border: Border.all(color: context.colors.surfaceBorder),
         boxShadow: const [
           BoxShadow(
             color: Colors.black54,
@@ -534,11 +534,11 @@ class _HeroCard extends StatelessWidget {
                         vertical: 4.h,
                       ),
                       decoration: BoxDecoration(
-                        color: WColors.accentRed,
+                        color: context.colors.accentRed,
                         borderRadius: BorderRadius.circular(999.r),
                         boxShadow: [
                           BoxShadow(
-                            color: WColors.accentRed.withValues(alpha: 0.32),
+                            color: context.colors.accentRed.withValues(alpha: 0.32),
                             blurRadius: 18,
                             offset: const Offset(0, 8),
                           ),
@@ -567,12 +567,12 @@ class _HeroCard extends StatelessWidget {
                   Row(
                     children: [
                       Icon(Icons.star_rounded,
-                          color: WColors.tertiary, size: 16.sp),
+                          color: context.colors.tertiary, size: 16.sp),
                       SizedBox(width: 3.w),
                       Text(
                         '8.8',
                         style: TextStyle(
-                          color: WColors.tertiary,
+                          color: context.colors.tertiary,
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w700,
                         ),
@@ -581,7 +581,7 @@ class _HeroCard extends StatelessWidget {
                       Text(
                         'Sci-Fi',
                         style: TextStyle(
-                          color: WColors.mutedSecondary,
+                          color: context.colors.mutedSecondary,
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w500,
                         ),
@@ -590,7 +590,7 @@ class _HeroCard extends StatelessWidget {
                       Text(
                         'Action',
                         style: TextStyle(
-                          color: WColors.mutedSecondary,
+                          color: context.colors.mutedSecondary,
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w500,
                         ),
@@ -599,7 +599,7 @@ class _HeroCard extends StatelessWidget {
                       Text(
                         '2h 28m',
                         style: TextStyle(
-                          color: WColors.mutedSecondary,
+                          color: context.colors.mutedSecondary,
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w500,
                         ),
@@ -661,12 +661,12 @@ class _RankingCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            WColors.accentPurple.withValues(alpha: 0.12),
-            WColors.accentRed.withValues(alpha: 0.12),
+            context.colors.accentPurple.withValues(alpha: 0.12),
+            context.colors.accentRed.withValues(alpha: 0.12),
           ],
         ),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: WColors.accentRed.withValues(alpha: 0.12)),
+        border: Border.all(color: context.colors.accentRed.withValues(alpha: 0.12)),
       ),
       child: Row(
         children: [
@@ -674,8 +674,8 @@ class _RankingCard extends StatelessWidget {
             width: 46.w,
             height: 46.w,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [WColors.accentPink, WColors.accentPurple],
+              gradient: LinearGradient(
+                colors: [context.colors.accentPink, context.colors.accentPurple],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -695,7 +695,7 @@ class _RankingCard extends StatelessWidget {
                 Text(
                   'My Ranking Lists',
                   style: TextStyle(
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w800,
                   ),
@@ -704,7 +704,7 @@ class _RankingCard extends StatelessWidget {
                 Text(
                   '6 curated lists · Drag to reorder',
                   style: TextStyle(
-                    color: WColors.mutedSecondary,
+                    color: context.colors.mutedSecondary,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w500,
                   ),
@@ -713,7 +713,7 @@ class _RankingCard extends StatelessWidget {
             ),
           ),
           Icon(Icons.chevron_right_rounded,
-              color: WColors.mutedForeground, size: 22.sp),
+              color: context.colors.mutedForeground, size: 22.sp),
         ],
       ),
     );
@@ -734,9 +734,9 @@ class _MoodPickerCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: WColors.surfaceMuted.withValues(alpha: 0.4),
+        color: context.colors.surfaceMuted.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: WColors.surfaceBorderAlt),
+        border: Border.all(color: context.colors.surfaceBorderAlt),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -747,8 +747,8 @@ class _MoodPickerCard extends StatelessWidget {
                 width: 36.w,
                 height: 36.w,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [WColors.accentPurple, WColors.accentPink],
+                  gradient: LinearGradient(
+                    colors: [context.colors.accentPurple, context.colors.accentPink],
                   ),
                   borderRadius: BorderRadius.circular(14.r),
                 ),
@@ -765,7 +765,7 @@ class _MoodPickerCard extends StatelessWidget {
                   Text(
                     'AI Mood Picker',
                     style: TextStyle(
-                      color: WColors.foreground,
+                      color: context.colors.foreground,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w800,
                     ),
@@ -774,7 +774,7 @@ class _MoodPickerCard extends StatelessWidget {
                   Text(
                     "What's your vibe tonight?",
                     style: TextStyle(
-                      color: WColors.mutedSecondaryDeep,
+                      color: context.colors.mutedSecondaryDeep,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
                     ),
@@ -801,9 +801,9 @@ class _MoodPickerCard extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(10.w),
               decoration: BoxDecoration(
-                color: WColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: WColors.surfaceBorderAlt),
+                border: Border.all(color: context.colors.surfaceBorderAlt),
               ),
               child: Row(
                 children: [
@@ -828,7 +828,7 @@ class _MoodPickerCard extends StatelessWidget {
                         Text(
                           'AI Pick for you',
                           style: TextStyle(
-                            color: WColors.mutedSecondaryHighlight,
+                            color: context.colors.mutedSecondaryHighlight,
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w700,
                           ),
@@ -837,7 +837,7 @@ class _MoodPickerCard extends StatelessWidget {
                         Text(
                           'Oppenheimer',
                           style: TextStyle(
-                            color: WColors.foreground,
+                            color: context.colors.foreground,
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w800,
                           ),
@@ -846,12 +846,12 @@ class _MoodPickerCard extends StatelessWidget {
                         Row(
                           children: [
                             Icon(Icons.star_rounded,
-                                color: WColors.tertiary, size: 13.sp),
+                                color: context.colors.tertiary, size: 13.sp),
                             SizedBox(width: 2.w),
                             Text(
                               '8.3',
                               style: TextStyle(
-                                color: WColors.tertiary,
+                                color: context.colors.tertiary,
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -860,7 +860,7 @@ class _MoodPickerCard extends StatelessWidget {
                             Text(
                               'Drama',
                               style: TextStyle(
-                                color: WColors.mutedSecondaryAlt,
+                                color: context.colors.mutedSecondaryAlt,
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -875,7 +875,7 @@ class _MoodPickerCard extends StatelessWidget {
                     height: 36.h,
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     decoration: BoxDecoration(
-                      color: WColors.accentRed,
+                      color: context.colors.accentRed,
                       borderRadius: BorderRadius.circular(999.r),
                     ),
                     alignment: Alignment.center,
@@ -911,7 +911,7 @@ class _MoodChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? WColors.accentRed : WColors.surfaceChip,
+      color: selected ? context.colors.accentRed : context.colors.surfaceChip,
       borderRadius: BorderRadius.circular(999.r),
       child: InkWell(
         borderRadius: BorderRadius.circular(999.r),
@@ -921,13 +921,13 @@ class _MoodChip extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999.r),
             border: Border.all(
-              color: selected ? Colors.transparent : WColors.surfaceChipBorder,
+              color: selected ? Colors.transparent : context.colors.surfaceChipBorder,
             ),
           ),
           child: Text(
             text,
             style: TextStyle(
-              color: selected ? Colors.white : WColors.mutedSecondaryVibe,
+              color: selected ? Colors.white : context.colors.mutedSecondaryVibe,
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
             ),

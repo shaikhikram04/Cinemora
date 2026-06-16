@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/library/viewmodels/library_state.dart';
@@ -44,7 +44,7 @@ class _LibraryContentState extends State<_LibraryContent> {
         final items = cubit.sortedItems;
 
         return Container(
-          color: WColors.background,
+          color: context.colors.background,
           child: SafeArea(
             bottom: false,
             child: CustomScrollView(
@@ -127,13 +127,13 @@ class _LibraryContentState extends State<_LibraryContent> {
                             children: [
                               TextSpan(
                                 text: '${items.length}',
-                                style: TextStyle(color: WColors.foreground),
+                                style: TextStyle(color: context.colors.foreground),
                               ),
                               const TextSpan(text: ' results'),
                             ],
                           ),
                           style: TextStyle(
-                            color: WColors.mutedSecondary,
+                            color: context.colors.mutedSecondary,
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w500,
                           ),
@@ -209,7 +209,7 @@ class _LibraryHeader extends StatelessWidget {
                     TextSpan(
                       text: 'My ',
                       style: TextStyle(
-                        color: WColors.foreground,
+                        color: context.colors.foreground,
                         fontSize: 28.sp,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
@@ -220,7 +220,7 @@ class _LibraryHeader extends StatelessWidget {
                     TextSpan(
                       text: 'Library',
                       style: TextStyle(
-                        color: WColors.accentRed,
+                        color: context.colors.accentRed,
                         fontSize: 28.sp,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
@@ -237,7 +237,7 @@ class _LibraryHeader extends StatelessWidget {
                   Text(
                     '14 titles',
                     style: TextStyle(
-                      color: WColors.mutedSecondary,
+                      color: context.colors.mutedSecondary,
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                     ),
@@ -246,15 +246,15 @@ class _LibraryHeader extends StatelessWidget {
                     width: 3.w,
                     height: 3.w,
                     margin: EdgeInsets.symmetric(horizontal: 7.w),
-                    decoration: const BoxDecoration(
-                      color: WColors.mutedSecondaryDeep,
+                    decoration: BoxDecoration(
+                      color: context.colors.mutedSecondaryDeep,
                       shape: BoxShape.circle,
                     ),
                   ),
                   Text(
                     '21h total',
                     style: TextStyle(
-                      color: WColors.mutedSecondary,
+                      color: context.colors.mutedSecondary,
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                     ),
@@ -286,35 +286,35 @@ class _LibrarySearchBar extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       style: TextStyle(
-        color: WColors.foreground,
+        color: context.colors.foreground,
         fontSize: 14.sp,
         fontWeight: FontWeight.w500,
       ),
-      cursorColor: WColors.foreground,
+      cursorColor: context.colors.foreground,
       cursorWidth: 1.w,
       decoration: InputDecoration(
         hintText: 'Search your library...',
         hintStyle: TextStyle(
-          color: WColors.mutedSecondary,
+          color: context.colors.mutedSecondary,
           fontSize: 14.sp,
           fontWeight: FontWeight.w400,
         ),
         prefixIcon: Icon(
           Icons.search_rounded,
-          color: WColors.mutedSecondary,
+          color: context.colors.mutedSecondary,
           size: 20.sp,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14.r),
-          borderSide: BorderSide(color: WColors.borderStrong),
+          borderSide: BorderSide(color: context.colors.borderStrong),
         ),
         isDense: true,
-        fillColor: WColors.surfaceRaised.withValues(alpha: 0.7),
+        fillColor: context.colors.surfaceRaised.withValues(alpha: 0.7),
         filled: true,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14.r),
           borderSide:
-              BorderSide(color: WColors.accentRed.withValues(alpha: 0.5)),
+              BorderSide(color: context.colors.accentRed.withValues(alpha: 0.5)),
         ),
       ),
     );
@@ -362,14 +362,14 @@ class _TypeFilterRow extends StatelessWidget {
               duration: const Duration(milliseconds: 180),
               padding: EdgeInsets.symmetric(horizontal: 14.w),
               decoration: BoxDecoration(
-                color: isSelected ? WColors.accentRed : null,
+                color: isSelected ? context.colors.accentRed : null,
                 gradient: isSelected
                     ? null
                     : LinearGradient(
                         colors: [
-                          WColors.surfaceRaised,
-                          WColors.surfaceRaised.withValues(alpha: .4),
-                          WColors.surface,
+                          context.colors.surfaceRaised,
+                          context.colors.surfaceRaised.withValues(alpha: .4),
+                          context.colors.surface,
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -377,7 +377,7 @@ class _TypeFilterRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999.r),
                 border: Border.all(
                   color:
-                      isSelected ? Colors.transparent : WColors.borderStrong,
+                      isSelected ? Colors.transparent : context.colors.borderStrong,
                 ),
               ),
               child: Row(
@@ -388,14 +388,14 @@ class _TypeFilterRow extends StatelessWidget {
                         size: 12.sp,
                         color: isSelected
                             ? Colors.white
-                            : WColors.mutedForeground),
+                            : context.colors.mutedForeground),
                     SizedBox(width: 5.w),
                   ],
                   Text(
                     t,
                     style: TextStyle(
                       color:
-                          isSelected ? Colors.white : WColors.mutedForeground,
+                          isSelected ? Colors.white : context.colors.mutedForeground,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
                     ),
@@ -438,14 +438,14 @@ class _StatusFilterRow extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            WColors.surfaceRaised,
-            WColors.surfaceRaised.withValues(alpha: .4),
+            context.colors.surfaceRaised,
+            context.colors.surfaceRaised.withValues(alpha: .4),
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
         borderRadius: BorderRadius.all(Radius.elliptical(22.r, 24.r)),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Row(
         children: statuses.map((s) {
@@ -460,19 +460,19 @@ class _StatusFilterRow extends StatelessWidget {
                 padding: EdgeInsets.symmetric(vertical: 8.h),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? WColors.accentRed.withValues(alpha: 0.05)
+                      ? context.colors.accentRed.withValues(alpha: 0.05)
                       : Colors.transparent,
                   borderRadius:
                       BorderRadius.all(Radius.elliptical(16.r, 18.r)),
                   border: isSelected
                       ? Border.all(
-                          color: WColors.accentRed.withValues(alpha: 0.5),
+                          color: context.colors.accentRed.withValues(alpha: 0.5),
                         )
                       : null,
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: WColors.accentRed.withValues(alpha: 0.1),
+                            color: context.colors.accentRed.withValues(alpha: 0.1),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -486,16 +486,16 @@ class _StatusFilterRow extends StatelessWidget {
                       icon,
                       size: 15.sp,
                       color: isSelected
-                          ? WColors.accentRed
-                          : WColors.mutedSecondary,
+                          ? context.colors.accentRed
+                          : context.colors.mutedSecondary,
                     ),
                     SizedBox(width: 6.w),
                     Text(
                       s,
                       style: TextStyle(
                         color: isSelected
-                            ? WColors.foreground
-                            : WColors.mutedSecondary,
+                            ? context.colors.foreground
+                            : context.colors.mutedSecondary,
                         fontSize: 11.sp,
                         fontWeight: FontWeight.w600,
                       ),
@@ -526,27 +526,27 @@ class _SortButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
         decoration: BoxDecoration(
-          color: WColors.surfaceRaised,
+          color: context.colors.surfaceRaised,
           borderRadius: BorderRadius.circular(18.r),
-          border: Border.all(color: WColors.borderStrong),
+          border: Border.all(color: context.colors.borderStrong),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.swap_vert_rounded,
-                size: 15.sp, color: WColors.mutedSecondaryVibe),
+                size: 15.sp, color: context.colors.mutedSecondaryVibe),
             SizedBox(width: 5.w),
             Text(
               label,
               style: TextStyle(
-                color: WColors.mutedSecondaryVibe,
+                color: context.colors.mutedSecondaryVibe,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(width: 4.w),
             Icon(Icons.keyboard_arrow_down_rounded,
-                size: 15.sp, color: WColors.mutedSecondary),
+                size: 15.sp, color: context.colors.mutedSecondary),
           ],
         ),
       ),
@@ -575,14 +575,14 @@ class _SortPanel extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            WColors.surfaceRaised,
-            WColors.surfaceRaised.withValues(alpha: .5),
+            context.colors.surfaceRaised,
+            context.colors.surfaceRaised.withValues(alpha: .5),
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -591,7 +591,7 @@ class _SortPanel extends StatelessWidget {
           Text(
             'Sort by',
             style: TextStyle(
-              color: WColors.mutedSecondary,
+              color: context.colors.mutedSecondary,
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.2,
@@ -618,12 +618,12 @@ class _SortPanel extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? WColors.accentRed.withValues(alpha: 0.12)
+                              ? context.colors.accentRed.withValues(alpha: 0.12)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(999.r),
                           border: Border.all(
                             color: isSelected
-                                ? WColors.accentRed.withValues(alpha: 0.5)
+                                ? context.colors.accentRed.withValues(alpha: 0.5)
                                 : Colors.transparent,
                           ),
                         ),
@@ -633,7 +633,7 @@ class _SortPanel extends StatelessWidget {
                               Icon(
                                 Icons.check_rounded,
                                 size: 14.sp,
-                                color: WColors.accentRed,
+                                color: context.colors.accentRed,
                               ),
                               SizedBox(width: 6.w),
                             ],
@@ -643,8 +643,8 @@ class _SortPanel extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: isSelected
-                                      ? WColors.foreground
-                                      : WColors.mutedSecondary,
+                                      ? context.colors.foreground
+                                      : context.colors.mutedSecondary,
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w600,
                                 ),

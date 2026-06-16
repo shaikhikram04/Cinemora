@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class DiscoverTrendingSection extends StatelessWidget {
@@ -26,14 +26,14 @@ class DiscoverTrendingSection extends StatelessWidget {
             children: [
               Icon(
                 Icons.trending_up_rounded,
-                color: WColors.primary,
+                color: context.colors.primary,
                 size: 18.sp,
               ),
               SizedBox(width: 7.w),
               Text(
                 'Trending Searches',
                 style: TextStyle(
-                  color: WColors.foreground,
+                  color: context.colors.foreground,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -78,10 +78,10 @@ class _TrendingItemState extends State<_TrendingItem> {
         duration: const Duration(milliseconds: 120),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         decoration: BoxDecoration(
-          color: WColors.surfaceChip,
+          color: context.colors.surfaceChip,
           borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
           border: Border.all(
-            color: WColors.surfaceChipBorder.withValues(alpha: 0.6),
+            color: context.colors.surfaceChipBorder.withValues(alpha: 0.6),
           ),
         ),
         child: Row(
@@ -92,7 +92,7 @@ class _TrendingItemState extends State<_TrendingItem> {
               child: Text(
                 '${widget.rank}',
                 style: TextStyle(
-                  color: WColors.primary,
+                  color: context.colors.primary,
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w800,
                 ),
@@ -105,7 +105,7 @@ class _TrendingItemState extends State<_TrendingItem> {
               child: Text(
                 widget.title,
                 style: TextStyle(
-                  color: WColors.foreground,
+                  color: context.colors.foreground,
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                 ),
@@ -116,7 +116,7 @@ class _TrendingItemState extends State<_TrendingItem> {
             Icon(
               Icons.north_east_rounded,
               size: 16.sp,
-              color: WColors.mutedForeground,
+              color: context.colors.mutedForeground,
             ),
           ],
         ),

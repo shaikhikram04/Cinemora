@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 
@@ -78,15 +78,15 @@ class _OnboardingSuccessViewState extends State<OnboardingSuccessView>
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
+      value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
-        systemNavigationBarColor: WColors.backgroundAlt,
+        systemNavigationBarColor: context.colors.backgroundAlt,
         systemNavigationBarIconBrightness: Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: WColors.backgroundAlt,
+        backgroundColor: context.colors.backgroundAlt,
         body: Stack(
           fit: StackFit.expand,
           children: [
@@ -146,15 +146,15 @@ class _OnboardingSuccessViewState extends State<OnboardingSuccessView>
             height: 130.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: WColors.background,
+              color: context.colors.background,
               boxShadow: [
                 BoxShadow(
-                  color: WColors.primary.withAlpha(84),
+                  color: context.colors.primary.withAlpha(84),
                   blurRadius: 32,
                   spreadRadius: 6,
                 ),
                 BoxShadow(
-                  color: WColors.primary.withAlpha(32),
+                  color: context.colors.primary.withAlpha(32),
                   blurRadius: 64,
                   spreadRadius: 14,
                 ),
@@ -166,9 +166,9 @@ class _OnboardingSuccessViewState extends State<OnboardingSuccessView>
             height: 130.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: WColors.primary.withAlpha(10),
+              color: context.colors.primary.withAlpha(10),
               border: Border.all(
-                color: WColors.primary.withAlpha(50),
+                color: context.colors.primary.withAlpha(50),
                 width: 2.w,
               ),
             ),
@@ -176,9 +176,9 @@ class _OnboardingSuccessViewState extends State<OnboardingSuccessView>
           Container(
             width: 80.w,
             height: 80.w,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: WColors.primary,
+              color: context.colors.primary,
             ),
             child: Icon(Icons.check_rounded, color: Colors.white, size: 44.sp),
           ),
@@ -243,7 +243,7 @@ class _OnboardingSuccessViewState extends State<OnboardingSuccessView>
                   image: NetworkImage(entry.value),
                   fit: BoxFit.cover,
                 ),
-                color: WColors.surfaceRaised,
+                color: context.colors.surfaceRaised,
               ),
             ),
           );
@@ -261,7 +261,7 @@ class _OnboardingSuccessViewState extends State<OnboardingSuccessView>
             'Your cinema experience\nis ready.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: WColors.foreground,
+              color: context.colors.foreground,
               fontSize: 26.sp,
               fontWeight: FontWeight.w800,
               height: 1.25,
@@ -272,7 +272,7 @@ class _OnboardingSuccessViewState extends State<OnboardingSuccessView>
             'Personalized picks, curated just for you.\nStart discovering.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: WColors.mutedForeground,
+              color: context.colors.mutedForeground,
               fontSize: 13.sp,
               height: 1.6,
             ),
@@ -296,7 +296,7 @@ class _OnboardingSuccessViewState extends State<OnboardingSuccessView>
             ),
             boxShadow: [
               BoxShadow(
-                color: WColors.primary.withAlpha(90),
+                color: context.colors.primary.withAlpha(90),
                 blurRadius: 24,
                 offset: const Offset(0, 10),
               ),

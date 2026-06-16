@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/sizes.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/themes/custom_theme/text_theme.dart';
 
 class WelcomePageLayout extends StatelessWidget {
@@ -40,17 +40,17 @@ class WelcomePageLayout extends StatelessWidget {
           const SizedBox(height: WSizes.defaultSpace),
           Text(
             label,
-            style: WTextTheme.label,
+            style: WTextTheme.of(context).label,
           ),
           const SizedBox(height: WSizes.sm),
           Text(
             title,
-            style: WTextTheme.h1,
+            style: WTextTheme.of(context).h1,
           ),
           const SizedBox(height: WSizes.md),
           Text(
             subtitle,
-            style: WTextTheme.body.copyWith(fontSize: 14.sp),
+            style: WTextTheme.of(context).body.copyWith(fontSize: 14.sp),
           ),
           const SizedBox(height: WSizes.lg),
           SizedBox(
@@ -58,13 +58,13 @@ class WelcomePageLayout extends StatelessWidget {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: Size.fromHeight(50.h),
-                backgroundColor: WColors.primary,
-                foregroundColor: WColors.primaryForeground,
-                textStyle: WTextTheme.button.copyWith(fontSize: 16.sp),
+                backgroundColor: context.colors.primary,
+                foregroundColor: context.colors.primaryForeground,
+                textStyle: WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18.r),
                 ),
-                shadowColor: WColors.primary.withAlpha(120),
+                shadowColor: context.colors.primary.withAlpha(120),
                 elevation: 2,
               ),
               onPressed: isLoading ? null : onPrimaryPressed,
@@ -96,8 +96,8 @@ class WelcomePageLayout extends StatelessWidget {
                   minimumSize: Size.fromHeight(58.h),
                   side: const BorderSide(
                       color: Color.fromARGB(28, 255, 255, 255)),
-                  foregroundColor: WColors.foreground,
-                  textStyle: WTextTheme.button.copyWith(fontSize: 16.sp),
+                  foregroundColor: context.colors.foreground,
+                  textStyle: WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
                   backgroundColor:
                       const Color.fromARGB(255, 58, 58, 61).withAlpha(120),
                   shape: RoundedRectangleBorder(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/settings/widgets/settings_top_bar.dart';
 
@@ -10,7 +10,7 @@ class AboutView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: WColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -37,9 +37,9 @@ class AboutView extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
-                      color: WColors.surfaceRaised.withValues(alpha: 0.6),
+                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: WColors.borderStrong),
+                      border: Border.all(color: context.colors.borderStrong),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,17 +62,17 @@ class AboutView extends StatelessWidget {
                         Container(
                           padding: EdgeInsets.all(12.w),
                           decoration: BoxDecoration(
-                            color: WColors.accentPurple.withValues(alpha: 0.06),
+                            color: context.colors.accentPurple.withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(12.r),
                             border: Border.all(
                               color:
-                                  WColors.accentPurple.withValues(alpha: 0.15),
+                                  context.colors.accentPurple.withValues(alpha: 0.15),
                             ),
                           ),
                           child: Text(
                             'This product uses the TMDb API but is not endorsed or certified by TMDb.',
                             style: TextStyle(
-                              color: WColors.mutedSecondary,
+                              color: context.colors.mutedSecondary,
                               fontSize: 11.sp,
                               height: 1.5,
                             ),
@@ -88,9 +88,9 @@ class AboutView extends StatelessWidget {
                   SizedBox(height: 10.h),
                   Container(
                     decoration: BoxDecoration(
-                      color: WColors.surfaceRaised.withValues(alpha: 0.6),
+                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: WColors.borderStrong),
+                      border: Border.all(color: context.colors.borderStrong),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.r),
@@ -125,7 +125,7 @@ class AboutView extends StatelessWidget {
                       '© 2026 Watchary. Made with ♥ for cinema lovers.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: WColors.mutedSecondaryHeader,
+                        color: context.colors.mutedSecondaryHeader,
                         fontSize: 11.sp,
                         fontWeight: FontWeight.w400,
                         height: 1.5,
@@ -155,7 +155,7 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: WColors.mutedSecondaryDeep,
+          color: context.colors.mutedSecondaryDeep,
           fontSize: 11.sp,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.2,
@@ -173,7 +173,7 @@ class _DividerLine extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(left: 64.w),
       height: 0.5,
-      color: WColors.borderStrong,
+      color: context.colors.borderStrong,
     );
   }
 }
@@ -188,9 +188,9 @@ class _BrandingCard extends StatelessWidget {
     return Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Stack(
         clipBehavior: Clip.hardEdge,
@@ -206,7 +206,7 @@ class _BrandingCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: WColors.accentRed.withValues(alpha: 0.25),
+                    color: context.colors.accentRed.withValues(alpha: 0.25),
                     blurRadius: 80,
                     spreadRadius: 30,
                   ),
@@ -224,7 +224,7 @@ class _BrandingCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: WColors.accentPurple.withValues(alpha: 0.2),
+                    color: context.colors.accentPurple.withValues(alpha: 0.2),
                     blurRadius: 80,
                     spreadRadius: 20,
                   ),
@@ -241,18 +241,18 @@ class _BrandingCard extends StatelessWidget {
                   width: 80.w,
                   height: 80.w,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        WColors.accentPurple,
-                        WColors.accentRed,
+                        context.colors.accentPurple,
+                        context.colors.accentRed,
                       ],
                     ),
                     borderRadius: BorderRadius.circular(22.r),
                     boxShadow: [
                       BoxShadow(
-                        color: WColors.accentRed.withValues(alpha: 0.35),
+                        color: context.colors.accentRed.withValues(alpha: 0.35),
                         blurRadius: 20,
                         offset: const Offset(0, 6),
                       ),
@@ -274,7 +274,7 @@ class _BrandingCard extends StatelessWidget {
                 Text(
                   'Watchary',
                   style: TextStyle(
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     fontSize: 28.sp,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
@@ -285,7 +285,7 @@ class _BrandingCard extends StatelessWidget {
                   'Cinema companion for enthusiasts',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: WColors.mutedSecondary,
+                    color: context.colors.mutedSecondary,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w400,
                   ),
@@ -295,14 +295,14 @@ class _BrandingCard extends StatelessWidget {
                   padding:
                       EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
                   decoration: BoxDecoration(
-                    color: WColors.surfaceRaised2,
+                    color: context.colors.surfaceRaised2,
                     borderRadius: BorderRadius.circular(10.r),
-                    border: Border.all(color: WColors.borderStrong),
+                    border: Border.all(color: context.colors.borderStrong),
                   ),
                   child: Text(
                     'Version 1.0.0 (Build 100)',
                     style: TextStyle(
-                      color: WColors.mutedSecondary,
+                      color: context.colors.mutedSecondary,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
                     ),
@@ -333,14 +333,14 @@ class _CreditItem extends StatelessWidget {
         Text(
           role,
           style: TextStyle(
-            color: WColors.mutedSecondary,
+            color: context.colors.mutedSecondary,
             fontSize: 12.sp,
           ),
         ),
         Text(
           name,
           style: TextStyle(
-            color: WColors.foreground,
+            color: context.colors.foreground,
             fontSize: 12.sp,
             fontWeight: FontWeight.w600,
           ),
@@ -396,7 +396,7 @@ class _LinkRow extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        color: WColors.foreground,
+                        color: context.colors.foreground,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -406,7 +406,7 @@ class _LinkRow extends StatelessWidget {
                       Text(
                         subtitle!,
                         style: TextStyle(
-                          color: WColors.mutedSecondary,
+                          color: context.colors.mutedSecondary,
                           fontSize: 11.sp,
                         ),
                       ),
@@ -415,7 +415,7 @@ class _LinkRow extends StatelessWidget {
                 ),
               ),
               Icon(Icons.arrow_outward_rounded,
-                  size: 16.sp, color: WColors.mutedSecondaryHeader),
+                  size: 16.sp, color: context.colors.mutedSecondaryHeader),
             ],
           ),
         ),

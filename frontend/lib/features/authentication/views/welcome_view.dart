@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/common/widgets/containers/top_gradient_background_container.dart';
 import 'package:cinemora/common/widgets/cards/poster_image.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/shadows.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/utils/device_utils.dart';
@@ -91,18 +91,18 @@ class _WelcomeContentState extends State<_WelcomeContent> {
         builder: (context, state) {
           final cubit = context.read<WelcomeCubit>();
           return AnnotatedRegion<SystemUiOverlayStyle>(
-            value: const SystemUiOverlayStyle(
+            value: SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
               statusBarIconBrightness: Brightness.light,
               statusBarBrightness: Brightness.dark,
-              systemNavigationBarColor: WColors.background,
+              systemNavigationBarColor: context.colors.background,
               systemNavigationBarIconBrightness: Brightness.light,
             ),
             child: Scaffold(
               extendBody: true,
               extendBodyBehindAppBar: true,
               body: Container(
-                decoration: const BoxDecoration(color: WColors.background),
+                decoration: BoxDecoration(color: context.colors.background),
                 child: SafeArea(
                   top: false,
                   child: TopGradientBackgroundContainer(
@@ -191,8 +191,8 @@ class _WelcomeContentState extends State<_WelcomeContent> {
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(99.r),
-                color: WColors.chartGreen.withAlpha(40),
-                border: Border.all(color: WColors.chartGreen.withAlpha(120)),
+                color: context.colors.chartGreen.withAlpha(40),
+                border: Border.all(color: context.colors.chartGreen.withAlpha(120)),
               ),
               child: const Text(
                 '✓ Added',
@@ -211,13 +211,13 @@ class _WelcomeContentState extends State<_WelcomeContent> {
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(99.r),
-                color: WColors.chartYellow.withAlpha(40),
-                border: Border.all(color: WColors.chartYellow.withAlpha(100)),
+                color: context.colors.chartYellow.withAlpha(40),
+                border: Border.all(color: context.colors.chartYellow.withAlpha(100)),
               ),
-              child: const Text(
+              child: Text(
                 '★ 9.0',
                 style: TextStyle(
-                  color: WColors.chartYellow,
+                  color: context.colors.chartYellow,
                   fontWeight: FontWeight.w700,
                   fontSize: 12,
                 ),
@@ -253,10 +253,10 @@ class _WelcomeContentState extends State<_WelcomeContent> {
           SizedBox(height: WSizes.sm),
           FeatureTile(
             icon: Icons.star_border_rounded,
-            iconColor: WColors.tertiary,
+            iconColor: context.colors.tertiary,
             title: 'Rate & Review',
             subtitle: 'Build your taste profile',
-            trailingColor: WColors.tertiary,
+            trailingColor: context.colors.tertiary,
           ),
           SizedBox(height: WSizes.sm),
           const FeatureTile(
@@ -291,8 +291,8 @@ class _WelcomeContentState extends State<_WelcomeContent> {
               padding: const EdgeInsets.all(WSizes.md),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(WSizes.radiusLg),
-                color: WColors.card.withAlpha(230),
-                border: Border.all(color: WColors.border),
+                color: context.colors.card.withAlpha(230),
+                border: Border.all(color: context.colors.border),
                 boxShadow: WShadow.cardGlow,
               ),
               child: Column(
@@ -310,7 +310,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
                         ),
                       ),
                       const SizedBox(width: WSizes.sm),
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -325,7 +325,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
                           Text(
                             'Based on your profile',
                             style: TextStyle(
-                              color: WColors.mutedForeground,
+                              color: context.colors.mutedForeground,
                               fontSize: 11,
                             ),
                           ),
@@ -358,19 +358,19 @@ class _WelcomeContentState extends State<_WelcomeContent> {
                             ),
                             SizedBox(height: 4.h),
                             Text.rich(
-                              const TextSpan(
+                              TextSpan(
                                 children: [
                                   TextSpan(
                                     text: '★ 8.7   ',
                                     style: TextStyle(
-                                      color: WColors.chartYellow,
+                                      color: context.colors.chartYellow,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                   TextSpan(
                                     text: 'Sci-Fi',
                                     style: TextStyle(
-                                      color: WColors.mutedForeground,
+                                      color: context.colors.mutedForeground,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -468,8 +468,8 @@ class _WelcomeContentState extends State<_WelcomeContent> {
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
-              color: WColors.primary.withAlpha(35),
-              border: Border.all(color: WColors.primary.withAlpha(60)),
+              color: context.colors.primary.withAlpha(35),
+              border: Border.all(color: context.colors.primary.withAlpha(60)),
             ),
             child: Text(
               '● 2.4M+ movies tracked',

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/discover/viewmodels/discover_cubit.dart';
 import 'package:cinemora/features/discover/viewmodels/discover_state.dart';
@@ -65,7 +65,7 @@ class _DiscoverContentState extends State<_DiscoverContent> {
                       style: TextStyle(
                         fontSize: 28.sp,
                         fontWeight: FontWeight.w800,
-                        color: WColors.foreground,
+                        color: context.colors.foreground,
                         letterSpacing: -0.5,
                       ),
                     ),

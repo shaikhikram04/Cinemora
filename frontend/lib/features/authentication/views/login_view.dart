@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/common/widgets/containers/top_gradient_background_container.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/shadows.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/themes/custom_theme/text_theme.dart';
@@ -29,15 +29,15 @@ class LoginView extends StatelessWidget {
         }
       },
       child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
+        value: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: Brightness.light,
           statusBarBrightness: Brightness.dark,
-          systemNavigationBarColor: WColors.background,
+          systemNavigationBarColor: context.colors.background,
           systemNavigationBarIconBrightness: Brightness.light,
         ),
         child: Scaffold(
-          backgroundColor: WColors.background,
+          backgroundColor: context.colors.background,
           body: TopGradientBackgroundContainer(
             child: SafeArea(
               child: Padding(
@@ -51,15 +51,15 @@ class LoginView extends StatelessWidget {
                       fontSize: 30,
                     ),
                     SizedBox(height: WSizes.xl.h),
-                    Text('WELCOME BACK', style: WTextTheme.label),
+                    Text('WELCOME BACK', style: WTextTheme.of(context).label),
                     SizedBox(height: WSizes.sm.h),
-                    Text('Pick up where\nyou left off.', style: WTextTheme.h1),
+                    Text('Pick up where\nyou left off.', style: WTextTheme.of(context).h1),
                     SizedBox(height: WSizes.md.h),
                     Text(
                       'Sign in to sync your watchlist, ratings and\nAI picks across devices.',
-                      style: WTextTheme.body.copyWith(
+                      style: WTextTheme.of(context).body.copyWith(
                         fontSize: 14.sp,
-                        color: WColors.mutedSecondary,
+                        color: context.colors.mutedSecondary,
                       ),
                     ),
                     Spacer(),
@@ -99,9 +99,9 @@ class _SignInButtons extends StatelessWidget {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: Size.fromHeight(58.h),
-                backgroundColor: WColors.primary,
-                foregroundColor: WColors.primaryForeground,
-                textStyle: WTextTheme.button.copyWith(fontSize: 16.sp),
+                backgroundColor: context.colors.primary,
+                foregroundColor: context.colors.primaryForeground,
+                textStyle: WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18.r),
                 ),
@@ -135,8 +135,8 @@ class _SignInButtons extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               minimumSize: Size.fromHeight(58.h),
               side: const BorderSide(color: Color.fromARGB(28, 255, 255, 255)),
-              foregroundColor: WColors.foreground,
-              textStyle: WTextTheme.button.copyWith(fontSize: 16.sp),
+              foregroundColor: context.colors.foreground,
+              textStyle: WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
               backgroundColor:
                   const Color.fromARGB(255, 58, 58, 61).withAlpha(120),
               shape: RoundedRectangleBorder(

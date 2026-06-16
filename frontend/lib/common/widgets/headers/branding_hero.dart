@@ -34,7 +34,7 @@ class BrandHero extends StatelessWidget {
           SizedBox(width: spacing.w),
           Text(
             'Cinemora',
-            style: WTextTheme.h1.copyWith(fontSize: fontSize.sp),
+            style: WTextTheme.of(context).h1.copyWith(fontSize: fontSize.sp),
           ),
           SizedBox(width: WSizes.md.w),
         ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/common/widgets/headers/branding_hero.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class PageViewProgressBar extends StatelessWidget {
@@ -26,14 +26,14 @@ class PageViewProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildHeader(),
+        _buildHeader(context),
         const SizedBox(height: WSizes.sm),
-        _buildProgressDots(currentPage),
+        _buildProgressDots(context, currentPage),
       ],
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: WSizes.md),
       child: Row(
@@ -46,13 +46,13 @@ class PageViewProgressBar extends StatelessWidget {
                   width: 36.w,
                   height: 36.w,
                   decoration: BoxDecoration(
-                    color: WColors.surfaceRaised,
-                    border: Border.all(color: WColors.border),
+                    color: context.colors.surfaceRaised,
+                    border: Border.all(color: context.colors.border),
                     borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
                   ),
                   child: Icon(
                     Icons.arrow_back_rounded,
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     size: 18.sp,
                   ),
                 ),
@@ -73,14 +73,14 @@ class PageViewProgressBar extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
-                  border: Border.all(color: WColors.border),
-                  color: WColors.card.withValues(alpha: 0.5),
+                  border: Border.all(color: context.colors.border),
+                  color: context.colors.card.withValues(alpha: 0.5),
                 ),
                 child: Text(
                   'Skip',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: WColors.mutedForeground,
+                    color: context.colors.mutedForeground,
                   ),
                 ),
               ),
@@ -90,7 +90,7 @@ class PageViewProgressBar extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressDots(int currentPage) {
+  Widget _buildProgressDots(BuildContext context, int currentPage) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: WSizes.md),
       child: Row(
@@ -102,7 +102,7 @@ class PageViewProgressBar extends StatelessWidget {
               height: 3.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(99.r),
-                color: isActive ? WColors.primary : Colors.white.withAlpha(70),
+                color: isActive ? context.colors.primary : Colors.white.withAlpha(70),
               ),
             ),
           );

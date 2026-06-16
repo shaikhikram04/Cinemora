@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/models/library_stats_model.dart';
@@ -170,12 +170,12 @@ class _ProfileContent extends StatelessWidget {
         return BlocBuilder<ProfileCubit, ProfileState>(
           builder: (context, profileState) {
             return Container(
-              color: WColors.background,
+              color: context.colors.background,
               child: SafeArea(
                 bottom: false,
                 child: RefreshIndicator(
-                  color: WColors.accentRed,
-                  backgroundColor: WColors.surfaceRaised,
+                  color: context.colors.accentRed,
+                  backgroundColor: context.colors.surfaceRaised,
                   onRefresh: () =>
                       context.read<ProfileCubit>().loadProfile(),
                   child: ListView(
@@ -250,7 +250,7 @@ class _ProfileContent extends StatelessWidget {
                                 TextSpan(
                                   text: '6',
                                   style: TextStyle(
-                                    color: WColors.foreground,
+                                    color: context.colors.foreground,
                                     fontSize: 14.sp,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -258,7 +258,7 @@ class _ProfileContent extends StatelessWidget {
                                 TextSpan(
                                   text: ' / 9',
                                   style: TextStyle(
-                                    color: WColors.mutedSecondaryVibe,
+                                    color: context.colors.mutedSecondaryVibe,
                                     fontSize: 14.sp,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -269,7 +269,7 @@ class _ProfileContent extends StatelessWidget {
                             Text(
                               'EARNED',
                               style: TextStyle(
-                                  color: WColors.mutedSecondary,
+                                  color: context.colors.mutedSecondary,
                                   fontSize: 10.sp),
                             ),
                           ],
@@ -323,7 +323,7 @@ class _TopBar extends StatelessWidget {
           child: Text(
             'Profile',
             style: TextStyle(
-              color: WColors.foreground,
+              color: context.colors.foreground,
               fontSize: 28.sp,
               fontWeight: FontWeight.w800,
             ),
@@ -335,14 +335,14 @@ class _TopBar extends StatelessWidget {
             width: 38.w,
             height: 38.w,
             decoration: BoxDecoration(
-              color: WColors.surfaceRaised.withValues(alpha: 0.8),
+              color: context.colors.surfaceRaised.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(color: WColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Icon(
               Icons.settings_rounded,
               size: 20.sp,
-              color: WColors.mutedSecondary,
+              color: context.colors.mutedSecondary,
             ),
           ),
         ),
@@ -372,8 +372,8 @@ class _ProfileCard extends StatelessWidget {
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28.r),
-        color: WColors.surfaceRaised,
-        border: Border.all(color: WColors.borderStrong),
+        color: context.colors.surfaceRaised,
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Stack(
         children: [
@@ -387,7 +387,7 @@ class _ProfileCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: WColors.accentPurple.withValues(alpha: 0.4),
+                    color: context.colors.accentPurple.withValues(alpha: 0.4),
                     blurRadius: 100,
                     offset: const Offset(0, 10),
                     spreadRadius: 40,
@@ -406,7 +406,7 @@ class _ProfileCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: WColors.accentRed.withValues(alpha: 0.4),
+                    color: context.colors.accentRed.withValues(alpha: 0.4),
                     blurRadius: 100,
                     offset: const Offset(0, 10),
                     spreadRadius: 40,
@@ -423,19 +423,19 @@ class _ProfileCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     colors: [
-                      WColors.accentPurple.withValues(alpha: 0.8),
-                      WColors.accentRed.withValues(alpha: 0.8),
+                      context.colors.accentPurple.withValues(alpha: 0.8),
+                      context.colors.accentRed.withValues(alpha: 0.8),
                     ],
                   ),
                 ),
                 child: CircleAvatar(
                   radius: 48.r,
-                  backgroundColor: WColors.surfaceRaised2,
+                  backgroundColor: context.colors.surfaceRaised2,
                   backgroundImage:
                       avatarUrl != null ? NetworkImage(avatarUrl) : null,
                   child: avatarUrl == null
                       ? Icon(Icons.person_rounded,
-                          size: 40.sp, color: WColors.mutedSecondary)
+                          size: 40.sp, color: context.colors.mutedSecondary)
                       : null,
                 ),
               ),
@@ -443,7 +443,7 @@ class _ProfileCard extends StatelessWidget {
               Text(
                 name,
                 style: TextStyle(
-                  color: WColors.foreground,
+                  color: context.colors.foreground,
                   fontSize: 24.sp,
                   fontWeight: FontWeight.w800,
                 ),
@@ -451,7 +451,7 @@ class _ProfileCard extends StatelessWidget {
               Text(
                 '@$username',
                 style: TextStyle(
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -461,7 +461,7 @@ class _ProfileCard extends StatelessWidget {
                 bio,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: WColors.mutedSecondarySoft,
+                  color: context.colors.mutedSecondarySoft,
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
                   height: 1.35,
@@ -478,8 +478,8 @@ class _ProfileCard extends StatelessWidget {
                       icon: Icons.edit_rounded,
                       gradient: LinearGradient(
                         colors: [
-                          WColors.accentRed,
-                          WColors.accentRedAlt,
+                          context.colors.accentRed,
+                          context.colors.accentRedAlt,
                         ],
                       ),
                     ),
@@ -489,8 +489,8 @@ class _ProfileCard extends StatelessWidget {
                     label: 'Share',
                     icon: Icons.share_rounded,
                     background:
-                        WColors.surfaceRaised.withValues(alpha: 0.2),
-                    border: WColors.borderStrong,
+                        context.colors.surfaceRaised.withValues(alpha: 0.2),
+                    border: context.colors.borderStrong,
                   ),
                 ],
               ),
@@ -530,12 +530,12 @@ class _ActionButton extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 14.sp, color: WColors.primaryForeground),
+          Icon(icon, size: 14.sp, color: context.colors.primaryForeground),
           SizedBox(width: 6.w),
           Text(
             label,
             style: TextStyle(
-              color: WColors.primaryForeground,
+              color: context.colors.primaryForeground,
               fontSize: 12.sp,
               fontWeight: FontWeight.w700,
             ),
@@ -573,7 +573,7 @@ class _StatGrid extends StatelessWidget {
                 label: 'Titles Watched',
                 value: isLoading ? '—' : total.toString(),
                 icon: Icons.movie_filter_rounded,
-                color: WColors.accentRed,
+                color: context.colors.accentRed,
               ),
             ),
             SizedBox(width: 12.w),
@@ -582,7 +582,7 @@ class _StatGrid extends StatelessWidget {
                 label: 'Movies',
                 value: isLoading ? '—' : movies.toString(),
                 icon: Icons.local_movies_rounded,
-                color: WColors.accentRedAlt,
+                color: context.colors.accentRedAlt,
                 badge: isLoading ? null : moviePct,
               ),
             ),
@@ -596,7 +596,7 @@ class _StatGrid extends StatelessWidget {
                 label: 'Series',
                 value: isLoading ? '—' : series.toString(),
                 icon: Icons.tv_rounded,
-                color: WColors.chartPurple,
+                color: context.colors.chartPurple,
               ),
             ),
             SizedBox(width: 12.w),
@@ -605,7 +605,7 @@ class _StatGrid extends StatelessWidget {
                 label: 'Anime',
                 value: isLoading ? '—' : anime.toString(),
                 icon: Icons.auto_awesome_rounded,
-                color: WColors.chartYellow,
+                color: context.colors.chartYellow,
               ),
             ),
           ],
@@ -636,9 +636,9 @@ class _StatCard extends StatelessWidget {
       height: 110.h,
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Row(
         children: [
@@ -649,7 +649,7 @@ class _StatCard extends StatelessWidget {
                 Text(
                   label.toUpperCase(),
                   style: TextStyle(
-                    color: WColors.mutedSecondaryDeep,
+                    color: context.colors.mutedSecondaryDeep,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
                     letterSpacing: 1.1,
@@ -659,7 +659,7 @@ class _StatCard extends StatelessWidget {
                 Text(
                   value,
                   style: TextStyle(
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     fontSize: 22.sp,
                     fontWeight: FontWeight.w800,
                   ),
@@ -709,7 +709,7 @@ class _SectionHeader extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  color: WColors.foreground,
+                  color: context.colors.foreground,
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w600,
                 ),
@@ -718,7 +718,7 @@ class _SectionHeader extends StatelessWidget {
               Text(
                 subtitle,
                 style: TextStyle(
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w400,
                 ),
@@ -770,7 +770,7 @@ class _InsightCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF2B1C29),
         borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Stack(
         children: [
@@ -784,7 +784,7 @@ class _InsightCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: WColors.accentPurple.withValues(alpha: 0.3),
+                    color: context.colors.accentPurple.withValues(alpha: 0.3),
                     blurRadius: 80,
                     offset: const Offset(0, 10),
                     spreadRadius: 40,
@@ -803,7 +803,7 @@ class _InsightCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: WColors.accentRed.withValues(alpha: 0.3),
+                    color: context.colors.accentRed.withValues(alpha: 0.3),
                     blurRadius: 150,
                     offset: const Offset(0, 10),
                     spreadRadius: 50,
@@ -825,7 +825,7 @@ class _InsightCard extends StatelessWidget {
                     : Text(
                         _buildInsightText(),
                         style: TextStyle(
-                          color: WColors.mutedSecondarySoft,
+                          color: context.colors.mutedSecondarySoft,
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w500,
                           height: 1.4,
@@ -869,10 +869,10 @@ class _CollectionCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(
-          color: WColors.surfaceChipBorder.withValues(alpha: 0.6),
+          color: context.colors.surfaceChipBorder.withValues(alpha: 0.6),
         ),
       ),
       child: isLoading
@@ -889,10 +889,10 @@ class _CollectionCard extends StatelessWidget {
                         size: Size(180.w, 180.w),
                         painter: _RingChartPainter(
                           values: [movieFrac, seriesFrac, animeFrac],
-                          colors: const [
-                            WColors.accentRed,
-                            WColors.chartPurple,
-                            WColors.chartYellow,
+                          colors: [
+                            context.colors.accentRed,
+                            context.colors.chartPurple,
+                            context.colors.chartYellow,
                           ],
                         ),
                       ),
@@ -902,7 +902,7 @@ class _CollectionCard extends StatelessWidget {
                           Text(
                             total.toString(),
                             style: TextStyle(
-                              color: WColors.foreground,
+                              color: context.colors.foreground,
                               fontSize: 28.sp,
                               fontWeight: FontWeight.w800,
                             ),
@@ -910,7 +910,7 @@ class _CollectionCard extends StatelessWidget {
                           Text(
                             'TITLES',
                             style: TextStyle(
-                              color: WColors.mutedSecondaryDeep,
+                              color: context.colors.mutedSecondaryDeep,
                               fontSize: 10.sp,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.3,
@@ -929,7 +929,7 @@ class _CollectionCard extends StatelessWidget {
                         label: 'Movies',
                         value: movies.toString(),
                         percent: moviePct,
-                        color: WColors.accentRed,
+                        color: context.colors.accentRed,
                       ),
                     ),
                     SizedBox(width: 8.w),
@@ -938,7 +938,7 @@ class _CollectionCard extends StatelessWidget {
                         label: 'Series',
                         value: series.toString(),
                         percent: seriesPct,
-                        color: WColors.chartPurple,
+                        color: context.colors.chartPurple,
                       ),
                     ),
                     SizedBox(width: 8.w),
@@ -947,7 +947,7 @@ class _CollectionCard extends StatelessWidget {
                         label: 'Anime',
                         value: anime.toString(),
                         percent: animePct,
-                        color: WColors.chartYellow,
+                        color: context.colors.chartYellow,
                       ),
                     ),
                   ],
@@ -976,9 +976,9 @@ class _LegendItem extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised2,
+        color: context.colors.surfaceRaised2,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -997,7 +997,7 @@ class _LegendItem extends StatelessWidget {
               Text(
                 label.toUpperCase(),
                 style: TextStyle(
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w400,
                   letterSpacing: 1.0,
@@ -1012,7 +1012,7 @@ class _LegendItem extends StatelessWidget {
               Text(
                 value,
                 style: TextStyle(
-                  color: WColors.foreground,
+                  color: context.colors.foreground,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w800,
                 ),
@@ -1021,7 +1021,7 @@ class _LegendItem extends StatelessWidget {
               Text(
                 percent,
                 style: TextStyle(
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1043,22 +1043,22 @@ class _TasteProfileSection extends StatelessWidget {
 
   const _TasteProfileSection({required this.user});
 
-  static const _genreColors = {
-    'Drama': WColors.accentRedAlt,
-    'Thriller': WColors.warning,
-    'Psychological': WColors.chartYellow,
-    'Crime': WColors.chartBlue,
-    'Sci-Fi': WColors.chartPurple,
-    'Mystery': Color.fromARGB(255, 188, 113, 225),
-    'Action': WColors.accentRed,
-    'Horror': WColors.accentRedAlt,
-    'Romance': Color(0xFFFF6B8A),
-    'Fantasy': WColors.chartPurple,
-    'Documentary': WColors.chartGreen,
-    'Animation': WColors.chartYellow,
+  static final _genreColors = {
+    'Drama': const Color(0xFFE74D5B),         // accentRedAlt
+    'Thriller': const Color(0xFFE0A838),       // warning
+    'Psychological': const Color(0xFFFBBF24),  // chartYellow
+    'Crime': const Color(0xFF60A5FA),          // chartBlue
+    'Sci-Fi': const Color(0xFFA78BFA),         // chartPurple
+    'Mystery': const Color.fromARGB(255, 188, 113, 225),
+    'Action': const Color(0xFFE84B57),         // accentRed
+    'Horror': const Color(0xFFE74D5B),         // accentRedAlt
+    'Romance': const Color(0xFFFF6B8A),
+    'Fantasy': const Color(0xFFA78BFA),        // chartPurple
+    'Documentary': const Color(0xFF10B981),    // chartGreen
+    'Animation': const Color(0xFFFBBF24),      // chartYellow
   };
 
-  static const Color _defaultColor = WColors.mutedSecondary;
+  static final Color _defaultColor = const Color(0xFF8F96A3); // mutedSecondary
 
   String _computePersonality(List<String> genres) {
     if (genres.contains('Psychological') || genres.contains('Drama')) {
@@ -1113,7 +1113,7 @@ class _TasteProfileSection extends StatelessWidget {
             ? Text(
                 'No genres set yet — edit your profile to add taste.',
                 style: TextStyle(
-                    color: WColors.mutedSecondary, fontSize: 13.sp),
+                    color: context.colors.mutedSecondary, fontSize: 13.sp),
               )
             : Wrap(
                 spacing: 8.w,
@@ -1129,9 +1129,9 @@ class _TasteProfileSection extends StatelessWidget {
         Container(
           clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
-            color: WColors.surfaceRaised.withValues(alpha: 0.6),
+            color: context.colors.surfaceRaised.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(18.r),
-            border: Border.all(color: WColors.borderStrong),
+            border: Border.all(color: context.colors.borderStrong),
           ),
           child: Stack(
             children: [
@@ -1145,7 +1145,7 @@ class _TasteProfileSection extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: WColors.accentPurple.withValues(alpha: 0.3),
+                        color: context.colors.accentPurple.withValues(alpha: 0.3),
                         blurRadius: 80,
                         offset: const Offset(0, 10),
                         spreadRadius: 40,
@@ -1164,7 +1164,7 @@ class _TasteProfileSection extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: WColors.accentRed.withValues(alpha: 0.3),
+                        color: context.colors.accentRed.withValues(alpha: 0.3),
                         blurRadius: 150,
                         offset: const Offset(0, 10),
                         spreadRadius: 50,
@@ -1181,7 +1181,7 @@ class _TasteProfileSection extends StatelessWidget {
                     Text(
                       'VIEWING PERSONALITY',
                       style: TextStyle(
-                        color: WColors.mutedSecondaryDeep,
+                        color: context.colors.mutedSecondaryDeep,
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w400,
                         letterSpacing: 1.2,
@@ -1191,7 +1191,7 @@ class _TasteProfileSection extends StatelessWidget {
                     Text(
                       personality,
                       style: TextStyle(
-                        color: WColors.accentRedAlt,
+                        color: context.colors.accentRedAlt,
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1200,7 +1200,7 @@ class _TasteProfileSection extends StatelessWidget {
                     Text(
                       _personalityDesc(personality),
                       style: TextStyle(
-                        color: WColors.mutedSecondarySoft,
+                        color: context.colors.mutedSecondarySoft,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                         height: 1.4,
@@ -1273,9 +1273,9 @@ class _InfoTile extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(22.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1283,7 +1283,7 @@ class _InfoTile extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: WColors.mutedSecondary,
+              color: context.colors.mutedSecondary,
               fontSize: 10.sp,
               fontWeight: FontWeight.w400,
               letterSpacing: 1.1,
@@ -1293,7 +1293,7 @@ class _InfoTile extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              color: WColors.foreground,
+              color: context.colors.foreground,
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -1330,7 +1330,7 @@ class _TopFavoritesRow extends StatelessWidget {
         child: Text(
           'Rate watched titles to see your top favorites.',
           style: TextStyle(
-              color: WColors.mutedSecondary, fontSize: 13.sp),
+              color: context.colors.mutedSecondary, fontSize: 13.sp),
         ),
       );
     }
@@ -1378,9 +1378,9 @@ class _AchievementHallCard extends StatelessWidget {
         Container(
           padding: EdgeInsets.all(16.sp),
           decoration: BoxDecoration(
-            color: WColors.surfaceRaised.withValues(alpha: 0.6),
+            color: context.colors.surfaceRaised.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(24.r),
-            border: Border.all(color: WColors.borderStrong),
+            border: Border.all(color: context.colors.borderStrong),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1391,7 +1391,7 @@ class _AchievementHallCard extends StatelessWidget {
                   Text(
                     'COLLECTION PROGRESS',
                     style: TextStyle(
-                      color: WColors.mutedSecondary,
+                      color: context.colors.mutedSecondary,
                       fontSize: 10.sp,
                       fontWeight: FontWeight.w500,
                       letterSpacing: 1.2,
@@ -1401,7 +1401,7 @@ class _AchievementHallCard extends StatelessWidget {
                   Text(
                     '${((unlockedCount / totalCount) * 100).toStringAsFixed(0)}% Complete',
                     style: TextStyle(
-                      color: WColors.warning,
+                      color: context.colors.warning,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
                     ),
@@ -1415,15 +1415,15 @@ class _AchievementHallCard extends StatelessWidget {
                   value: unlockedCount / totalCount,
                   minHeight: 8.h,
                   backgroundColor:
-                      WColors.surfaceTint.withValues(alpha: 0.7),
-                  valueColor: AlwaysStoppedAnimation(WColors.warning),
+                      context.colors.surfaceTint.withValues(alpha: 0.7),
+                  valueColor: AlwaysStoppedAnimation(context.colors.warning),
                 ),
               ),
               SizedBox(height: 8.h),
               Text(
                 '${totalCount - unlockedCount} remaining — keep watching to unlock more.',
                 style: TextStyle(
-                  color: WColors.mutedSecondaryAlt,
+                  color: context.colors.mutedSecondaryAlt,
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w400,
                 ),
@@ -1494,7 +1494,7 @@ class _AchievementBadge extends StatelessWidget {
                           progress: progressValue,
                           color: item.ringColor,
                           backgroundColor:
-                              WColors.surfaceTint.withValues(alpha: 0.6),
+                              context.colors.surfaceTint.withValues(alpha: 0.6),
                           strokeWidth: 3.r,
                         ),
                       ),
@@ -1507,7 +1507,7 @@ class _AchievementBadge extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color:
-                              WColors.background.withValues(alpha: 0.8),
+                              context.colors.background.withValues(alpha: 0.8),
                         ),
                         child: Stack(
                           alignment: Alignment.center,
@@ -1525,11 +1525,11 @@ class _AchievementBadge extends StatelessWidget {
                             if (item.isHidden)
                               Icon(Icons.question_mark,
                                   size: 32.sp,
-                                  color: WColors.mutedSecondary)
+                                  color: context.colors.mutedSecondary)
                             else if (item.isLocked)
                               Icon(Icons.lock_outline_rounded,
                                   size: 28.sp,
-                                  color: WColors.mutedSecondary),
+                                  color: context.colors.mutedSecondary),
                           ],
                         ),
                       ),
@@ -1546,7 +1546,7 @@ class _AchievementBadge extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             color: item.isHidden || item.isLocked
-                ? WColors.mutedSecondary
+                ? context.colors.mutedSecondary
                 : item.ringColor,
             fontSize: 10.sp,
             fontWeight: FontWeight.w600,
@@ -1561,8 +1561,8 @@ class _AchievementBadge extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: item.isHidden || item.isLocked
-                ? WColors.mutedSecondary
-                : WColors.foreground,
+                ? context.colors.mutedSecondary
+                : context.colors.foreground,
             fontSize: 14.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -1574,7 +1574,7 @@ class _AchievementBadge extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: WColors.mutedSecondary,
+            color: context.colors.mutedSecondary,
             fontSize: 10.sp,
             fontWeight: FontWeight.w400,
           ),
@@ -1626,9 +1626,9 @@ class _RankingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.8),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1653,19 +1653,19 @@ class _RankingCard extends StatelessWidget {
                     padding: EdgeInsets.symmetric(
                         horizontal: 8.w, vertical: 4.h),
                     decoration: BoxDecoration(
-                      color: WColors.surface.withValues(alpha: 0.8),
+                      color: context.colors.surface.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(999.r),
                     ),
                     child: Row(
                       children: [
                         Icon(Icons.list_rounded,
                             size: 12.sp,
-                            color: WColors.primaryForeground),
+                            color: context.colors.primaryForeground),
                         SizedBox(width: 4.w),
                         Text(
                           item.count.toString(),
                           style: TextStyle(
-                            color: WColors.primaryForeground,
+                            color: context.colors.primaryForeground,
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1688,7 +1688,7 @@ class _RankingCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1699,7 +1699,7 @@ class _RankingCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: WColors.mutedSecondary,
+                    color: context.colors.mutedSecondary,
                     fontSize: 11.sp,
                   ),
                 ),
@@ -1787,7 +1787,7 @@ class _ActivityCard extends StatelessWidget {
         child: Text(
           'No activity yet — add titles to your library.',
           style: TextStyle(
-              color: WColors.mutedSecondary, fontSize: 13.sp),
+              color: context.colors.mutedSecondary, fontSize: 13.sp),
         ),
       );
     }
@@ -1797,9 +1797,9 @@ class _ActivityCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised.withValues(alpha: 0.6),
+        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Column(
         children: List.generate(
@@ -1833,12 +1833,12 @@ class _ActivityRow extends StatelessWidget {
                 width: 36.w,
                 height: 36.w,
                 decoration: BoxDecoration(
-                  color: WColors.surface,
+                  color: context.colors.surface,
                   shape: BoxShape.circle,
-                  border: Border.all(color: WColors.borderStrong),
+                  border: Border.all(color: context.colors.borderStrong),
                 ),
                 child: Icon(item.icon,
-                    size: 18.sp, color: WColors.mutedSecondary),
+                    size: 18.sp, color: context.colors.mutedSecondary),
               ),
               SizedBox(width: 10.w),
               Expanded(
@@ -1850,7 +1850,7 @@ class _ActivityRow extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: WColors.foreground,
+                        color: context.colors.foreground,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w400,
                       ),
@@ -1870,8 +1870,8 @@ class _ActivityRow extends StatelessWidget {
                                     Icons.star_rounded,
                                     size: 10.sp,
                                     color: i < item.rating!.floor()
-                                        ? WColors.mutedSecondary
-                                        : WColors.surfaceTint,
+                                        ? context.colors.mutedSecondary
+                                        : context.colors.surfaceTint,
                                   ),
                                 ),
                               ),
@@ -1880,13 +1880,13 @@ class _ActivityRow extends StatelessWidget {
                           SizedBox(width: 6.w),
                           Text('•  ',
                               style: TextStyle(
-                                  color: WColors.mutedSecondary,
+                                  color: context.colors.mutedSecondary,
                                   fontSize: 10.sp)),
                         ],
                         Text(
                           item.subtitle,
                           style: TextStyle(
-                            color: WColors.mutedSecondary,
+                            color: context.colors.mutedSecondary,
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1903,7 +1903,7 @@ class _ActivityRow extends StatelessWidget {
               margin: EdgeInsets.only(left: 16.w),
               width: 1.2,
               height: 28.h,
-              color: WColors.borderStrong,
+              color: context.colors.borderStrong,
             ),
         ],
       ),
@@ -1926,19 +1926,19 @@ class _Pill extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: WColors.surfaceOverlay.withValues(alpha: 0.2),
+        color: context.colors.surfaceOverlay.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(999.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12.sp, color: WColors.mutedSecondary),
+          Icon(icon, size: 12.sp, color: context.colors.mutedSecondary),
           SizedBox(width: 6.w),
           Text(
             label,
             style: TextStyle(
-              color: WColors.mutedSecondary,
+              color: context.colors.mutedSecondary,
               fontSize: 10.sp,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.1,
@@ -1960,7 +1960,7 @@ class _SeeAllChip extends StatelessWidget {
     return Text(
       label,
       style: TextStyle(
-        color: WColors.mutedSecondary,
+        color: context.colors.mutedSecondary,
         fontSize: 12.sp,
         fontWeight: FontWeight.w400,
       ),
@@ -1978,7 +1978,7 @@ class _LoadingPlaceholder extends StatelessWidget {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: WColors.surfaceTint.withValues(alpha: 0.3),
+        color: context.colors.surfaceTint.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8.r),
       ),
     );
@@ -1995,7 +1995,7 @@ class _LoadingSpinner extends StatelessWidget {
       height: 24.w,
       child: CircularProgressIndicator(
         strokeWidth: 2,
-        color: WColors.accentRed,
+        color: context.colors.accentRed,
       ),
     );
   }

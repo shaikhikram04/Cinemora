@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class DiscoverRecentSearches extends StatelessWidget {
@@ -26,14 +26,14 @@ class DiscoverRecentSearches extends StatelessWidget {
             children: [
               Icon(
                 Icons.history_rounded,
-                color: WColors.mutedForeground,
+                color: context.colors.mutedForeground,
                 size: 20.sp,
               ),
               SizedBox(width: 6.w),
               Text(
                 'Recent',
                 style: TextStyle(
-                  color: WColors.foreground,
+                  color: context.colors.foreground,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -76,9 +76,9 @@ class _RecentChip extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
         decoration: BoxDecoration(
-          color: WColors.surfaceChip,
+          color: context.colors.surfaceChip,
           borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
-          border: Border.all(color: WColors.surfaceChipBorder),
+          border: Border.all(color: context.colors.surfaceChipBorder),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -86,13 +86,13 @@ class _RecentChip extends StatelessWidget {
             Icon(
               Icons.history_rounded,
               size: 13.sp,
-              color: WColors.mutedForeground,
+              color: context.colors.mutedForeground,
             ),
             SizedBox(width: 5.w),
             Text(
               label,
               style: TextStyle(
-                color: WColors.mutedSecondaryAlt,
+                color: context.colors.mutedSecondaryAlt,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
               ),

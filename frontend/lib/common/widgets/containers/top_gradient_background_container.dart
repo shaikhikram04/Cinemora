@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 
 class TopGradientBackgroundContainer extends StatelessWidget {
   const TopGradientBackgroundContainer({super.key, required this.child});
@@ -14,9 +14,9 @@ class TopGradientBackgroundContainer extends StatelessWidget {
           begin: Alignment.topRight,
           end: Alignment.bottomCenter,
           colors: [
-            WColors.primary.withAlpha(38),
-            WColors.background,
-            WColors.background,
+            context.colors.primary.withAlpha(38),
+            context.colors.background,
+            context.colors.background,
           ],
         ),
       ),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -68,14 +68,14 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
+      value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: WColors.background,
+        systemNavigationBarColor: context.colors.background,
         systemNavigationBarIconBrightness: Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: WColors.background,
+        backgroundColor: context.colors.background,
         body: FadeTransition(
           opacity: _fadeAnimation,
           child: Center(
@@ -91,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen>
                 Text(
                   'Cinemora',
                   style: TextStyle(
-                    color: WColors.foreground,
+                    color: context.colors.foreground,
                     fontSize: 34.sp,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.2,
@@ -101,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen>
                 Text(
                   'Your cinema companion',
                   style: TextStyle(
-                    color: WColors.mutedSecondary,
+                    color: context.colors.mutedSecondary,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w400,
                   ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class ContentTypeCard extends StatelessWidget {
@@ -36,7 +36,7 @@ class ContentTypeCard extends StatelessWidget {
               color: const Color(0xBB000000),
               colorBlendMode: BlendMode.multiply,
               errorBuilder: (_, __, ___) =>
-                  const ColoredBox(color: WColors.surfaceRaised),
+                  ColoredBox(color: context.colors.surfaceRaised),
             ),
             const DecoratedBox(
               decoration: BoxDecoration(
@@ -51,7 +51,7 @@ class ContentTypeCard extends StatelessWidget {
             AnimatedContainer(
               duration: const Duration(milliseconds: 160),
               color: isSelected
-                  ? WColors.primary.withAlpha(50)
+                  ? context.colors.primary.withAlpha(50)
                   : Colors.transparent,
             ),
             Padding(
@@ -65,7 +65,7 @@ class ContentTypeCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(WSizes.radiusMd.r),
                       color: isSelected
-                          ? WColors.primary.withAlpha(60)
+                          ? context.colors.primary.withAlpha(60)
                           : Colors.white.withAlpha(18),
                       border: Border.all(color: Colors.white.withAlpha(20)),
                     ),
@@ -74,7 +74,7 @@ class ContentTypeCard extends StatelessWidget {
                         data: IconThemeData(
                           color: isSelected
                               ? Colors.white
-                              : WColors.mutedSecondaryVibe,
+                              : context.colors.mutedSecondaryVibe,
                         ),
                         child: icon,
                       ),
@@ -109,7 +109,7 @@ class ContentTypeCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
                   border: Border.all(
                     color: isSelected
-                        ? WColors.primary.withAlpha(220)
+                        ? context.colors.primary.withAlpha(220)
                         : Colors.white.withAlpha(20),
                     width: isSelected ? 1.5 : 1,
                   ),

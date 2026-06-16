@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/features/watch_together/viewmodels/create_session_cubit.dart';
 import 'package:cinemora/features/watch_together/viewmodels/create_session_state.dart';
 
@@ -78,7 +78,7 @@ class _CreateSessionContentState extends State<_CreateSessionContent> {
       builder: (context, state) {
         final cubit = context.read<CreateSessionCubit>();
         return Scaffold(
-          backgroundColor: WColors.background,
+          backgroundColor: context.colors.background,
           body: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -93,7 +93,7 @@ class _CreateSessionContentState extends State<_CreateSessionContent> {
                       Text(
                         'Create Session',
                         style: TextStyle(
-                          color: WColors.foreground,
+                          color: context.colors.foreground,
                           fontSize: 20.sp,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.4,
@@ -127,7 +127,7 @@ class _CreateSessionContentState extends State<_CreateSessionContent> {
                         Text(
                           'Select genres you both enjoy',
                           style: TextStyle(
-                            color: WColors.mutedSecondary,
+                            color: context.colors.mutedSecondary,
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w500,
                           ),
@@ -174,12 +174,12 @@ class _BackButton extends StatelessWidget {
         width: 38.w,
         height: 38.w,
         decoration: BoxDecoration(
-          color: WColors.surfaceMuted,
+          color: context.colors.surfaceMuted,
           borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: WColors.borderStrong),
+          border: Border.all(color: context.colors.borderStrong),
         ),
         child: Icon(Icons.arrow_back_rounded,
-            color: WColors.foreground, size: 18.sp),
+            color: context.colors.foreground, size: 18.sp),
       ),
     );
   }
@@ -194,7 +194,7 @@ class _SectionLabel extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
-        color: WColors.foreground,
+        color: context.colors.foreground,
         fontSize: 15.sp,
         fontWeight: FontWeight.w700,
       ),
@@ -212,21 +212,21 @@ class _NameField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised,
+        color: context.colors.surfaceRaised,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: TextField(
         controller: controller,
         style: TextStyle(
-          color: WColors.foreground,
+          color: context.colors.foreground,
           fontSize: 15.sp,
           fontWeight: FontWeight.w500,
         ),
         decoration: InputDecoration(
           hintText: 'e.g. Movie Night 🎬',
           hintStyle: TextStyle(
-            color: WColors.mutedSecondary,
+            color: context.colors.mutedSecondary,
             fontSize: 15.sp,
             fontWeight: FontWeight.w400,
           ),
@@ -287,18 +287,18 @@ class _ContentTypeChip extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.r),
         gradient: selected
-            ? const LinearGradient(
-                colors: [Color(0xFF9B1C35), WColors.accentRed],
+            ? LinearGradient(
+                colors: [const Color(0xFF9B1C35), context.colors.accentRed],
               )
             : null,
-        color: selected ? null : WColors.surfaceRaised,
+        color: selected ? null : context.colors.surfaceRaised,
         border: Border.all(
-          color: selected ? Colors.transparent : WColors.borderStrong,
+          color: selected ? Colors.transparent : context.colors.borderStrong,
         ),
         boxShadow: selected
             ? [
                 BoxShadow(
-                  color: WColors.accentRed.withValues(alpha: 0.28),
+                  color: context.colors.accentRed.withValues(alpha: 0.28),
                   blurRadius: 14,
                   offset: const Offset(0, 4),
                 ),
@@ -317,7 +317,7 @@ class _ContentTypeChip extends StatelessWidget {
               child: Text(
                 label,
                 style: TextStyle(
-                  color: selected ? Colors.white : WColors.mutedSecondary,
+                  color: selected ? Colors.white : context.colors.mutedSecondary,
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -346,11 +346,11 @@ class _GenreChip extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: selected
-            ? WColors.accentPurple.withValues(alpha: 0.18)
-            : WColors.surfaceChip,
+            ? context.colors.accentPurple.withValues(alpha: 0.18)
+            : context.colors.surfaceChip,
         borderRadius: BorderRadius.circular(999.r),
         border: Border.all(
-          color: selected ? WColors.accentPurple : WColors.surfaceChipBorder,
+          color: selected ? context.colors.accentPurple : context.colors.surfaceChipBorder,
         ),
       ),
       child: Material(
@@ -365,8 +365,8 @@ class _GenreChip extends StatelessWidget {
               label,
               style: TextStyle(
                 color: selected
-                    ? WColors.accentPurple
-                    : WColors.mutedSecondaryVibe,
+                    ? context.colors.accentPurple
+                    : context.colors.mutedSecondaryVibe,
                 fontSize: 12.sp,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
               ),
@@ -387,14 +387,14 @@ class _CreateButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.r),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF9B1C35), WColors.accentRed],
+        gradient: LinearGradient(
+          colors: [const Color(0xFF9B1C35), context.colors.accentRed],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: WColors.accentRed.withValues(alpha: 0.35),
+            color: context.colors.accentRed.withValues(alpha: 0.35),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -437,9 +437,9 @@ class _InviteCodeSheet extends StatelessWidget {
       margin: EdgeInsets.all(16.w),
       padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 24.h),
       decoration: BoxDecoration(
-        color: WColors.surfaceRaised,
+        color: context.colors.surfaceRaised,
         borderRadius: BorderRadius.circular(28.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -449,7 +449,7 @@ class _InviteCodeSheet extends StatelessWidget {
             height: 4.h,
             margin: EdgeInsets.symmetric(vertical: 12.h),
             decoration: BoxDecoration(
-              color: WColors.surfaceTint,
+              color: context.colors.surfaceTint,
               borderRadius: BorderRadius.circular(999.r),
             ),
           ),
@@ -459,14 +459,14 @@ class _InviteCodeSheet extends StatelessWidget {
             height: 64.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                colors: [Color(0xFF2B1259), WColors.accentRed],
+              gradient: LinearGradient(
+                colors: [const Color(0xFF2B1259), context.colors.accentRed],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: WColors.accentRed.withValues(alpha: 0.30),
+                  color: context.colors.accentRed.withValues(alpha: 0.30),
                   blurRadius: 24,
                 ),
               ],
@@ -478,7 +478,7 @@ class _InviteCodeSheet extends StatelessWidget {
           Text(
             'Session Created!',
             style: TextStyle(
-              color: WColors.foreground,
+              color: context.colors.foreground,
               fontSize: 22.sp,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.4,
@@ -489,7 +489,7 @@ class _InviteCodeSheet extends StatelessWidget {
             'Share this code with your watch partner',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: WColors.mutedSecondary,
+              color: context.colors.mutedSecondary,
               fontSize: 13.sp,
               fontWeight: FontWeight.w500,
             ),
@@ -499,14 +499,14 @@ class _InviteCodeSheet extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.symmetric(vertical: 18.h),
             decoration: BoxDecoration(
-              color: WColors.background,
+              color: context.colors.background,
               borderRadius: BorderRadius.circular(16.r),
               border: Border.all(
-                color: WColors.accentRed.withValues(alpha: 0.28),
+                color: context.colors.accentRed.withValues(alpha: 0.28),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: WColors.accentRed.withValues(alpha: 0.07),
+                  color: context.colors.accentRed.withValues(alpha: 0.07),
                   blurRadius: 24,
                 ),
               ],
@@ -515,7 +515,7 @@ class _InviteCodeSheet extends StatelessWidget {
               code,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: WColors.foreground,
+                color: context.colors.foreground,
                 fontSize: 30.sp,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 7.0,
@@ -567,7 +567,7 @@ class _InviteCodeSheet extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: WColors.surfaceMuted,
+        backgroundColor: context.colors.surfaceMuted,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -581,7 +581,7 @@ class _InviteCodeSheet extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => Dialog(
-        backgroundColor: WColors.surfaceRaised,
+        backgroundColor: context.colors.surfaceRaised,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24.r)),
         child: Padding(
@@ -592,7 +592,7 @@ class _InviteCodeSheet extends StatelessWidget {
               Text(
                 'QR Code',
                 style: TextStyle(
-                  color: WColors.foreground,
+                  color: context.colors.foreground,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w800,
                 ),
@@ -615,7 +615,7 @@ class _InviteCodeSheet extends StatelessWidget {
               Text(
                 code,
                 style: TextStyle(
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 4,
@@ -627,7 +627,7 @@ class _InviteCodeSheet extends StatelessWidget {
                 child: Text(
                   'Close',
                   style: TextStyle(
-                    color: WColors.accentRed,
+                    color: context.colors.accentRed,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -656,9 +656,9 @@ class _SheetAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: WColors.surfaceMuted,
+        color: context.colors.surfaceMuted,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: WColors.borderStrong),
+        border: Border.all(color: context.colors.borderStrong),
       ),
       child: Material(
         color: Colors.transparent,
@@ -671,12 +671,12 @@ class _SheetAction extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: WColors.foreground, size: 18.sp),
+                Icon(icon, color: context.colors.foreground, size: 18.sp),
                 SizedBox(height: 4.h),
                 Text(
                   label,
                   style: TextStyle(
-                    color: WColors.mutedSecondary,
+                    color: context.colors.mutedSecondary,
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w600,
                   ),

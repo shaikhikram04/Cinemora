@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cinemora/common/widgets/progress_bars/page_view_progress_bar.dart';
-import 'package:cinemora/core/constants/colors.dart';
+import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/core/router/app_routes.dart';
@@ -200,15 +200,15 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
       builder: (context, state) {
         final cubit = context.read<OnboardingCubit>();
         return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: const SystemUiOverlayStyle(
+          value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             statusBarIconBrightness: Brightness.light,
             statusBarBrightness: Brightness.dark,
-            systemNavigationBarColor: WColors.background,
+            systemNavigationBarColor: context.colors.background,
             systemNavigationBarIconBrightness: Brightness.light,
           ),
           child: Scaffold(
-            backgroundColor: WColors.background,
+            backgroundColor: context.colors.background,
             resizeToAvoidBottomInset: true,
             body: SafeArea(
               child: Column(
@@ -268,7 +268,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
           Text(
             label,
             style: TextStyle(
-              color: WColors.primary,
+              color: context.colors.primary,
               fontSize: 11.sp,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.2,
@@ -278,7 +278,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
           Text(
             title,
             style: TextStyle(
-              color: WColors.foreground,
+              color: context.colors.foreground,
               fontSize: 24.sp,
               fontWeight: FontWeight.w800,
               height: 1.2,
@@ -287,7 +287,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
           SizedBox(height: 4.h),
           Text(
             subtitle,
-            style: TextStyle(color: WColors.mutedForeground, fontSize: 13.sp),
+            style: TextStyle(color: context.colors.mutedForeground, fontSize: 13.sp),
           ),
         ],
       ),
@@ -307,7 +307,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                 child: Text(
                   message,
                   style: TextStyle(
-                    color: WColors.primary,
+                    color: context.colors.primary,
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w500,
                   ),
@@ -407,12 +407,12 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
                       color: isSelected
-                          ? WColors.primary.withAlpha(25)
-                          : WColors.surfaceChip,
+                          ? context.colors.primary.withAlpha(25)
+                          : context.colors.surfaceChip,
                       border: Border.all(
                         color: isSelected
-                            ? WColors.primary.withAlpha(180)
-                            : WColors.surfaceChipBorder,
+                            ? context.colors.primary.withAlpha(180)
+                            : context.colors.surfaceChipBorder,
                         width: isSelected ? 1.5 : 1,
                       ),
                     ),
@@ -428,8 +428,8 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                           key,
                           style: TextStyle(
                             color: isSelected
-                                ? WColors.foreground
-                                : WColors.mutedSecondaryVibe,
+                                ? context.colors.foreground
+                                : context.colors.mutedSecondaryVibe,
                             fontWeight: FontWeight.w600,
                             fontSize: 13.sp,
                           ),
@@ -487,7 +487,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                           color: const Color(0xBB000000),
                           colorBlendMode: BlendMode.multiply,
                           errorBuilder: (_, __, ___) =>
-                              const ColoredBox(color: WColors.surfaceRaised),
+                              ColoredBox(color: context.colors.surfaceRaised),
                         ),
                         const DecoratedBox(
                           decoration: BoxDecoration(
@@ -500,7 +500,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 160),
                           color: isSelected
-                              ? WColors.primary.withAlpha(55)
+                              ? context.colors.primary.withAlpha(55)
                               : Colors.transparent,
                         ),
                         Column(
@@ -531,7 +531,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                                   BorderRadius.circular(WSizes.radiusXl.r),
                               border: Border.all(
                                 color: isSelected
-                                    ? WColors.primary.withAlpha(220)
+                                    ? context.colors.primary.withAlpha(220)
                                     : Colors.white.withAlpha(20),
                                 width: isSelected ? 1.5 : 1,
                               ),
@@ -570,7 +570,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
             padding: EdgeInsets.symmetric(horizontal: WSizes.md.w),
             itemCount: _kPlatforms.length,
             separatorBuilder: (_, __) =>
-                Divider(color: WColors.border, height: 1),
+                Divider(color: context.colors.border, height: 1),
             itemBuilder: (_, i) {
               final item = _kPlatforms[i];
               final key = item['key'] as String;
@@ -579,7 +579,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
               return InkWell(
                 onTap: () => cubit.togglePlatform(key),
                 splashColor: Colors.transparent,
-                highlightColor: WColors.surfaceRaised.withAlpha(80),
+                highlightColor: context.colors.surfaceRaised.withAlpha(80),
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 14.h),
                   child: Row(
@@ -591,11 +591,11 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                         decoration: BoxDecoration(
                           borderRadius:
                               BorderRadius.circular(WSizes.radiusMd.r),
-                          color: WColors.surfaceRaised,
+                          color: context.colors.surfaceRaised,
                           border: Border.all(
                             color: isSelected
                                 ? color.withAlpha(180)
-                                : WColors.border,
+                                : context.colors.border,
                             width: isSelected ? 1.5 : 1,
                           ),
                         ),
@@ -613,7 +613,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                         child: Text(
                           key,
                           style: TextStyle(
-                            color: WColors.foreground,
+                            color: context.colors.foreground,
                             fontWeight: FontWeight.w500,
                             fontSize: 15.sp,
                           ),
@@ -626,11 +626,11 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color:
-                              isSelected ? WColors.primary : Colors.transparent,
+                              isSelected ? context.colors.primary : Colors.transparent,
                           border: Border.all(
                             color: isSelected
-                                ? WColors.primary
-                                : WColors.surfaceTint,
+                                ? context.colors.primary
+                                : context.colors.surfaceTint,
                             width: 2,
                           ),
                         ),
@@ -660,7 +660,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
   // ── Step 5: Review ────────────────────────────────────────────────────────────
 
   Widget _buildStep5(OnboardingState state) {
-    const divider = Divider(color: WColors.border, height: 1, thickness: 1);
+    final divider = Divider(color: context.colors.border, height: 1, thickness: 1);
 
     return SingleChildScrollView(
       child: Column(
@@ -678,13 +678,13 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildReviewSection(
-                  dotColor: WColors.primary,
+                  dotColor: context.colors.primary,
                   label: 'CONTENT TYPES',
                   chips: state.selectedContentTypes,
                 ),
                 divider,
                 _buildReviewSection(
-                  dotColor: WColors.accentPurple,
+                  dotColor: context.colors.accentPurple,
                   label: 'GENRES',
                   chips: state.selectedGenres,
                   count: state.selectedGenres.isNotEmpty
@@ -693,13 +693,13 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                 ),
                 divider,
                 _buildReviewSection(
-                  dotColor: WColors.chartGreen,
+                  dotColor: context.colors.chartGreen,
                   label: 'LANGUAGES',
                   chips: state.selectedLanguages,
                 ),
                 divider,
                 _buildReviewSection(
-                  dotColor: WColors.tertiary,
+                  dotColor: context.colors.tertiary,
                   label: 'PLATFORMS',
                   chips: state.selectedPlatforms,
                 ),
@@ -734,7 +734,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
               Text(
                 label,
                 style: TextStyle(
-                  color: WColors.mutedSecondary,
+                  color: context.colors.mutedSecondary,
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.2,
@@ -745,7 +745,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                 Text(
                   '$count selected',
                   style: TextStyle(
-                    color: WColors.mutedForeground,
+                    color: context.colors.mutedForeground,
                     fontSize: 11.sp,
                   ),
                 ),
@@ -757,7 +757,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
               ? Text(
                   'Skipped',
                   style: TextStyle(
-                    color: WColors.mutedForeground.withAlpha(120),
+                    color: context.colors.mutedForeground.withAlpha(120),
                     fontSize: 13.sp,
                     fontStyle: FontStyle.italic,
                   ),
@@ -779,7 +779,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                       child: Text(
                         text,
                         style: TextStyle(
-                          color: WColors.foreground,
+                          color: context.colors.foreground,
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w500,
                         ),
@@ -833,8 +833,8 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                     : const LinearGradient(
                         colors: [Color(0xFFE63946), Color(0xFFCF2F3B)],
                       ),
-                color: disabled ? WColors.surfaceRaised : null,
-                border: disabled ? Border.all(color: WColors.border) : null,
+                color: disabled ? context.colors.surfaceRaised : null,
+                border: disabled ? Border.all(color: context.colors.border) : null,
               ),
               child: Center(
                 child: state.isSubmitting
@@ -853,7 +853,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                             isLast ? 'Confirm & Finish' : 'Continue',
                             style: TextStyle(
                               color: disabled
-                                  ? WColors.mutedForeground
+                                  ? context.colors.mutedForeground
                                   : Colors.white,
                               fontWeight: FontWeight.w700,
                               fontSize: 15.sp,
@@ -865,7 +865,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                                 ? Icons.check_rounded
                                 : Icons.arrow_forward_rounded,
                             color: disabled
-                                ? WColors.mutedForeground
+                                ? context.colors.mutedForeground
                                 : Colors.white,
                             size: 18.sp,
                           ),
@@ -886,7 +886,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                 child: Text(
                   'Skip this step',
                   style: TextStyle(
-                    color: WColors.mutedForeground.withValues(alpha: 0.6),
+                    color: context.colors.mutedForeground.withValues(alpha: 0.6),
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w500,
                   ),
