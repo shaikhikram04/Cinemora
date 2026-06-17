@@ -1,4 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:cinemora/features/home/models/series_season.dart';
+import 'package:cinemora/features/home/models/tmdb_detail.dart';
+import 'package:cinemora/features/home/viewmodels/movie_details_state.dart';
 
 class SeriesDetailsState extends Equatable {
   final int selectedSeasonIndex;
@@ -11,6 +14,10 @@ class SeriesDetailsState extends Equatable {
   final double showRating;
   final List<int> expandedSeasons;
   final bool showRatingSuccess;
+  final TmdbTvDetail? detail;
+  final DetailStatus detailStatus;
+  final List<SeriesSeason> seasons;
+  final Set<int> loadedSeasonNumbers;
 
   const SeriesDetailsState({
     this.selectedSeasonIndex = 0,
@@ -23,7 +30,13 @@ class SeriesDetailsState extends Equatable {
     this.showRating = 0.0,
     this.expandedSeasons = const [],
     this.showRatingSuccess = false,
+    this.detail,
+    this.detailStatus = DetailStatus.initial,
+    this.seasons = const [],
+    this.loadedSeasonNumbers = const {},
   });
+
+  bool get isDetailLoading => detailStatus == DetailStatus.loading;
 
   SeriesDetailsState copyWith({
     int? selectedSeasonIndex,
@@ -36,6 +49,10 @@ class SeriesDetailsState extends Equatable {
     double? showRating,
     List<int>? expandedSeasons,
     bool? showRatingSuccess,
+    TmdbTvDetail? detail,
+    DetailStatus? detailStatus,
+    List<SeriesSeason>? seasons,
+    Set<int>? loadedSeasonNumbers,
   }) {
     return SeriesDetailsState(
       selectedSeasonIndex: selectedSeasonIndex ?? this.selectedSeasonIndex,
@@ -48,11 +65,15 @@ class SeriesDetailsState extends Equatable {
       showRating: showRating ?? this.showRating,
       expandedSeasons: expandedSeasons ?? this.expandedSeasons,
       showRatingSuccess: showRatingSuccess ?? this.showRatingSuccess,
+      detail: detail ?? this.detail,
+      detailStatus: detailStatus ?? this.detailStatus,
+      seasons: seasons ?? this.seasons,
+      loadedSeasonNumbers: loadedSeasonNumbers ?? this.loadedSeasonNumbers,
     );
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         selectedSeasonIndex,
         showInWatchlist,
         isShowWatched,
@@ -63,5 +84,9 @@ class SeriesDetailsState extends Equatable {
         showRating,
         expandedSeasons,
         showRatingSuccess,
+        detail,
+        detailStatus,
+        seasons,
+        loadedSeasonNumbers,
       ];
 }

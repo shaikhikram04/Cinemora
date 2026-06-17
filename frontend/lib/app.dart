@@ -8,16 +8,19 @@ import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/themes/theme.dart';
 import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:cinemora/features/home/repositories/home_repository.dart';
 
 class WatcharyApp extends StatefulWidget {
   final AppAuthCubit authCubit;
   final UserRepository userRepository;
+  final HomeRepository homeRepository;
   final ThemeModeCubit themeModeCubit;
 
   const WatcharyApp({
     super.key,
     required this.authCubit,
     required this.userRepository,
+    required this.homeRepository,
     required this.themeModeCubit,
   });
 
@@ -50,6 +53,7 @@ class _WatcharyAppState extends State<WatcharyApp> {
         BlocProvider.value(value: widget.authCubit),
         BlocProvider.value(value: widget.themeModeCubit),
         RepositoryProvider.value(value: widget.userRepository),
+        RepositoryProvider.value(value: widget.homeRepository),
       ],
       child: ScreenUtilInit(
         designSize: const Size(390, 844),

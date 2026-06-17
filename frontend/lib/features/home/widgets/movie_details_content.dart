@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/common/widgets/buttons/action_button.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:cinemora/common/widgets/buttons/circle_icon_button.dart';
+import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
 import 'package:cinemora/common/widgets/buttons/pill_chip.dart';
 import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
 import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
+import 'package:cinemora/features/home/models/tmdb_detail.dart';
+import 'package:cinemora/features/home/views/trailer_player_screen.dart';
 import 'package:cinemora/features/home/widgets/discover_chip.dart';
 import 'package:cinemora/features/home/widgets/rating_meter.dart';
 
 class MovieDetailsContent extends StatelessWidget {
   final String movieTitle;
   final String movieImage;
+  final String? backdropImage;
   final String rating;
+  final TmdbMovieDetail? detail;
+  final bool isDetailLoading;
   final bool isInWatchlist;
   final bool isWatched;
   final double userRating;
@@ -30,7 +37,10 @@ class MovieDetailsContent extends StatelessWidget {
     super.key,
     required this.movieTitle,
     required this.movieImage,
+    this.backdropImage,
     required this.rating,
+    this.detail,
+    this.isDetailLoading = false,
     required this.isInWatchlist,
     required this.isWatched,
     required this.userRating,
@@ -53,7 +63,13 @@ class MovieDetailsContent extends StatelessWidget {
           _HeroHeader(
             movieTitle: movieTitle,
             movieImage: movieImage,
+            backdropImage: backdropImage,
             rating: rating,
+            genres: detail?.genres ?? const [],
+            runtime: detail?.runtime,
+            year: detail?.year,
+            director: detail?.director,
+            isLoading: isDetailLoading,
           ),
           SizedBox(height: 20.h),
           Padding(
@@ -66,20 +82,38 @@ class MovieDetailsContent extends StatelessWidget {
                   isWatched: isWatched,
                   onToggleWatchlist: onToggleWatchlist,
                   onToggleWatched: onToggleWatched,
+                  movieTitle: movieTitle,
+                  trailerKey: detail?.trailerKey,
                 ),
                 SizedBox(height: 16.h),
-                const _WhereToWatchSection(),
+                // Where to watch — hide spacer + divider when section is invisible
+                if (isDetailLoading ||
+                    (detail?.providers.isNotEmpty ?? false)) ...[
+                  _WhereToWatchSection(
+                    providers: detail?.providers,
+                    isLoading: isDetailLoading,
+                  ),
+                  SizedBox(height: 20.h),
+                  Divider(color: context.colors.border),
+                  SizedBox(height: 16.h),
+                ],
+                _OverviewSection(
+                  overview: detail?.overview,
+                  isLoading: isDetailLoading,
+                ),
                 SizedBox(height: 20.h),
                 Divider(color: context.colors.border),
                 SizedBox(height: 16.h),
-                const _OverviewSection(),
-                SizedBox(height: 20.h),
-                Divider(color: context.colors.border),
-                SizedBox(height: 16.h),
-                const _CastSection(),
-                SizedBox(height: 16.h),
-                Divider(color: context.colors.border),
-                SizedBox(height: 16.h),
+                // Cast — hide spacer + divider when section is invisible
+                if (isDetailLoading || (detail?.cast.isNotEmpty ?? false)) ...[
+                  _CastSection(
+                    cast: detail?.cast,
+                    isLoading: isDetailLoading,
+                  ),
+                  SizedBox(height: 16.h),
+                  Divider(color: context.colors.border),
+                  SizedBox(height: 16.h),
+                ],
                 _UserRatingSection(
                   userRating: userRating,
                   onRate: onRate,
@@ -105,12 +139,24 @@ class MovieDetailsContent extends StatelessWidget {
 class _HeroHeader extends StatelessWidget {
   final String movieTitle;
   final String movieImage;
+  final String? backdropImage;
   final String rating;
+  final List<String> genres;
+  final String? runtime;
+  final String? year;
+  final String? director;
+  final bool isLoading;
 
   const _HeroHeader({
     required this.movieTitle,
     required this.movieImage,
+    this.backdropImage,
     required this.rating,
+    required this.genres,
+    this.runtime,
+    this.year,
+    this.director,
+    required this.isLoading,
   });
 
   @override
@@ -121,7 +167,11 @@ class _HeroHeader extends StatelessWidget {
           height: WSizes.imageDetailsHeroHeight.h,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: NetworkImage(movieImage),
+              image: NetworkImage(
+                backdropImage != null && backdropImage!.isNotEmpty
+                    ? backdropImage!
+                    : movieImage,
+              ),
               fit: BoxFit.cover,
             ),
           ),
@@ -177,13 +227,12 @@ class _HeroHeader extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 24.h,
+          bottom: 0,
           left: 24.w,
           right: 24.w,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Badges row
               Row(
                 children: [
                   Container(
@@ -193,7 +242,8 @@ class _HeroHeader extends StatelessWidget {
                       color: context.colors.tertiary.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(16.r),
                       border: Border.all(
-                          color: context.colors.tertiary.withValues(alpha: 0.4)),
+                          color:
+                              context.colors.tertiary.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       children: [
@@ -219,7 +269,8 @@ class _HeroHeader extends StatelessWidget {
                       color: context.colors.accentRed.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16.r),
                       border: Border.all(
-                          color: context.colors.accentRed.withValues(alpha: 0.4)),
+                          color:
+                              context.colors.accentRed.withValues(alpha: 0.4)),
                     ),
                     child: Text(
                       'MOVIE',
@@ -232,19 +283,32 @@ class _HeroHeader extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 8.w),
-                  const Expanded(
+                  Expanded(
                     child: Row(
-                      children: [
-                        WPillChip(text: 'Action'),
-                        SizedBox(width: 6),
-                        WPillChip(text: 'Crime'),
-                      ],
+                      children: genres.isNotEmpty
+                          ? genres
+                              .take(2)
+                              .map((g) => Padding(
+                                    padding: EdgeInsets.only(right: 6.w),
+                                    child: WPillChip(text: g),
+                                  ))
+                              .toList()
+                          : [
+                              if (isLoading)
+                                Container(
+                                  width: 50.w,
+                                  height: 20.h,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                ),
+                            ],
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 10.h),
-              // Title
               Text(
                 movieTitle,
                 style: TextStyle(
@@ -256,31 +320,39 @@ class _HeroHeader extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 5.h),
-              // Year + runtime
               Text(
-                '2008  •  2h 32m',
+                _buildMetaLine(),
                 style: TextStyle(
                   fontSize: 13.sp,
                   color: context.colors.mutedForeground,
                   fontFamily: 'Inter',
                 ),
               ),
-              SizedBox(height: 2.h),
-              // Director
-              Text(
-                'Dir. Christopher Nolan',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: context.colors.mutedSecondaryDeep,
-                  fontFamily: 'Inter',
+              if (director != null || isLoading) ...[
+                SizedBox(height: 2.h),
+                Text(
+                  director != null ? 'Dir. $director' : '',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: context.colors.mutedSecondaryDeep,
+                    fontFamily: 'Inter',
+                  ),
                 ),
-              ),
+              ],
               SizedBox(height: WSizes.sectionSpaceLg.h),
             ],
           ),
         ),
       ],
     );
+  }
+
+  String _buildMetaLine() {
+    if (year == null && runtime == null) return '';
+    final parts = <String>[];
+    if (year != null && year!.isNotEmpty) parts.add(year!);
+    if (runtime != null) parts.add(runtime!);
+    return parts.join('  •  ');
   }
 }
 
@@ -291,12 +363,16 @@ class _ActionButtons extends StatelessWidget {
   final bool isWatched;
   final VoidCallback onToggleWatchlist;
   final VoidCallback onToggleWatched;
+  final String? trailerKey;
+  final String movieTitle;
 
   const _ActionButtons({
     required this.isInWatchlist,
     required this.isWatched,
     required this.onToggleWatchlist,
     required this.onToggleWatched,
+    required this.movieTitle,
+    this.trailerKey,
   });
 
   @override
@@ -313,8 +389,10 @@ class _ActionButtons extends StatelessWidget {
                 selectedIcon: Icons.bookmark,
                 unselectedIcon: Icons.bookmark_outline,
                 onTap: onToggleWatchlist,
-                selectedBackground: context.colors.primary.withValues(alpha: 0.14),
-                unselectedBackground: context.colors.accentRed.withValues(alpha: 0.9),
+                selectedBackground:
+                    context.colors.primary.withValues(alpha: 0.14),
+                unselectedBackground:
+                    context.colors.accentRed.withValues(alpha: 0.9),
                 selectedBorder: context.colors.primary,
                 unselectedBorder: context.colors.border,
                 selectedForeground: context.colors.primary,
@@ -330,7 +408,8 @@ class _ActionButtons extends StatelessWidget {
                 selectedIcon: Icons.check_circle,
                 unselectedIcon: Icons.check_circle_outline,
                 onTap: onToggleWatched,
-                selectedBackground: context.colors.success.withValues(alpha: 0.1),
+                selectedBackground:
+                    context.colors.success.withValues(alpha: 0.1),
                 unselectedBackground:
                     context.colors.surfaceOverlay.withValues(alpha: 0.15),
                 selectedBorder: context.colors.success,
@@ -342,21 +421,17 @@ class _ActionButtons extends StatelessWidget {
           ],
         ),
         SizedBox(height: 12.h),
-        SizedBox(
-          width: double.infinity,
-          child: WActionButton(
-            label: 'Watch Trailer',
-            icon: Icons.play_arrow_rounded,
-            filled: false,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Opening trailer...')),
-              );
-            },
-            outlinedBackgroundColor: context.colors.surfaceOverlay,
-            filledBackgroundColor: context.colors.accentRed,
+        if (trailerKey != null)
+          _TrailerButton(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => TrailerPlayerScreen(
+                  trailerKey: trailerKey!,
+                  title: movieTitle,
+                ),
+              ),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -365,166 +440,213 @@ class _ActionButtons extends StatelessWidget {
 // ─── Where to watch ───────────────────────────────────────────────────────────
 
 class _WhereToWatchSection extends StatelessWidget {
-  const _WhereToWatchSection();
+  final List<StreamingProvider>? providers;
+  final bool isLoading;
 
-  static const _platforms = [
-    {'name': 'Netflix', 'type': 'Subscription', 'color': 0xFFE50914},
-    {'name': 'Prime Video', 'type': 'Subscription', 'color': 0xFF00A8E1},
-    {'name': 'Disney+', 'type': 'Subscription', 'color': 0xFF0C3492},
-    {'name': 'Apple TV+', 'type': 'Buy / Rent', 'color': 0xFF323234},
-  ];
+  const _WhereToWatchSection({this.providers, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
+    final list = providers ?? const [];
+
+    // Hide when loaded with no providers
+    if (!isLoading && list.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'WATCH NOW',
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.accentRed,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  'Available on ${_platforms.length} platforms',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.foreground,
-                  ),
-                ),
-              ],
-            ),
-            GestureDetector(
-              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Showing all platforms...')),
-              ),
-              child: Text(
-                'Show more >',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.primary,
-                ),
-              ),
-            ),
-          ],
+        Text(
+          'WATCH NOW',
+          style: TextStyle(
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w700,
+            color: context.colors.accentRed,
+            letterSpacing: 1.2,
+          ),
+        ),
+        SizedBox(height: 3.h),
+        Text(
+          isLoading
+              ? 'Checking platforms…'
+              : 'Available on ${list.length} platform${list.length == 1 ? '' : 's'}',
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w700,
+            color: context.colors.foreground,
+          ),
         ),
         SizedBox(height: 12.h),
         SizedBox(
           height: 90.h,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: _platforms.length,
-            separatorBuilder: (_, __) => SizedBox(width: 10.w),
-            itemBuilder: (context, i) {
-              return _ProviderCard(
-                name: _platforms[i]['name']! as String,
-                type: _platforms[i]['type']! as String,
-                color: Color(_platforms[i]['color']! as int),
-              );
-            },
-          ),
+          child: isLoading
+              ? _ProviderSkeletons()
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: list.length,
+                  separatorBuilder: (_, __) => SizedBox(width: 10.w),
+                  itemBuilder: (context, i) => _ProviderCard(provider: list[i]),
+                ),
         ),
       ],
     );
   }
 }
 
-class _ProviderCard extends StatelessWidget {
-  final String name;
-  final String type;
-  final Color color;
+class _ProviderSkeletons extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WShimmer(
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: 4,
+        separatorBuilder: (_, __) => SizedBox(width: 10.w),
+        itemBuilder: (_, __) => Container(
+          width: 98.w,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-  const _ProviderCard({
-    required this.name,
-    required this.type,
-    required this.color,
-  });
+class _ProviderCard extends StatelessWidget {
+  final StreamingProvider provider;
+
+  const _ProviderCard({required this.provider});
+
+  Future<void> _launch() async {
+    final url = provider.webUrl;
+    if (url == null) return;
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _launch,
+      child: Container(
+        width: 98.w,
+        padding: EdgeInsets.all(10.w),
+        decoration: BoxDecoration(
+          color: context.colors.surfaceRaised,
+          borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+          border: Border.all(color: context.colors.borderStrong, width: 0.7),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _ProviderLogo(provider: provider),
+                Icon(Icons.open_in_new_rounded,
+                    size: 13.sp, color: context.colors.mutedSecondaryDeep),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  provider.name,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w700,
+                    color: context.colors.foreground,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 2.h),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: context.colors.surfaceMuted,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                  child: Text(
+                    provider.type,
+                    style: TextStyle(
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.mutedSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProviderLogo extends StatelessWidget {
+  final StreamingProvider provider;
+
+  const _ProviderLogo({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    final assetPath = provider.assetPath;
+    if (assetPath != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8.r),
+        child: Image.asset(
+          assetPath,
+          width: 30.w,
+          height: 30.h,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _FallbackLogo(provider: provider),
+        ),
+      );
+    }
+    if (provider.logoUrl != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8.r),
+        child: Image.network(
+          provider.logoUrl!,
+          width: 30.w,
+          height: 30.h,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _FallbackLogo(provider: provider),
+        ),
+      );
+    }
+    return _FallbackLogo(provider: provider);
+  }
+}
+
+class _FallbackLogo extends StatelessWidget {
+  final StreamingProvider provider;
+
+  const _FallbackLogo({required this.provider});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 98.w,
-      padding: EdgeInsets.all(10.w),
+      width: 30.w,
+      height: 30.h,
       decoration: BoxDecoration(
-        color: context.colors.surfaceRaised,
-        borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
-        border: Border.all(color: context.colors.borderStrong, width: 0.7),
+        color: context.colors.surfaceOverlay,
+        borderRadius: BorderRadius.circular(8.r),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 30.w,
-                height: 30.h,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  name.substring(0, 1),
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    fontFamily: 'Inter',
-                  ),
-                ),
-              ),
-              Icon(Icons.open_in_new_rounded,
-                  size: 13.sp, color: context.colors.mutedSecondaryDeep),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.foreground,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              SizedBox(height: 2.h),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Text(
-                  type,
-                  style: TextStyle(
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.mutedSecondary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+      alignment: Alignment.center,
+      child: Text(
+        provider.name.isNotEmpty ? provider.name[0] : '?',
+        style: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w900,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -533,7 +655,10 @@ class _ProviderCard extends StatelessWidget {
 // ─── Overview ─────────────────────────────────────────────────────────────────
 
 class _OverviewSection extends StatefulWidget {
-  const _OverviewSection();
+  final String? overview;
+  final bool isLoading;
+
+  const _OverviewSection({this.overview, this.isLoading = false});
 
   @override
   State<_OverviewSection> createState() => _OverviewSectionState();
@@ -542,11 +667,11 @@ class _OverviewSection extends StatefulWidget {
 class _OverviewSectionState extends State<_OverviewSection> {
   bool _expanded = false;
 
-  static const _text =
-      'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice. With Commissioner Gordon and Harvey Dent, Batman sets out to dismantle the remaining criminal organizations that plague the streets — but the Joker has far darker plans in store.';
-
   @override
   Widget build(BuildContext context) {
+    final text = widget.overview ?? '';
+    final hasText = text.isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -560,43 +685,61 @@ class _OverviewSectionState extends State<_OverviewSection> {
           ),
         ),
         SizedBox(height: 10.h),
-        AnimatedCrossFade(
-          firstChild: Text(
-            _text,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: context.colors.mutedForeground,
-              height: 1.65,
-              fontFamily: 'Inter',
+        if (widget.isLoading && !hasText)
+          WShimmer(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SkeletonLine(width: double.infinity),
+                SizedBox(height: 6.h),
+                _SkeletonLine(width: double.infinity),
+                SizedBox(height: 6.h),
+                _SkeletonLine(width: 200.w),
+              ],
             ),
-          ),
-          secondChild: Text(
-            _text,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: context.colors.mutedForeground,
-              height: 1.65,
-              fontFamily: 'Inter',
+          )
+        else ...[
+          AnimatedCrossFade(
+            firstChild: Text(
+              text,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: context.colors.mutedForeground,
+                height: 1.65,
+                fontFamily: 'Inter',
+              ),
             ),
-          ),
-          crossFadeState:
-              _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-          duration: const Duration(milliseconds: 200),
-        ),
-        SizedBox(height: 8.h),
-        GestureDetector(
-          onTap: () => setState(() => _expanded = !_expanded),
-          child: Text(
-            _expanded ? 'Read Less' : 'Read More',
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w600,
-              color: context.colors.primary,
+            secondChild: Text(
+              text,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: context.colors.mutedForeground,
+                height: 1.65,
+                fontFamily: 'Inter',
+              ),
             ),
+            crossFadeState: _expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
           ),
-        ),
+          if (hasText) ...[
+            SizedBox(height: 8.h),
+            GestureDetector(
+              onTap: () => setState(() => _expanded = !_expanded),
+              child: Text(
+                _expanded ? 'Read Less' : 'Read More',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.primary,
+                ),
+              ),
+            ),
+          ],
+        ],
       ],
     );
   }
@@ -605,56 +748,24 @@ class _OverviewSectionState extends State<_OverviewSection> {
 // ─── Cast ─────────────────────────────────────────────────────────────────────
 
 class _CastSection extends StatelessWidget {
-  const _CastSection();
+  final List<CastMember>? cast;
+  final bool isLoading;
 
-  static const _castMembers = [
-    {
-      'photo':
-          'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=200&h=200&fit=crop&crop=face',
-      'name': 'Christian Bale',
-      'character': 'Bruce Wayne',
-      'initials': 'CB',
-    },
-    {
-      'photo':
-          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=face',
-      'name': 'Heath Ledger',
-      'character': 'The Joker',
-      'initials': 'HL',
-    },
-    {
-      'photo':
-          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face',
-      'name': 'Aaron Eckhart',
-      'character': 'Harvey Dent',
-      'initials': 'AE',
-    },
-    {
-      'photo':
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face',
-      'name': 'Maggie Gyllenhaal',
-      'character': 'Rachel Dawes',
-      'initials': 'MG',
-    },
-    {
-      'photo':
-          'https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=200&h=200&fit=crop&crop=face',
-      'name': 'Michael Caine',
-      'character': 'Alfred',
-      'initials': 'MC',
-    },
-  ];
+  const _CastSection({this.cast, this.isLoading = false});
 
   static final _fallbackColors = [
-    const Color(0xFF718096), // accentBlueMuted
-    const Color(0xFFEB4B6B), // accentPink
-    const Color(0xFFE0A838), // warning
-    const Color(0xFFE84B57), // accentRed
-    const Color(0xFF8C8C97), // mutedSecondaryAlt
+    const Color(0xFF718096),
+    const Color(0xFFEB4B6B),
+    const Color(0xFFE0A838),
+    const Color(0xFFE84B57),
+    const Color(0xFF8C8C97),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final members = cast ?? const [];
+    if (!isLoading && members.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -670,84 +781,159 @@ class _CastSection extends StatelessWidget {
         SizedBox(height: 12.h),
         SizedBox(
           height: 130.h,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: _castMembers.length,
-            itemBuilder: (context, index) {
-              final member = _castMembers[index];
-              final fallbackColor =
-                  _fallbackColors[index % _fallbackColors.length];
-              return Padding(
-                padding: EdgeInsets.only(right: 16.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 64.w,
-                      height: 64.h,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: context.colors.borderStrong,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: ClipOval(
-                        child: Image.network(
-                          member['photo']!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: fallbackColor,
-                            alignment: Alignment.center,
+          child: isLoading && members.isEmpty
+              ? _CastSkeletons()
+              : ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: members.length,
+                  itemBuilder: (context, index) {
+                    final member = members[index];
+                    final fallbackColor =
+                        _fallbackColors[index % _fallbackColors.length];
+                    return Padding(
+                      padding: EdgeInsets.only(right: 16.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 72.w,
+                            height: 72.h,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: context.colors.borderStrong,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: member.profileUrl != null
+                                  ? Image.network(
+                                      member.profileUrl!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) =>
+                                          _InitialAvatar(
+                                        name: member.name,
+                                        color: fallbackColor,
+                                      ),
+                                    )
+                                  : _InitialAvatar(
+                                      name: member.name,
+                                      color: fallbackColor,
+                                    ),
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          SizedBox(
+                            width: 74.w,
                             child: Text(
-                              member['initials']!,
+                              member.name,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.foreground,
+                                height: 1.3,
                               ),
                             ),
                           ),
-                        ),
+                          SizedBox(height: 3.h),
+                          SizedBox(
+                            width: 74.w,
+                            child: Text(
+                              member.character,
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                color: context.colors.mutedForeground,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 8.h),
-                    SizedBox(
-                      width: 74.w,
-                      child: Text(
-                        member['name']!,
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.foreground,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 3.h),
-                    SizedBox(
-                      width: 74.w,
-                      child: Text(
-                        member['character']!,
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          color: context.colors.mutedForeground,
-                        ),
-                      ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
+    );
+  }
+}
+
+class _InitialAvatar extends StatelessWidget {
+  final String name;
+  final Color color;
+
+  const _InitialAvatar({required this.name, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final initials = name.trim().split(' ').take(2).map((w) => w[0]).join();
+    return Container(
+      color: color,
+      alignment: Alignment.center,
+      child: Text(
+        initials.toUpperCase(),
+        style: TextStyle(
+          fontSize: 16.sp,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class _CastSkeletons extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WShimmer(
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 5,
+        itemBuilder: (_, __) => Padding(
+          padding: EdgeInsets.only(right: 16.w),
+          child: Column(
+            children: [
+              Container(
+                width: 64.w,
+                height: 64.h,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              _SkeletonLine(width: 60.w),
+              SizedBox(height: 4.h),
+              _SkeletonLine(width: 44.w),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Skeleton helper ──────────────────────────────────────────────────────────
+
+class _SkeletonLine extends StatelessWidget {
+  final double width;
+
+  const _SkeletonLine({required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: 12.h,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6.r),
+      ),
     );
   }
 }
@@ -1012,7 +1198,9 @@ class _StarRatingBar extends StatelessWidget {
             child: Icon(
               icon,
               size: size,
-              color: rating >= value - 0.5 ? resolvedStarColor : context.colors.border,
+              color: rating >= value - 0.5
+                  ? resolvedStarColor
+                  : context.colors.border,
             ),
           ),
         );
@@ -1151,6 +1339,67 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ─── Trailer button ───────────────────────────────────────────────────────────
+
+class _TrailerButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _TrailerButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50.h,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFE84B57), Color(0xFFBF2D38)],
+          ),
+          borderRadius: BorderRadius.circular(14.r),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFE84B57).withValues(alpha: 0.38),
+              blurRadius: 22,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(14.r),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14.r),
+            onTap: onTap,
+            splashColor: Colors.white.withValues(alpha: 0.08),
+            highlightColor: Colors.transparent,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.play_circle_fill_rounded,
+                  color: Colors.white,
+                  size: 22.sp,
+                ),
+                SizedBox(width: 10.w),
+                Text(
+                  'WATCH TRAILER',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

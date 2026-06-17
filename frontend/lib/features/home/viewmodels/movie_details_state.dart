@@ -1,4 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:cinemora/features/home/models/tmdb_detail.dart';
+
+enum DetailStatus { initial, loading, loaded, failed }
 
 class MovieDetailsState extends Equatable {
   final bool isInWatchlist;
@@ -6,6 +9,8 @@ class MovieDetailsState extends Equatable {
   final double userRating;
   final bool showAllTags;
   final bool showRatingSuccess;
+  final TmdbMovieDetail? detail;
+  final DetailStatus detailStatus;
 
   const MovieDetailsState({
     this.isInWatchlist = false,
@@ -13,7 +18,11 @@ class MovieDetailsState extends Equatable {
     this.userRating = 5.0,
     this.showAllTags = false,
     this.showRatingSuccess = false,
+    this.detail,
+    this.detailStatus = DetailStatus.initial,
   });
+
+  bool get isDetailLoading => detailStatus == DetailStatus.loading;
 
   MovieDetailsState copyWith({
     bool? isInWatchlist,
@@ -21,6 +30,8 @@ class MovieDetailsState extends Equatable {
     double? userRating,
     bool? showAllTags,
     bool? showRatingSuccess,
+    TmdbMovieDetail? detail,
+    DetailStatus? detailStatus,
   }) {
     return MovieDetailsState(
       isInWatchlist: isInWatchlist ?? this.isInWatchlist,
@@ -28,15 +39,19 @@ class MovieDetailsState extends Equatable {
       userRating: userRating ?? this.userRating,
       showAllTags: showAllTags ?? this.showAllTags,
       showRatingSuccess: showRatingSuccess ?? this.showRatingSuccess,
+      detail: detail ?? this.detail,
+      detailStatus: detailStatus ?? this.detailStatus,
     );
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         isInWatchlist,
         isWatched,
         userRating,
         showAllTags,
         showRatingSuccess,
+        detail,
+        detailStatus,
       ];
 }

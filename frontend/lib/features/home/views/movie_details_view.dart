@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
+import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/movie_details_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/movie_details_state.dart';
 import 'package:cinemora/features/home/widgets/movie_details_content.dart';
@@ -10,22 +11,30 @@ import 'package:cinemora/features/home/widgets/post_rating_bottom_sheet.dart';
 class MovieDetailsView extends StatelessWidget {
   final String movieTitle;
   final String movieImage;
+  final String? backdropImage;
   final String rating;
+  final int? tmdbId;
 
   const MovieDetailsView({
     super.key,
     required this.movieTitle,
     required this.movieImage,
+    this.backdropImage,
     required this.rating,
+    this.tmdbId,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => MovieDetailsCubit(),
+      create: (_) => MovieDetailsCubit(
+        context.read<HomeRepository>(),
+        tmdbId,
+      ),
       child: _MovieDetailsContent(
         movieTitle: movieTitle,
         movieImage: movieImage,
+        backdropImage: backdropImage,
         rating: rating,
       ),
     );
@@ -35,11 +44,13 @@ class MovieDetailsView extends StatelessWidget {
 class _MovieDetailsContent extends StatelessWidget {
   final String movieTitle;
   final String movieImage;
+  final String? backdropImage;
   final String rating;
 
   const _MovieDetailsContent({
     required this.movieTitle,
     required this.movieImage,
+    this.backdropImage,
     required this.rating,
   });
 
@@ -65,7 +76,10 @@ class _MovieDetailsContent extends StatelessWidget {
           body: MovieDetailsContent(
             movieTitle: movieTitle,
             movieImage: movieImage,
+            backdropImage: backdropImage,
             rating: rating,
+            detail: state.detail,
+            isDetailLoading: state.isDetailLoading,
             isInWatchlist: state.isInWatchlist,
             isWatched: state.isWatched,
             userRating: state.userRating,

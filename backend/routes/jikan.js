@@ -8,6 +8,7 @@ const {
   getCharacters,
   getEpisodes,
   getRecommendations,
+  getRelations,
   getGenres,
   search,
 } = require("../controllers/jikanController");
@@ -23,5 +24,6 @@ router.get("/anime/:id", getAnime);
 router.get("/anime/:id/characters", getCharacters);
 router.get("/anime/:id/episodes", getEpisodes);
 router.get("/anime/:id/recommendations", getRecommendations);
+router.get("/anime/:id/relations", getRelations);
 
 module.exports = router;

@@ -118,7 +118,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                 ),
-                SizedBox(height: 64.h),
+                SizedBox(height: 124.h),
               ],
             ),
           ),
@@ -169,7 +169,7 @@ class _WaveBubblePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     const int count = 5;
-    final double r = size.height * 0.12;
+    final double r = size.height * 0.11;
     final double restY = size.height - r;
     final double bigAmp = size.height * 0.55 * amplitudeScale;
     final double smallAmp = size.height * 0.22 * amplitudeScale;

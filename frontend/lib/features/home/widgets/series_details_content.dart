@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/common/widgets/buttons/action_button.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:cinemora/common/widgets/buttons/circle_icon_button.dart';
+import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
 import 'package:cinemora/common/widgets/buttons/pill_chip.dart';
 import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
 import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
@@ -9,6 +11,8 @@ import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
+import 'package:cinemora/features/home/models/tmdb_detail.dart';
+import 'package:cinemora/features/home/views/trailer_player_screen.dart';
 import 'package:cinemora/features/home/widgets/discover_chip.dart';
 import 'package:cinemora/features/home/widgets/rating_meter.dart';
 
@@ -17,10 +21,12 @@ import 'package:cinemora/features/home/widgets/rating_meter.dart';
 class SeriesDetailsContent extends StatelessWidget {
   final String seriesTitle;
   final String seriesImage;
+  final String? backdropImage;
   final String rating;
-  final List<SeriesSeason> seasons;
+  final TmdbTvDetail? detail;
+  final bool isDetailLoading;
 
-  // State
+  final List<SeriesSeason> seasons;
   final int selectedSeasonIndex;
   final bool showInWatchlist;
   final bool isShowWatched;
@@ -32,7 +38,6 @@ class SeriesDetailsContent extends StatelessWidget {
   final List<int> expandedSeasons;
   final bool showRatingSuccess;
 
-  // Callbacks
   final ValueChanged<int> onSeasonSelected;
   final VoidCallback onToggleShowWatchlist;
   final VoidCallback onToggleShowWatched;
@@ -48,7 +53,10 @@ class SeriesDetailsContent extends StatelessWidget {
     super.key,
     required this.seriesTitle,
     required this.seriesImage,
+    this.backdropImage,
     required this.rating,
+    this.detail,
+    this.isDetailLoading = false,
     required this.seasons,
     required this.selectedSeasonIndex,
     required this.showInWatchlist,
@@ -72,7 +80,9 @@ class SeriesDetailsContent extends StatelessWidget {
     required this.onManageRankings,
   });
 
-  SeriesSeason get _currentSeason => seasons[selectedSeasonIndex];
+  SeriesSeason? get _currentSeason => seasons.isNotEmpty
+      ? seasons[selectedSeasonIndex.clamp(0, seasons.length - 1)]
+      : null;
 
   @override
   Widget build(BuildContext context) {
@@ -84,8 +94,13 @@ class SeriesDetailsContent extends StatelessWidget {
           _SeriesHeroHeader(
             seriesTitle: seriesTitle,
             seriesImage: seriesImage,
+            backdropImage: backdropImage,
             rating: rating,
             seasonCount: seasons.length,
+            genres: detail?.genres ?? const [],
+            yearRange: detail?.yearRange,
+            creator: detail?.creator,
+            isLoading: isDetailLoading,
           ),
           SizedBox(height: 20.h),
           Padding(
@@ -98,40 +113,61 @@ class SeriesDetailsContent extends StatelessWidget {
                   isShowWatched: isShowWatched,
                   onToggleShowWatchlist: onToggleShowWatchlist,
                   onToggleShowWatched: onToggleShowWatched,
+                  seriesTitle: seriesTitle,
+                  trailerKey: detail?.trailerKey,
                   context: context,
                 ),
                 SizedBox(height: 16.h),
-                const _WhereToWatchSection(),
-                SizedBox(height: 20.h),
-                Divider(color: context.colors.border),
-                SizedBox(height: 16.h),
-                const _OverviewSection(),
-                SizedBox(height: 20.h),
-                Divider(color: context.colors.border),
-                SizedBox(height: 16.h),
-                _SeasonsSection(
-                  seasons: seasons,
-                  selectedSeasonIndex: selectedSeasonIndex,
-                  currentSeason: _currentSeason,
-                  seasonsInWatchlist: seasonsInWatchlist,
-                  seasonsWatched: seasonsWatched,
-                  episodesWatched: episodesWatched,
-                  seasonRatings: seasonRatings,
-                  expandedSeasons: expandedSeasons,
-                  onSeasonSelected: onSeasonSelected,
-                  onToggleSeasonWatchlist: onToggleSeasonWatchlist,
-                  onToggleSeasonWatched: onToggleSeasonWatched,
-                  onToggleEpisodeWatched: onToggleEpisodeWatched,
-                  onRateSeason: onRateSeason,
-                  onToggleSeasonExpanded: onToggleSeasonExpanded,
+                // Where to watch — hide spacer + divider when section is invisible
+                if (isDetailLoading ||
+                    (detail?.providers.isNotEmpty ?? false)) ...[
+                  _WhereToWatchSection(
+                    providers: detail?.providers,
+                    isLoading: isDetailLoading,
+                  ),
+                  SizedBox(height: 20.h),
+                  Divider(color: context.colors.border),
+                  SizedBox(height: 16.h),
+                ],
+                _OverviewSection(
+                  overview: detail?.overview,
+                  isLoading: isDetailLoading,
                 ),
-                SizedBox(height: 24.h),
+                SizedBox(height: 20.h),
                 Divider(color: context.colors.border),
                 SizedBox(height: 16.h),
-                const _CastSection(),
-                SizedBox(height: 16.h),
-                Divider(color: context.colors.border),
-                SizedBox(height: 16.h),
+                if (seasons.isEmpty && isDetailLoading)
+                  _SeasonsSkeleton()
+                else if (_currentSeason != null)
+                  _SeasonsSection(
+                    seasons: seasons,
+                    selectedSeasonIndex: selectedSeasonIndex,
+                    currentSeason: _currentSeason!,
+                    seasonsInWatchlist: seasonsInWatchlist,
+                    seasonsWatched: seasonsWatched,
+                    episodesWatched: episodesWatched,
+                    seasonRatings: seasonRatings,
+                    expandedSeasons: expandedSeasons,
+                    onSeasonSelected: onSeasonSelected,
+                    onToggleSeasonWatchlist: onToggleSeasonWatchlist,
+                    onToggleSeasonWatched: onToggleSeasonWatched,
+                    onToggleEpisodeWatched: onToggleEpisodeWatched,
+                    onRateSeason: onRateSeason,
+                    onToggleSeasonExpanded: onToggleSeasonExpanded,
+                  ),
+                // Cast — hide spacer + divider when section is invisible
+                if (isDetailLoading || (detail?.cast.isNotEmpty ?? false)) ...[
+                  SizedBox(height: 24.h),
+                  Divider(color: context.colors.border),
+                  SizedBox(height: 16.h),
+                  _CastSection(
+                    cast: detail?.cast,
+                    isLoading: isDetailLoading,
+                  ),
+                  SizedBox(height: 16.h),
+                  Divider(color: context.colors.border),
+                  SizedBox(height: 16.h),
+                ],
                 _ShowRatingSection(
                   showRating: showRating,
                   onRate: onRateShow,
@@ -157,14 +193,24 @@ class SeriesDetailsContent extends StatelessWidget {
 class _SeriesHeroHeader extends StatelessWidget {
   final String seriesTitle;
   final String seriesImage;
+  final String? backdropImage;
   final String rating;
   final int seasonCount;
+  final List<String> genres;
+  final String? yearRange;
+  final String? creator;
+  final bool isLoading;
 
   const _SeriesHeroHeader({
     required this.seriesTitle,
     required this.seriesImage,
+    this.backdropImage,
     required this.rating,
     required this.seasonCount,
+    required this.genres,
+    this.yearRange,
+    this.creator,
+    required this.isLoading,
   });
 
   @override
@@ -175,7 +221,11 @@ class _SeriesHeroHeader extends StatelessWidget {
           height: WSizes.imageDetailsHeroHeight.h,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: NetworkImage(seriesImage),
+              image: NetworkImage(
+                backdropImage != null && backdropImage!.isNotEmpty
+                    ? backdropImage!
+                    : seriesImage,
+              ),
               fit: BoxFit.cover,
             ),
           ),
@@ -235,7 +285,6 @@ class _SeriesHeroHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Badges row
               Row(
                 children: [
                   Container(
@@ -245,7 +294,8 @@ class _SeriesHeroHeader extends StatelessWidget {
                       color: context.colors.tertiary.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(16.r),
                       border: Border.all(
-                          color: context.colors.tertiary.withValues(alpha: 0.4)),
+                          color:
+                              context.colors.tertiary.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       children: [
@@ -268,10 +318,12 @@ class _SeriesHeroHeader extends StatelessWidget {
                     padding:
                         EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
                     decoration: BoxDecoration(
-                      color: context.colors.accentPurple.withValues(alpha: 0.22),
+                      color:
+                          context.colors.accentPurple.withValues(alpha: 0.22),
                       borderRadius: BorderRadius.circular(16.r),
                       border: Border.all(
-                          color: context.colors.accentPurple.withValues(alpha: 0.45)),
+                          color: context.colors.accentPurple
+                              .withValues(alpha: 0.45)),
                     ),
                     child: Text(
                       'SERIES',
@@ -284,13 +336,27 @@ class _SeriesHeroHeader extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 8.w),
-                  const Expanded(
+                  Expanded(
                     child: Row(
-                      children: [
-                        WPillChip(text: 'Fantasy'),
-                        SizedBox(width: 6),
-                        WPillChip(text: 'Drama'),
-                      ],
+                      children: genres.isNotEmpty
+                          ? genres
+                              .take(2)
+                              .map((g) => Padding(
+                                    padding: EdgeInsets.only(right: 6.w),
+                                    child: WPillChip(text: g),
+                                  ))
+                              .toList()
+                          : [
+                              if (isLoading)
+                                Container(
+                                  width: 50.w,
+                                  height: 20.h,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                ),
+                            ],
                     ),
                   ),
                 ],
@@ -309,35 +375,47 @@ class _SeriesHeroHeader extends StatelessWidget {
               SizedBox(height: 5.h),
               Row(
                 children: [
-                  Icon(Icons.layers_rounded,
-                      size: 13.sp, color: context.colors.mutedSecondary),
-                  SizedBox(width: 4.w),
-                  Text(
-                    '$seasonCount Season${seasonCount > 1 ? 's' : ''}',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      color: context.colors.mutedForeground,
-                      fontWeight: FontWeight.w600,
+                  if (seasonCount > 0) ...[
+                    Icon(Icons.layers_rounded,
+                        size: 13.sp, color: context.colors.mutedSecondary),
+                    SizedBox(width: 4.w),
+                    Text(
+                      '$seasonCount Season${seasonCount > 1 ? 's' : ''}',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: context.colors.mutedForeground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  Text(
-                    '  •  2022 – Present',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      color: context.colors.mutedForeground,
+                    if (yearRange != null && yearRange!.isNotEmpty)
+                      Text(
+                        '  •  $yearRange',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: context.colors.mutedForeground,
+                        ),
+                      ),
+                  ] else if (yearRange != null && yearRange!.isNotEmpty)
+                    Text(
+                      yearRange!,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: context.colors.mutedForeground,
+                      ),
                     ),
-                  ),
                 ],
               ),
-              SizedBox(height: 2.h),
-              Text(
-                'Created by Ryan Condal',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: context.colors.mutedSecondaryDeep,
-                  fontFamily: 'Inter',
+              if (creator != null && creator!.isNotEmpty) ...[
+                SizedBox(height: 2.h),
+                Text(
+                  'Created by $creator',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: context.colors.mutedSecondaryDeep,
+                    fontFamily: 'Inter',
+                  ),
                 ),
-              ),
+              ],
               SizedBox(height: WSizes.sectionSpaceLg.h),
             ],
           ),
@@ -354,6 +432,8 @@ class _ShowActionButtons extends StatelessWidget {
   final bool isShowWatched;
   final VoidCallback onToggleShowWatchlist;
   final VoidCallback onToggleShowWatched;
+  final String seriesTitle;
+  final String? trailerKey;
   final BuildContext context;
 
   const _ShowActionButtons({
@@ -361,7 +441,9 @@ class _ShowActionButtons extends StatelessWidget {
     required this.isShowWatched,
     required this.onToggleShowWatchlist,
     required this.onToggleShowWatched,
+    required this.seriesTitle,
     required this.context,
+    this.trailerKey,
   });
 
   @override
@@ -378,8 +460,10 @@ class _ShowActionButtons extends StatelessWidget {
                 selectedIcon: Icons.bookmark_rounded,
                 unselectedIcon: Icons.bookmark_add_outlined,
                 onTap: onToggleShowWatchlist,
-                selectedBackground: context.colors.primary.withValues(alpha: 0.14),
-                unselectedBackground: context.colors.accentRed.withValues(alpha: 0.9),
+                selectedBackground:
+                    context.colors.primary.withValues(alpha: 0.14),
+                unselectedBackground:
+                    context.colors.accentRed.withValues(alpha: 0.9),
                 selectedBorder: context.colors.primary,
                 unselectedBorder: context.colors.border,
                 selectedForeground: context.colors.primary,
@@ -395,7 +479,8 @@ class _ShowActionButtons extends StatelessWidget {
                 selectedIcon: Icons.check_circle_rounded,
                 unselectedIcon: Icons.check_circle_outline_rounded,
                 onTap: onToggleShowWatched,
-                selectedBackground: context.colors.success.withValues(alpha: 0.1),
+                selectedBackground:
+                    context.colors.success.withValues(alpha: 0.1),
                 unselectedBackground:
                     context.colors.surfaceOverlay.withValues(alpha: 0.15),
                 selectedBorder: context.colors.success,
@@ -406,20 +491,19 @@ class _ShowActionButtons extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 12.h),
-        SizedBox(
-          width: double.infinity,
-          child: WActionButton(
-            label: 'Watch Trailer',
-            icon: Icons.play_arrow_rounded,
-            filled: false,
-            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Opening trailer...')),
+        if (trailerKey != null) ...[
+          SizedBox(height: 12.h),
+          _TrailerButton(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => TrailerPlayerScreen(
+                  trailerKey: trailerKey!,
+                  title: seriesTitle,
+                ),
+              ),
             ),
-            outlinedBackgroundColor: context.colors.surfaceOverlay,
-            filledBackgroundColor: context.colors.accentRed,
           ),
-        ),
+        ],
       ],
     );
   }
@@ -428,189 +512,211 @@ class _ShowActionButtons extends StatelessWidget {
 // ─── Where to watch ───────────────────────────────────────────────────────────
 
 class _WhereToWatchSection extends StatelessWidget {
-  const _WhereToWatchSection();
+  final List<StreamingProvider>? providers;
+  final bool isLoading;
 
-  static const _platforms = [
-    {
-      'name': 'Netflix',
-      'type': 'Subscription',
-      'detail': 'Season 1–5',
-      'color': 0xFFE50914,
-    },
-    {
-      'name': 'Prime Video',
-      'type': 'Buy / Rent',
-      'detail': 'Individual Seasons',
-      'color': 0xFF00A8E1,
-    },
-    {
-      'name': 'JioHotstar',
-      'type': 'Subscription',
-      'detail': 'All Seasons',
-      'color': 0xFF7B2FBE,
-    },
-    {
-      'name': 'Apple TV+',
-      'type': 'Buy / Rent',
-      'detail': 'HD Available',
-      'color': 0xFF323234,
-    },
-  ];
+  const _WhereToWatchSection({this.providers, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
+    final list = providers ?? const [];
+    if (!isLoading && list.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'WATCH NOW',
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.accentRed,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  'Available on ${_platforms.length} platforms',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.foreground,
-                  ),
-                ),
-              ],
-            ),
-            GestureDetector(
-              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Showing all platforms...')),
-              ),
-              child: Text(
-                'Show more >',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.primary,
-                ),
-              ),
-            ),
-          ],
+        Text(
+          'WATCH NOW',
+          style: TextStyle(
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w700,
+            color: context.colors.accentRed,
+            letterSpacing: 1.2,
+          ),
+        ),
+        SizedBox(height: 3.h),
+        Text(
+          isLoading
+              ? 'Checking platforms…'
+              : 'Available on ${list.length} platform${list.length == 1 ? '' : 's'}',
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w700,
+            color: context.colors.foreground,
+          ),
         ),
         SizedBox(height: 12.h),
         SizedBox(
           height: 90.h,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: _platforms.length,
-            separatorBuilder: (_, __) => SizedBox(width: 10.w),
-            itemBuilder: (context, i) {
-              return _ProviderCard(
-                name: _platforms[i]['name']! as String,
-                type: _platforms[i]['type']! as String,
-                detail: _platforms[i]['detail']! as String,
-                color: Color(_platforms[i]['color']! as int),
-              );
-            },
-          ),
+          child: isLoading
+              ? _ProviderSkeletons()
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: list.length,
+                  separatorBuilder: (_, __) => SizedBox(width: 10.w),
+                  itemBuilder: (context, i) => _ProviderCard(provider: list[i]),
+                ),
         ),
       ],
     );
   }
 }
 
-class _ProviderCard extends StatelessWidget {
-  final String name;
-  final String type;
-  final String detail;
-  final Color color;
+class _ProviderSkeletons extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WShimmer(
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: 4,
+        separatorBuilder: (_, __) => SizedBox(width: 10.w),
+        itemBuilder: (_, __) => Container(
+          width: 98.w,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-  const _ProviderCard({
-    required this.name,
-    required this.type,
-    required this.detail,
-    required this.color,
-  });
+class _ProviderCard extends StatelessWidget {
+  final StreamingProvider provider;
+
+  const _ProviderCard({required this.provider});
+
+  Future<void> _launch() async {
+    final url = provider.webUrl;
+    if (url == null) return;
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _launch,
+      child: Container(
+        width: 98.w,
+        padding: EdgeInsets.all(10.w),
+        decoration: BoxDecoration(
+          color: context.colors.surfaceRaised,
+          borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+          border: Border.all(color: context.colors.borderStrong, width: 0.7),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _ProviderLogo(provider: provider),
+                Icon(Icons.open_in_new_rounded,
+                    size: 13.sp, color: context.colors.mutedSecondaryDeep),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  provider.name,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w700,
+                    color: context.colors.foreground,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 2.h),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: context.colors.surfaceMuted,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                  child: Text(
+                    provider.type,
+                    style: TextStyle(
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.mutedSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProviderLogo extends StatelessWidget {
+  final StreamingProvider provider;
+
+  const _ProviderLogo({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    final assetPath = provider.assetPath;
+    if (assetPath != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8.r),
+        child: Image.asset(
+          assetPath,
+          width: 30.w,
+          height: 30.h,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _FallbackLogo(provider: provider),
+        ),
+      );
+    }
+    if (provider.logoUrl != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8.r),
+        child: Image.network(
+          provider.logoUrl!,
+          width: 30.w,
+          height: 30.h,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _FallbackLogo(provider: provider),
+        ),
+      );
+    }
+    return _FallbackLogo(provider: provider);
+  }
+}
+
+class _FallbackLogo extends StatelessWidget {
+  final StreamingProvider provider;
+
+  const _FallbackLogo({required this.provider});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 98.w,
-      padding: EdgeInsets.all(10.w),
+      width: 30.w,
+      height: 30.h,
       decoration: BoxDecoration(
-        color: context.colors.surfaceRaised,
-        borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
-        border: Border.all(color: context.colors.borderStrong, width: 0.7),
+        color: context.colors.surfaceOverlay,
+        borderRadius: BorderRadius.circular(8.r),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 30.w,
-                height: 30.h,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  name.substring(0, 1),
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    fontFamily: 'Inter',
-                  ),
-                ),
-              ),
-              Icon(Icons.open_in_new_rounded,
-                  size: 13.sp, color: context.colors.mutedSecondaryDeep),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.foreground,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              SizedBox(height: 2.h),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Text(
-                  type,
-                  style: TextStyle(
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.mutedSecondary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+      alignment: Alignment.center,
+      child: Text(
+        provider.name.isNotEmpty ? provider.name[0] : '?',
+        style: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w900,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -619,7 +725,10 @@ class _ProviderCard extends StatelessWidget {
 // ─── Overview ─────────────────────────────────────────────────────────────────
 
 class _OverviewSection extends StatefulWidget {
-  const _OverviewSection();
+  final String? overview;
+  final bool isLoading;
+
+  const _OverviewSection({this.overview, this.isLoading = false});
 
   @override
   State<_OverviewSection> createState() => _OverviewSectionState();
@@ -628,11 +737,11 @@ class _OverviewSection extends StatefulWidget {
 class _OverviewSectionState extends State<_OverviewSection> {
   bool _expanded = false;
 
-  static const _text =
-      'The reign of House Targaryen begins with a succession crisis following the death of King Viserys I. Factions form around his daughter Rhaenyra and his second wife Alicent Hightower, threatening to tear the realm apart in a brutal civil war known as the Dance of the Dragons — a conflict that will change Westeros forever.';
-
   @override
   Widget build(BuildContext context) {
+    final text = widget.overview ?? '';
+    final hasText = text.isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -645,42 +754,106 @@ class _OverviewSectionState extends State<_OverviewSection> {
           ),
         ),
         SizedBox(height: 10.h),
-        AnimatedCrossFade(
-          firstChild: Text(
-            _text,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: context.colors.mutedForeground,
-              height: 1.65,
+        if (widget.isLoading && !hasText)
+          WShimmer(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SkeletonLine(width: double.infinity),
+                SizedBox(height: 6.h),
+                _SkeletonLine(width: double.infinity),
+                SizedBox(height: 6.h),
+                _SkeletonLine(width: 200.w),
+              ],
             ),
-          ),
-          secondChild: Text(
-            _text,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: context.colors.mutedForeground,
-              height: 1.65,
+          )
+        else ...[
+          AnimatedCrossFade(
+            firstChild: Text(
+              text,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: context.colors.mutedForeground,
+                height: 1.65,
+              ),
             ),
-          ),
-          crossFadeState:
-              _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-          duration: const Duration(milliseconds: 200),
-        ),
-        SizedBox(height: 8.h),
-        GestureDetector(
-          onTap: () => setState(() => _expanded = !_expanded),
-          child: Text(
-            _expanded ? 'Read Less' : 'Read More',
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w600,
-              color: context.colors.primary,
+            secondChild: Text(
+              text,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: context.colors.mutedForeground,
+                height: 1.65,
+              ),
             ),
+            crossFadeState: _expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
           ),
-        ),
+          if (hasText) ...[
+            SizedBox(height: 8.h),
+            GestureDetector(
+              onTap: () => setState(() => _expanded = !_expanded),
+              child: Text(
+                _expanded ? 'Read Less' : 'Read More',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.primary,
+                ),
+              ),
+            ),
+          ],
+        ],
       ],
+    );
+  }
+}
+
+// ─── Seasons skeleton ─────────────────────────────────────────────────────────
+
+class _SeasonsSkeleton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WShimmer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _SkeletonLine(width: 70.w),
+              SizedBox(width: 8.w),
+              Container(
+                width: 24.w,
+                height: 18.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(999.r),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 14.h),
+          Row(
+            children: List.generate(
+              3,
+              (i) => Padding(
+                padding: EdgeInsets.only(right: 8.w),
+                child: Container(
+                  width: 80.w,
+                  height: 48.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -761,7 +934,6 @@ class _SeasonsSection extends StatelessWidget {
           ],
         ),
         SizedBox(height: 14.h),
-        // Season tabs
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
@@ -778,7 +950,9 @@ class _SeasonsSection extends StatelessWidget {
                     padding:
                         EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
                     decoration: BoxDecoration(
-                      color: selected ? context.colors.primary : context.colors.surfaceChip,
+                      color: selected
+                          ? context.colors.primary
+                          : context.colors.surfaceChip,
                       borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
                       border: Border.all(
                         color: selected
@@ -788,7 +962,8 @@ class _SeasonsSection extends StatelessWidget {
                       boxShadow: selected
                           ? [
                               BoxShadow(
-                                color: context.colors.primary.withValues(alpha: 0.35),
+                                color: context.colors.primary
+                                    .withValues(alpha: 0.35),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -828,7 +1003,6 @@ class _SeasonsSection extends StatelessWidget {
           ),
         ),
         SizedBox(height: 14.h),
-        // Season card
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
@@ -873,7 +1047,6 @@ class _SeasonsSection extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // Season rating badge
                     Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
@@ -881,7 +1054,8 @@ class _SeasonsSection extends StatelessWidget {
                         color: context.colors.tertiary.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(14.r),
                         border: Border.all(
-                            color: context.colors.tertiary.withValues(alpha: 0.35)),
+                            color: context.colors.tertiary
+                                .withValues(alpha: 0.35)),
                       ),
                       child: Row(
                         children: [
@@ -903,7 +1077,6 @@ class _SeasonsSection extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 14.h),
-              // Season action buttons
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Row(
@@ -949,7 +1122,6 @@ class _SeasonsSection extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 16.h),
-              // Episodes header
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Row(
@@ -965,7 +1137,8 @@ class _SeasonsSection extends StatelessWidget {
                     ),
                     SizedBox(width: 8.w),
                     Expanded(
-                        child: Container(height: 1, color: context.colors.border)),
+                        child:
+                            Container(height: 1, color: context.colors.border)),
                   ],
                 ),
               ),
@@ -1140,7 +1313,9 @@ class _EpisodeRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w700,
-                  color: watched ? context.colors.success : context.colors.mutedSecondaryDeep,
+                  color: watched
+                      ? context.colors.success
+                      : context.colors.mutedSecondaryDeep,
                 ),
               ),
             ),
@@ -1153,7 +1328,9 @@ class _EpisodeRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w500,
-                  color: watched ? context.colors.mutedSecondary : context.colors.foreground,
+                  color: watched
+                      ? context.colors.mutedSecondary
+                      : context.colors.foreground,
                   decoration: watched ? TextDecoration.lineThrough : null,
                   decorationColor: context.colors.mutedSecondary,
                 ),
@@ -1177,7 +1354,9 @@ class _EpisodeRow extends StatelessWidget {
                     : Icons.radio_button_unchecked_rounded,
                 key: ValueKey(watched),
                 size: 20.sp,
-                color: watched ? context.colors.success : context.colors.mutedSecondaryDeep,
+                color: watched
+                    ? context.colors.success
+                    : context.colors.mutedSecondaryDeep,
               ),
             ),
           ],
@@ -1213,7 +1392,7 @@ class _SeasonRatingDivider extends StatelessWidget {
   }
 }
 
-// ─── Season rating (compact) ──────────────────────────────────────────────────
+// ─── Season rating ────────────────────────────────────────────────────────────
 
 class _SeasonRatingSection extends StatelessWidget {
   final int seasonNumber;
@@ -1230,8 +1409,9 @@ class _SeasonRatingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasRated = rating > 0;
     final displayRating = hasRated ? rating : 0.0;
-    final ratingColor =
-        hasRated ? ratingColorFor(displayRating) : context.colors.mutedSecondaryDeep;
+    final ratingColor = hasRated
+        ? ratingColorFor(displayRating)
+        : context.colors.mutedSecondaryDeep;
     final ratingLabel =
         hasRated ? ratingLabelFor(displayRating) : 'Tap to rate';
 
@@ -1341,56 +1521,24 @@ class _CompactStarBar extends StatelessWidget {
 // ─── Cast ─────────────────────────────────────────────────────────────────────
 
 class _CastSection extends StatelessWidget {
-  const _CastSection();
+  final List<CastMember>? cast;
+  final bool isLoading;
 
-  static const _castMembers = [
-    {
-      'photo':
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face',
-      'name': 'Paddy Considine',
-      'role': 'Viserys I',
-      'initials': 'PC',
-    },
-    {
-      'photo':
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face',
-      'name': 'Emma D\'Arcy',
-      'role': 'Rhaenyra',
-      'initials': 'ED',
-    },
-    {
-      'photo':
-          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face',
-      'name': 'Matt Smith',
-      'role': 'Daemon',
-      'initials': 'MS',
-    },
-    {
-      'photo':
-          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face',
-      'name': 'Olivia Cooke',
-      'role': 'Alicent',
-      'initials': 'OC',
-    },
-    {
-      'photo':
-          'https://images.unsplash.com/photo-1552058544-f2b08422138a?w=200&h=200&fit=crop&crop=face',
-      'name': 'Rhys Ifans',
-      'role': 'Otto Hightower',
-      'initials': 'RI',
-    },
-  ];
+  const _CastSection({this.cast, this.isLoading = false});
 
   static final _fallbackColors = [
-    const Color(0xFF718096), // accentBlueMuted
-    const Color(0xFFEB4B6B), // accentPink
-    const Color(0xFFE0A838), // warning
-    const Color(0xFFE84B57), // accentRed
-    const Color(0xFF8C8C97), // mutedSecondaryAlt
+    const Color(0xFF718096),
+    const Color(0xFFEB4B6B),
+    const Color(0xFFE0A838),
+    const Color(0xFFE84B57),
+    const Color(0xFF8C8C97),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final members = cast ?? const [];
+    if (!isLoading && members.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1405,82 +1553,158 @@ class _CastSection extends StatelessWidget {
         SizedBox(height: 12.h),
         SizedBox(
           height: 130.h,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: _castMembers.length,
-            itemBuilder: (context, i) {
-              final member = _castMembers[i];
-              final fallbackColor = _fallbackColors[i % _fallbackColors.length];
-              return Padding(
-                padding: EdgeInsets.only(right: 16.w),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 64.w,
-                      height: 64.h,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: context.colors.borderStrong,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: ClipOval(
-                        child: Image.network(
-                          member['photo']!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: fallbackColor,
-                            alignment: Alignment.center,
+          child: isLoading && members.isEmpty
+              ? _CastSkeletons()
+              : ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: members.length,
+                  itemBuilder: (context, i) {
+                    final member = members[i];
+                    final fallbackColor =
+                        _fallbackColors[i % _fallbackColors.length];
+                    return Padding(
+                      padding: EdgeInsets.only(right: 16.w),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 72.w,
+                            height: 72.h,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: context.colors.borderStrong,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: member.profileUrl != null
+                                  ? Image.network(
+                                      member.profileUrl!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) =>
+                                          _InitialAvatar(
+                                        name: member.name,
+                                        color: fallbackColor,
+                                      ),
+                                    )
+                                  : _InitialAvatar(
+                                      name: member.name,
+                                      color: fallbackColor,
+                                    ),
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          SizedBox(
+                            width: 74.w,
                             child: Text(
-                              member['initials']!,
+                              member.name,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.foreground,
+                                height: 1.3,
                               ),
                             ),
                           ),
-                        ),
+                          SizedBox(height: 3.h),
+                          SizedBox(
+                            width: 74.w,
+                            child: Text(
+                              member.character,
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                color: context.colors.mutedForeground,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 8.h),
-                    SizedBox(
-                      width: 74.w,
-                      child: Text(
-                        member['name']!,
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.foreground,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 3.h),
-                    SizedBox(
-                      width: 74.w,
-                      child: Text(
-                        member['role']!,
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          color: context.colors.mutedForeground,
-                        ),
-                      ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
+    );
+  }
+}
+
+class _InitialAvatar extends StatelessWidget {
+  final String name;
+  final Color color;
+
+  const _InitialAvatar({required this.name, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final initials = name.trim().split(' ').take(2).map((w) => w[0]).join();
+    return Container(
+      color: color,
+      alignment: Alignment.center,
+      child: Text(
+        initials.toUpperCase(),
+        style: TextStyle(
+          fontSize: 16.sp,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class _CastSkeletons extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WShimmer(
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 5,
+        itemBuilder: (_, __) => Padding(
+          padding: EdgeInsets.only(right: 16.w),
+          child: Column(
+            children: [
+              Container(
+                width: 64.w,
+                height: 64.h,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              _SkeletonLine(width: 60.w),
+              SizedBox(height: 4.h),
+              _SkeletonLine(width: 44.w),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Skeleton line ────────────────────────────────────────────────────────────
+
+class _SkeletonLine extends StatelessWidget {
+  final double width;
+
+  const _SkeletonLine({required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: 12.h,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6.r),
+      ),
     );
   }
 }
@@ -1658,8 +1882,8 @@ class _RatingSuccessChip extends StatelessWidget {
               children: [
                 Text(
                   'Added to',
-                  style:
-                      TextStyle(fontSize: 10.sp, color: context.colors.mutedSecondary),
+                  style: TextStyle(
+                      fontSize: 10.sp, color: context.colors.mutedSecondary),
                 ),
                 SizedBox(height: 1.h),
                 Text(
@@ -1738,7 +1962,9 @@ class _FullStarBar extends StatelessWidget {
             child: Icon(
               icon,
               size: size,
-              color: rating >= value - 0.5 ? resolvedStarColor : context.colors.border,
+              color: rating >= value - 0.5
+                  ? resolvedStarColor
+                  : context.colors.border,
             ),
           ),
         );
@@ -1871,6 +2097,67 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ─── Trailer button ───────────────────────────────────────────────────────────
+
+class _TrailerButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _TrailerButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50.h,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFE84B57), Color(0xFFBF2D38)],
+          ),
+          borderRadius: BorderRadius.circular(14.r),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFE84B57).withValues(alpha: 0.38),
+              blurRadius: 22,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(14.r),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14.r),
+            onTap: onTap,
+            splashColor: Colors.white.withValues(alpha: 0.08),
+            highlightColor: Colors.transparent,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.play_circle_fill_rounded,
+                  color: Colors.white,
+                  size: 22.sp,
+                ),
+                SizedBox(width: 10.w),
+                Text(
+                  'WATCH TRAILER',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -10,6 +10,14 @@ const getTop = async (req, res) => {
   if (!validTypes.includes(type)) return res.status(400).json({ error: "Invalid type" });
 
   const data = await jikan.get("/top/anime", { filter, type, page, limit }, jikan.TTL.topAiring);
+
+  const now = new Date();
+  data.data = data.data.filter((item) => {
+    const dateStr = item.aired?.from;
+    if (!dateStr) return false;
+    return new Date(dateStr) <= now;
+  });
+
   res.json(data);
 };
 
@@ -57,6 +65,12 @@ const getRecommendations = async (req, res) => {
   res.json(data);
 };
 
+// GET /api/jikan/anime/:id/relations
+const getRelations = async (req, res) => {
+  const data = await jikan.get(`/anime/${req.params.id}/relations`);
+  res.json(data);
+};
+
 // GET /api/jikan/genres
 const getGenres = async (req, res) => {
   const data = await jikan.get("/genres/anime", {}, jikan.TTL.genres);
@@ -87,6 +101,7 @@ module.exports = {
   getCharacters,
   getEpisodes,
   getRecommendations,
+  getRelations,
   getGenres,
   search,
 };

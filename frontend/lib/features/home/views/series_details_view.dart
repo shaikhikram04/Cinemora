@@ -2,77 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
-import 'package:cinemora/features/home/models/series_season.dart';
+import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/series_details_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/series_details_state.dart';
 import 'package:cinemora/features/home/widgets/post_rating_bottom_sheet.dart';
 import 'package:cinemora/features/home/widgets/series_details_content.dart';
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-
-const _kSeriesSeasons = [
-  SeriesSeason(
-    number: 1,
-    year: '2022',
-    rating: '8.5',
-    episodes: [
-      SeriesEpisode(
-          number: 1, title: 'The Heirs of the Dragon', runtime: '66m'),
-      SeriesEpisode(number: 2, title: 'The Rogue Prince', runtime: '54m'),
-      SeriesEpisode(number: 3, title: 'Second of His Name', runtime: '56m'),
-      SeriesEpisode(number: 4, title: 'King of the Narrow Sea', runtime: '58m'),
-      SeriesEpisode(number: 5, title: 'We Light the Way', runtime: '53m'),
-      SeriesEpisode(
-          number: 6, title: 'The Princess and the Queen', runtime: '58m'),
-      SeriesEpisode(number: 7, title: 'Driftmark', runtime: '55m'),
-      SeriesEpisode(number: 8, title: 'The Lord of the Tides', runtime: '68m'),
-      SeriesEpisode(number: 9, title: 'The Green Council', runtime: '60m'),
-      SeriesEpisode(number: 10, title: 'The Black Queen', runtime: '69m'),
-    ],
-  ),
-  SeriesSeason(
-    number: 2,
-    year: '2024',
-    rating: '7.9',
-    episodes: [
-      SeriesEpisode(number: 1, title: 'A Son for a Son', runtime: '60m'),
-      SeriesEpisode(number: 2, title: 'Rhaenyra the Cruel', runtime: '57m'),
-      SeriesEpisode(number: 3, title: 'The Burning Mill', runtime: '55m'),
-      SeriesEpisode(
-          number: 4, title: 'The Red Dragon and the Gold', runtime: '59m'),
-      SeriesEpisode(number: 5, title: 'Regent', runtime: '57m'),
-      SeriesEpisode(number: 6, title: 'Smallfolk', runtime: '62m'),
-      SeriesEpisode(number: 7, title: 'The Red Sowing', runtime: '58m'),
-      SeriesEpisode(number: 8, title: 'The Meaning of Kings', runtime: '60m'),
-    ],
-  ),
-];
-
-// ─── View ─────────────────────────────────────────────────────────────────────
-
 class SeriesDetailsView extends StatelessWidget {
   final String seriesTitle;
   final String seriesImage;
+  final String? backdropImage;
   final String rating;
-  final List<SeriesSeason> seasons;
+  final int? id;
+  final String source;
 
   const SeriesDetailsView({
     super.key,
     required this.seriesTitle,
     required this.seriesImage,
+    this.backdropImage,
     required this.rating,
-    this.seasons = _kSeriesSeasons,
+    this.id,
+    this.source = 'tmdb',
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => SeriesDetailsCubit(seasons: seasons),
+      create: (_) => SeriesDetailsCubit(
+        repo: context.read<HomeRepository>(),
+        id: id,
+        source: source,
+      ),
       child: _SeriesDetailsContent(
         seriesTitle: seriesTitle,
         seriesImage: seriesImage,
+        backdropImage: backdropImage,
         rating: rating,
-        seasons: seasons,
       ),
     );
   }
@@ -81,14 +47,14 @@ class SeriesDetailsView extends StatelessWidget {
 class _SeriesDetailsContent extends StatelessWidget {
   final String seriesTitle;
   final String seriesImage;
+  final String? backdropImage;
   final String rating;
-  final List<SeriesSeason> seasons;
 
   const _SeriesDetailsContent({
     required this.seriesTitle,
     required this.seriesImage,
+    this.backdropImage,
     required this.rating,
-    required this.seasons,
   });
 
   void _openSeasonRatingSheet(
@@ -126,12 +92,16 @@ class _SeriesDetailsContent extends StatelessWidget {
     return BlocBuilder<SeriesDetailsCubit, SeriesDetailsState>(
       builder: (context, state) {
         final cubit = context.read<SeriesDetailsCubit>();
+        final seasons = state.seasons;
         return Scaffold(
           backgroundColor: context.colors.background,
           body: SeriesDetailsContent(
             seriesTitle: seriesTitle,
             seriesImage: seriesImage,
+            backdropImage: backdropImage,
             rating: rating,
+            detail: state.detail,
+            isDetailLoading: state.isDetailLoading,
             seasons: seasons,
             selectedSeasonIndex: state.selectedSeasonIndex,
             showInWatchlist: state.showInWatchlist,
@@ -149,13 +119,11 @@ class _SeriesDetailsContent extends StatelessWidget {
             onToggleSeasonWatchlist: cubit.toggleSeasonWatchlist,
             onToggleSeasonWatched: cubit.toggleSeasonWatched,
             onToggleEpisodeWatched: cubit.toggleEpisodeWatched,
-            onRateSeason: (seasonNumber, rating) {
-              cubit.rateSeason(seasonNumber, rating);
-              _openSeasonRatingSheet(context, seasonNumber, rating);
+            onRateSeason: (seasonNumber, r) {
+              cubit.rateSeason(seasonNumber, r);
+              _openSeasonRatingSheet(context, seasonNumber, r);
             },
-            onRateShow: (rating) {
-              cubit.rateShow(rating);
-            },
+            onRateShow: cubit.rateShow,
             onToggleSeasonExpanded: cubit.toggleSeasonExpanded,
             onManageRankings: () => _openShowRankingsSheet(context, state),
           ),

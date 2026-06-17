@@ -10,10 +10,10 @@ const jikan = axios.create({
 });
 
 const TTL = {
-  topAiring: 60 * 60,        // 1 hour
-  seasons: 60 * 60 * 6,      // 6 hours
-  details: 60 * 60 * 24,     // 24 hours
-  genres: 60 * 60 * 24 * 7,  // 7 days
+  topAiring: 60 * 60, // 1 hour
+  seasons: 60 * 60 * 6, // 6 hours
+  details: 60 * 60 * 24, // 24 hours
+  genres: 60 * 60 * 24 * 7, // 7 days
 };
 
 const get = async (path, params = {}, ttl = TTL.details) => {

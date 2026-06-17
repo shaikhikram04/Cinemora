@@ -87,7 +87,7 @@ class WSizes {
   static const double cardElevationLg = 10.0;
 
   //* Image carousel height
-  static const double imageCarouselHeight = 262.0;
+  static const double imageCarouselHeight = 268.0;
 
   //* Loading indicator size
   static const double loadingIndicatorSize = 36.0;

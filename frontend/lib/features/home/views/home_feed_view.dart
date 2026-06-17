@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
 import 'package:cinemora/common/widgets/buttons/action_button.dart';
 import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:cinemora/common/widgets/headers/section_header.dart';
@@ -10,122 +11,19 @@ import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/home/models/movie_poster.dart';
+import 'package:cinemora/features/home/models/tmdb_item.dart';
+import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
 import 'package:cinemora/features/watch_together/widgets/watch_together_card.dart';
 
-// ── Static content (not business state) ───────────────────────────────────────
-
-const _kHeroImage =
-    'https://images.unsplash.com/photo-1612036781124-847f8939b154?auto=format&fit=crop&w=1200&q=80';
-
-const _kProfileImage =
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80';
-
-const _kTrending = [
-  MoviePoster(
-    title: 'Inception',
-    rating: '8.8',
-    image:
-        'https://images.unsplash.com/photo-1612036781124-847f8939b154?auto=format&fit=crop&w=700&q=80',
-  ),
-  MoviePoster(
-    title: 'The Dark Knight',
-    rating: '9',
-    image:
-        'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?q=80&w=687&auto=format&fit=crop',
-  ),
-  MoviePoster(
-    title: 'Dune: Part Two',
-    rating: '8.7',
-    image:
-        'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=700&q=80',
-  ),
-];
-
-const _kAnime = [
-  MoviePoster(
-    title: 'Attack on Titan',
-    rating: '9.1',
-    tag: 'Anime',
-    actionAdded: true,
-    image:
-        'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a0b9?auto=format&fit=crop&w=700&q=80',
-  ),
-  MoviePoster(
-    title: 'Fullmetal Alchemist',
-    rating: '9.1',
-    tag: 'Anime',
-    image:
-        'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=700&q=80',
-  ),
-  MoviePoster(
-    title: 'Steins;Gate',
-    rating: '9.1',
-    tag: 'Anime',
-    image:
-        'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=700&q=80',
-  ),
-];
-
-const _kSeries = [
-  MoviePoster(
-    title: 'Breaking Bad',
-    rating: '9.5',
-    tag: 'Series',
-    actionAdded: true,
-    image:
-        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=700&q=80',
-  ),
-  MoviePoster(
-    title: 'True Detective',
-    rating: '9',
-    tag: 'Series',
-    image:
-        'https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?auto=format&fit=crop&w=700&q=80',
-  ),
-  MoviePoster(
-    title: 'Succession',
-    rating: '8.9',
-    tag: 'Series',
-    image:
-        'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=700&q=80',
-  ),
-];
-
-const _kCriticallyAcclaimed = [
-  MoviePoster(
-    title: 'Inception',
-    rating: '8.8',
-    tag: 'Movie',
-    image:
-        'https://images.unsplash.com/photo-1612036781124-847f8939b154?auto=format&fit=crop&w=700&q=80',
-  ),
-  MoviePoster(
-    title: 'The Dark Knight',
-    rating: '9',
-    tag: 'Movie',
-    actionAdded: true,
-    image:
-        'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?q=80&w=687&auto=format&fit=crop',
-  ),
-  MoviePoster(
-    title: 'Dune: Part Two',
-    rating: '8.7',
-    tag: 'Movie',
-    actionAdded: true,
-    image:
-        'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=700&q=80',
-  ),
-];
+const _kTabs = ['✨   For You', '🎬   Movies', '⛩️   Anime', '📺   Series'];
 
 const _kMoods = [
   (label: 'Emotional', emoji: '🥲'),
   (label: 'Mind-Blown', emoji: '🤯'),
   (label: 'Scared', emoji: '😱'),
 ];
-
-const _kTabs = ['✨   For You', '🎬   Movies', '⛩️   Anime', '📺   Series'];
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
@@ -135,13 +33,13 @@ class HomeFeedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => HomeFeedCubit(),
+      create: (ctx) => HomeFeedCubit(ctx.read<HomeRepository>()),
       child: const _HomeFeedContent(),
     );
   }
 }
 
-// ── View — reads HomeFeedState, no UI-only state needed ───────────────────────
+// ── Content ───────────────────────────────────────────────────────────────────
 
 class _HomeFeedContent extends StatelessWidget {
   const _HomeFeedContent();
@@ -151,6 +49,8 @@ class _HomeFeedContent extends StatelessWidget {
     return BlocBuilder<HomeFeedCubit, HomeFeedState>(
       builder: (context, state) {
         final cubit = context.read<HomeFeedCubit>();
+        final loading = state.isLoading;
+
         return Container(
           decoration: BoxDecoration(color: context.colors.background),
           child: SafeArea(
@@ -165,111 +65,150 @@ class _HomeFeedContent extends StatelessWidget {
               physics: const BouncingScrollPhysics(),
               children: [
                 _Header(
-                  profileImage: _kProfileImage,
                   onNotificationTap: () =>
                       context.push(AppRoutes.notifications),
                 ),
                 SizedBox(height: 12.h),
                 _CategoryTabs(
-                  selectedTab: state.selectedTab,
-                  onSelected: cubit.selectTab,
-                ),
+                    selectedTab: state.selectedTab,
+                    onSelected: cubit.selectTab),
                 SizedBox(height: 14.h),
                 const WatchTogetherCard(),
                 SizedBox(height: 16.h),
-                _HeroCard(
-                  image: _kHeroImage,
-                  onDetailsPressed: () => context.push(
-                    AppRoutes.movieDetails,
-                    extra: const MovieRouteArgs(
-                      title: 'Inception',
-                      image: _kHeroImage,
-                      rating: '8.8',
-                    ),
+
+                // Hero card
+                if (loading)
+                  _HeroCardSkeleton()
+                else if (state.status == FeedStatus.failure)
+                  _ErrorBanner(
+                      message: state.errorMessage, onRetry: cubit.loadFeed)
+                else
+                  _HeroCard(
+                    hero: state.hero,
+                    onDetailsPressed: state.hero == null
+                        ? () {}
+                        : () => context.push(
+                              AppRoutes.movieDetails,
+                              extra: MovieRouteArgs(
+                                title: state.hero!.title,
+                                image: state.hero!.posterUrl,
+                                backdropImage:
+                                    state.hero!.backdropUrl.isNotEmpty
+                                        ? state.hero!.backdropUrl
+                                        : null,
+                                rating: state.hero!.ratingDisplay,
+                                id: state.hero!.id,
+                              ),
+                            ),
+                    onWatchlistPressed: () {},
                   ),
-                  onWatchlistPressed: () {},
-                ),
                 SizedBox(height: 24.h),
+
+                // Trending Now
                 WSectionHeader(
                   icon: Icons.local_fire_department_rounded,
                   iconColor: context.colors.accentRed,
                   title: 'Trending Now',
                 ),
                 SizedBox(height: 10.h),
-                _PosterCarousel(
-                  items: _kTrending,
-                  type: CinemaType.movie,
-                  onTap: (item) => context.push(
-                    AppRoutes.movieDetails,
-                    extra: MovieRouteArgs(
-                      title: item.title,
-                      image: item.image,
-                      rating: item.rating,
-                    ),
-                  ),
-                ),
+                loading
+                    ? _SkeletonCarousel()
+                    : _PosterCarousel(
+                        items: state.trendingMovies,
+                        type: CinemaType.movie,
+                        onTap: (item) => context.push(
+                          AppRoutes.movieDetails,
+                          extra: MovieRouteArgs(
+                            title: item.title,
+                            image: item.image,
+                            backdropImage: item.backdropImage,
+                            rating: item.rating,
+                            id: item.id,
+                          ),
+                        ),
+                      ),
                 SizedBox(height: 24.h),
+
+                // Top Anime
                 WSectionHeader(
                   icon: Icons.movie_filter_rounded,
                   iconColor: context.colors.accentPurple,
                   title: 'Top Anime This Season',
                 ),
                 SizedBox(height: 10.h),
-                _PosterCarousel(
-                  items: _kAnime,
-                  type: CinemaType.anime,
-                  onTap: (item) => context.push(
-                    AppRoutes.seriesDetails,
-                    extra: SeriesRouteArgs(
-                      title: item.title,
-                      image: item.image,
-                      rating: item.rating,
-                    ),
-                  ),
-                ),
+                loading
+                    ? _SkeletonCarousel()
+                    : _PosterCarousel(
+                        items: state.topAnime,
+                        type: CinemaType.anime,
+                        onTap: (item) => context.push(
+                          AppRoutes.seriesDetails,
+                          extra: SeriesRouteArgs(
+                            title: item.title,
+                            image: item.image,
+                            rating: item.rating,
+                            id: item.id,
+                            source: 'jikan',
+                          ),
+                        ),
+                      ),
                 SizedBox(height: 24.h),
+
                 _MoodPickerCard(
                   selectedMood: state.selectedMood,
                   onSelected: cubit.toggleMood,
                 ),
                 SizedBox(height: 24.h),
+
+                // Binge-Worthy Series
                 WSectionHeader(
                   icon: Icons.live_tv_rounded,
                   iconColor: context.colors.warning,
                   title: 'Binge-Worthy Series',
                 ),
                 SizedBox(height: 10.h),
-                _PosterCarousel(
-                  items: _kSeries,
-                  type: CinemaType.series,
-                  onTap: (item) => context.push(
-                    AppRoutes.seriesDetails,
-                    extra: SeriesRouteArgs(
-                      title: item.title,
-                      image: item.image,
-                      rating: item.rating,
-                    ),
-                  ),
-                ),
+                loading
+                    ? _SkeletonCarousel()
+                    : _PosterCarousel(
+                        items: state.trendingSeries,
+                        type: CinemaType.series,
+                        onTap: (item) => context.push(
+                          AppRoutes.seriesDetails,
+                          extra: SeriesRouteArgs(
+                            title: item.title,
+                            image: item.image,
+                            backdropImage: item.backdropImage,
+                            rating: item.rating,
+                            id: item.id,
+                            source: 'tmdb',
+                          ),
+                        ),
+                      ),
                 SizedBox(height: 24.h),
+
+                // Critically Acclaimed
                 WSectionHeader(
                   icon: Icons.star_rounded,
                   iconColor: context.colors.tertiary,
                   title: 'Critically Acclaimed',
                 ),
                 SizedBox(height: 10.h),
-                _PosterCarousel(
-                  items: _kCriticallyAcclaimed,
-                  type: CinemaType.movie,
-                  onTap: (item) => context.push(
-                    AppRoutes.movieDetails,
-                    extra: MovieRouteArgs(
-                      title: item.title,
-                      image: item.image,
-                      rating: item.rating,
-                    ),
-                  ),
-                ),
+                loading
+                    ? _SkeletonCarousel()
+                    : _PosterCarousel(
+                        items: state.criticallyAcclaimed,
+                        type: CinemaType.movie,
+                        onTap: (item) => context.push(
+                          AppRoutes.movieDetails,
+                          extra: MovieRouteArgs(
+                            title: item.title,
+                            image: item.image,
+                            backdropImage: item.backdropImage,
+                            rating: item.rating,
+                            id: item.id,
+                          ),
+                        ),
+                      ),
                 SizedBox(height: 18.h),
                 const _RankingCard(),
                 SizedBox(height: 18.h),
@@ -282,7 +221,98 @@ class _HomeFeedContent extends StatelessWidget {
   }
 }
 
-// ── Reusable carousel ─────────────────────────────────────────────────────────
+// ── Error banner ──────────────────────────────────────────────────────────────
+
+class _ErrorBanner extends StatelessWidget {
+  final String? message;
+  final VoidCallback onRetry;
+
+  const _ErrorBanner({this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onRetry,
+      child: Container(
+        height: 284.h,
+        decoration: BoxDecoration(
+          color: context.colors.surfaceMuted,
+          borderRadius: BorderRadius.circular(28.r),
+          border: Border.all(color: context.colors.surfaceBorder),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.wifi_off_rounded,
+                color: context.colors.mutedForeground, size: 36.sp),
+            SizedBox(height: 12.h),
+            Text(
+              message ?? 'Could not load feed.',
+              style: TextStyle(
+                color: context.colors.mutedForeground,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              'Tap to retry',
+              style: TextStyle(
+                color: context.colors.accentRed,
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Skeleton widgets ──────────────────────────────────────────────────────────
+
+class _HeroCardSkeleton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WShimmer(
+      child: Container(
+        height: 284.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28.r),
+        ),
+      ),
+    );
+  }
+}
+
+class _SkeletonCarousel extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WShimmer(
+      child: SizedBox(
+        height: WSizes.imageCarouselHeight.h,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 5,
+          separatorBuilder: (_, __) => SizedBox(width: 12.w),
+          itemBuilder: (_, __) => Container(
+            width: WSizes.posterImageWidth.w + 8.w,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(WSizes.radiusXxl.r),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Poster carousel ───────────────────────────────────────────────────────────
 
 class _PosterCarousel extends StatelessWidget {
   final List<MoviePoster> items;
@@ -297,6 +327,7 @@ class _PosterCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (items.isEmpty) return const SizedBox.shrink();
     return SizedBox(
       height: WSizes.imageCarouselHeight.h,
       child: ListView.separated(
@@ -313,7 +344,7 @@ class _PosterCarousel extends StatelessWidget {
             title: item.title,
             rating: item.rating,
             cinemaType: type,
-            year: '2008',
+            year: item.year,
             onTap: () => onTap(item),
           );
         },
@@ -325,27 +356,14 @@ class _PosterCarousel extends StatelessWidget {
 // ── Header ────────────────────────────────────────────────────────────────────
 
 class _Header extends StatelessWidget {
-  final String profileImage;
   final VoidCallback? onNotificationTap;
 
-  const _Header({required this.profileImage, this.onNotificationTap});
+  const _Header({this.onNotificationTap});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(
-          width: 40.w,
-          height: 40.w,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: context.colors.accentRedSoft, width: 2),
-            image: DecorationImage(
-              image: NetworkImage(profileImage),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
         SizedBox(width: 10.w),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,7 +452,9 @@ class _CategoryTabs extends StatelessWidget {
           final tab = _kTabs[index];
           final selected = tab == selectedTab;
           return Material(
-            color: selected ? context.colors.accentRed : context.colors.surfaceRaised,
+            color: selected
+                ? context.colors.accentRed
+                : context.colors.surfaceRaised,
             borderRadius: BorderRadius.circular(999.r),
             child: InkWell(
               borderRadius: BorderRadius.circular(999.r),
@@ -444,12 +464,15 @@ class _CategoryTabs extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(999.r),
                   border: Border.all(
-                    color: selected ? Colors.transparent : context.colors.borderStrong,
+                    color: selected
+                        ? Colors.transparent
+                        : context.colors.borderStrong,
                   ),
                   boxShadow: selected
                       ? [
                           BoxShadow(
-                            color: context.colors.accentRed.withValues(alpha: 0.25),
+                            color: context.colors.accentRed
+                                .withValues(alpha: 0.25),
                             blurRadius: 14,
                             offset: const Offset(0, 6),
                           ),
@@ -459,7 +482,9 @@ class _CategoryTabs extends StatelessWidget {
                 child: Text(
                   tab,
                   style: TextStyle(
-                    color: selected ? Colors.white : context.colors.mutedForeground,
+                    color: selected
+                        ? Colors.white
+                        : context.colors.mutedForeground,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -476,18 +501,22 @@ class _CategoryTabs extends StatelessWidget {
 // ── Hero card ─────────────────────────────────────────────────────────────────
 
 class _HeroCard extends StatelessWidget {
-  final String image;
+  final TmdbItem? hero;
   final VoidCallback onDetailsPressed;
   final VoidCallback onWatchlistPressed;
 
   const _HeroCard({
-    required this.image,
+    required this.hero,
     required this.onDetailsPressed,
     required this.onWatchlistPressed,
   });
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = hero != null
+        ? (hero!.backdropUrl.isNotEmpty ? hero!.backdropUrl : hero!.posterUrl)
+        : '';
+
     return Container(
       height: 284.h,
       decoration: BoxDecoration(
@@ -495,10 +524,7 @@ class _HeroCard extends StatelessWidget {
         border: Border.all(color: context.colors.surfaceBorder),
         boxShadow: const [
           BoxShadow(
-            color: Colors.black54,
-            blurRadius: 26,
-            offset: Offset(0, 18),
-          ),
+              color: Colors.black54, blurRadius: 26, offset: Offset(0, 18)),
         ],
       ),
       child: ClipRRect(
@@ -506,7 +532,13 @@ class _HeroCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(image, fit: BoxFit.cover),
+            if (imageUrl.isNotEmpty)
+              Image.network(imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) =>
+                      Container(color: context.colors.surfaceMuted))
+            else
+              Container(color: context.colors.surfaceMuted),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -529,16 +561,15 @@ class _HeroCard extends StatelessWidget {
                   Align(
                     alignment: Alignment.topLeft,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
-                        vertical: 4.h,
-                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
                       decoration: BoxDecoration(
                         color: context.colors.accentRed,
                         borderRadius: BorderRadius.circular(999.r),
                         boxShadow: [
                           BoxShadow(
-                            color: context.colors.accentRed.withValues(alpha: 0.32),
+                            color: context.colors.accentRed
+                                .withValues(alpha: 0.32),
                             blurRadius: 18,
                             offset: const Offset(0, 8),
                           ),
@@ -564,51 +595,45 @@ class _HeroCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  Row(
-                    children: [
-                      Icon(Icons.star_rounded,
-                          color: context.colors.tertiary, size: 16.sp),
-                      SizedBox(width: 3.w),
-                      Text(
-                        '8.8',
-                        style: TextStyle(
-                          color: context.colors.tertiary,
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w700,
+                  if (hero != null)
+                    Row(
+                      children: [
+                        Icon(Icons.star_rounded,
+                            color: context.colors.tertiary, size: 16.sp),
+                        SizedBox(width: 3.w),
+                        Text(
+                          hero!.ratingDisplay,
+                          style: TextStyle(
+                            color: context.colors.tertiary,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 10.w),
-                      Text(
-                        'Sci-Fi',
-                        style: TextStyle(
-                          color: context.colors.mutedSecondary,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w500,
+                        SizedBox(width: 10.w),
+                        Text(
+                          hero!.mediaTypeLabel,
+                          style: TextStyle(
+                            color: context.colors.mutedSecondary,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'Action',
-                        style: TextStyle(
-                          color: context.colors.mutedSecondary,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        '2h 28m',
-                        style: TextStyle(
-                          color: context.colors.mutedSecondary,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
+                        if (hero!.year.isNotEmpty) ...[
+                          SizedBox(width: 8.w),
+                          Text(
+                            hero!.year,
+                            style: TextStyle(
+                              color: context.colors.mutedSecondary,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   SizedBox(height: 6.h),
                   Text(
-                    'Inception',
+                    hero?.title ?? '',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24.sp,
@@ -666,7 +691,8 @@ class _RankingCard extends StatelessWidget {
           ],
         ),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: context.colors.accentRed.withValues(alpha: 0.12)),
+        border:
+            Border.all(color: context.colors.accentRed.withValues(alpha: 0.12)),
       ),
       child: Row(
         children: [
@@ -675,17 +701,17 @@ class _RankingCard extends StatelessWidget {
             height: 46.w,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [context.colors.accentPink, context.colors.accentPurple],
+                colors: [
+                  context.colors.accentPink,
+                  context.colors.accentPurple
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16.r),
             ),
-            child: Icon(
-              Icons.trending_up_rounded,
-              color: Colors.white,
-              size: 22.sp,
-            ),
+            child: Icon(Icons.trending_up_rounded,
+                color: Colors.white, size: 22.sp),
           ),
           SizedBox(width: 12.w),
           Expanded(
@@ -748,15 +774,15 @@ class _MoodPickerCard extends StatelessWidget {
                 height: 36.w,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [context.colors.accentPurple, context.colors.accentPink],
+                    colors: [
+                      context.colors.accentPurple,
+                      context.colors.accentPink
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(14.r),
                 ),
-                child: Icon(
-                  Icons.auto_awesome_rounded,
-                  size: 17.sp,
-                  color: Colors.white,
-                ),
+                child: Icon(Icons.auto_awesome_rounded,
+                    size: 17.sp, color: Colors.white),
               ),
               SizedBox(width: 10.w),
               Column(
@@ -812,13 +838,10 @@ class _MoodPickerCard extends StatelessWidget {
                     height: 54.h,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14.r),
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          'https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?auto=format&fit=crop&w=400&q=80',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
+                      color: context.colors.surfaceMuted,
                     ),
+                    child: Icon(Icons.movie_rounded,
+                        color: context.colors.mutedForeground, size: 22.sp),
                   ),
                   SizedBox(width: 10.w),
                   Expanded(
@@ -835,57 +858,14 @@ class _MoodPickerCard extends StatelessWidget {
                         ),
                         SizedBox(height: 3.h),
                         Text(
-                          'Oppenheimer',
+                          'Coming soon…',
                           style: TextStyle(
                             color: context.colors.foreground,
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        SizedBox(height: 3.h),
-                        Row(
-                          children: [
-                            Icon(Icons.star_rounded,
-                                color: context.colors.tertiary, size: 13.sp),
-                            SizedBox(width: 2.w),
-                            Text(
-                              '8.3',
-                              style: TextStyle(
-                                color: context.colors.tertiary,
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              'Drama',
-                              style: TextStyle(
-                                color: context.colors.mutedSecondaryAlt,
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
-                    ),
-                  ),
-                  SizedBox(width: 10.w),
-                  Container(
-                    height: 36.h,
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    decoration: BoxDecoration(
-                      color: context.colors.accentRed,
-                      borderRadius: BorderRadius.circular(999.r),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'View',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w800,
-                      ),
                     ),
                   ),
                 ],
@@ -921,13 +901,16 @@ class _MoodChip extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999.r),
             border: Border.all(
-              color: selected ? Colors.transparent : context.colors.surfaceChipBorder,
+              color: selected
+                  ? Colors.transparent
+                  : context.colors.surfaceChipBorder,
             ),
           ),
           child: Text(
             text,
             style: TextStyle(
-              color: selected ? Colors.white : context.colors.mutedSecondaryVibe,
+              color:
+                  selected ? Colors.white : context.colors.mutedSecondaryVibe,
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
             ),

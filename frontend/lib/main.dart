@@ -6,6 +6,7 @@ import 'package:cinemora/app.dart';
 import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/core/services/auth_service.dart';
+import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/core/services/secure_storage_service.dart';
 import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
@@ -21,6 +22,7 @@ void main() async {
   final authService = AuthService(apiClient, storage);
   final authCubit = AppAuthCubit(authService);
   final userRepository = UserRepository(apiClient);
+  final homeRepository = HomeRepository(apiClient);
   final prefs = await SharedPreferences.getInstance();
   final themeModeCubit = ThemeModeCubit(prefs);
 
@@ -28,6 +30,7 @@ void main() async {
   runApp(WatcharyApp(
     authCubit: authCubit,
     userRepository: userRepository,
+    homeRepository: homeRepository,
     themeModeCubit: themeModeCubit,
   ));
 }

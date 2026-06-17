@@ -40,6 +40,20 @@ class AppImages {
       'assets/images/streaming_platforms/sony_liv_icon.webp';
   static const String zee5 =
       'assets/images/streaming_platforms/zee5_icon.webp';
+
+  static String? forProvider(String name) {
+    final l = name.toLowerCase();
+    if (l.contains('netflix')) return netflix;
+    if (l.contains('prime') || l.contains('amazon')) return amazonPrimeVideo;
+    if (l.contains('disney')) return disneyPlus;
+    if (l.contains('apple')) return appleTv;
+    if (l.contains('hotstar') || l.contains('jio')) return jioHotstar;
+    if (l.contains('crunchyroll')) return crunchyroll;
+    if (l.contains('mubi')) return mubi;
+    if (l.contains('sony')) return sonyLiv;
+    if (l.contains('zee5')) return zee5;
+    return null;
+  }
 }
 
 class AppAnimations {

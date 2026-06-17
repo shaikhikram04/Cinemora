@@ -32,17 +32,33 @@ import 'package:cinemora/features/watch_together/views/watch_together_intro_view
 class MovieRouteArgs {
   final String title;
   final String image;
+  final String? backdropImage;
   final String rating;
-  const MovieRouteArgs(
-      {required this.title, required this.image, required this.rating});
+  final int? id;
+  const MovieRouteArgs({
+    required this.title,
+    required this.image,
+    this.backdropImage,
+    required this.rating,
+    this.id,
+  });
 }
 
 class SeriesRouteArgs {
   final String title;
   final String image;
+  final String? backdropImage;
   final String rating;
-  const SeriesRouteArgs(
-      {required this.title, required this.image, required this.rating});
+  final int? id;
+  final String source; // "tmdb" | "jikan"
+  const SeriesRouteArgs({
+    required this.title,
+    required this.image,
+    this.backdropImage,
+    required this.rating,
+    this.id,
+    this.source = 'tmdb',
+  });
 }
 
 GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
@@ -158,9 +174,12 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
         builder: (context, state) {
           final args = state.extra! as MovieRouteArgs;
           return MovieDetailsView(
-              movieTitle: args.title,
-              movieImage: args.image,
-              rating: args.rating);
+            movieTitle: args.title,
+            movieImage: args.image,
+            backdropImage: args.backdropImage,
+            rating: args.rating,
+            tmdbId: args.id,
+          );
         },
       ),
       GoRoute(
@@ -168,9 +187,13 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
         builder: (context, state) {
           final args = state.extra! as SeriesRouteArgs;
           return SeriesDetailsView(
-              seriesTitle: args.title,
-              seriesImage: args.image,
-              rating: args.rating);
+            seriesTitle: args.title,
+            seriesImage: args.image,
+            backdropImage: args.backdropImage,
+            rating: args.rating,
+            id: args.id,
+            source: args.source,
+          );
         },
       ),
 
