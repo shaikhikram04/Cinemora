@@ -69,8 +69,13 @@ class _WelcomeContentState extends State<_WelcomeContent> {
         if (authState is AppAuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(authState.message),
-              backgroundColor: Colors.red.shade800,
+              content: Text(authState.message, style: TextStyle(fontSize: 14.sp)),
+              backgroundColor: context.colors.accentRed,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             ),
           );
         }

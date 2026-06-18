@@ -1,4 +1,5 @@
 const Notification = require("../models/Notification");
+const AppError = require("../utils/AppError");
 
 // GET /api/notifications?page=1&limit=20
 const getNotifications = async (req, res) => {
@@ -28,14 +29,14 @@ const getNotifications = async (req, res) => {
 };
 
 // PUT /api/notifications/:id/read
-const markRead = async (req, res) => {
+const markRead = async (req, res, next) => {
   const result = await Notification.findOneAndUpdate(
     { _id: req.params.id, userId: req.user.userId },
     { isRead: true },
     { new: true }
   ).select("-__v");
 
-  if (!result) return res.status(404).json({ error: "Notification not found" });
+  if (!result) return next(new AppError(404, "NOTIFICATION_NOT_FOUND", "Notification not found"));
   res.json(result);
 };
 

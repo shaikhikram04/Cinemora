@@ -1,5 +1,6 @@
 const WatchSession = require("../models/WatchSession");
 const User = require("../models/User");
+const AppError = require("../utils/AppError");
 
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
 
@@ -14,16 +15,16 @@ const uniqueCode = async () => {
   do {
     code = generateCode();
     attempts++;
-    if (attempts > 10) throw new Error("Could not generate unique session code");
+    if (attempts > 10) throw new AppError(500, "SESSION_CODE_ERROR", "Could not generate unique session code");
   } while (await WatchSession.exists({ code }));
   return code;
 };
 
 // POST /api/watch-together/sessions
-const createSession = async (req, res) => {
+const createSession = async (req, res, next) => {
   const { tmdbId, cinemaType, title, posterPath } = req.body;
   if (!tmdbId || !cinemaType || !title) {
-    return res.status(400).json({ error: "tmdbId, cinemaType, and title are required" });
+    return next(new AppError(400, "SESSION_MISSING_FIELDS", "tmdbId, cinemaType, and title are required"));
   }
 
   const host = await User.findById(req.user.userId).select("name avatar");
@@ -43,17 +44,17 @@ const createSession = async (req, res) => {
 };
 
 // GET /api/watch-together/sessions/:code
-const getSession = async (req, res) => {
+const getSession = async (req, res, next) => {
   const session = await WatchSession.findOne({ code: req.params.code }).select("-__v");
-  if (!session) return res.status(404).json({ error: "Session not found" });
+  if (!session) return next(new AppError(404, "SESSION_NOT_FOUND", "Session not found"));
   res.json(session);
 };
 
 // POST /api/watch-together/sessions/:code/join
-const joinSession = async (req, res) => {
+const joinSession = async (req, res, next) => {
   const session = await WatchSession.findOne({ code: req.params.code });
-  if (!session) return res.status(404).json({ error: "Session not found" });
-  if (session.status === "ended") return res.status(410).json({ error: "Session has ended" });
+  if (!session) return next(new AppError(404, "SESSION_NOT_FOUND", "Session not found"));
+  if (session.status === "ended") return next(new AppError(410, "SESSION_ENDED", "Session has ended"));
 
   const alreadyIn = session.participants.some(
     (p) => p.userId.toString() === req.user.userId
@@ -70,12 +71,12 @@ const joinSession = async (req, res) => {
 };
 
 // DELETE /api/watch-together/sessions/:code
-const endSession = async (req, res) => {
+const endSession = async (req, res, next) => {
   const session = await WatchSession.findOne({ code: req.params.code });
-  if (!session) return res.status(404).json({ error: "Session not found" });
+  if (!session) return next(new AppError(404, "SESSION_NOT_FOUND", "Session not found"));
 
   if (session.hostId.toString() !== req.user.userId) {
-    return res.status(403).json({ error: "Only the host can end the session" });
+    return next(new AppError(403, "SESSION_FORBIDDEN", "Only the host can end the session"));
   }
 
   session.status = "ended";

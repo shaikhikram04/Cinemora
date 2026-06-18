@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/core/exceptions/app_exception.dart';
 import 'package:cinemora/core/models/user_model.dart';
 import 'package:cinemora/core/services/auth_service.dart';
 import 'app_auth_state.dart';
@@ -34,8 +35,10 @@ class AppAuthCubit extends Cubit<AppAuthState> {
     try {
       final user = await _authService.signInWithGoogle();
       emit(AppAuthAuthenticated(user));
-    } catch (e) {
-      emit(AppAuthError(e.toString()));
+    } on AppException catch (e) {
+      emit(AppAuthError(e.userMessage));
+    } catch (_) {
+      emit(const AppAuthError('Something went wrong. Please try again.'));
     }
   }
 
@@ -44,8 +47,10 @@ class AppAuthCubit extends Cubit<AppAuthState> {
     try {
       final user = await _authService.signInWithApple();
       emit(AppAuthAuthenticated(user));
-    } catch (e) {
-      emit(AppAuthError(e.toString()));
+    } on AppException catch (e) {
+      emit(AppAuthError(e.userMessage));
+    } catch (_) {
+      emit(const AppAuthError('Something went wrong. Please try again.'));
     }
   }
 

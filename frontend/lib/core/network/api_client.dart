@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../constants/api_constants.dart';
+import '../exceptions/app_exception.dart';
 import '../services/secure_storage_service.dart';
 
 class ApiClient {
@@ -16,6 +17,35 @@ class ApiClient {
     ));
 
     dio.interceptors.add(_AuthInterceptor(storage, _plainDio));
+  }
+
+  /// Converts any caught error into a typed [AppException].
+  /// Call this in catch blocks in services and repositories.
+  static AppException parseError(Object error) {
+    if (error is AppException) return error;
+
+    if (error is DioException) {
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          return const NetworkException('NETWORK_TIMEOUT');
+        case DioExceptionType.connectionError:
+          return const NetworkException('NETWORK_NO_CONNECTION');
+        default:
+          break;
+      }
+
+      final data = error.response?.data;
+      if (data is Map<String, dynamic> && data['error'] is Map<String, dynamic>) {
+        final errMap = data['error'] as Map<String, dynamic>;
+        final code = errMap['code'] as String? ?? 'UNKNOWN';
+        final message = errMap['message'] as String?;
+        return BackendException(code, message);
+      }
+    }
+
+    return const NetworkException();
   }
 }
 

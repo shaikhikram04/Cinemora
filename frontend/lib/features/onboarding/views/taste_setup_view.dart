@@ -191,8 +191,13 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
         if (state.submitError != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.submitError!),
-              backgroundColor: Colors.red.shade800,
+              content: Text(state.submitError!, style: TextStyle(fontSize: 14.sp)),
+              backgroundColor: context.colors.accentRed,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             ),
           );
         }

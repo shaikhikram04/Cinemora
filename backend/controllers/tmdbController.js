@@ -1,15 +1,16 @@
 const tmdb = require("../config/tmdb");
+const AppError = require("../utils/AppError");
 
 // GET /api/tmdb/trending?type=all&time=day
-const getTrending = async (req, res) => {
+const getTrending = async (req, res, next) => {
   const { type = "all", time = "day" } = req.query;
   const validTypes = ["all", "movie", "tv", "person"];
   const validTimes = ["day", "week"];
 
   if (!validTypes.includes(type))
-    return res.status(400).json({ error: "Invalid type" });
+    return next(new AppError(400, "TMDB_INVALID_TYPE", "Invalid type"));
   if (!validTimes.includes(time))
-    return res.status(400).json({ error: "Invalid time window" });
+    return next(new AppError(400, "TMDB_INVALID_TIME_WINDOW", "Invalid time window"));
 
   const data = await tmdb.get(
     `/trending/${type}/${time}`,
@@ -28,13 +29,13 @@ const getTrending = async (req, res) => {
 };
 
 // GET /api/tmdb/search?q=&type=
-const search = async (req, res) => {
+const search = async (req, res, next) => {
   const { q, type = "multi" } = req.query;
-  if (!q) return res.status(400).json({ error: "q is required" });
+  if (!q) return next(new AppError(400, "TMDB_QUERY_REQUIRED", "q is required"));
 
   const validTypes = ["multi", "movie", "tv"];
   if (!validTypes.includes(type))
-    return res.status(400).json({ error: "Invalid type" });
+    return next(new AppError(400, "TMDB_INVALID_TYPE", "Invalid type"));
 
   // Not cached — search results change constantly and are query-specific
   const data = await tmdb.fetch(`/search/${type}`, {
@@ -80,10 +81,10 @@ const getTvProviders = async (req, res) => {
 };
 
 // GET /api/tmdb/genres?type=movie|tv
-const getGenres = async (req, res) => {
+const getGenres = async (req, res, next) => {
   const { type = "movie" } = req.query;
   if (!["movie", "tv"].includes(type))
-    return res.status(400).json({ error: "type must be movie or tv" });
+    return next(new AppError(400, "TMDB_INVALID_GENRE_TYPE", "type must be movie or tv"));
 
   const data = await tmdb.get(`/genre/${type}/list`, {}, tmdb.TTL.genres);
   res.json(data);

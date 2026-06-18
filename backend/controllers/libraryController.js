@@ -1,4 +1,5 @@
 const LibraryEntry = require("../models/LibraryEntry");
+const AppError = require("../utils/AppError");
 
 // GET /api/library?status=&cinemaType=&sort=
 const getLibrary = async (req, res) => {
@@ -71,18 +72,18 @@ const getStats = async (req, res) => {
 };
 
 // POST /api/library
-const addToLibrary = async (req, res) => {
+const addToLibrary = async (req, res, next) => {
   const {
     tmdbId, cinemaType, title, posterPath, releaseYear,
     genres, tmdbRating, runtimeMinutes, status,
   } = req.body;
 
   if (!tmdbId || !cinemaType || !title) {
-    return res.status(400).json({ error: "tmdbId, cinemaType, and title are required" });
+    return next(new AppError(400, "LIBRARY_MISSING_FIELDS", "tmdbId, cinemaType, and title are required"));
   }
 
   const existing = await LibraryEntry.findOne({ userId: req.user.userId, tmdbId });
-  if (existing) return res.status(409).json({ error: "Already in library" });
+  if (existing) return next(new AppError(409, "LIBRARY_ALREADY_EXISTS", "Already in library"));
 
   const entry = await LibraryEntry.create({
     userId: req.user.userId,
@@ -101,24 +102,24 @@ const addToLibrary = async (req, res) => {
 };
 
 // GET /api/library/:tmdbId
-const getEntry = async (req, res) => {
+const getEntry = async (req, res, next) => {
   const entry = await LibraryEntry.findOne({
     userId: req.user.userId,
     tmdbId: Number(req.params.tmdbId),
   }).select("-__v");
 
-  if (!entry) return res.status(404).json({ error: "Not in library" });
+  if (!entry) return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
   res.json(entry);
 };
 
 // PUT /api/library/:tmdbId
-const updateEntry = async (req, res) => {
+const updateEntry = async (req, res, next) => {
   const entry = await LibraryEntry.findOne({
     userId: req.user.userId,
     tmdbId: Number(req.params.tmdbId),
   });
 
-  if (!entry) return res.status(404).json({ error: "Not in library" });
+  if (!entry) return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
 
   const { status, userRating, review, progress } = req.body;
 
@@ -139,13 +140,13 @@ const updateEntry = async (req, res) => {
 };
 
 // DELETE /api/library/:tmdbId
-const deleteEntry = async (req, res) => {
+const deleteEntry = async (req, res, next) => {
   const result = await LibraryEntry.deleteOne({
     userId: req.user.userId,
     tmdbId: Number(req.params.tmdbId),
   });
 
-  if (result.deletedCount === 0) return res.status(404).json({ error: "Not in library" });
+  if (result.deletedCount === 0) return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
   res.json({ message: "Removed from library" });
 };
 

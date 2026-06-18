@@ -1,12 +1,13 @@
 const anilist = require("../config/anilist");
+const AppError = require("../utils/AppError");
 
 // GET /api/anilist/anime/:malId
-const getAnimeDetail = async (req, res) => {
+const getAnimeDetail = async (req, res, next) => {
   const data = await anilist.getAnimeByMalId(req.params.malId);
 
   if (data?.errors?.length) {
     const first = data.errors[0];
-    return res.status(first.status ?? 500).json({ error: first.message });
+    return next(new AppError(first.status ?? 500, "ANILIST_ERROR", first.message));
   }
 
   const media = data?.data?.Media;

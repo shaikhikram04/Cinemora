@@ -1,13 +1,14 @@
 const jikan = require("../config/jikan");
+const AppError = require("../utils/AppError");
 
 // GET /api/jikan/top?filter=airing&type=tv&page=1&limit=25
-const getTop = async (req, res) => {
+const getTop = async (req, res, next) => {
   const { filter = "airing", type = "tv", page = 1, limit = 25 } = req.query;
   const validFilters = ["airing", "upcoming", "bypopularity", "favorite"];
   const validTypes = ["tv", "movie", "ova", "special", "ona", "music", "cm", "pv", "tv_special"];
 
-  if (!validFilters.includes(filter)) return res.status(400).json({ error: "Invalid filter" });
-  if (!validTypes.includes(type)) return res.status(400).json({ error: "Invalid type" });
+  if (!validFilters.includes(filter)) return next(new AppError(400, "JIKAN_INVALID_FILTER", "Invalid filter"));
+  if (!validTypes.includes(type)) return next(new AppError(400, "JIKAN_INVALID_TYPE", "Invalid type"));
 
   const data = await jikan.get("/top/anime", { filter, type, page, limit }, jikan.TTL.topAiring);
 
@@ -78,9 +79,9 @@ const getGenres = async (req, res) => {
 };
 
 // GET /api/jikan/search?q=&type=&status=&genres=&order_by=&sort=&page=&limit=
-const search = async (req, res) => {
+const search = async (req, res, next) => {
   const { q, type, status, genres, order_by, sort, page = 1, limit = 25 } = req.query;
-  if (!q) return res.status(400).json({ error: "q is required" });
+  if (!q) return next(new AppError(400, "JIKAN_QUERY_REQUIRED", "q is required"));
 
   const params = { q, page, limit, sfw: true };
   if (type) params.type = type;

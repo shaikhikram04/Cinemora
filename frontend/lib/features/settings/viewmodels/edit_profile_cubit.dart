@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/core/exceptions/app_exception.dart';
 import 'package:cinemora/core/models/user_model.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'edit_profile_state.dart';
@@ -52,11 +53,18 @@ class EditProfileCubit extends Cubit<EditProfileState> {
           savedUser: updatedUser,
         ));
       }
-    } catch (e) {
+    } on AppException catch (e) {
       if (!isClosed) {
         emit(state.copyWith(
           status: EditProfileStatus.error,
-          error: _friendlyError(e),
+          error: e.userMessage,
+        ));
+      }
+    } catch (_) {
+      if (!isClosed) {
+        emit(state.copyWith(
+          status: EditProfileStatus.error,
+          error: 'Something went wrong. Please try again.',
         ));
       }
     }
@@ -66,13 +74,4 @@ class EditProfileCubit extends Cubit<EditProfileState> {
         status: EditProfileStatus.idle,
         error: null,
       ));
-
-  static String _friendlyError(Object e) {
-    final msg = e.toString();
-    if (msg.contains('SocketException') || msg.contains('Connection refused')) {
-      return 'No connection. Check your network and try again.';
-    }
-    if (msg.contains('401')) return 'Session expired. Please sign in again.';
-    return 'Something went wrong. Please try again.';
-  }
 }

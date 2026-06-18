@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/core/exceptions/app_exception.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/features/onboarding/viewmodels/onboarding_state.dart';
 
@@ -59,7 +60,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         languages: state.selectedLanguages,
       );
       emit(state.copyWith(isSubmitting: false, submitSuccess: true));
-    } catch (e) {
+    } on AppException catch (e) {
+      emit(state.copyWith(isSubmitting: false, submitError: e.userMessage));
+    } catch (_) {
       emit(state.copyWith(
         isSubmitting: false,
         submitError: 'Something went wrong. Please try again.',

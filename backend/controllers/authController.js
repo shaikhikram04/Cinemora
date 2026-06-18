@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const admin = require("../config/firebase");
 const User = require("../models/User");
+const AppError = require("../utils/AppError");
 
 const signAccess = (userId) =>
   jwt.sign({ userId }, process.env.JWT_SECRET, {
@@ -14,15 +15,15 @@ const signRefresh = (userId) =>
 
 // POST /api/auth/firebase
 // Body: { idToken }
-const firebaseLogin = async (req, res) => {
+const firebaseLogin = async (req, res, next) => {
   const { idToken } = req.body;
-  if (!idToken) return res.status(400).json({ error: "idToken required" });
+  if (!idToken) return next(new AppError(400, "AUTH_ID_TOKEN_REQUIRED", "idToken required"));
 
   let decoded;
   try {
     decoded = await admin.auth().verifyIdToken(idToken);
   } catch {
-    return res.status(401).json({ error: "Invalid Firebase token" });
+    return next(new AppError(401, "AUTH_INVALID_FIREBASE_TOKEN", "Invalid Firebase token"));
   }
 
   const { uid, email, name, picture, firebase } = decoded;
@@ -75,15 +76,15 @@ const firebaseLogin = async (req, res) => {
 
 // POST /api/auth/refresh
 // Body: { refreshToken }
-const refresh = (req, res) => {
+const refresh = (req, res, next) => {
   const { refreshToken } = req.body;
-  if (!refreshToken) return res.status(400).json({ error: "refreshToken required" });
+  if (!refreshToken) return next(new AppError(400, "AUTH_REFRESH_TOKEN_REQUIRED", "refreshToken required"));
 
   let payload;
   try {
     payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
   } catch {
-    return res.status(401).json({ error: "Invalid or expired refresh token" });
+    return next(new AppError(401, "AUTH_INVALID_REFRESH_TOKEN", "Invalid or expired refresh token"));
   }
 
   const accessToken = signAccess(payload.userId);
@@ -91,18 +92,18 @@ const refresh = (req, res) => {
 };
 
 // GET /api/auth/me
-const me = async (req, res) => {
+const me = async (req, res, next) => {
   const user = await User.findById(req.user.userId).select("-__v");
-  if (!user) return res.status(404).json({ error: "User not found" });
+  if (!user) return next(new AppError(404, "AUTH_USER_NOT_FOUND", "User not found"));
   res.json(user);
 };
 
 // DELETE /api/auth/account
-const deleteAccount = async (req, res) => {
+const deleteAccount = async (req, res, next) => {
   const userId = req.user.userId;
 
   const user = await User.findById(userId);
-  if (!user) return res.status(404).json({ error: "User not found" });
+  if (!user) return next(new AppError(404, "AUTH_USER_NOT_FOUND", "User not found"));
 
   // Remove from Firebase
   await admin.auth().deleteUser(user.firebaseUid);
