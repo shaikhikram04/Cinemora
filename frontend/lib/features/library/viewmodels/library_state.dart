@@ -1,6 +1,14 @@
 import 'package:equatable/equatable.dart';
+import 'package:cinemora/core/models/library_entry_model.dart';
+import 'package:cinemora/core/models/library_stats_model.dart';
+
+enum LibraryStatus { initial, loading, loaded, error }
 
 class LibraryState extends Equatable {
+  final LibraryStatus status;
+  final List<LibraryEntryModel> entries;
+  final LibraryStatsModel? stats;
+  final String? errorMessage;
   final String selectedType;
   final String selectedStatus;
   final String selectedSort;
@@ -8,6 +16,10 @@ class LibraryState extends Equatable {
   final String searchQuery;
 
   const LibraryState({
+    this.status = LibraryStatus.initial,
+    this.entries = const [],
+    this.stats,
+    this.errorMessage,
     this.selectedType = 'All',
     this.selectedStatus = 'Watchlist',
     this.selectedSort = 'Recently added',
@@ -16,6 +28,10 @@ class LibraryState extends Equatable {
   });
 
   LibraryState copyWith({
+    LibraryStatus? status,
+    List<LibraryEntryModel>? entries,
+    LibraryStatsModel? stats,
+    String? errorMessage,
     String? selectedType,
     String? selectedStatus,
     String? selectedSort,
@@ -23,6 +39,10 @@ class LibraryState extends Equatable {
     String? searchQuery,
   }) {
     return LibraryState(
+      status: status ?? this.status,
+      entries: entries ?? this.entries,
+      stats: stats ?? this.stats,
+      errorMessage: errorMessage ?? this.errorMessage,
       selectedType: selectedType ?? this.selectedType,
       selectedStatus: selectedStatus ?? this.selectedStatus,
       selectedSort: selectedSort ?? this.selectedSort,
@@ -32,7 +52,11 @@ class LibraryState extends Equatable {
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
+        status,
+        entries,
+        stats,
+        errorMessage,
         selectedType,
         selectedStatus,
         selectedSort,

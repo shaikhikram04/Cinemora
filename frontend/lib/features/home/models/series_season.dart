@@ -15,8 +15,10 @@ class SeriesSeason {
   final String year;
   final String rating;
   final List<SeriesEpisode> episodes;
-  // MAL ID for this season — set on Jikan/AniList seasons for lazy episode loading
+  // MAL ID for anime seasons — used for lazy episode loading via Jikan
   final int? malId;
+  // TMDB season ID — set for TMDB TV show seasons
+  final int? seasonId;
 
   const SeriesSeason({
     required this.number,
@@ -24,9 +26,13 @@ class SeriesSeason {
     required this.rating,
     required this.episodes,
     this.malId,
+    this.seasonId,
   });
 
   int get episodeCount => episodes.length;
+
+  // Unique ID usable as a library entry key: anime uses malId, TMDB uses seasonId
+  int? get libraryId => malId ?? seasonId;
 
   SeriesSeason copyWith({List<SeriesEpisode>? episodes}) {
     return SeriesSeason(
@@ -35,6 +41,7 @@ class SeriesSeason {
       rating: rating,
       episodes: episodes ?? this.episodes,
       malId: malId,
+      seasonId: seasonId,
     );
   }
 }

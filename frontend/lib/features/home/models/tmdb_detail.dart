@@ -56,6 +56,7 @@ class TmdbMovieDetail {
   final String overview;
   final List<String> genres;
   final String? runtime; // "2h 32m"
+  final int? runtimeMinutes;
   final String year;
   final String? director;
   final List<CastMember> cast;
@@ -66,6 +67,7 @@ class TmdbMovieDetail {
     required this.overview,
     required this.genres,
     this.runtime,
+    this.runtimeMinutes,
     required this.year,
     this.director,
     required this.cast,
@@ -122,6 +124,7 @@ class TmdbMovieDetail {
       overview: detail['overview'] as String? ?? '',
       genres: genres,
       runtime: runtimeStr,
+      runtimeMinutes: (runtimeMins != null && runtimeMins > 0) ? runtimeMins : null,
       year: year,
       director: directors.isNotEmpty ? directors : null,
       cast: cast,
@@ -233,6 +236,7 @@ class TmdbTvDetail {
           (i) => SeriesEpisode(
               number: i + 1, title: 'Episode ${i + 1}', runtime: '—'),
         ),
+        seasonId: s['id'] as int?,
       );
     }).toList();
 

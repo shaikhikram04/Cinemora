@@ -1,5 +1,19 @@
 const mongoose = require("mongoose");
 
+const seasonEntrySchema = new mongoose.Schema(
+  {
+    seasonNumber: { type: Number, required: true },
+    seasonId: { type: Number }, // TMDB season ID or MAL ID — nullable for Jikan
+    status: {
+      type: String,
+      enum: ["watchlist", "watched", "dropped"],
+      required: true,
+    },
+    rating: { type: Number, min: 0, max: 5 },
+  },
+  { _id: false }
+);
+
 const libraryEntrySchema = new mongoose.Schema(
   {
     userId: {
@@ -18,8 +32,9 @@ const libraryEntrySchema = new mongoose.Schema(
     releaseYear: { type: String },
     genres: { type: [String], default: [] },
     tmdbRating: { type: Number },
-    runtimeMinutes: { type: Number }, // per episode for tv/anime, total for movies
+    runtimeMinutes: { type: Number },
 
+    // Show-level status (set via show-level buttons)
     status: {
       type: String,
       enum: ["watchlist", "watching", "watched", "dropped"],
@@ -35,13 +50,20 @@ const libraryEntrySchema = new mongoose.Schema(
       totalEpisodes: { type: Number },
     },
 
-    // Array to track every watch date, including rewatches
+    // Per-season tracking (set via season-level buttons)
+    seasons: { type: [seasonEntrySchema], default: [] },
+
     watchedAt: { type: [Date], default: [] },
   },
   { timestamps: true }
 );
 
-// Enforce one entry per user per title
-libraryEntrySchema.index({ userId: 1, tmdbId: 1 }, { unique: true });
+// Compound unique key: one entry per user per (tmdbId, cinemaType)
+// This prevents TMDB movie ID 1396 from colliding with MAL anime ID 1396.
+//
+// MIGRATION NOTE: if upgrading from the old single-field index, run in MongoDB:
+//   db.libraryentries.dropIndex("userId_1_tmdbId_1")
+//   db.libraryentries.createIndex({ userId: 1, tmdbId: 1, cinemaType: 1 }, { unique: true })
+libraryEntrySchema.index({ userId: 1, tmdbId: 1, cinemaType: 1 }, { unique: true });
 
 module.exports = mongoose.model("LibraryEntry", libraryEntrySchema);

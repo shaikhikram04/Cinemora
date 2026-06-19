@@ -15,6 +15,7 @@ import 'package:cinemora/features/home/models/tmdb_item.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
+import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/watch_together/widgets/watch_together_card.dart';
 
 const _kTabs = ['✨   For You', '🎬   Movies', '⛩️   Anime', '📺   Series'];
@@ -33,7 +34,7 @@ class HomeFeedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (ctx) => HomeFeedCubit(ctx.read<HomeRepository>()),
+      create: (ctx) => HomeFeedCubit(ctx.read<HomeRepository>(), ctx.read<LibraryCubit>()),
       child: const _HomeFeedContent(),
     );
   }
@@ -85,6 +86,8 @@ class _HomeFeedContent extends StatelessWidget {
                 else
                   _HeroCard(
                     hero: state.hero,
+                    isBookmarked: state.hero != null &&
+                        state.bookmarkedIds.contains(state.hero!.id),
                     onDetailsPressed: state.hero == null
                         ? () {}
                         : () => context.push(
@@ -100,7 +103,9 @@ class _HomeFeedContent extends StatelessWidget {
                                 id: state.hero!.id,
                               ),
                             ),
-                    onWatchlistPressed: () {},
+                    onWatchlistPressed: state.hero == null
+                        ? () {}
+                        : () => cubit.bookmarkHero(state.hero!),
                   ),
                 SizedBox(height: 24.h),
 
@@ -116,6 +121,9 @@ class _HomeFeedContent extends StatelessWidget {
                     : _PosterCarousel(
                         items: state.trendingMovies,
                         type: CinemaType.movie,
+                        bookmarkedIds: state.bookmarkedIds,
+                        onBookmark: (item) =>
+                            cubit.bookmarkFromPoster(item, CinemaType.movie),
                         onTap: (item) => context.push(
                           AppRoutes.movieDetails,
                           extra: MovieRouteArgs(
@@ -141,6 +149,9 @@ class _HomeFeedContent extends StatelessWidget {
                     : _PosterCarousel(
                         items: state.topAnime,
                         type: CinemaType.anime,
+                        bookmarkedIds: state.bookmarkedIds,
+                        onBookmark: (item) =>
+                            cubit.bookmarkFromPoster(item, CinemaType.anime),
                         onTap: (item) => context.push(
                           AppRoutes.seriesDetails,
                           extra: SeriesRouteArgs(
@@ -172,6 +183,9 @@ class _HomeFeedContent extends StatelessWidget {
                     : _PosterCarousel(
                         items: state.trendingSeries,
                         type: CinemaType.series,
+                        bookmarkedIds: state.bookmarkedIds,
+                        onBookmark: (item) =>
+                            cubit.bookmarkFromPoster(item, CinemaType.series),
                         onTap: (item) => context.push(
                           AppRoutes.seriesDetails,
                           extra: SeriesRouteArgs(
@@ -198,6 +212,9 @@ class _HomeFeedContent extends StatelessWidget {
                     : _PosterCarousel(
                         items: state.criticallyAcclaimed,
                         type: CinemaType.movie,
+                        bookmarkedIds: state.bookmarkedIds,
+                        onBookmark: (item) =>
+                            cubit.bookmarkFromPoster(item, CinemaType.movie),
                         onTap: (item) => context.push(
                           AppRoutes.movieDetails,
                           extra: MovieRouteArgs(
@@ -318,11 +335,15 @@ class _PosterCarousel extends StatelessWidget {
   final List<MoviePoster> items;
   final CinemaType type;
   final void Function(MoviePoster) onTap;
+  final Set<int> bookmarkedIds;
+  final void Function(MoviePoster) onBookmark;
 
   const _PosterCarousel({
     required this.items,
     required this.type,
     required this.onTap,
+    required this.bookmarkedIds,
+    required this.onBookmark,
   });
 
   @override
@@ -345,6 +366,8 @@ class _PosterCarousel extends StatelessWidget {
             rating: item.rating,
             cinemaType: type,
             year: item.year,
+            isBookmarked: item.id != null && bookmarkedIds.contains(item.id),
+            onBookmark: () => onBookmark(item),
             onTap: () => onTap(item),
           );
         },
@@ -502,11 +525,13 @@ class _CategoryTabs extends StatelessWidget {
 
 class _HeroCard extends StatelessWidget {
   final TmdbItem? hero;
+  final bool isBookmarked;
   final VoidCallback onDetailsPressed;
   final VoidCallback onWatchlistPressed;
 
   const _HeroCard({
     required this.hero,
+    required this.isBookmarked,
     required this.onDetailsPressed,
     required this.onWatchlistPressed,
   });
@@ -656,8 +681,10 @@ class _HeroCard extends StatelessWidget {
                       SizedBox(width: 10.w),
                       Expanded(
                         child: WActionButton(
-                          label: 'Watchlist',
-                          icon: Icons.add_rounded,
+                          label: isBookmarked ? 'In Watchlist' : 'Watchlist',
+                          icon: isBookmarked
+                              ? Icons.bookmark_rounded
+                              : Icons.add_rounded,
                           filled: false,
                           onTap: onWatchlistPressed,
                         ),

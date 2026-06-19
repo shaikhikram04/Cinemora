@@ -4,6 +4,8 @@ import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/series_details_cubit.dart';
+import 'package:cinemora/features/library/repositories/library_repository.dart';
+import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/series_details_state.dart';
 import 'package:cinemora/features/home/widgets/post_rating_bottom_sheet.dart';
 import 'package:cinemora/features/home/widgets/series_details_content.dart';
@@ -31,8 +33,13 @@ class SeriesDetailsView extends StatelessWidget {
     return BlocProvider(
       create: (_) => SeriesDetailsCubit(
         repo: context.read<HomeRepository>(),
+        library: context.read<LibraryRepository>(),
+        libraryCubit: context.read<LibraryCubit>(),
         id: id,
         source: source,
+        title: seriesTitle,
+        posterUrl: seriesImage,
+        tmdbRating: double.tryParse(rating),
       ),
       child: _SeriesDetailsContent(
         seriesTitle: seriesTitle,

@@ -4,7 +4,33 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 
 class LibraryStatsCard extends StatelessWidget {
-  const LibraryStatsCard({super.key});
+  final int watchedCount;
+  final int totalEntries;
+  final int totalWatchMinutes;
+  final int moviesWatched;
+  final int seriesWatched;
+  final int animeWatched;
+
+  const LibraryStatsCard({
+    super.key,
+    required this.watchedCount,
+    required this.totalEntries,
+    required this.totalWatchMinutes,
+    required this.moviesWatched,
+    required this.seriesWatched,
+    required this.animeWatched,
+  });
+
+  String get _formattedWatchTime {
+    if (totalWatchMinutes == 0) return '0h';
+    final h = totalWatchMinutes ~/ 60;
+    final m = totalWatchMinutes % 60;
+    if (m == 0) return '${h}h';
+    return '${h}h ${m}m';
+  }
+
+  double get _ringProgress =>
+      totalEntries == 0 ? 0.0 : (watchedCount / totalEntries).clamp(0.0, 1.0);
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +44,7 @@ class LibraryStatsCard extends StatelessWidget {
       ),
       child: Stack(
         children: [
+          // Ambient glow blobs
           Positioned(
             bottom: 0,
             left: 0,
@@ -60,7 +87,7 @@ class LibraryStatsCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  // ── Ring + month count ──────────────────────────────
+                  // ── Ring + watched/total ──────────────────────────────
                   SizedBox(
                     width: 90.w,
                     height: 90.w,
@@ -70,7 +97,7 @@ class LibraryStatsCard extends StatelessWidget {
                         CustomPaint(
                           size: Size(90.w, 90.w),
                           painter: _RingPainter(
-                            progress: 5 / 12,
+                            progress: _ringProgress,
                             trackColor: context.colors.surfaceRaised,
                           ),
                         ),
@@ -78,12 +105,21 @@ class LibraryStatsCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              '5/10',
+                              '$watchedCount/$totalEntries',
                               style: TextStyle(
                                 color: context.colors.foreground,
-                                fontSize: 18.sp,
+                                fontSize: totalEntries >= 100 ? 14.sp : 18.sp,
                                 fontWeight: FontWeight.w800,
                                 height: 1.0,
+                              ),
+                            ),
+                            SizedBox(height: 2.h),
+                            Text(
+                              'watched',
+                              style: TextStyle(
+                                color: context.colors.mutedSecondary,
+                                fontSize: 9.sp,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -92,7 +128,7 @@ class LibraryStatsCard extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 16.w),
-                  // ── Watch time ─────────────────────────────────────
+                  // ── Watch time ────────────────────────────────────────
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +147,7 @@ class LibraryStatsCard extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: '21h',
+                                text: _formattedWatchTime,
                                 style: TextStyle(
                                   color: context.colors.accentRed,
                                   fontSize: 28.sp,
@@ -120,7 +156,8 @@ class LibraryStatsCard extends StatelessWidget {
                                 ),
                               ),
                               TextSpan(
-                                text: '  across 14 titles',
+                                text:
+                                    '  across $totalEntries title${totalEntries == 1 ? '' : 's'}',
                                 style: TextStyle(
                                   color: context.colors.mutedSecondary,
                                   fontSize: 12.sp,
@@ -143,21 +180,21 @@ class LibraryStatsCard extends StatelessWidget {
                     icon: Icons.movie_outlined,
                     iconColor: context.colors.accentRed,
                     label: 'MOVIES',
-                    value: '6 watched',
+                    value: '$moviesWatched watched',
                   ),
                   SizedBox(width: 8.w),
                   _CategoryChip(
                     icon: Icons.tv_outlined,
                     iconColor: context.colors.accentPurple,
                     label: 'SERIES',
-                    value: '4 watched',
+                    value: '$seriesWatched watched',
                   ),
                   SizedBox(width: 8.w),
                   _CategoryChip(
                     icon: Icons.auto_awesome_outlined,
                     iconColor: context.colors.warning,
                     label: 'ANIME',
-                    value: '4 watched',
+                    value: '$animeWatched watched',
                   ),
                 ],
               ),
@@ -226,7 +263,7 @@ class _CategoryChip extends StatelessWidget {
   }
 }
 
-// ── Ring painter ─────────────────────────────────────────────────────────────
+// ── Ring painter ──────────────────────────────────────────────────────────────
 
 class _RingPainter extends CustomPainter {
   final double progress;
@@ -239,10 +276,9 @@ class _RingPainter extends CustomPainter {
     final cx = size.width / 2;
     final cy = size.height / 2;
     final radius = (size.width / 2) - 8;
-    final strokeW = 8.0;
+    const strokeW = 8.0;
     final rect = Rect.fromCircle(center: Offset(cx, cy), radius: radius);
 
-    // Track
     final trackPaint = Paint()
       ..color = trackColor
       ..style = PaintingStyle.stroke
@@ -250,24 +286,25 @@ class _RingPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     canvas.drawCircle(Offset(cx, cy), radius, trackPaint);
 
-    // Arc
-    final arcPaint = Paint()
-      ..shader = const LinearGradient(
-        colors: [Color(0xFFFE7847), Color(0xFFE63946)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ).createShader(rect)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeW
-      ..strokeCap = StrokeCap.round;
+    if (progress > 0) {
+      final arcPaint = Paint()
+        ..shader = const LinearGradient(
+          colors: [Color(0xFFFE7847), Color(0xFFE63946)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ).createShader(rect)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeW
+        ..strokeCap = StrokeCap.round;
 
-    canvas.drawArc(
-      rect,
-      -math.pi / 2,
-      2 * math.pi * progress,
-      false,
-      arcPaint,
-    );
+      canvas.drawArc(
+        rect,
+        -math.pi / 2,
+        2 * math.pi * progress,
+        false,
+        arcPaint,
+      );
+    }
   }
 
   @override

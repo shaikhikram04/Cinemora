@@ -7,6 +7,8 @@ const {
   getEntry,
   updateEntry,
   deleteEntry,
+  upsertSeason,
+  deleteSeason,
 } = require("../controllers/libraryController");
 
 // All library routes require auth
@@ -18,5 +20,9 @@ router.post("/", addToLibrary);
 router.get("/:tmdbId", getEntry);
 router.put("/:tmdbId", updateEntry);
 router.delete("/:tmdbId", deleteEntry);
+
+// Season-level routes — must be after /:tmdbId to avoid conflicts
+router.put("/:tmdbId/seasons/:seasonNumber", upsertSeason);
+router.delete("/:tmdbId/seasons/:seasonNumber", deleteSeason);
 
 module.exports = router;

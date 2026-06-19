@@ -7,6 +7,7 @@ import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/core/services/auth_service.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
+import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/core/services/secure_storage_service.dart';
 import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
@@ -23,6 +24,7 @@ void main() async {
   final authCubit = AppAuthCubit(authService);
   final userRepository = UserRepository(apiClient);
   final homeRepository = HomeRepository(apiClient);
+  final libraryRepository = LibraryRepository(apiClient);
   final prefs = await SharedPreferences.getInstance();
   final themeModeCubit = ThemeModeCubit(prefs);
 
@@ -31,6 +33,7 @@ void main() async {
     authCubit: authCubit,
     userRepository: userRepository,
     homeRepository: homeRepository,
+    libraryRepository: libraryRepository,
     themeModeCubit: themeModeCubit,
   ));
 }

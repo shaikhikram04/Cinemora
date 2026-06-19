@@ -1,15 +1,36 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:cinemora/features/home/models/jikan_anime_item.dart';
 import 'package:cinemora/features/home/models/movie_poster.dart';
 import 'package:cinemora/features/home/models/tmdb_item.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
+import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 
 class HomeFeedCubit extends Cubit<HomeFeedState> {
   final HomeRepository _repository;
+  final LibraryCubit _library;
+  late final StreamSubscription _librarySub;
 
-  HomeFeedCubit(this._repository) : super(const HomeFeedState()) {
+  HomeFeedCubit(this._repository, this._library)
+      : super(const HomeFeedState()) {
+    _librarySub = _library.stream.listen((_) => _syncBookmarkedIds());
+    _syncBookmarkedIds();
     loadFeed();
+  }
+
+  void _syncBookmarkedIds() {
+    final ids = {for (final e in _library.state.entries) e.tmdbId};
+    if (ids.length == state.bookmarkedIds.length &&
+        ids.every(state.bookmarkedIds.contains)) return;
+    emit(state.copyWith(bookmarkedIds: ids));
+  }
+
+  @override
+  Future<void> close() {
+    _librarySub.cancel();
+    return super.close();
   }
 
   void selectTab(String tab) => emit(state.withTab(tab));
@@ -51,6 +72,78 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
       topAnime: anime.map(_fromAnime).toList(),
       errorMessage: null,
     ));
+  }
+
+  void bookmarkFromPoster(MoviePoster item, CinemaType type) {
+    final id = item.id;
+    if (id == null) return;
+    _toggleBookmark(
+      id: id,
+      title: item.title,
+      cinemaType: _cinemaTypeString(type),
+      posterPath: _extractPosterPath(item.image),
+      year: item.year,
+      tmdbRating: double.tryParse(item.rating),
+    );
+  }
+
+  void bookmarkHero(TmdbItem hero) {
+    _toggleBookmark(
+      id: hero.id,
+      title: hero.title,
+      cinemaType: hero.mediaType,
+      posterPath: hero.posterPath,
+      year: hero.year,
+      tmdbRating: hero.voteAverage,
+    );
+  }
+
+  void _toggleBookmark({
+    required int id,
+    required String title,
+    required String cinemaType,
+    String? posterPath,
+    String? year,
+    double? tmdbRating,
+  }) {
+    final isBookmarked = state.bookmarkedIds.contains(id);
+    final updated = Set<int>.from(state.bookmarkedIds);
+    if (isBookmarked) {
+      updated.remove(id);
+    } else {
+      updated.add(id);
+    }
+    emit(state.copyWith(bookmarkedIds: updated));
+
+    if (isBookmarked) {
+      _library.removeEntry(id, cinemaType);
+    } else {
+      _library.addToWatchlist(
+        tmdbId: id,
+        cinemaType: cinemaType,
+        title: title,
+        posterPath: posterPath,
+        releaseYear: year,
+        tmdbRating: tmdbRating,
+      );
+    }
+  }
+
+  static String? _extractPosterPath(String? url) {
+    if (url == null || url.isEmpty) return null;
+    final match = RegExp(r'/t/p/\w+(/[^?]+)').firstMatch(url);
+    return match?.group(1);
+  }
+
+  static String _cinemaTypeString(CinemaType type) {
+    switch (type) {
+      case CinemaType.anime:
+        return 'anime';
+      case CinemaType.series:
+        return 'tv';
+      case CinemaType.movie:
+        return 'movie';
+    }
   }
 
   static MoviePoster _fromTmdb(TmdbItem e) => MoviePoster(

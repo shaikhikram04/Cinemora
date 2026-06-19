@@ -16,6 +16,8 @@ class VerticalPosterBookmarkCard extends StatefulWidget {
   final double radius;
   final VoidCallback? onTap;
   final CinemaType cinemaType;
+  final bool isBookmarked;
+  final VoidCallback? onBookmark;
 
   const VerticalPosterBookmarkCard({
     super.key,
@@ -28,6 +30,8 @@ class VerticalPosterBookmarkCard extends StatefulWidget {
     required this.year,
     this.radius = WSizes.radiusXxl,
     this.onTap,
+    this.isBookmarked = false,
+    this.onBookmark,
   });
 
   @override
@@ -37,7 +41,21 @@ class VerticalPosterBookmarkCard extends StatefulWidget {
 
 class _VerticalPosterBookmarkCardState
     extends State<VerticalPosterBookmarkCard> {
-  bool _inWatchlist = false;
+  late bool _inWatchlist;
+
+  @override
+  void initState() {
+    super.initState();
+    _inWatchlist = widget.isBookmarked;
+  }
+
+  @override
+  void didUpdateWidget(VerticalPosterBookmarkCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isBookmarked != widget.isBookmarked) {
+      setState(() => _inWatchlist = widget.isBookmarked);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +79,7 @@ class _VerticalPosterBookmarkCardState
             titleOnImage: false,
             onAddToWatchlist: () {
               setState(() => _inWatchlist = !_inWatchlist);
+              widget.onBookmark?.call();
             },
           ),
           SizedBox(height: 8.h),

@@ -17,6 +17,7 @@ class HomeFeedState extends Equatable {
   final List<MoviePoster> criticallyAcclaimed;
   final List<MoviePoster> trendingSeries;
   final List<MoviePoster> topAnime;
+  final Set<int> bookmarkedIds;
 
   const HomeFeedState({
     this.selectedTab = '✨   For You',
@@ -28,6 +29,7 @@ class HomeFeedState extends Equatable {
     this.criticallyAcclaimed = const [],
     this.trendingSeries = const [],
     this.topAnime = const [],
+    this.bookmarkedIds = const {},
   });
 
   HomeFeedState copyWith({
@@ -40,6 +42,7 @@ class HomeFeedState extends Equatable {
     List<MoviePoster>? criticallyAcclaimed,
     List<MoviePoster>? trendingSeries,
     List<MoviePoster>? topAnime,
+    Set<int>? bookmarkedIds,
   }) =>
       HomeFeedState(
         selectedTab: selectedTab ?? this.selectedTab,
@@ -55,6 +58,7 @@ class HomeFeedState extends Equatable {
         criticallyAcclaimed: criticallyAcclaimed ?? this.criticallyAcclaimed,
         trendingSeries: trendingSeries ?? this.trendingSeries,
         topAnime: topAnime ?? this.topAnime,
+        bookmarkedIds: bookmarkedIds ?? this.bookmarkedIds,
       );
 
   HomeFeedState withTab(String tab) => copyWith(selectedTab: tab);
@@ -74,5 +78,6 @@ class HomeFeedState extends Equatable {
         criticallyAcclaimed,
         trendingSeries,
         topAnime,
+        bookmarkedIds,
       ];
 }

@@ -13,10 +13,7 @@ class LibraryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => LibraryCubit(),
-      child: const _LibraryContent(),
-    );
+    return const _LibraryContent();
   }
 }
 
@@ -41,7 +38,67 @@ class _LibraryContentState extends State<_LibraryContent> {
     return BlocBuilder<LibraryCubit, LibraryState>(
       builder: (context, state) {
         final cubit = context.read<LibraryCubit>();
-        final items = cubit.sortedItems;
+
+        // ── Loading ──────────────────────────────────────────────────
+        if (state.status == LibraryStatus.loading ||
+            state.status == LibraryStatus.initial) {
+          return Container(
+            color: context.colors.background,
+            child: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        // ── Error ────────────────────────────────────────────────────
+        if (state.status == LibraryStatus.error) {
+          return Container(
+            color: context.colors.background,
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32.w),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.wifi_off_rounded,
+                        size: 48.sp, color: context.colors.mutedSecondary),
+                    SizedBox(height: 16.h),
+                    Text(
+                      state.errorMessage ?? 'Failed to load library.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: context.colors.mutedSecondary,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
+                    GestureDetector(
+                      onTap: cubit.loadData,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 24.w, vertical: 12.h),
+                        decoration: BoxDecoration(
+                          color: context.colors.accentRed,
+                          borderRadius: BorderRadius.circular(14.r),
+                        ),
+                        child: Text(
+                          'Retry',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        // ── Loaded ───────────────────────────────────────────────────
+        final items = cubit.filteredEntries;
 
         return Container(
           color: context.colors.background,
@@ -53,33 +110,31 @@ class _LibraryContentState extends State<_LibraryContent> {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
-                      16.h,
-                      WSizes.screenPadding.w,
-                      0,
+                        WSizes.screenPadding.w, 16.h, WSizes.screenPadding.w, 0),
+                    child: _LibraryHeader(
+                      totalTitles: state.entries.length,
+                      totalWatchMinutes: cubit.totalWatchedMinutes,
                     ),
-                    child: const _LibraryHeader(),
                   ),
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
-                      16.h,
-                      WSizes.screenPadding.w,
-                      0,
+                        WSizes.screenPadding.w, 16.h, WSizes.screenPadding.w, 0),
+                    child: LibraryStatsCard(
+                      watchedCount: cubit.watchedCount,
+                      totalEntries: cubit.totalEntries,
+                      totalWatchMinutes: cubit.totalWatchedMinutes,
+                      moviesWatched: cubit.moviesWatched,
+                      seriesWatched: cubit.seriesWatched,
+                      animeWatched: cubit.animeWatched,
                     ),
-                    child: const LibraryStatsCard(),
                   ),
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
-                      16.h,
-                      WSizes.screenPadding.w,
-                      0,
-                    ),
+                        WSizes.screenPadding.w, 16.h, WSizes.screenPadding.w, 0),
                     child: _LibrarySearchBar(
                       controller: _searchController,
                       onChanged: cubit.updateSearch,
@@ -99,14 +154,10 @@ class _LibraryContentState extends State<_LibraryContent> {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
-                      10.h,
-                      WSizes.screenPadding.w,
-                      0,
-                    ),
+                        WSizes.screenPadding.w, 10.h, WSizes.screenPadding.w, 0),
                     child: _StatusFilterRow(
                       statuses: LibraryCubit.statuses,
-                      counts: LibraryCubit.statusCounts,
+                      counts: cubit.statusCounts,
                       selected: state.selectedStatus,
                       onSelected: cubit.selectStatus,
                     ),
@@ -115,11 +166,7 @@ class _LibraryContentState extends State<_LibraryContent> {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
-                      16.h,
-                      WSizes.screenPadding.w,
-                      12.h,
-                    ),
+                        WSizes.screenPadding.w, 16.h, WSizes.screenPadding.w, 12.h),
                     child: Row(
                       children: [
                         Text.rich(
@@ -127,7 +174,8 @@ class _LibraryContentState extends State<_LibraryContent> {
                             children: [
                               TextSpan(
                                 text: '${items.length}',
-                                style: TextStyle(color: context.colors.foreground),
+                                style: TextStyle(
+                                    color: context.colors.foreground),
                               ),
                               const TextSpan(text: ' results'),
                             ],
@@ -151,11 +199,7 @@ class _LibraryContentState extends State<_LibraryContent> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
-                        WSizes.screenPadding.w,
-                        0,
-                        WSizes.screenPadding.w,
-                        12.h,
-                      ),
+                          WSizes.screenPadding.w, 0, WSizes.screenPadding.w, 12.h),
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: _SortPanel(
@@ -166,19 +210,36 @@ class _LibraryContentState extends State<_LibraryContent> {
                       ),
                     ),
                   ),
-                SliverPadding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => Padding(
-                        padding: EdgeInsets.only(bottom: 10.h),
-                        child: LibraryListItem(item: items[index]),
+
+                // ── Empty state or list ───────────────────────────────
+                if (items.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _EmptyState(
+                      status: state.selectedStatus,
+                      type: state.selectedType,
+                      hasSearch: state.searchQuery.isNotEmpty,
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: WSizes.screenPadding.w),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final entry = items[index];
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: 10.h),
+                            child: LibraryListItem(
+                              entry: entry,
+                            ),
+                          );
+                        },
+                        childCount: items.length,
                       ),
-                      childCount: items.length,
                     ),
                   ),
-                ),
                 SliverToBoxAdapter(child: SizedBox(height: 40.h)),
               ],
             ),
@@ -192,7 +253,22 @@ class _LibraryContentState extends State<_LibraryContent> {
 // ── Header ────────────────────────────────────────────────────────────────────
 
 class _LibraryHeader extends StatelessWidget {
-  const _LibraryHeader();
+  final int totalTitles;
+  final int totalWatchMinutes;
+
+  const _LibraryHeader({
+    required this.totalTitles,
+    required this.totalWatchMinutes,
+  });
+
+  String get _watchTimeLabel {
+    if (totalWatchMinutes == 0) return '—';
+    final h = totalWatchMinutes ~/ 60;
+    final m = totalWatchMinutes % 60;
+    if (h == 0) return '${m}m total';
+    if (m == 0) return '${h}h total';
+    return '${h}h ${m}m total';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +311,7 @@ class _LibraryHeader extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    '14 titles',
+                    '$totalTitles title${totalTitles == 1 ? '' : 's'}',
                     style: TextStyle(
                       color: context.colors.mutedSecondary,
                       fontSize: 14.sp,
@@ -252,7 +328,7 @@ class _LibraryHeader extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '21h total',
+                    _watchTimeLabel,
                     style: TextStyle(
                       color: context.colors.mutedSecondary,
                       fontSize: 14.sp,
@@ -376,26 +452,30 @@ class _TypeFilterRow extends StatelessWidget {
                       ),
                 borderRadius: BorderRadius.circular(999.r),
                 border: Border.all(
-                  color:
-                      isSelected ? Colors.transparent : context.colors.borderStrong,
+                  color: isSelected
+                      ? Colors.transparent
+                      : context.colors.borderStrong,
                 ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (icon != null) ...[
-                    Icon(icon,
-                        size: 12.sp,
-                        color: isSelected
-                            ? Colors.white
-                            : context.colors.mutedForeground),
+                    Icon(
+                      icon,
+                      size: 12.sp,
+                      color: isSelected
+                          ? Colors.white
+                          : context.colors.mutedForeground,
+                    ),
                     SizedBox(width: 5.w),
                   ],
                   Text(
                     t,
                     style: TextStyle(
-                      color:
-                          isSelected ? Colors.white : context.colors.mutedForeground,
+                      color: isSelected
+                          ? Colors.white
+                          : context.colors.mutedForeground,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
                     ),
@@ -426,15 +506,15 @@ class _StatusFilterRow extends StatelessWidget {
   });
 
   static const _statusIcons = {
-    'Watched': Icons.check_rounded,
     'Watchlist': Icons.bookmark_rounded,
+    'Watched': Icons.check_rounded,
     'Dropped': Icons.close_rounded,
   };
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(6.w),
+      padding: EdgeInsets.all(5.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -451,13 +531,14 @@ class _StatusFilterRow extends StatelessWidget {
         children: statuses.map((s) {
           final isSelected = s == selected;
           final icon = _statusIcons[s]!;
+          final count = counts[s] ?? 0;
 
           return Expanded(
             child: GestureDetector(
               onTap: () => onSelected(s),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
-                padding: EdgeInsets.symmetric(vertical: 8.h),
+                padding: EdgeInsets.symmetric(vertical: 7.h),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? context.colors.accentRed.withValues(alpha: 0.05)
@@ -479,25 +560,41 @@ class _StatusFilterRow extends StatelessWidget {
                         ]
                       : null,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      icon,
-                      size: 15.sp,
-                      color: isSelected
-                          ? context.colors.accentRed
-                          : context.colors.mutedSecondary,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          icon,
+                          size: 13.sp,
+                          color: isSelected
+                              ? context.colors.accentRed
+                              : context.colors.mutedSecondary,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          s,
+                          style: TextStyle(
+                            color: isSelected
+                                ? context.colors.foreground
+                                : context.colors.mutedSecondary,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 6.w),
+                    SizedBox(height: 2.h),
                     Text(
-                      s,
+                      '$count',
                       style: TextStyle(
                         color: isSelected
-                            ? context.colors.foreground
-                            : context.colors.mutedSecondary,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w600,
+                            ? context.colors.accentRed
+                            : context.colors.mutedSecondaryDeep,
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -660,6 +757,81 @@ class _SortPanel extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Empty State ───────────────────────────────────────────────────────────────
+
+class _EmptyState extends StatelessWidget {
+  final String status;
+  final String type;
+  final bool hasSearch;
+
+  const _EmptyState({
+    required this.status,
+    required this.type,
+    required this.hasSearch,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final String title;
+    final String subtitle;
+    final IconData icon;
+
+    if (hasSearch) {
+      title = 'No results found';
+      subtitle = 'Try a different search term or clear the filter.';
+      icon = Icons.search_off_rounded;
+    } else {
+      switch (status) {
+        case 'Watchlist':
+          title = 'Your watchlist is empty';
+          subtitle = 'Browse and add titles you want to watch.';
+          icon = Icons.bookmark_border_rounded;
+        case 'Watched':
+          title = 'No watched titles yet';
+          subtitle = 'Titles you finish will appear here.';
+          icon = Icons.check_circle_outline_rounded;
+        default: // Dropped
+          title = 'No dropped titles';
+          subtitle = 'Titles you stopped watching will appear here.';
+          icon = Icons.cancel_outlined;
+      }
+    }
+
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 40.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 52.sp, color: context.colors.mutedSecondaryDeep),
+            SizedBox(height: 16.h),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: context.colors.foreground,
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: context.colors.mutedSecondary,
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w400,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
