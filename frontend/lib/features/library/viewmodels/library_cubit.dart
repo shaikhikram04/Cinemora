@@ -231,6 +231,35 @@ class LibraryCubit extends Cubit<LibraryState> {
     emit(state.copyWith(entries: entries));
   }
 
+  /// Appends a new watch timestamp so the entry shows a rewatch count.
+  Future<void> markAsRewatch(int tmdbId, String cinemaType) async {
+    final entries = List<LibraryEntryModel>.from(state.entries);
+    final idx = entries.indexWhere(
+        (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
+    if (idx < 0) return;
+
+    final original = entries[idx];
+    final nowList = List<DateTime>.from(original.watchedAt)..add(DateTime.now());
+    entries[idx] = original.copyWith(
+      watchedAt: nowList,
+      status: 'watched',
+      updatedAt: DateTime.now(),
+    );
+    emit(state.copyWith(entries: entries));
+
+    try {
+      final confirmed =
+          await _repo.updateEntry(tmdbId, cinemaType, status: 'watched');
+      final refreshed = List<LibraryEntryModel>.from(state.entries);
+      final i = refreshed.indexWhere(
+          (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
+      if (i >= 0) refreshed[i] = confirmed;
+      emit(state.copyWith(entries: refreshed));
+    } catch (_) {
+      // Optimistic — next loadData() will re-sync
+    }
+  }
+
   /// Removes an entry from state without an API call.
   void removeEntryLocal(int tmdbId, String cinemaType) {
     final entries = List<LibraryEntryModel>.from(state.entries)

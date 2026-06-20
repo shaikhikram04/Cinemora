@@ -16,6 +16,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
   final String _title;
   final String? _posterUrl;
   final double? _tmdbRating;
+  final int? _focusSeason;
 
   SeriesDetailsCubit({
     HomeRepository? repo,
@@ -27,6 +28,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     String title = '',
     String? posterUrl,
     double? tmdbRating,
+    int? focusSeason,
   })  : _repo = repo,
         _library = library,
         _libraryCubit = libraryCubit,
@@ -35,6 +37,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
         _title = title,
         _posterUrl = posterUrl,
         _tmdbRating = tmdbRating,
+        _focusSeason = focusSeason,
         super(SeriesDetailsState(seasons: initialSeasons)) {
     if (id != null && repo != null) _loadDetail();
   }
@@ -45,6 +48,29 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     final range = state.detail?.yearRange ?? '';
     if (range.isEmpty) return null;
     return range.split(RegExp(r'\s*[–\-]\s*')).first.trim();
+  }
+
+  // Best available per-episode runtime: TMDB episode_run_time first,
+  // then average of loaded episode runtimes (e.g. "45m" strings).
+  int? get _episodeRuntime {
+    if (state.detail?.runtimeMinutes != null) return state.detail!.runtimeMinutes;
+    final runtimes = state.seasons
+        .expand((s) => s.episodes)
+        .map((ep) {
+          final m = RegExp(r'(\d+)').firstMatch(ep.runtime);
+          return m != null ? int.tryParse(m.group(1)!) : null;
+        })
+        .whereType<int>()
+        .where((t) => t > 0)
+        .toList();
+    if (runtimes.isEmpty) return null;
+    return (runtimes.reduce((a, b) => a + b) / runtimes.length).round();
+  }
+
+  // Total episode count across all seasons (from TMDB episode_count metadata).
+  int? get _totalEpisodes {
+    final total = state.seasons.fold(0, (sum, s) => sum + s.episodeCount);
+    return total > 0 ? total : null;
   }
 
   static String? _extractPosterPath(String? url) {
@@ -96,6 +122,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           releaseYear: _firstAirYear,
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
+          runtimeMinutes: _episodeRuntime,
           status: 'watchlist',
         );
         _libraryCubit?.syncEntry(entry);
@@ -129,7 +156,9 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           releaseYear: _firstAirYear,
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
+          runtimeMinutes: _episodeRuntime,
           status: 'watched',
+          progress: LibraryProgress(totalEpisodes: _totalEpisodes),
         );
         _libraryCubit?.syncEntry(entry);
       } catch (_) {
@@ -301,8 +330,10 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
         releaseYear: _firstAirYear,
         genres: state.detail?.genres ?? [],
         tmdbRating: _tmdbRating,
+        runtimeMinutes: _episodeRuntime,
         status: 'watched',
         userRating: rating,
+        progress: LibraryProgress(totalEpisodes: _totalEpisodes),
       );
       _libraryCubit?.syncEntry(entry);
     } catch (_) {}
@@ -357,6 +388,11 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
         final idx = detail.seasons.indexWhere((s) => s.malId == id);
         if (idx >= 0) startIndex = idx;
       }
+      if (_focusSeason != null) {
+        final idx =
+            detail.seasons.indexWhere((s) => s.number == _focusSeason);
+        if (idx >= 0) startIndex = idx;
+      }
 
       emit(state.copyWith(
         detail: detail,
@@ -372,7 +408,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
       ));
 
       if (_source == 'tmdb' && detail.seasons.isNotEmpty) {
-        _loadTmdbSeasonEpisodes(detail.seasons.first.number);
+        _loadTmdbSeasonEpisodes(detail.seasons[startIndex].number);
       } else if (_source == 'jikan' && detail.seasons.isNotEmpty) {
         final currentSeason = detail.seasons[startIndex];
         final malId = currentSeason.malId;

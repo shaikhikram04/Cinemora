@@ -87,6 +87,7 @@ class LibraryRepository {
     double? userRating,
     String? review,
     LibraryProgress? progress,
+    int? runtimeMinutes,
   }) async {
     try {
       final res = await _apiClient.dio.put(
@@ -97,6 +98,7 @@ class LibraryRepository {
           if (userRating != null) 'userRating': userRating,
           if (review != null) 'review': review,
           if (progress != null) 'progress': progress.toJson(),
+          if (runtimeMinutes != null) 'runtimeMinutes': runtimeMinutes,
         },
       );
       return LibraryEntryModel.fromJson(res.data as Map<String, dynamic>);
@@ -138,6 +140,7 @@ class LibraryRepository {
         status: status,
         userRating: userRating,
         progress: progress,
+        runtimeMinutes: runtimeMinutes,
       );
     } catch (e) {
       if (e is BackendException && e.code == 'LIBRARY_ENTRY_NOT_FOUND') {

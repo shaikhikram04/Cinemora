@@ -137,7 +137,7 @@ const updateEntry = async (req, res, next) => {
   const entry = await LibraryEntry.findOne(compoundFilter(req));
   if (!entry) return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
 
-  const { status, userRating, review, progress } = req.body;
+  const { status, userRating, review, progress, runtimeMinutes } = req.body;
 
   const wasWatched = entry.status === "watched";
   const nowWatched = status === "watched";
@@ -147,6 +147,7 @@ const updateEntry = async (req, res, next) => {
   if (userRating !== undefined) entry.userRating = userRating;
   if (review !== undefined) entry.review = review;
   if (progress !== undefined) entry.progress = { ...entry.progress?.toObject(), ...progress };
+  if (runtimeMinutes !== undefined) entry.runtimeMinutes = runtimeMinutes;
 
   await entry.save();
   res.json(entry);

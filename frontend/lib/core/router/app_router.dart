@@ -51,6 +51,7 @@ class SeriesRouteArgs {
   final String rating;
   final int? id;
   final String source; // "tmdb" | "jikan"
+  final int? focusSeason; // auto-select this season tab on open
   const SeriesRouteArgs({
     required this.title,
     required this.image,
@@ -58,6 +59,7 @@ class SeriesRouteArgs {
     required this.rating,
     this.id,
     this.source = 'tmdb',
+    this.focusSeason,
   });
 }
 
@@ -193,6 +195,7 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
             rating: args.rating,
             id: args.id,
             source: args.source,
+            focusSeason: args.focusSeason,
           );
         },
       ),

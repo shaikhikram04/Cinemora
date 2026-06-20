@@ -17,6 +17,7 @@ class SeriesDetailsView extends StatelessWidget {
   final String rating;
   final int? id;
   final String source;
+  final int? focusSeason;
 
   const SeriesDetailsView({
     super.key,
@@ -26,6 +27,7 @@ class SeriesDetailsView extends StatelessWidget {
     required this.rating,
     this.id,
     this.source = 'tmdb',
+    this.focusSeason,
   });
 
   @override
@@ -40,6 +42,7 @@ class SeriesDetailsView extends StatelessWidget {
         title: seriesTitle,
         posterUrl: seriesImage,
         tmdbRating: double.tryParse(rating),
+        focusSeason: focusSeason,
       ),
       child: _SeriesDetailsContent(
         seriesTitle: seriesTitle,

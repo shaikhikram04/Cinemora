@@ -145,6 +145,7 @@ class TmdbTvDetail {
   final List<StreamingProvider> providers;
   final List<SeriesSeason> seasons;
   final String? trailerKey; // YouTube video ID
+  final int? runtimeMinutes; // per-episode runtime
 
   const TmdbTvDetail({
     required this.overview,
@@ -155,6 +156,7 @@ class TmdbTvDetail {
     required this.providers,
     required this.seasons,
     this.trailerKey,
+    this.runtimeMinutes,
   });
 
   TmdbTvDetail copyWithSeasonEpisodes(SeriesSeason updated) {
@@ -168,6 +170,7 @@ class TmdbTvDetail {
       seasons:
           seasons.map((s) => s.number == updated.number ? updated : s).toList(),
       trailerKey: trailerKey,
+      runtimeMinutes: runtimeMinutes,
     );
   }
 
@@ -240,6 +243,13 @@ class TmdbTvDetail {
       );
     }).toList();
 
+    final episodeRunTimes = (detail['episode_run_time'] as List? ?? [])
+        .cast<int>()
+        .where((t) => t > 0)
+        .toList();
+    final episodeRuntime =
+        episodeRunTimes.isNotEmpty ? episodeRunTimes.first : null;
+
     return TmdbTvDetail(
       overview: detail['overview'] as String? ?? '',
       genres: genres,
@@ -249,6 +259,7 @@ class TmdbTvDetail {
       providers: _parseProviders(providersJson),
       seasons: seasons,
       trailerKey: _parseTrailerKey(detail),
+      runtimeMinutes: episodeRuntime,
     );
   }
 
@@ -362,6 +373,12 @@ class TmdbTvDetail {
 
     final jikanTrailerId = (d['trailer'] as Map?)?['youtube_id'] as String?;
 
+    // Jikan duration is a string like "24 min per ep" — extract first integer
+    final durationStr = d['duration'] as String? ?? '';
+    final durationMatch = RegExp(r'\d+').firstMatch(durationStr);
+    final jikanRuntime =
+        durationMatch != null ? int.tryParse(durationMatch.group(0)!) : null;
+
     return TmdbTvDetail(
       overview: d['synopsis'] as String? ?? '',
       genres: genres,
@@ -371,6 +388,7 @@ class TmdbTvDetail {
       providers: const [],
       seasons: seasons,
       trailerKey: jikanTrailerId,
+      runtimeMinutes: jikanRuntime,
     );
   }
 
@@ -500,6 +518,7 @@ class TmdbTvDetail {
       providers: const [],
       seasons: seasons,
       trailerKey: trailerKey,
+      runtimeMinutes: media['duration'] as int?,
     );
   }
 }

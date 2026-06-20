@@ -17,6 +17,12 @@ class LibraryListItem extends StatelessWidget {
     required this.entry,
   });
 
+  // If only one season was added, focus that season when opening series details.
+  int? get _focusSeason =>
+      entry.cinemaType != 'movie' && entry.seasons.length == 1
+          ? entry.seasons.first.seasonNumber
+          : null;
+
   void _openDetail(BuildContext context) {
     if (entry.cinemaType == 'movie') {
       context.push(
@@ -37,6 +43,7 @@ class LibraryListItem extends StatelessWidget {
           rating: entry.tmdbRating?.toStringAsFixed(1) ?? '—',
           id: entry.tmdbId,
           source: entry.cinemaType == 'anime' ? 'jikan' : 'tmdb',
+          focusSeason: _focusSeason,
         ),
       );
     }
@@ -58,6 +65,9 @@ class LibraryListItem extends StatelessWidget {
     final hasProgress = entry.cinemaType != 'movie' &&
         entry.progress != null &&
         entry.progress!.progressFraction > 0;
+
+    final rewatchCount = entry.watchedAt.length;
+    final focusSeason = _focusSeason;
 
     return GestureDetector(
       onTap: () => _openDetail(context),
@@ -117,7 +127,7 @@ class LibraryListItem extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title row + menu
+                    // Title row + menu button
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -138,11 +148,18 @@ class LibraryListItem extends StatelessWidget {
                           onTap: () => _openActionsSheet(context),
                           behavior: HitTestBehavior.opaque,
                           child: Padding(
-                            padding: EdgeInsets.only(left: 4.w, top: 2.h),
-                            child: Icon(
-                              Icons.more_horiz_rounded,
-                              size: 18.sp,
-                              color: context.colors.mutedSecondary,
+                            padding: EdgeInsets.only(left: 8.w, top: 2.h),
+                            child: Container(
+                              padding: EdgeInsets.all(4.w),
+                              decoration: BoxDecoration(
+                                color: context.colors.surfaceMuted,
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              child: Icon(
+                                Icons.more_horiz_rounded,
+                                size: 16.sp,
+                                color: context.colors.mutedSecondary,
+                              ),
                             ),
                           ),
                         ),
@@ -150,7 +167,7 @@ class LibraryListItem extends StatelessWidget {
                     ),
                     SizedBox(height: 4.h),
 
-                    // Year · type · TMDb rating
+                    // Year · season badge · type · TMDb rating
                     Row(
                       children: [
                         if (entry.releaseYear != null) ...[
@@ -163,6 +180,30 @@ class LibraryListItem extends StatelessWidget {
                             ),
                           ),
                           _dot(context),
+                        ],
+                        // Season badge when only one season is tracked
+                        if (focusSeason != null) ...[
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 5.w, vertical: 2.h),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: _typeColor(context, entry.cinemaType)
+                                    .withValues(alpha: 0.6),
+                              ),
+                              borderRadius: BorderRadius.circular(4.r),
+                            ),
+                            child: Text(
+                              'S$focusSeason',
+                              style: TextStyle(
+                                color: _typeColor(context, entry.cinemaType),
+                                fontSize: 9.sp,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 5.w),
                         ],
                         Text(
                           entry.displayType.toUpperCase(),
@@ -197,7 +238,7 @@ class LibraryListItem extends StatelessWidget {
                       ],
                     ),
 
-                    // User rating stars
+                    // User rating stars + optional rewatch badge
                     if (entry.userRating != null && entry.userRating! > 0) ...[
                       SizedBox(height: 7.h),
                       Row(
@@ -212,8 +253,15 @@ class LibraryListItem extends StatelessWidget {
                           ),
                           SizedBox(width: 6.w),
                           _StarRow(rating: entry.userRating!),
+                          if (rewatchCount > 1) ...[
+                            SizedBox(width: 8.w),
+                            _RewatchBadge(count: rewatchCount),
+                          ],
                         ],
                       ),
+                    ] else if (rewatchCount > 1) ...[
+                      SizedBox(height: 7.h),
+                      _RewatchBadge(count: rewatchCount),
                     ],
 
                     // Progress bar + episode label
@@ -251,6 +299,44 @@ class LibraryListItem extends StatelessWidget {
       default:
         return context.colors.accentRed;
     }
+  }
+}
+
+// ── Rewatch Badge ─────────────────────────────────────────────────────────────
+
+class _RewatchBadge extends StatelessWidget {
+  final int count;
+
+  const _RewatchBadge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+      decoration: BoxDecoration(
+        color: context.colors.accentRed.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.replay_rounded,
+            size: 10.sp,
+            color: context.colors.accentRed.withValues(alpha: 0.8),
+          ),
+          SizedBox(width: 2.w),
+          Text(
+            '$count×',
+            style: TextStyle(
+              color: context.colors.accentRed.withValues(alpha: 0.8),
+              fontSize: 9.sp,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -357,14 +443,16 @@ class _ActionsSheet extends StatelessWidget {
     required this.cubit,
   });
 
-  static const _allStatuses = [
+  static const _moveStatuses = [
     ('Watchlist', Icons.bookmark_rounded),
     ('Watched', Icons.check_circle_rounded),
-    ('Dropped', Icons.close_rounded),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final isWatched = entry.status == 'watched';
+    final isDropped = entry.status == 'dropped';
+
     return Container(
       decoration: BoxDecoration(
         color: context.colors.surface,
@@ -392,16 +480,45 @@ class _ActionsSheet extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 16.h),
-              // Title
-              Text(
-                entry.title,
-                style: TextStyle(
-                  color: context.colors.foreground,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+
+              // Title + current status pill
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      entry.title,
+                      style: TextStyle(
+                        color: context.colors.foreground,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: _statusColor(context, entry.status)
+                          .withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(99.r),
+                      border: Border.all(
+                        color: _statusColor(context, entry.status)
+                            .withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: Text(
+                      entry.displayStatus,
+                      style: TextStyle(
+                        color: _statusColor(context, entry.status),
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 4.h),
               Text(
@@ -413,14 +530,16 @@ class _ActionsSheet extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 12.h),
-              // Status options
+
+              // ── Watchlist / Watched ──────────────────────────────────
               Row(
-                children: _allStatuses.map((s) {
+                children: _moveStatuses.map((s) {
                   final (label, icon) = s;
                   final isCurrent = entry.displayStatus == label;
                   return Expanded(
                     child: Padding(
-                      padding: EdgeInsets.only(right: s == _allStatuses.last ? 0 : 8.w),
+                      padding: EdgeInsets.only(
+                          right: s == _moveStatuses.last ? 0 : 8.w),
                       child: GestureDetector(
                         onTap: isCurrent
                             ? null
@@ -434,12 +553,14 @@ class _ActionsSheet extends StatelessWidget {
                           padding: EdgeInsets.symmetric(vertical: 12.h),
                           decoration: BoxDecoration(
                             color: isCurrent
-                                ? context.colors.accentRed.withValues(alpha: 0.12)
+                                ? context.colors.accentRed
+                                    .withValues(alpha: 0.12)
                                 : context.colors.surfaceRaised,
                             borderRadius: BorderRadius.circular(14.r),
                             border: Border.all(
                               color: isCurrent
-                                  ? context.colors.accentRed.withValues(alpha: 0.5)
+                                  ? context.colors.accentRed
+                                      .withValues(alpha: 0.5)
                                   : context.colors.borderStrong,
                             ),
                           ),
@@ -471,8 +592,100 @@ class _ActionsSheet extends StatelessWidget {
                   );
                 }).toList(),
               ),
-              SizedBox(height: 12.h),
-              // Remove button
+              SizedBox(height: 10.h),
+
+              // ── Rewatch — only when already watched ─────────────────
+              if (isWatched) ...[
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    cubit.markAsRewatch(entry.tmdbId, entry.cinemaType);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 13.h),
+                    decoration: BoxDecoration(
+                      color: context.colors.accentRed.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(14.r),
+                      border: Border.all(
+                        color: context.colors.accentRed.withValues(alpha: 0.25),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.replay_rounded,
+                          size: 17.sp,
+                          color: context.colors.accentRed,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'Watch again',
+                          style: TextStyle(
+                            color: context.colors.accentRed,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.h),
+              ],
+
+              // ── Divider ──────────────────────────────────────────────
+              Divider(
+                color: context.colors.borderStrong,
+                height: 1,
+                thickness: 1,
+              ),
+              SizedBox(height: 10.h),
+
+              // ── Drop — only when not already dropped ─────────────────
+              if (!isDropped) ...[
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    cubit.updateEntryStatus(
+                        entry.tmdbId, entry.cinemaType, 'Dropped');
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 13.h),
+                    decoration: BoxDecoration(
+                      color: context.colors.warning.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(14.r),
+                      border: Border.all(
+                        color: context.colors.warning.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.close_rounded,
+                          size: 17.sp,
+                          color: context.colors.warning,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'Drop it',
+                          style: TextStyle(
+                            color: context.colors.warning,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.h),
+              ],
+
+              // ── Remove from library ───────────────────────────────────
               GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
@@ -515,5 +728,16 @@ class _ActionsSheet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _statusColor(BuildContext context, String status) {
+    switch (status) {
+      case 'watched':
+        return context.colors.success;
+      case 'dropped':
+        return context.colors.warning;
+      default:
+        return context.colors.accentRed;
+    }
   }
 }

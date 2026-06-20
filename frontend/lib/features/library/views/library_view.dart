@@ -109,8 +109,8 @@ class _LibraryContentState extends State<_LibraryContent> {
               slivers: [
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        WSizes.screenPadding.w, 16.h, WSizes.screenPadding.w, 0),
+                    padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 16.h,
+                        WSizes.screenPadding.w, 0),
                     child: _LibraryHeader(
                       totalTitles: state.entries.length,
                       totalWatchMinutes: cubit.totalWatchedMinutes,
@@ -119,8 +119,8 @@ class _LibraryContentState extends State<_LibraryContent> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        WSizes.screenPadding.w, 16.h, WSizes.screenPadding.w, 0),
+                    padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 16.h,
+                        WSizes.screenPadding.w, 0),
                     child: LibraryStatsCard(
                       watchedCount: cubit.watchedCount,
                       totalEntries: cubit.totalEntries,
@@ -133,8 +133,8 @@ class _LibraryContentState extends State<_LibraryContent> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        WSizes.screenPadding.w, 16.h, WSizes.screenPadding.w, 0),
+                    padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 16.h,
+                        WSizes.screenPadding.w, 0),
                     child: _LibrarySearchBar(
                       controller: _searchController,
                       onChanged: cubit.updateSearch,
@@ -153,8 +153,8 @@ class _LibraryContentState extends State<_LibraryContent> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        WSizes.screenPadding.w, 10.h, WSizes.screenPadding.w, 0),
+                    padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 10.h,
+                        WSizes.screenPadding.w, 0),
                     child: _StatusFilterRow(
                       statuses: LibraryCubit.statuses,
                       counts: cubit.statusCounts,
@@ -165,8 +165,8 @@ class _LibraryContentState extends State<_LibraryContent> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        WSizes.screenPadding.w, 16.h, WSizes.screenPadding.w, 12.h),
+                    padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 16.h,
+                        WSizes.screenPadding.w, 12.h),
                     child: Row(
                       children: [
                         Text.rich(
@@ -174,8 +174,8 @@ class _LibraryContentState extends State<_LibraryContent> {
                             children: [
                               TextSpan(
                                 text: '${items.length}',
-                                style: TextStyle(
-                                    color: context.colors.foreground),
+                                style:
+                                    TextStyle(color: context.colors.foreground),
                               ),
                               const TextSpan(text: ' results'),
                             ],
@@ -198,8 +198,8 @@ class _LibraryContentState extends State<_LibraryContent> {
                 if (state.isSortOpen)
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                          WSizes.screenPadding.w, 0, WSizes.screenPadding.w, 12.h),
+                      padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 0,
+                          WSizes.screenPadding.w, 12.h),
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: _SortPanel(
@@ -389,8 +389,8 @@ class _LibrarySearchBar extends StatelessWidget {
         filled: true,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14.r),
-          borderSide:
-              BorderSide(color: context.colors.accentRed.withValues(alpha: 0.5)),
+          borderSide: BorderSide(
+              color: context.colors.accentRed.withValues(alpha: 0.5)),
         ),
       ),
     );
@@ -543,17 +543,18 @@ class _StatusFilterRow extends StatelessWidget {
                   color: isSelected
                       ? context.colors.accentRed.withValues(alpha: 0.05)
                       : Colors.transparent,
-                  borderRadius:
-                      BorderRadius.all(Radius.elliptical(16.r, 18.r)),
+                  borderRadius: BorderRadius.all(Radius.elliptical(16.r, 18.r)),
                   border: isSelected
                       ? Border.all(
-                          color: context.colors.accentRed.withValues(alpha: 0.5),
+                          color:
+                              context.colors.accentRed.withValues(alpha: 0.5),
                         )
                       : null,
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: context.colors.accentRed.withValues(alpha: 0.1),
+                            color:
+                                context.colors.accentRed.withValues(alpha: 0.1),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -720,7 +721,8 @@ class _SortPanel extends StatelessWidget {
                           borderRadius: BorderRadius.circular(999.r),
                           border: Border.all(
                             color: isSelected
-                                ? context.colors.accentRed.withValues(alpha: 0.5)
+                                ? context.colors.accentRed
+                                    .withValues(alpha: 0.5)
                                 : Colors.transparent,
                           ),
                         ),
@@ -797,7 +799,7 @@ class _EmptyState extends StatelessWidget {
           icon = Icons.check_circle_outline_rounded;
         default: // Dropped
           title = 'No dropped titles';
-          subtitle = 'Titles you stopped watching will appear here.';
+          subtitle = 'Titles you dropped will appear here.';
           icon = Icons.cancel_outlined;
       }
     }
