@@ -4,6 +4,7 @@ const {
   getLibrary,
   getStats,
   addToLibrary,
+  upsertEntry,
   getEntry,
   updateEntry,
   deleteEntry,
@@ -15,8 +16,9 @@ const {
 router.use(auth);
 
 router.get("/", getLibrary);
-router.get("/stats", getStats);   // must be before /:tmdbId
+router.get("/stats", getStats); // must be before /:tmdbId
 router.post("/", addToLibrary);
+router.post("/upsert", upsertEntry); // must be before /:tmdbId
 router.get("/:tmdbId", getEntry);
 router.put("/:tmdbId", updateEntry);
 router.delete("/:tmdbId", deleteEntry);

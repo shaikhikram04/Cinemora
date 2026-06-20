@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
+import 'package:cinemora/core/utils/tmdb_url_utils.dart';
 import 'package:cinemora/features/home/models/jikan_anime_item.dart';
 import 'package:cinemora/features/home/models/movie_poster.dart';
 import 'package:cinemora/features/home/models/tmdb_item.dart';
@@ -80,8 +81,8 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
     _toggleBookmark(
       id: id,
       title: item.title,
-      cinemaType: _cinemaTypeString(type),
-      posterPath: _extractPosterPath(item.image),
+      cinemaType: type,
+      posterPath: extractTmdbPosterPath(item.image),
       year: item.year,
       tmdbRating: double.tryParse(item.rating),
     );
@@ -91,7 +92,7 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
     _toggleBookmark(
       id: hero.id,
       title: hero.title,
-      cinemaType: hero.mediaType,
+      cinemaType: CinemaType.fromJson(hero.mediaType),
       posterPath: hero.posterPath,
       year: hero.year,
       tmdbRating: hero.voteAverage,
@@ -101,7 +102,7 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
   void _toggleBookmark({
     required int id,
     required String title,
-    required String cinemaType,
+    required CinemaType cinemaType,
     String? posterPath,
     String? year,
     double? tmdbRating,
@@ -126,23 +127,6 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
         releaseYear: year,
         tmdbRating: tmdbRating,
       );
-    }
-  }
-
-  static String? _extractPosterPath(String? url) {
-    if (url == null || url.isEmpty) return null;
-    final match = RegExp(r'/t/p/\w+(/[^?]+)').firstMatch(url);
-    return match?.group(1);
-  }
-
-  static String _cinemaTypeString(CinemaType type) {
-    switch (type) {
-      case CinemaType.anime:
-        return 'anime';
-      case CinemaType.series:
-        return 'tv';
-      case CinemaType.movie:
-        return 'movie';
     }
   }
 

@@ -18,6 +18,8 @@ class SeriesDetailsState extends Equatable {
   final DetailStatus detailStatus;
   final List<SeriesSeason> seasons;
   final Set<int> loadedSeasonNumbers;
+  // Transient — set on mutation failure, cleared after the view consumes it.
+  final String? mutationError;
 
   const SeriesDetailsState({
     this.selectedSeasonIndex = 0,
@@ -34,6 +36,7 @@ class SeriesDetailsState extends Equatable {
     this.detailStatus = DetailStatus.initial,
     this.seasons = const [],
     this.loadedSeasonNumbers = const {},
+    this.mutationError,
   });
 
   bool get isDetailLoading => detailStatus == DetailStatus.loading;
@@ -53,6 +56,8 @@ class SeriesDetailsState extends Equatable {
     DetailStatus? detailStatus,
     List<SeriesSeason>? seasons,
     Set<int>? loadedSeasonNumbers,
+    String? mutationError,
+    bool clearMutationError = false,
   }) {
     return SeriesDetailsState(
       selectedSeasonIndex: selectedSeasonIndex ?? this.selectedSeasonIndex,
@@ -69,6 +74,7 @@ class SeriesDetailsState extends Equatable {
       detailStatus: detailStatus ?? this.detailStatus,
       seasons: seasons ?? this.seasons,
       loadedSeasonNumbers: loadedSeasonNumbers ?? this.loadedSeasonNumbers,
+      mutationError: clearMutationError ? null : (mutationError ?? this.mutationError),
     );
   }
 
@@ -88,5 +94,6 @@ class SeriesDetailsState extends Equatable {
         detailStatus,
         seasons,
         loadedSeasonNumbers,
+        mutationError,
       ];
 }

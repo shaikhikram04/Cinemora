@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
-class WToggleActionButton extends StatelessWidget {
+class ToggleActionButton extends StatelessWidget {
   final bool selected;
   final String selectedLabel;
   final String unselectedLabel;
@@ -17,7 +17,7 @@ class WToggleActionButton extends StatelessWidget {
   final Color? selectedForeground;
   final Color? unselectedForeground;
 
-  const WToggleActionButton({
+  const ToggleActionButton({
     super.key,
     required this.selected,
     required this.selectedLabel,
@@ -59,7 +59,8 @@ class WToggleActionButton extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
             border: Border.all(
-              color: selected ? borderColor.withValues(alpha: 0.5) : borderColor,
+              color:
+                  selected ? borderColor.withValues(alpha: 0.5) : borderColor,
               width: selected ? 0.5 : 1,
             ),
           ),

@@ -12,9 +12,19 @@ const compoundFilter = (req) => ({
 
 // ── Collection ────────────────────────────────────────────────────────────────
 
+const VALID_CINEMA_TYPES = new Set(["movie", "tv", "anime"]);
+const VALID_STATUSES = new Set(["watchlist", "watching", "watched", "dropped"]);
+
 // GET /api/library?status=&cinemaType=&sort=
-const getLibrary = async (req, res) => {
+const getLibrary = async (req, res, next) => {
   const { status, cinemaType, sort = "updatedAt" } = req.query;
+
+  if (cinemaType && !VALID_CINEMA_TYPES.has(cinemaType)) {
+    return next(new AppError(400, "LIBRARY_INVALID_TYPE", `cinemaType must be one of: ${[...VALID_CINEMA_TYPES].join(", ")}`));
+  }
+  if (status && !VALID_STATUSES.has(status)) {
+    return next(new AppError(400, "LIBRARY_INVALID_STATUS", `status must be one of: ${[...VALID_STATUSES].join(", ")}`));
+  }
 
   const filter = { userId: req.user.userId };
   if (status) filter.status = status;
@@ -115,6 +125,61 @@ const addToLibrary = async (req, res, next) => {
   });
 
   res.status(201).json(entry);
+};
+
+// POST /api/library/upsert
+// Atomically creates or updates a library entry.
+// Handles watchedAt stamping the same way PUT /:tmdbId does.
+const upsertEntry = async (req, res, next) => {
+  const {
+    tmdbId, cinemaType, title, posterPath, releaseYear,
+    genres, tmdbRating, runtimeMinutes, status,
+    userRating, progress,
+  } = req.body;
+
+  if (!tmdbId || !cinemaType || !title) {
+    return next(new AppError(400, "LIBRARY_MISSING_FIELDS", "tmdbId, cinemaType, and title are required"));
+  }
+
+  const userId = req.user.userId;
+  const numericTmdbId = Number(tmdbId);
+  const resolvedStatus = status || "watchlist";
+
+  let entry = await LibraryEntry.findOne({ userId, tmdbId: numericTmdbId, cinemaType });
+
+  if (!entry) {
+    entry = await LibraryEntry.create({
+      userId,
+      tmdbId: numericTmdbId,
+      cinemaType,
+      title,
+      posterPath,
+      releaseYear,
+      genres: genres || [],
+      tmdbRating,
+      runtimeMinutes,
+      status: resolvedStatus,
+      // Stamp watchedAt immediately when creating directly as watched.
+      watchedAt: resolvedStatus === "watched" ? [new Date()] : [],
+      seasons: [],
+      ...(userRating !== undefined && { userRating }),
+      ...(progress !== undefined && { progress }),
+    });
+  } else {
+    // Mirror updateEntry's watchedAt logic: push a stamp on first transition to watched.
+    const wasWatched = entry.status === "watched";
+    const nowWatched = resolvedStatus === "watched";
+    if (nowWatched && !wasWatched) entry.watchedAt.push(new Date());
+
+    entry.status = resolvedStatus;
+    if (userRating !== undefined) entry.userRating = userRating;
+    if (progress !== undefined) entry.progress = { ...entry.progress?.toObject(), ...progress };
+    if (runtimeMinutes !== undefined) entry.runtimeMinutes = runtimeMinutes;
+
+    await entry.save();
+  }
+
+  res.json(entry);
 };
 
 // GET /api/library/:tmdbId?type=cinemaType
@@ -240,6 +305,7 @@ module.exports = {
   getLibrary,
   getStats,
   addToLibrary,
+  upsertEntry,
   getEntry,
   updateEntry,
   deleteEntry,

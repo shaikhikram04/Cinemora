@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/models/library_stats_model.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 
 enum ProfileStatus { initial, loading, loaded, error }
 
@@ -33,7 +34,7 @@ class ProfileState extends Equatable {
 
   List<LibraryEntryModel> get topFavorites {
     final rated = entries
-        .where((e) => e.status == 'watched' && (e.userRating ?? 0) > 0)
+        .where((e) => e.status == WatchStatus.watched && (e.userRating ?? 0) > 0)
         .toList()
       ..sort((a, b) => (b.userRating ?? 0).compareTo(a.userRating ?? 0));
     return rated.take(5).toList();

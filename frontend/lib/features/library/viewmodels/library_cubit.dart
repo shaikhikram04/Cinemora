@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
-import 'package:cinemora/core/models/library_stats_model.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'library_state.dart';
@@ -8,7 +9,7 @@ import 'library_state.dart';
 class LibraryCubit extends Cubit<LibraryState> {
   final LibraryRepository _repo;
 
-  LibraryCubit(this._repo) : super(const LibraryState());
+  LibraryCubit(this._repo) : super(LibraryState());
 
   static const types = ['All', 'Movies', 'Series', 'Anime'];
   static const statuses = ['Watchlist', 'Watched', 'Dropped'];
@@ -22,34 +23,13 @@ class LibraryCubit extends Cubit<LibraryState> {
     'Runtime',
   ];
 
-  static String displayToApiStatus(String display) => display.toLowerCase();
-
-  static String displayToApiType(String display) {
-    switch (display) {
-      case 'Movies':
-        return 'movie';
-      case 'Series':
-        return 'tv';
-      case 'Anime':
-        return 'anime';
-      default:
-        return '';
-    }
-  }
-
   Future<void> loadData() async {
     emit(state.copyWith(status: LibraryStatus.loading));
     try {
-      List<LibraryEntryModel> entries = [];
-      LibraryStatsModel? stats;
-      await Future.wait([
-        _repo.fetchEntries().then((v) => entries = v),
-        _repo.fetchStats().then((v) => stats = v),
-      ]);
+      final entries = await _repo.fetchEntries();
       emit(state.copyWith(
         status: LibraryStatus.loaded,
         entries: entries,
-        stats: stats,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -59,84 +39,23 @@ class LibraryCubit extends Cubit<LibraryState> {
     }
   }
 
-  // ── Computed stats ─────────────────────────────────────────────────────────
+  // ── Computed stats (precomputed in LibraryState) ──────────────────────────
 
-  Map<String, int> get statusCounts => {
-        for (final s in statuses)
-          s: state.entries
-              .where((e) => e.status == displayToApiStatus(s))
-              .length,
-      };
-
+  Map<String, int> get statusCounts => state.statusCounts;
   int get totalEntries => state.entries.length;
+  int get watchedCount => state.watchedCount;
+  int get moviesWatched => state.moviesWatched;
+  int get seriesWatched => state.seriesWatched;
+  int get animeWatched => state.animeWatched;
+  int get totalWatchedMinutes => state.totalWatchedMinutes;
 
-  int get watchedCount =>
-      state.entries.where((e) => e.status == 'watched').length;
+  // ── Filtered + sorted list (precomputed in LibraryState) ──────────────────
 
-  int get moviesWatched => state.entries
-      .where((e) => e.cinemaType == 'movie' && e.status == 'watched')
-      .length;
-
-  int get seriesWatched => state.entries
-      .where((e) => e.cinemaType == 'tv' && e.status == 'watched')
-      .length;
-
-  int get animeWatched => state.entries
-      .where((e) => e.cinemaType == 'anime' && e.status == 'watched')
-      .length;
-
-  int get totalWatchedMinutes {
-    int total = 0;
-    for (final e in state.entries) {
-      if (e.status == 'watched' && e.runtimeMinutes != null) {
-        final eps =
-            e.cinemaType == 'movie' ? 1 : (e.progress?.totalEpisodes ?? 1);
-        total += e.runtimeMinutes! * eps;
-      }
-    }
-    return total;
-  }
-
-  // ── Filtered + sorted list ─────────────────────────────────────────────────
-
-  List<LibraryEntryModel> get filteredEntries {
-    final apiStatus = displayToApiStatus(state.selectedStatus);
-    final apiType = displayToApiType(state.selectedType);
-
-    final filtered = state.entries.where((entry) {
-      final typeMatch =
-          state.selectedType == 'All' || entry.cinemaType == apiType;
-      final statusMatch = entry.status == apiStatus;
-      final searchMatch = state.searchQuery.isEmpty ||
-          entry.title.toLowerCase().contains(state.searchQuery.toLowerCase());
-      return typeMatch && statusMatch && searchMatch;
-    }).toList();
-
-    switch (state.selectedSort) {
-      case 'Recently updated':
-        filtered.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-      case 'Highest rated':
-        filtered.sort((a, b) => (b.userRating ?? b.tmdbRating ?? 0)
-            .compareTo(a.userRating ?? a.tmdbRating ?? 0));
-      case 'Lowest rated':
-        filtered.sort((a, b) => (a.userRating ?? a.tmdbRating ?? 0)
-            .compareTo(b.userRating ?? b.tmdbRating ?? 0));
-      case 'Release date':
-        filtered.sort((a, b) => (int.tryParse(b.releaseYear ?? '0') ?? 0)
-            .compareTo(int.tryParse(a.releaseYear ?? '0') ?? 0));
-      case 'Alphabetical':
-        filtered.sort((a, b) => a.title.compareTo(b.title));
-      case 'Runtime':
-        filtered.sort(
-            (a, b) => (b.runtimeMinutes ?? 0).compareTo(a.runtimeMinutes ?? 0));
-      default: // 'Recently added'
-        filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    }
-
-    return filtered;
-  }
+  List<LibraryEntryModel> get filteredEntries => state.filteredEntries;
 
   // ── Filter / sort actions ─────────────────────────────────────────────────
+
+  void clearMutationError() => emit(state.copyWith(clearMutationError: true));
 
   void selectType(String type) => emit(state.copyWith(selectedType: type));
 
@@ -154,7 +73,7 @@ class LibraryCubit extends Cubit<LibraryState> {
 
   Future<void> addToWatchlist({
     required int tmdbId,
-    required String cinemaType,
+    required CinemaType cinemaType,
     required String title,
     String? posterPath,
     String? releaseYear,
@@ -170,11 +89,13 @@ class LibraryCubit extends Cubit<LibraryState> {
         tmdbRating: tmdbRating,
       );
       syncEntry(entry);
-    } catch (_) {}
+    } catch (e) {
+      emit(state.copyWith(mutationError: ApiClient.parseError(e).userMessage));
+    }
   }
 
   /// Deletes a show-level entry. cinemaType is required for the compound key.
-  Future<void> removeEntry(int tmdbId, String cinemaType) async {
+  Future<void> removeEntry(int tmdbId, CinemaType cinemaType) async {
     final entries = List<LibraryEntryModel>.from(state.entries);
     final idx = entries.indexWhere(
         (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
@@ -193,8 +114,8 @@ class LibraryCubit extends Cubit<LibraryState> {
   }
 
   Future<void> updateEntryStatus(
-      int tmdbId, String cinemaType, String displayStatus) async {
-    final apiStatus = displayToApiStatus(displayStatus);
+      int tmdbId, CinemaType cinemaType, String displayStatus) async {
+    final newStatus = WatchStatus.fromDisplayName(displayStatus);
     final entries = List<LibraryEntryModel>.from(state.entries);
     final idx = entries.indexWhere(
         (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
@@ -202,19 +123,19 @@ class LibraryCubit extends Cubit<LibraryState> {
 
     final original = entries[idx];
     entries[idx] =
-        original.copyWith(status: apiStatus, updatedAt: DateTime.now());
+        original.copyWith(status: newStatus, updatedAt: DateTime.now());
     emit(state.copyWith(entries: entries));
 
     try {
       final confirmed =
-          await _repo.updateEntry(tmdbId, cinemaType, status: apiStatus);
+          await _repo.updateEntry(tmdbId, cinemaType, status: newStatus);
       final refreshed = List<LibraryEntryModel>.from(state.entries);
       final i = refreshed.indexWhere(
           (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
       if (i >= 0) refreshed[i] = confirmed;
       emit(state.copyWith(entries: refreshed));
-    } catch (_) {
-      // Keep optimistic state — next loadData() will re-sync with server
+    } catch (e) {
+      emit(state.copyWith(mutationError: ApiClient.parseError(e).userMessage));
     }
   }
 
@@ -232,7 +153,7 @@ class LibraryCubit extends Cubit<LibraryState> {
   }
 
   /// Appends a new watch timestamp so the entry shows a rewatch count.
-  Future<void> markAsRewatch(int tmdbId, String cinemaType) async {
+  Future<void> markAsRewatch(int tmdbId, CinemaType cinemaType) async {
     final entries = List<LibraryEntryModel>.from(state.entries);
     final idx = entries.indexWhere(
         (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
@@ -242,26 +163,26 @@ class LibraryCubit extends Cubit<LibraryState> {
     final nowList = List<DateTime>.from(original.watchedAt)..add(DateTime.now());
     entries[idx] = original.copyWith(
       watchedAt: nowList,
-      status: 'watched',
+      status: WatchStatus.watched,
       updatedAt: DateTime.now(),
     );
     emit(state.copyWith(entries: entries));
 
     try {
       final confirmed =
-          await _repo.updateEntry(tmdbId, cinemaType, status: 'watched');
+          await _repo.updateEntry(tmdbId, cinemaType, status: WatchStatus.watched);
       final refreshed = List<LibraryEntryModel>.from(state.entries);
       final i = refreshed.indexWhere(
           (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
       if (i >= 0) refreshed[i] = confirmed;
       emit(state.copyWith(entries: refreshed));
-    } catch (_) {
-      // Optimistic — next loadData() will re-sync
+    } catch (e) {
+      emit(state.copyWith(mutationError: ApiClient.parseError(e).userMessage));
     }
   }
 
   /// Removes an entry from state without an API call.
-  void removeEntryLocal(int tmdbId, String cinemaType) {
+  void removeEntryLocal(int tmdbId, CinemaType cinemaType) {
     final entries = List<LibraryEntryModel>.from(state.entries)
       ..removeWhere(
           (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);

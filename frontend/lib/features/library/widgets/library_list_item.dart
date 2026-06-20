@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
@@ -19,12 +21,12 @@ class LibraryListItem extends StatelessWidget {
 
   // If only one season was added, focus that season when opening series details.
   int? get _focusSeason =>
-      entry.cinemaType != 'movie' && entry.seasons.length == 1
+      entry.cinemaType != CinemaType.movie && entry.seasons.length == 1
           ? entry.seasons.first.seasonNumber
           : null;
 
   void _openDetail(BuildContext context) {
-    if (entry.cinemaType == 'movie') {
+    if (entry.cinemaType == CinemaType.movie) {
       context.push(
         AppRoutes.movieDetails,
         extra: MovieRouteArgs(
@@ -42,7 +44,7 @@ class LibraryListItem extends StatelessWidget {
           image: entry.posterUrl,
           rating: entry.tmdbRating?.toStringAsFixed(1) ?? '—',
           id: entry.tmdbId,
-          source: entry.cinemaType == 'anime' ? 'jikan' : 'tmdb',
+          source: entry.cinemaType == CinemaType.anime ? 'jikan' : 'tmdb',
           focusSeason: _focusSeason,
         ),
       );
@@ -62,7 +64,7 @@ class LibraryListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasProgress = entry.cinemaType != 'movie' &&
+    final hasProgress = entry.cinemaType != CinemaType.movie &&
         entry.progress != null &&
         entry.progress!.progressFraction > 0;
 
@@ -290,11 +292,11 @@ class LibraryListItem extends StatelessWidget {
         ),
       );
 
-  Color _typeColor(BuildContext context, String cinemaType) {
+  Color _typeColor(BuildContext context, CinemaType cinemaType) {
     switch (cinemaType) {
-      case 'anime':
+      case CinemaType.anime:
         return context.colors.warning;
-      case 'tv':
+      case CinemaType.tv:
         return context.colors.accentPurple;
       default:
         return context.colors.accentRed;
@@ -411,15 +413,15 @@ class _StarRow extends StatelessWidget {
 // ── Poster Placeholder ────────────────────────────────────────────────────────
 
 class _PosterPlaceholder extends StatelessWidget {
-  final String type;
+  final CinemaType type;
 
   const _PosterPlaceholder({required this.type});
 
   @override
   Widget build(BuildContext context) {
-    final icon = type == 'anime'
+    final icon = type == CinemaType.anime
         ? Icons.auto_awesome_outlined
-        : type == 'tv'
+        : type == CinemaType.tv
             ? Icons.tv_outlined
             : Icons.movie_outlined;
 
@@ -450,8 +452,8 @@ class _ActionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isWatched = entry.status == 'watched';
-    final isDropped = entry.status == 'dropped';
+    final isWatched = entry.status == WatchStatus.watched;
+    final isDropped = entry.status == WatchStatus.dropped;
 
     return Container(
       decoration: BoxDecoration(
@@ -730,11 +732,11 @@ class _ActionsSheet extends StatelessWidget {
     );
   }
 
-  Color _statusColor(BuildContext context, String status) {
+  Color _statusColor(BuildContext context, WatchStatus status) {
     switch (status) {
-      case 'watched':
+      case WatchStatus.watched:
         return context.colors.success;
-      case 'dropped':
+      case WatchStatus.dropped:
         return context.colors.warning;
       default:
         return context.colors.accentRed;

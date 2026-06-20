@@ -99,7 +99,15 @@ class _SeriesDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SeriesDetailsCubit, SeriesDetailsState>(
+    return BlocConsumer<SeriesDetailsCubit, SeriesDetailsState>(
+      listenWhen: (prev, curr) =>
+          curr.mutationError != null && curr.mutationError != prev.mutationError,
+      listener: (context, state) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(state.mutationError!)),
+        );
+        context.read<SeriesDetailsCubit>().clearMutationError();
+      },
       builder: (context, state) {
         final cubit = context.read<SeriesDetailsCubit>();
         final seasons = state.seasons;

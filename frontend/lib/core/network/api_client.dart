@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import '../constants/api_constants.dart';
 import '../exceptions/app_exception.dart';
@@ -53,6 +54,7 @@ class _AuthInterceptor extends Interceptor {
   final SecureStorageService _storage;
   final Dio _plainDio;
   bool _isRefreshing = false;
+  final List<Completer<String>> _queue = [];
 
   _AuthInterceptor(this._storage, this._plainDio);
 
@@ -73,31 +75,51 @@ class _AuthInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
-    if (err.response?.statusCode == 401 && !_isRefreshing) {
-      _isRefreshing = true;
+    if (err.response?.statusCode != 401) {
+      handler.next(err);
+      return;
+    }
+
+    if (_isRefreshing) {
+      // A refresh is already in flight — queue this request and wait for the
+      // new token rather than propagating the 401 immediately.
+      final completer = Completer<String>();
+      _queue.add(completer);
       try {
-        final refreshToken = await _storage.getRefreshToken();
-        if (refreshToken == null) throw Exception('no refresh token');
-
-        final res = await _plainDio.post(
-          '/auth/refresh',
-          data: {'refreshToken': refreshToken},
-        );
-        final newToken = res.data['accessToken'] as String;
-        await _storage.saveAccessToken(newToken);
-
+        final newToken = await completer.future;
         final opts = err.requestOptions;
         opts.headers['Authorization'] = 'Bearer $newToken';
-        final retried = await _plainDio.fetch(opts);
-        handler.resolve(retried);
+        handler.resolve(await _plainDio.fetch(opts));
       } catch (_) {
-        await _storage.clearAll();
         handler.next(err);
-      } finally {
-        _isRefreshing = false;
       }
-    } else {
+      return;
+    }
+
+    _isRefreshing = true;
+    try {
+      final refreshToken = await _storage.getRefreshToken();
+      if (refreshToken == null) throw Exception('no refresh token');
+
+      final res = await _plainDio.post(
+        '/auth/refresh',
+        data: {'refreshToken': refreshToken},
+      );
+      final newToken = res.data['accessToken'] as String;
+      await _storage.saveAccessToken(newToken);
+
+      for (final c in _queue) { c.complete(newToken); }
+
+      final opts = err.requestOptions;
+      opts.headers['Authorization'] = 'Bearer $newToken';
+      handler.resolve(await _plainDio.fetch(opts));
+    } catch (_) {
+      await _storage.clearAll();
+      for (final c in _queue) { c.completeError('refresh failed'); }
       handler.next(err);
+    } finally {
+      _queue.clear();
+      _isRefreshing = false;
     }
   }
 }

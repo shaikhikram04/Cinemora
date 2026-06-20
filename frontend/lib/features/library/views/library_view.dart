@@ -8,23 +8,14 @@ import 'package:cinemora/features/library/viewmodels/library_state.dart';
 import 'package:cinemora/features/library/widgets/library_list_item.dart';
 import 'package:cinemora/features/library/widgets/library_stats_card.dart';
 
-class LibraryView extends StatelessWidget {
+class LibraryView extends StatefulWidget {
   const LibraryView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const _LibraryContent();
-  }
+  State<LibraryView> createState() => _LibraryViewState();
 }
 
-class _LibraryContent extends StatefulWidget {
-  const _LibraryContent();
-
-  @override
-  State<_LibraryContent> createState() => _LibraryContentState();
-}
-
-class _LibraryContentState extends State<_LibraryContent> {
+class _LibraryViewState extends State<LibraryView> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -35,7 +26,15 @@ class _LibraryContentState extends State<_LibraryContent> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LibraryCubit, LibraryState>(
+    return BlocConsumer<LibraryCubit, LibraryState>(
+      listenWhen: (prev, curr) =>
+          curr.mutationError != null && curr.mutationError != prev.mutationError,
+      listener: (context, state) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(state.mutationError!)),
+        );
+        context.read<LibraryCubit>().clearMutationError();
+      },
       builder: (context, state) {
         final cubit = context.read<LibraryCubit>();
 

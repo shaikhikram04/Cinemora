@@ -1,5 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
+import 'package:cinemora/core/utils/tmdb_url_utils.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/movie_details_state.dart';
@@ -8,9 +11,9 @@ import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'series_details_state.dart';
 
 class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
-  final HomeRepository? _repo;
-  final LibraryRepository? _library;
-  final LibraryCubit? _libraryCubit;
+  final HomeRepository _repo;
+  final LibraryRepository _library;
+  final LibraryCubit _libraryCubit;
   final int? _id;
   final String _source;
   final String _title;
@@ -19,9 +22,9 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
   final int? _focusSeason;
 
   SeriesDetailsCubit({
-    HomeRepository? repo,
-    LibraryRepository? library,
-    LibraryCubit? libraryCubit,
+    required HomeRepository repo,
+    required LibraryRepository library,
+    required LibraryCubit libraryCubit,
     int? id,
     String source = 'tmdb',
     List<SeriesSeason> initialSeasons = const [],
@@ -39,10 +42,11 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
         _tmdbRating = tmdbRating,
         _focusSeason = focusSeason,
         super(SeriesDetailsState(seasons: initialSeasons)) {
-    if (id != null && repo != null) _loadDetail();
+    if (id != null) _loadDetail();
   }
 
-  String get _cinemaType => _source == 'jikan' ? 'anime' : 'tv';
+  CinemaType get _cinemaType =>
+      _source == 'jikan' ? CinemaType.anime : CinemaType.tv;
 
   String? get _firstAirYear {
     final range = state.detail?.yearRange ?? '';
@@ -73,18 +77,11 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     return total > 0 ? total : null;
   }
 
-  static String? _extractPosterPath(String? url) {
-    if (url == null || url.isEmpty) return null;
-    final match = RegExp(r'/t/p/\w+(/[^?]+)').firstMatch(url);
-    // TMDB URLs → extract relative path. External URLs (anime) → store as-is.
-    return match?.group(1) ?? (url.startsWith('http') ? url : null);
-  }
-
   // ── Season selection ────────────────────────────────────────────────────────
 
   void selectSeason(int index) {
     emit(state.copyWith(selectedSeasonIndex: index));
-    if (_repo == null || state.seasons.isEmpty) return;
+    if (state.seasons.isEmpty) return;
 
     final season = state.seasons[index];
     if (state.loadedSeasonNumbers.contains(season.number)) return;
@@ -102,30 +99,30 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     final id = _id;
     if (state.showInWatchlist) {
       emit(state.copyWith(showInWatchlist: false));
-      if (id == null || _library == null) return;
+      if (id == null) return;
       try {
         await _library.deleteEntry(id, _cinemaType);
-        _libraryCubit?.removeEntryLocal(id, _cinemaType);
+        _libraryCubit.removeEntryLocal(id, _cinemaType);
       } catch (_) {
         emit(state.copyWith(showInWatchlist: true));
       }
     } else {
       final wasWatched = state.isShowWatched;
       emit(state.copyWith(showInWatchlist: true, isShowWatched: false));
-      if (id == null || _library == null) return;
+      if (id == null) return;
       try {
         final entry = await _library.upsertEntry(
           tmdbId: id,
           cinemaType: _cinemaType,
           title: _title,
-          posterPath: _extractPosterPath(_posterUrl),
+          posterPath: extractTmdbPosterPath(_posterUrl),
           releaseYear: _firstAirYear,
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
           runtimeMinutes: _episodeRuntime,
-          status: 'watchlist',
+          status: WatchStatus.watchlist,
         );
-        _libraryCubit?.syncEntry(entry);
+        _libraryCubit.syncEntry(entry);
       } catch (_) {
         emit(state.copyWith(showInWatchlist: false, isShowWatched: wasWatched));
       }
@@ -136,31 +133,31 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     final id = _id;
     if (state.isShowWatched) {
       emit(state.copyWith(isShowWatched: false));
-      if (id == null || _library == null) return;
+      if (id == null) return;
       try {
         await _library.deleteEntry(id, _cinemaType);
-        _libraryCubit?.removeEntryLocal(id, _cinemaType);
+        _libraryCubit.removeEntryLocal(id, _cinemaType);
       } catch (_) {
         emit(state.copyWith(isShowWatched: true));
       }
     } else {
       final wasInWatchlist = state.showInWatchlist;
       emit(state.copyWith(isShowWatched: true, showInWatchlist: false));
-      if (id == null || _library == null) return;
+      if (id == null) return;
       try {
         final entry = await _library.upsertEntry(
           tmdbId: id,
           cinemaType: _cinemaType,
           title: _title,
-          posterPath: _extractPosterPath(_posterUrl),
+          posterPath: extractTmdbPosterPath(_posterUrl),
           releaseYear: _firstAirYear,
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
           runtimeMinutes: _episodeRuntime,
-          status: 'watched',
+          status: WatchStatus.watched,
           progress: LibraryProgress(totalEpisodes: _totalEpisodes),
         );
-        _libraryCubit?.syncEntry(entry);
+        _libraryCubit.syncEntry(entry);
       } catch (_) {
         emit(state.copyWith(
             isShowWatched: false, showInWatchlist: wasInWatchlist));
@@ -179,14 +176,14 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     if (list.contains(seasonNumber)) {
       list.remove(seasonNumber);
       emit(state.copyWith(seasonsInWatchlist: list));
-      if (id == null || _library == null) return;
+      if (id == null) return;
       try {
         final entry = await _library.deleteSeason(
           tmdbId: id,
           cinemaType: _cinemaType,
           seasonNumber: seasonNumber,
         );
-        _libraryCubit?.syncEntry(entry);
+        _libraryCubit.syncEntry(entry);
       } catch (_) {
         list.add(seasonNumber);
         emit(state.copyWith(seasonsInWatchlist: list));
@@ -194,22 +191,22 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     } else {
       list.add(seasonNumber);
       emit(state.copyWith(seasonsInWatchlist: list));
-      if (id == null || _library == null) return;
+      if (id == null) return;
       try {
         final entry = await _library.upsertSeason(
           tmdbId: id,
           cinemaType: _cinemaType,
           seasonNumber: seasonNumber,
           seasonId: season?.libraryId,
-          status: 'watchlist',
+          status: WatchStatus.watchlist,
           showTitle: _title,
-          posterPath: _extractPosterPath(_posterUrl),
+          posterPath: extractTmdbPosterPath(_posterUrl),
           releaseYear:
               season?.year.isNotEmpty == true ? season!.year : _firstAirYear,
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
         );
-        _libraryCubit?.syncEntry(entry);
+        _libraryCubit.syncEntry(entry);
       } catch (_) {
         list.remove(seasonNumber);
         emit(state.copyWith(seasonsInWatchlist: list));
@@ -227,14 +224,14 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     if (watched.contains(seasonNumber)) {
       watched.remove(seasonNumber);
       emit(state.copyWith(seasonsWatched: watched, episodesWatched: episodes));
-      if (id == null || _library == null) return;
+      if (id == null) return;
       try {
         final entry = await _library.deleteSeason(
           tmdbId: id,
           cinemaType: _cinemaType,
           seasonNumber: seasonNumber,
         );
-        _libraryCubit?.syncEntry(entry);
+        _libraryCubit.syncEntry(entry);
       } catch (_) {
         watched.add(seasonNumber);
         emit(state.copyWith(seasonsWatched: watched));
@@ -248,22 +245,22 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
         }
       }
       emit(state.copyWith(seasonsWatched: watched, episodesWatched: episodes));
-      if (id == null || _library == null) return;
+      if (id == null) return;
       try {
         final entry = await _library.upsertSeason(
           tmdbId: id,
           cinemaType: _cinemaType,
           seasonNumber: seasonNumber,
           seasonId: season?.libraryId,
-          status: 'watched',
+          status: WatchStatus.watched,
           showTitle: _title,
-          posterPath: _extractPosterPath(_posterUrl),
+          posterPath: extractTmdbPosterPath(_posterUrl),
           releaseYear:
               season?.year.isNotEmpty == true ? season!.year : _firstAirYear,
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
         );
-        _libraryCubit?.syncEntry(entry);
+        _libraryCubit.syncEntry(entry);
       } catch (_) {
         watched.remove(seasonNumber);
         emit(state.copyWith(seasonsWatched: watched));
@@ -285,12 +282,16 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
 
   Future<void> rateSeason(int seasonNumber, double rating) async {
     final id = _id;
+    final previousRatings = Map<int, double>.from(state.seasonRatings);
+    final previousWatched = List<int>.from(state.seasonsWatched);
+
     final ratings = Map<int, double>.from(state.seasonRatings);
     ratings[seasonNumber] = rating;
     final watched = List<int>.from(state.seasonsWatched);
     if (!watched.contains(seasonNumber)) watched.add(seasonNumber);
     emit(state.copyWith(seasonRatings: ratings, seasonsWatched: watched));
-    if (id == null || _library == null) return;
+
+    if (id == null) return;
     final season =
         state.seasons.where((s) => s.number == seasonNumber).firstOrNull;
     try {
@@ -299,45 +300,66 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
         cinemaType: _cinemaType,
         seasonNumber: seasonNumber,
         seasonId: season?.libraryId,
-        status: 'watched',
+        status: WatchStatus.watched,
         rating: rating,
         showTitle: _title,
-        posterPath: _extractPosterPath(_posterUrl),
+        posterPath: extractTmdbPosterPath(_posterUrl),
         releaseYear:
             season?.year.isNotEmpty == true ? season!.year : _firstAirYear,
         genres: state.detail?.genres ?? [],
         tmdbRating: _tmdbRating,
       );
-      _libraryCubit?.syncEntry(entry);
-    } catch (_) {}
+      _libraryCubit.syncEntry(entry);
+    } catch (e) {
+      emit(state.copyWith(
+        seasonRatings: previousRatings,
+        seasonsWatched: previousWatched,
+        mutationError: 'Failed to save rating. Please try again.',
+      ));
+    }
   }
 
   Future<void> rateShow(double rating) async {
     final id = _id;
+    final previousRating = state.showRating;
+    final previousWatched = state.isShowWatched;
+    final previousWatchlist = state.showInWatchlist;
+
     emit(state.copyWith(
       showRating: rating,
       showRatingSuccess: true,
       isShowWatched: true,
       showInWatchlist: false,
     ));
-    if (id == null || _library == null) return;
+    if (id == null) return;
     try {
       final entry = await _library.upsertEntry(
         tmdbId: id,
         cinemaType: _cinemaType,
         title: _title,
-        posterPath: _extractPosterPath(_posterUrl),
+        posterPath: extractTmdbPosterPath(_posterUrl),
         releaseYear: _firstAirYear,
         genres: state.detail?.genres ?? [],
         tmdbRating: _tmdbRating,
         runtimeMinutes: _episodeRuntime,
-        status: 'watched',
+        status: WatchStatus.watched,
         userRating: rating,
         progress: LibraryProgress(totalEpisodes: _totalEpisodes),
       );
-      _libraryCubit?.syncEntry(entry);
-    } catch (_) {}
+      _libraryCubit.syncEntry(entry);
+    } catch (e) {
+      emit(state.copyWith(
+        showRating: previousRating,
+        isShowWatched: previousWatched,
+        showInWatchlist: previousWatchlist,
+        showRatingSuccess: false,
+        mutationError: 'Failed to save rating. Please try again.',
+      ));
+    }
   }
+
+  void clearMutationError() =>
+      emit(state.copyWith(clearMutationError: true));
 
   void toggleSeasonExpanded(int seasonNumber) {
     final list = List<int>.from(state.expandedSeasons);
@@ -353,7 +375,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
 
   Future<void> _loadDetail() async {
     final id = _id;
-    if (id == null || _repo == null) return;
+    if (id == null) return;
     emit(state.copyWith(detailStatus: DetailStatus.loading));
     try {
       final detail = _source == 'jikan'
@@ -361,20 +383,18 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           : await _repo.fetchTvDetail(id);
 
       LibraryEntryModel? entry;
-      if (_library != null) {
-        try {
-          entry = await _library.getEntry(id, _cinemaType);
-        } catch (_) {}
-      }
+      try {
+        entry = await _library.getEntry(id, _cinemaType);
+      } catch (_) {}
 
       // Restore season-level tracking state from persisted entry
       final seasonsInWatchlist = entry?.seasons
-              .where((s) => s.status == 'watchlist')
+              .where((s) => s.status == WatchStatus.watchlist)
               .map((s) => s.seasonNumber)
               .toList() ??
           [];
       final seasonsWatched = entry?.seasons
-              .where((s) => s.status == 'watched')
+              .where((s) => s.status == WatchStatus.watched)
               .map((s) => s.seasonNumber)
               .toList() ??
           [];
@@ -399,8 +419,8 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
         seasons: detail.seasons,
         selectedSeasonIndex: startIndex,
         detailStatus: DetailStatus.loaded,
-        showInWatchlist: entry?.status == 'watchlist',
-        isShowWatched: entry?.status == 'watched',
+        showInWatchlist: entry?.status == WatchStatus.watchlist,
+        isShowWatched: entry?.status == WatchStatus.watched,
         showRating: entry?.userRating ?? 0.0,
         seasonsInWatchlist: seasonsInWatchlist,
         seasonsWatched: seasonsWatched,
@@ -423,7 +443,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
 
   Future<void> _loadTmdbSeasonEpisodes(int seasonNumber) async {
     final id = _id;
-    if (id == null || _repo == null) return;
+    if (id == null) return;
     try {
       final updatedSeason = await _repo.fetchTvSeasonEpisodes(id, seasonNumber);
       final updatedDetail = state.detail?.copyWithSeasonEpisodes(updatedSeason);
@@ -443,7 +463,6 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
   }
 
   Future<void> _loadJikanSeasonEpisodes(int malId, int seasonNumber) async {
-    if (_repo == null) return;
     try {
       final episodes = await _repo.fetchAnimeEpisodes(malId);
       if (episodes.isEmpty) {

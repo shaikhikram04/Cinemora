@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,6 +11,7 @@ import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/models/library_stats_model.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/core/models/user_model.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/core/router/app_routes.dart';
@@ -28,8 +30,7 @@ class ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (ctx) =>
-          ProfileCubit(ctx.read<UserRepository>())..loadProfile(),
+      create: (ctx) => ProfileCubit(ctx.read<UserRepository>())..loadProfile(),
       child: const _ProfileContent(),
     );
   }
@@ -176,8 +177,7 @@ class _ProfileContent extends StatelessWidget {
                 child: RefreshIndicator(
                   color: context.colors.accentRed,
                   backgroundColor: context.colors.surfaceRaised,
-                  onRefresh: () =>
-                      context.read<ProfileCubit>().loadProfile(),
+                  onRefresh: () => context.read<ProfileCubit>().loadProfile(),
                   child: ListView(
                     padding: EdgeInsets.fromLTRB(
                       WSizes.screenPadding.w,
@@ -206,8 +206,7 @@ class _ProfileContent extends StatelessWidget {
                       _InsightCard(
                         stats: profileState.stats,
                         user: user,
-                        isLoading:
-                            profileState.status == ProfileStatus.loading,
+                        isLoading: profileState.status == ProfileStatus.loading,
                       ),
                       SizedBox(height: 32.h),
                       const _SectionHeader(
@@ -217,8 +216,7 @@ class _ProfileContent extends StatelessWidget {
                       SizedBox(height: 10.h),
                       _CollectionCard(
                         stats: profileState.stats,
-                        isLoading:
-                            profileState.status == ProfileStatus.loading,
+                        isLoading: profileState.status == ProfileStatus.loading,
                       ),
                       SizedBox(height: 32.h),
                       const _SectionHeader(
@@ -236,8 +234,7 @@ class _ProfileContent extends StatelessWidget {
                       SizedBox(height: 16.h),
                       _TopFavoritesRow(
                         entries: profileState.topFavorites,
-                        isLoading:
-                            profileState.status == ProfileStatus.loading,
+                        isLoading: profileState.status == ProfileStatus.loading,
                       ),
                       SizedBox(height: 32.h),
                       _SectionHeader(
@@ -293,8 +290,7 @@ class _ProfileContent extends StatelessWidget {
                       SizedBox(height: 10.h),
                       _ActivityCard(
                         entries: profileState.recentActivity,
-                        isLoading:
-                            profileState.status == ProfileStatus.loading,
+                        isLoading: profileState.status == ProfileStatus.loading,
                       ),
                     ],
                   ),
@@ -817,8 +813,7 @@ class _InsightCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _Pill(
-                    label: 'INSIGHT', icon: Icons.auto_awesome_rounded),
+                _Pill(label: 'INSIGHT', icon: Icons.auto_awesome_rounded),
                 SizedBox(height: 10.h),
                 isLoading
                     ? _LoadingPlaceholder(height: 60.h)
@@ -862,8 +857,7 @@ class _CollectionCard extends StatelessWidget {
     final animeFrac = total > 0 ? anime / total : 0.13;
 
     final moviePct = total > 0 ? '${((movies / total) * 100).round()}%' : '0%';
-    final seriesPct =
-        total > 0 ? '${((series / total) * 100).round()}%' : '0%';
+    final seriesPct = total > 0 ? '${((series / total) * 100).round()}%' : '0%';
     final animePct = total > 0 ? '${((anime / total) * 100).round()}%' : '0%';
 
     return Container(
@@ -1044,18 +1038,18 @@ class _TasteProfileSection extends StatelessWidget {
   const _TasteProfileSection({required this.user});
 
   static final _genreColors = {
-    'Drama': const Color(0xFFE74D5B),         // accentRedAlt
-    'Thriller': const Color(0xFFE0A838),       // warning
-    'Psychological': const Color(0xFFFBBF24),  // chartYellow
-    'Crime': const Color(0xFF60A5FA),          // chartBlue
-    'Sci-Fi': const Color(0xFFA78BFA),         // chartPurple
+    'Drama': const Color(0xFFE74D5B), // accentRedAlt
+    'Thriller': const Color(0xFFE0A838), // warning
+    'Psychological': const Color(0xFFFBBF24), // chartYellow
+    'Crime': const Color(0xFF60A5FA), // chartBlue
+    'Sci-Fi': const Color(0xFFA78BFA), // chartPurple
     'Mystery': const Color.fromARGB(255, 188, 113, 225),
-    'Action': const Color(0xFFE84B57),         // accentRed
-    'Horror': const Color(0xFFE74D5B),         // accentRedAlt
+    'Action': const Color(0xFFE84B57), // accentRed
+    'Horror': const Color(0xFFE74D5B), // accentRedAlt
     'Romance': const Color(0xFFFF6B8A),
-    'Fantasy': const Color(0xFFA78BFA),        // chartPurple
-    'Documentary': const Color(0xFF10B981),    // chartGreen
-    'Animation': const Color(0xFFFBBF24),      // chartYellow
+    'Fantasy': const Color(0xFFA78BFA), // chartPurple
+    'Documentary': const Color(0xFF10B981), // chartGreen
+    'Animation': const Color(0xFFFBBF24), // chartYellow
   };
 
   static final Color _defaultColor = const Color(0xFF8F96A3); // mutedSecondary
@@ -1145,7 +1139,8 @@ class _TasteProfileSection extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: context.colors.accentPurple.withValues(alpha: 0.3),
+                        color:
+                            context.colors.accentPurple.withValues(alpha: 0.3),
                         blurRadius: 80,
                         offset: const Offset(0, 10),
                         spreadRadius: 40,
@@ -1329,8 +1324,8 @@ class _TopFavoritesRow extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           'Rate watched titles to see your top favorites.',
-          style: TextStyle(
-              color: context.colors.mutedSecondary, fontSize: 13.sp),
+          style:
+              TextStyle(color: context.colors.mutedSecondary, fontSize: 13.sp),
         ),
       );
     }
@@ -1514,9 +1509,8 @@ class _AchievementBadge extends StatelessWidget {
                           children: [
                             if (item.badgeImage != null)
                               Opacity(
-                                opacity: item.isHidden || item.isLocked
-                                    ? 0.2
-                                    : 1.0,
+                                opacity:
+                                    item.isHidden || item.isLocked ? 0.2 : 1.0,
                                 child: Image.asset(
                                   item.badgeImage!,
                                   fit: BoxFit.contain,
@@ -1636,8 +1630,7 @@ class _RankingCard extends StatelessWidget {
           Container(
             height: 108.h,
             decoration: BoxDecoration(
-              borderRadius:
-                  BorderRadius.vertical(top: Radius.circular(18.r)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
               color: item.color,
               image: DecorationImage(
                 image: NetworkImage(item.image),
@@ -1650,8 +1643,8 @@ class _RankingCard extends StatelessWidget {
                   right: 10.w,
                   top: 10.h,
                   child: Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 8.w, vertical: 4.h),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                     decoration: BoxDecoration(
                       color: context.colors.surface.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(999.r),
@@ -1678,8 +1671,8 @@ class _RankingCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 12.0, vertical: 10.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1734,7 +1727,7 @@ class _ActivityCard extends StatelessWidget {
 
   static _ActivityData _toActivity(LibraryEntryModel e) {
     final time = '${e.displayType}  •  ${_timeAgo(e.updatedAt)}';
-    if (e.status == 'watched' && (e.userRating ?? 0) > 0) {
+    if (e.status == WatchStatus.watched && (e.userRating ?? 0) > 0) {
       return _ActivityData(
         icon: Icons.star_border_rounded,
         title: 'Rated ${e.title}',
@@ -1742,21 +1735,21 @@ class _ActivityCard extends StatelessWidget {
         rating: e.userRating,
       );
     }
-    if (e.status == 'watched') {
+    if (e.status == WatchStatus.watched) {
       return _ActivityData(
         icon: Icons.remove_red_eye_rounded,
         title: 'Finished ${e.title}',
         subtitle: time,
       );
     }
-    if (e.status == 'watching') {
+    if (e.status == WatchStatus.watching) {
       return _ActivityData(
         icon: Icons.play_circle_outline_rounded,
         title: 'Watching ${e.title}',
         subtitle: time,
       );
     }
-    if (e.status == 'dropped') {
+    if (e.status == WatchStatus.dropped) {
       return _ActivityData(
         icon: Icons.cancel_outlined,
         title: 'Dropped ${e.title}',
@@ -1786,8 +1779,8 @@ class _ActivityCard extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           'No activity yet — add titles to your library.',
-          style: TextStyle(
-              color: context.colors.mutedSecondary, fontSize: 13.sp),
+          style:
+              TextStyle(color: context.colors.mutedSecondary, fontSize: 13.sp),
         ),
       );
     }

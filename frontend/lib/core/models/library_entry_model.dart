@@ -1,11 +1,13 @@
 import 'package:equatable/equatable.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 
 // ── Season entry (embedded in LibraryEntryModel) ──────────────────────────────
 
 class LibrarySeasonEntry extends Equatable {
   final int seasonNumber;
   final int? seasonId; // TMDB season ID or MAL ID — null for Jikan seasons
-  final String status; // "watchlist" | "watched" | "dropped"
+  final WatchStatus status;
   final double? rating;
 
   const LibrarySeasonEntry({
@@ -19,14 +21,14 @@ class LibrarySeasonEntry extends Equatable {
       LibrarySeasonEntry(
         seasonNumber: json['seasonNumber'] as int,
         seasonId: json['seasonId'] as int?,
-        status: json['status'] as String,
+        status: WatchStatus.fromJson(json['status'] as String),
         rating: (json['rating'] as num?)?.toDouble(),
       );
 
   Map<String, dynamic> toJson() => {
         'seasonNumber': seasonNumber,
         if (seasonId != null) 'seasonId': seasonId,
-        'status': status,
+        'status': status.apiValue,
         if (rating != null) 'rating': rating,
       };
 
@@ -88,11 +90,11 @@ class LibraryProgress extends Equatable {
 class LibraryEntryModel extends Equatable {
   final String id;
   final int tmdbId;
-  final String cinemaType; // "movie" | "tv" | "anime"
+  final CinemaType cinemaType;
   final String title;
   final String? posterPath;
   final String? releaseYear;
-  final String status; // "watchlist" | "watching" | "watched" | "dropped"
+  final WatchStatus status;
   final double? userRating;
   final List<String> genres;
   final double? tmdbRating;
@@ -127,11 +129,11 @@ class LibraryEntryModel extends Equatable {
   LibraryEntryModel copyWith({
     String? id,
     int? tmdbId,
-    String? cinemaType,
+    CinemaType? cinemaType,
     String? title,
     String? posterPath,
     String? releaseYear,
-    String? status,
+    WatchStatus? status,
     double? userRating,
     List<String>? genres,
     double? tmdbRating,
@@ -177,11 +179,11 @@ class LibraryEntryModel extends Equatable {
     return LibraryEntryModel(
       id: (json['_id'] ?? json['id']).toString(),
       tmdbId: json['tmdbId'] as int,
-      cinemaType: json['cinemaType'] as String,
+      cinemaType: CinemaType.fromJson(json['cinemaType'] as String),
       title: json['title'] as String,
       posterPath: json['posterPath'] as String?,
       releaseYear: json['releaseYear'] as String?,
-      status: json['status'] as String,
+      status: WatchStatus.fromJson(json['status'] as String),
       userRating: (json['userRating'] as num?)?.toDouble(),
       genres: List<String>.from(json['genres'] as List? ?? []),
       tmdbRating: (json['tmdbRating'] as num?)?.toDouble(),
@@ -203,33 +205,9 @@ class LibraryEntryModel extends Equatable {
     return 'https://image.tmdb.org/t/p/w500$posterPath';
   }
 
-  String get displayType {
-    switch (cinemaType) {
-      case 'movie':
-        return 'Movie';
-      case 'tv':
-        return 'Series';
-      case 'anime':
-        return 'Anime';
-      default:
-        return cinemaType;
-    }
-  }
+  String get displayType => cinemaType.displayName;
 
-  String get displayStatus {
-    switch (status) {
-      case 'watchlist':
-        return 'Watchlist';
-      case 'watching':
-        return 'Watching';
-      case 'watched':
-        return 'Watched';
-      case 'dropped':
-        return 'Dropped';
-      default:
-        return status;
-    }
-  }
+  String get displayStatus => status.displayName;
 
   @override
   List<Object?> get props => [

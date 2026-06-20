@@ -1,5 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
+import 'package:cinemora/core/utils/tmdb_url_utils.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
@@ -29,11 +32,7 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
     if (_tmdbId != null) _loadDetail();
   }
 
-  static String? _extractPosterPath(String? url) {
-    if (url == null || url.isEmpty) return null;
-    final match = RegExp(r'/t/p/\w+(/[^?]+)').firstMatch(url);
-    return match?.group(1);
-  }
+
 
   Future<void> _loadDetail() async {
     final id = _tmdbId;
@@ -43,13 +42,13 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
       final detail = await _repo.fetchMovieDetail(id);
       LibraryEntryModel? entry;
       try {
-        entry = await _library.getEntry(id, 'movie');
+        entry = await _library.getEntry(id, CinemaType.movie);
       } catch (_) {}
       emit(state.copyWith(
         detail: detail,
         detailStatus: DetailStatus.loaded,
-        isInWatchlist: entry?.status == 'watchlist',
-        isWatched: entry?.status == 'watched',
+        isInWatchlist: entry?.status == WatchStatus.watchlist,
+        isWatched: entry?.status == WatchStatus.watched,
         userRating: entry?.userRating ?? 0.0,
       ));
     } catch (_) {
@@ -63,8 +62,8 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
       emit(state.copyWith(isInWatchlist: false));
       if (id == null) return;
       try {
-        await _library.deleteEntry(id, 'movie');
-        _libraryCubit.removeEntryLocal(id, 'movie');
+        await _library.deleteEntry(id, CinemaType.movie);
+        _libraryCubit.removeEntryLocal(id, CinemaType.movie);
       } catch (_) {
         emit(state.copyWith(isInWatchlist: true));
       }
@@ -75,14 +74,14 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
       try {
         final entry = await _library.upsertEntry(
           tmdbId: id,
-          cinemaType: 'movie',
+          cinemaType: CinemaType.movie,
           title: _title,
-          posterPath: _extractPosterPath(_posterUrl),
+          posterPath: extractTmdbPosterPath(_posterUrl),
           releaseYear: state.detail?.year,
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
           runtimeMinutes: state.detail?.runtimeMinutes,
-          status: 'watchlist',
+          status: WatchStatus.watchlist,
         );
         _libraryCubit.syncEntry(entry);
       } catch (_) {
@@ -97,8 +96,8 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
       emit(state.copyWith(isWatched: false));
       if (id == null) return;
       try {
-        await _library.deleteEntry(id, 'movie');
-        _libraryCubit.removeEntryLocal(id, 'movie');
+        await _library.deleteEntry(id, CinemaType.movie);
+        _libraryCubit.removeEntryLocal(id, CinemaType.movie);
       } catch (_) {
         emit(state.copyWith(isWatched: true));
       }
@@ -109,14 +108,14 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
       try {
         final entry = await _library.upsertEntry(
           tmdbId: id,
-          cinemaType: 'movie',
+          cinemaType: CinemaType.movie,
           title: _title,
-          posterPath: _extractPosterPath(_posterUrl),
+          posterPath: extractTmdbPosterPath(_posterUrl),
           releaseYear: state.detail?.year,
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
           runtimeMinutes: state.detail?.runtimeMinutes,
-          status: 'watched',
+          status: WatchStatus.watched,
         );
         _libraryCubit.syncEntry(entry);
       } catch (_) {
@@ -140,14 +139,14 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
     try {
       final entry = await _library.upsertEntry(
         tmdbId: id,
-        cinemaType: 'movie',
+        cinemaType: CinemaType.movie,
         title: _title,
-        posterPath: _extractPosterPath(_posterUrl),
+        posterPath: extractTmdbPosterPath(_posterUrl),
         releaseYear: state.detail?.year,
         genres: state.detail?.genres ?? [],
         tmdbRating: _tmdbRating,
         runtimeMinutes: state.detail?.runtimeMinutes,
-        status: 'watched',
+        status: WatchStatus.watched,
         userRating: value,
       );
       _libraryCubit.syncEntry(entry);

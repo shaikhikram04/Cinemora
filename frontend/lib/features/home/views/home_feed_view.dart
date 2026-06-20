@@ -1,3 +1,4 @@
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -34,7 +35,8 @@ class HomeFeedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (ctx) => HomeFeedCubit(ctx.read<HomeRepository>(), ctx.read<LibraryCubit>()),
+      create: (ctx) =>
+          HomeFeedCubit(ctx.read<HomeRepository>(), ctx.read<LibraryCubit>()),
       child: const _HomeFeedContent(),
     );
   }
@@ -182,10 +184,10 @@ class _HomeFeedContent extends StatelessWidget {
                     ? _SkeletonCarousel()
                     : _PosterCarousel(
                         items: state.trendingSeries,
-                        type: CinemaType.series,
+                        type: CinemaType.tv,
                         bookmarkedIds: state.bookmarkedIds,
                         onBookmark: (item) =>
-                            cubit.bookmarkFromPoster(item, CinemaType.series),
+                            cubit.bookmarkFromPoster(item, CinemaType.tv),
                         onTap: (item) => context.push(
                           AppRoutes.seriesDetails,
                           extra: SeriesRouteArgs(

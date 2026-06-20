@@ -1,6 +1,8 @@
 import 'package:cinemora/core/exceptions/app_exception.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/models/library_stats_model.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/core/network/api_client.dart';
 
 class LibraryRepository {
@@ -35,26 +37,26 @@ class LibraryRepository {
 
   Future<LibraryEntryModel> addEntry({
     required int tmdbId,
-    required String cinemaType,
+    required CinemaType cinemaType,
     required String title,
     String? posterPath,
     String? releaseYear,
     List<String> genres = const [],
     double? tmdbRating,
     int? runtimeMinutes,
-    String status = 'watchlist',
+    WatchStatus status = WatchStatus.watchlist,
   }) async {
     try {
       final res = await _apiClient.dio.post('/library', data: {
         'tmdbId': tmdbId,
-        'cinemaType': cinemaType,
+        'cinemaType': cinemaType.apiValue,
         'title': title,
         if (posterPath != null) 'posterPath': posterPath,
         if (releaseYear != null) 'releaseYear': releaseYear,
         'genres': genres,
         if (tmdbRating != null) 'tmdbRating': tmdbRating,
         if (runtimeMinutes != null) 'runtimeMinutes': runtimeMinutes,
-        'status': status,
+        'status': status.apiValue,
       });
       return LibraryEntryModel.fromJson(res.data as Map<String, dynamic>);
     } catch (e) {
@@ -63,11 +65,11 @@ class LibraryRepository {
   }
 
   /// Looks up an entry by its compound key (tmdbId + cinemaType).
-  Future<LibraryEntryModel?> getEntry(int tmdbId, String cinemaType) async {
+  Future<LibraryEntryModel?> getEntry(int tmdbId, CinemaType cinemaType) async {
     try {
       final res = await _apiClient.dio.get(
         '/library/$tmdbId',
-        queryParameters: {'type': cinemaType},
+        queryParameters: {'type': cinemaType.apiValue},
       );
       return LibraryEntryModel.fromJson(res.data as Map<String, dynamic>);
     } catch (e) {
@@ -82,8 +84,8 @@ class LibraryRepository {
   /// Updates show-level fields. Requires cinemaType to resolve the compound key.
   Future<LibraryEntryModel> updateEntry(
     int tmdbId,
-    String cinemaType, {
-    String? status,
+    CinemaType cinemaType, {
+    WatchStatus? status,
     double? userRating,
     String? review,
     LibraryProgress? progress,
@@ -92,9 +94,9 @@ class LibraryRepository {
     try {
       final res = await _apiClient.dio.put(
         '/library/$tmdbId',
-        queryParameters: {'type': cinemaType},
+        queryParameters: {'type': cinemaType.apiValue},
         data: {
-          if (status != null) 'status': status,
+          if (status != null) 'status': status.apiValue,
           if (userRating != null) 'userRating': userRating,
           if (review != null) 'review': review,
           if (progress != null) 'progress': progress.toJson(),
@@ -108,60 +110,48 @@ class LibraryRepository {
   }
 
   /// Deletes a show-level entry. Requires cinemaType to resolve the compound key.
-  Future<void> deleteEntry(int tmdbId, String cinemaType) async {
+  Future<void> deleteEntry(int tmdbId, CinemaType cinemaType) async {
     try {
       await _apiClient.dio.delete(
         '/library/$tmdbId',
-        queryParameters: {'type': cinemaType},
+        queryParameters: {'type': cinemaType.apiValue},
       );
     } catch (e) {
       throw ApiClient.parseError(e);
     }
   }
 
-  /// Creates or updates a show entry (show-level status, watchlist, rating).
+  /// Atomically creates or returns the existing show entry in one round trip.
   Future<LibraryEntryModel> upsertEntry({
     required int tmdbId,
-    required String cinemaType,
+    required CinemaType cinemaType,
     required String title,
     String? posterPath,
     String? releaseYear,
     List<String> genres = const [],
     double? tmdbRating,
     int? runtimeMinutes,
-    String status = 'watchlist',
+    WatchStatus status = WatchStatus.watchlist,
     double? userRating,
     LibraryProgress? progress,
   }) async {
     try {
-      return await updateEntry(
-        tmdbId,
-        cinemaType,
-        status: status,
-        userRating: userRating,
-        progress: progress,
-        runtimeMinutes: runtimeMinutes,
-      );
+      final res = await _apiClient.dio.post('/library/upsert', data: {
+        'tmdbId': tmdbId,
+        'cinemaType': cinemaType.apiValue,
+        'title': title,
+        if (posterPath != null) 'posterPath': posterPath,
+        if (releaseYear != null) 'releaseYear': releaseYear,
+        'genres': genres,
+        if (tmdbRating != null) 'tmdbRating': tmdbRating,
+        if (runtimeMinutes != null) 'runtimeMinutes': runtimeMinutes,
+        'status': status.apiValue,
+        if (userRating != null) 'userRating': userRating,
+        if (progress != null) 'progress': progress.toJson(),
+      });
+      return LibraryEntryModel.fromJson(res.data as Map<String, dynamic>);
     } catch (e) {
-      if (e is BackendException && e.code == 'LIBRARY_ENTRY_NOT_FOUND') {
-        final entry = await addEntry(
-          tmdbId: tmdbId,
-          cinemaType: cinemaType,
-          title: title,
-          posterPath: posterPath,
-          releaseYear: releaseYear,
-          genres: genres,
-          tmdbRating: tmdbRating,
-          runtimeMinutes: runtimeMinutes,
-          status: status,
-        );
-        if (userRating != null || progress != null) {
-          return await updateEntry(tmdbId, cinemaType,
-              userRating: userRating, progress: progress);
-        }
-        return entry;
-      }
-      rethrow;
+      throw ApiClient.parseError(e);
     }
   }
 
@@ -171,10 +161,10 @@ class LibraryRepository {
   /// Creates the parent show document if it doesn't exist yet.
   Future<LibraryEntryModel> upsertSeason({
     required int tmdbId,
-    required String cinemaType,
+    required CinemaType cinemaType,
     required int seasonNumber,
     int? seasonId,
-    required String status,
+    required WatchStatus status,
     double? rating,
     // Show-level fields — used to create the parent doc when absent
     required String showTitle,
@@ -186,13 +176,13 @@ class LibraryRepository {
     try {
       final res = await _apiClient.dio.put(
         '/library/$tmdbId/seasons/$seasonNumber',
-        queryParameters: {'type': cinemaType},
+        queryParameters: {'type': cinemaType.apiValue},
         data: {
           if (seasonId != null) 'seasonId': seasonId,
-          'status': status,
+          'status': status.apiValue,
           if (rating != null) 'rating': rating,
           // Show-level data for backend to create parent doc if missing
-          'cinemaType': cinemaType,
+          'cinemaType': cinemaType.apiValue,
           'title': showTitle,
           if (posterPath != null) 'posterPath': posterPath,
           if (releaseYear != null) 'releaseYear': releaseYear,
@@ -209,13 +199,13 @@ class LibraryRepository {
   /// Removes a single season entry from the show document.
   Future<LibraryEntryModel> deleteSeason({
     required int tmdbId,
-    required String cinemaType,
+    required CinemaType cinemaType,
     required int seasonNumber,
   }) async {
     try {
       final res = await _apiClient.dio.delete(
         '/library/$tmdbId/seasons/$seasonNumber',
-        queryParameters: {'type': cinemaType},
+        queryParameters: {'type': cinemaType.apiValue},
       );
       return LibraryEntryModel.fromJson(res.data as Map<String, dynamic>);
     } catch (e) {

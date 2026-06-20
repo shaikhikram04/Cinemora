@@ -1,3 +1,4 @@
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
@@ -474,8 +475,9 @@ class _SuggestionCard extends StatelessWidget {
           color: bg,
           borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
-            color:
-                selected ? checkColor.withValues(alpha: 0.3) : context.colors.border,
+            color: selected
+                ? checkColor.withValues(alpha: 0.3)
+                : context.colors.border,
             width: selected ? 1.2 : 0.8,
           ),
         ),
@@ -497,7 +499,8 @@ class _SuggestionCard extends StatelessWidget {
                   SizedBox(height: 3.h),
                   Text(sub,
                       style: TextStyle(
-                          fontSize: 11.sp, color: context.colors.mutedSecondary)),
+                          fontSize: 11.sp,
+                          color: context.colors.mutedSecondary)),
                 ],
               ),
             ),
@@ -572,7 +575,9 @@ class _ListRow extends StatelessWidget {
                 color: selected ? context.colors.success : Colors.transparent,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected ? context.colors.success : context.colors.borderStrong,
+                  color: selected
+                      ? context.colors.success
+                      : context.colors.borderStrong,
                   width: 1.5,
                 ),
               ),
@@ -625,12 +630,14 @@ class _DiscoverBody extends StatelessWidget {
                 TextSpan(
                   text: movieTitle,
                   style: TextStyle(
-                      color: context.colors.success, fontWeight: FontWeight.w700),
+                      color: context.colors.success,
+                      fontWeight: FontWeight.w700),
                 ),
                 TextSpan(
                   text: ' ${rating.toStringAsFixed(1)}★',
                   style: TextStyle(
-                      color: context.colors.success, fontWeight: FontWeight.w700),
+                      color: context.colors.success,
+                      fontWeight: FontWeight.w700),
                 ),
                 const TextSpan(text: ', try these:'),
               ],

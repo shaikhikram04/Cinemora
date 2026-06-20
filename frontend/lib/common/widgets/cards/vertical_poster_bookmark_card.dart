@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'poster_image.dart';
-
-enum CinemaType { movie, anime, series }
 
 class VerticalPosterBookmarkCard extends StatefulWidget {
   final String image;

@@ -2,14 +2,21 @@ require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/database");
 require("./config/firebase"); // initialize firebase-admin
+const rateLimiter = require("./middlewares/rateLimiter");
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Broad limit: 300 req/min per IP across all API routes.
+app.use("/api", rateLimiter(300, 60_000));
+
+// Tighter limit on auth endpoints to slow brute-force attempts.
+const authLimiter = rateLimiter(10, 60_000);
+
 // Routes (added as features are built)
-app.use("/api/auth", require("./routes/auth"));
+app.use("/api/auth", authLimiter, require("./routes/auth"));
 app.use("/api/library", require("./routes/library"));
 app.use("/api/rankings", require("./routes/rankings"));
 app.use("/api/tmdb", require("./routes/tmdb"));

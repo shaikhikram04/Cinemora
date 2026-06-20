@@ -1,3 +1,4 @@
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -382,7 +383,7 @@ class _ActionButtons extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: WToggleActionButton(
+              child: ToggleActionButton(
                 selected: isInWatchlist,
                 selectedLabel: 'In Watchlist',
                 unselectedLabel: 'Add to Watchlist',
@@ -401,7 +402,7 @@ class _ActionButtons extends StatelessWidget {
             ),
             SizedBox(width: 12.w),
             Expanded(
-              child: WToggleActionButton(
+              child: ToggleActionButton(
                 selected: isWatched,
                 selectedLabel: 'Watched',
                 unselectedLabel: 'Mark Watched',
@@ -1332,7 +1333,7 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
                 image: rec['image']!,
                 width: WSizes.posterImageWidth.w,
                 imageHeight: WSizes.posterImageHeight.h,
-                cinemaType: CinemaType.series,
+                cinemaType: CinemaType.tv,
                 year: '2008',
               );
             },

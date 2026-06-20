@@ -1,3 +1,4 @@
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -453,7 +454,7 @@ class _ShowActionButtons extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: WToggleActionButton(
+              child: ToggleActionButton(
                 selected: showInWatchlist,
                 selectedLabel: 'In Watchlist',
                 unselectedLabel: 'Add to Watchlist',
@@ -472,7 +473,7 @@ class _ShowActionButtons extends StatelessWidget {
             ),
             SizedBox(width: 12.w),
             Expanded(
-              child: WToggleActionButton(
+              child: ToggleActionButton(
                 selected: isShowWatched,
                 selectedLabel: 'Watched',
                 unselectedLabel: 'Mark Watched',
@@ -1082,7 +1083,7 @@ class _SeasonsSection extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: WToggleActionButton(
+                      child: ToggleActionButton(
                         selected: inWatchlist,
                         selectedLabel: 'In Watchlist',
                         unselectedLabel: 'Add Season',
@@ -1101,7 +1102,7 @@ class _SeasonsSection extends StatelessWidget {
                     ),
                     SizedBox(width: 10.w),
                     Expanded(
-                      child: WToggleActionButton(
+                      child: ToggleActionButton(
                         selected: isWatched,
                         selectedLabel: 'Watched',
                         unselectedLabel: 'Mark Watched',
@@ -2090,7 +2091,7 @@ class _RecommendationsSectionState extends State<_RecommendationsSection> {
                 image: _items[i]['image']!,
                 width: WSizes.posterImageWidth.w,
                 imageHeight: WSizes.posterImageHeight.h,
-                cinemaType: CinemaType.series,
+                cinemaType: CinemaType.tv,
                 year: '2023',
               );
             },
