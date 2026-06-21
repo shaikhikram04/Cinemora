@@ -29,10 +29,11 @@ class DetailRatingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayRating = rating <= 0 ? 4.5 : rating;
-    final ratingColor = ratingColorFor(displayRating);
-    final ratingLabel = ratingLabelFor(displayRating);
-    final ratingEmoji = ratingEmojiFor(displayRating);
+    final hasRated = rating > 0;
+    final ratingColor =
+        hasRated ? ratingColorFor(rating) : context.colors.mutedSecondaryDeep;
+    final ratingLabel = hasRated ? ratingLabelFor(rating) : null;
+    final ratingEmoji = hasRated ? ratingEmojiFor(rating) : null;
     const starSize = 48.0;
 
     return Column(
@@ -64,31 +65,32 @@ class DetailRatingSection extends StatelessWidget {
                 ),
               ],
             ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-              decoration: BoxDecoration(
-                color: ratingColor.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(18.r),
-                border: Border.all(
-                  color: ratingColor.withValues(alpha: 0.35),
-                  width: 0.6,
+            if (hasRated)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  color: ratingColor.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(18.r),
+                  border: Border.all(
+                    color: ratingColor.withValues(alpha: 0.35),
+                    width: 0.6,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      rating.toStringAsFixed(1),
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                        color: ratingColor,
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Icon(Icons.star_rounded, size: 12.sp, color: ratingColor),
+                  ],
                 ),
               ),
-              child: Row(
-                children: [
-                  Text(
-                    displayRating.toStringAsFixed(1),
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
-                      color: ratingColor,
-                    ),
-                  ),
-                  SizedBox(width: 4.w),
-                  Icon(Icons.star_rounded, size: 12.sp, color: ratingColor),
-                ],
-              ),
-            ),
           ],
         ),
         SizedBox(height: 14.h),
@@ -105,48 +107,63 @@ class DetailRatingSection extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(ratingEmoji, style: TextStyle(fontSize: 24.sp)),
-                  SizedBox(width: 8.w),
-                  Text(
-                    displayRating.toStringAsFixed(1),
-                    style: TextStyle(
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w800,
-                      color: ratingColor,
-                      letterSpacing: -1,
+              if (hasRated) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(ratingEmoji!, style: TextStyle(fontSize: 24.sp)),
+                    SizedBox(width: 8.w),
+                    Text(
+                      rating.toStringAsFixed(1),
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w800,
+                        color: ratingColor,
+                        letterSpacing: -1,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    ratingLabel,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: ratingColor,
+                    SizedBox(width: 8.w),
+                    Text(
+                      ratingLabel!,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: ratingColor,
+                      ),
                     ),
+                  ],
+                ),
+                SizedBox(height: 14.h),
+              ] else ...[
+                Text(
+                  'Tap the stars to rate',
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w500,
+                    color: context.colors.mutedSecondaryDeep,
+                    fontFamily: 'Inter',
                   ),
-                ],
-              ),
-              SizedBox(height: 14.h),
+                ),
+                SizedBox(height: 14.h),
+              ],
               StarRatingBar(
-                rating: displayRating,
+                rating: hasRated ? rating : 0.0,
                 onRate: onRate,
                 starColor: ratingColor,
                 size: starSize.sp,
               ),
-              SizedBox(height: 16.h),
-              RatingMeter(
-                rating: displayRating,
-                starSize: starSize.sp,
-                ratingColor: ratingColor,
-              ),
-              if (showRatingSuccess && rating > 0) ...[
+              if (hasRated) ...[
+                SizedBox(height: 16.h),
+                RatingMeter(
+                  rating: rating,
+                  starSize: starSize.sp,
+                  ratingColor: ratingColor,
+                ),
+              ],
+              if (showRatingSuccess && hasRated) ...[
                 SizedBox(height: 18.h),
                 RatingSuccessChip(
-                  emoji: ratingEmoji,
+                  emoji: ratingEmoji!,
                   ratingColor: ratingColor,
                   rankingLabel: rankingLabel,
                   onManageRankings: onManageRankings,

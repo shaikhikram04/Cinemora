@@ -15,7 +15,7 @@ class MovieDetailsState extends Equatable {
   const MovieDetailsState({
     this.isInWatchlist = false,
     this.isWatched = false,
-    this.userRating = 5.0,
+    this.userRating = 0.0,
     this.showAllTags = false,
     this.showRatingSuccess = false,
     this.detail,

@@ -13,6 +13,18 @@ class CastMember {
   });
 }
 
+class CrewMember {
+  final String name;
+  final String role;
+  final String? profileUrl;
+
+  const CrewMember({
+    required this.name,
+    required this.role,
+    this.profileUrl,
+  });
+}
+
 class StreamingProvider {
   final String name;
   final String type; // "Subscription" | "Rent" | "Buy"
@@ -60,6 +72,7 @@ class TmdbMovieDetail {
   final String year;
   final String? director;
   final List<CastMember> cast;
+  final List<CrewMember> crew;
   final List<StreamingProvider> providers;
   final String? trailerKey; // YouTube video ID
 
@@ -71,6 +84,7 @@ class TmdbMovieDetail {
     required this.year,
     this.director,
     required this.cast,
+    this.crew = const [],
     required this.providers,
     this.trailerKey,
   });
@@ -97,8 +111,8 @@ class TmdbMovieDetail {
     final releaseDate = detail['release_date'] as String? ?? '';
     final year = releaseDate.isNotEmpty ? releaseDate.split('-').first : '';
 
-    final crew = (detail['credits']?['crew'] as List? ?? []).cast<Map>();
-    final directors = crew
+    final rawCrew = (detail['credits']?['crew'] as List? ?? []).cast<Map>();
+    final directors = rawCrew
         .where((c) => c['job'] == 'Director')
         .map((c) => c['name'] as String? ?? '')
         .where((n) => n.isNotEmpty)
@@ -120,6 +134,8 @@ class TmdbMovieDetail {
         .where((m) => m.name.isNotEmpty)
         .toList();
 
+    final crew = _parseMovieCrew(rawCrew);
+
     return TmdbMovieDetail(
       overview: detail['overview'] as String? ?? '',
       genres: genres,
@@ -128,10 +144,68 @@ class TmdbMovieDetail {
       year: year,
       director: directors.isNotEmpty ? directors : null,
       cast: cast,
+      crew: crew,
       providers: _parseProviders(providersJson),
       trailerKey: _parseTrailerKey(detail),
     );
   }
+}
+
+// ─── Movie crew parser ────────────────────────────────────────────────────────
+
+List<CrewMember> _parseMovieCrew(List<Map> rawCrew) {
+  CrewMember toCrewMember(Map c, String role) {
+    final profilePath = c['profile_path'] as String?;
+    return CrewMember(
+      name: c['name'] as String? ?? '',
+      role: role,
+      profileUrl: profilePath != null
+          ? 'https://image.tmdb.org/t/p/w200$profilePath'
+          : null,
+    );
+  }
+
+  final directors = rawCrew
+      .where((c) => c['job'] == 'Director')
+      .map((c) => toCrewMember(c, 'Director'))
+      .where((m) => m.name.isNotEmpty)
+      .toList();
+
+  final writers = rawCrew
+      .where((c) => const {
+            'Screenplay',
+            'Writer',
+            'Story',
+            'Original Screenplay',
+          }.contains(c['job']))
+      .map((c) => toCrewMember(c, 'Writer'))
+      .where((m) => m.name.isNotEmpty)
+      .take(2)
+      .toList();
+
+  final producers = rawCrew
+      .where((c) => c['job'] == 'Producer')
+      .map((c) => toCrewMember(c, 'Producer'))
+      .where((m) => m.name.isNotEmpty)
+      .take(2)
+      .toList();
+
+  // Merge entries for the same person into a single card with combined roles
+  final merged = <String, CrewMember>{};
+  for (final m in [...directors, ...writers, ...producers]) {
+    if (merged.containsKey(m.name)) {
+      final existing = merged[m.name]!;
+      final roles = existing.role.split(' & ').toSet()..add(m.role);
+      merged[m.name] = CrewMember(
+        name: existing.name,
+        role: roles.join(' & '),
+        profileUrl: existing.profileUrl ?? m.profileUrl,
+      );
+    } else {
+      merged[m.name] = m;
+    }
+  }
+  return merged.values.toList();
 }
 
 // ─── TV / Anime detail ────────────────────────────────────────────────────────
@@ -142,6 +216,7 @@ class TmdbTvDetail {
   final String yearRange; // "2022 – Present"
   final String? creator;
   final List<CastMember> cast;
+  final List<CrewMember> crew;
   final List<StreamingProvider> providers;
   final List<SeriesSeason> seasons;
   final String? trailerKey; // YouTube video ID
@@ -153,6 +228,7 @@ class TmdbTvDetail {
     required this.yearRange,
     this.creator,
     required this.cast,
+    this.crew = const [],
     required this.providers,
     required this.seasons,
     this.trailerKey,
@@ -166,6 +242,7 @@ class TmdbTvDetail {
       yearRange: yearRange,
       creator: creator,
       cast: cast,
+      crew: crew,
       providers: providers,
       seasons:
           seasons.map((s) => s.number == updated.number ? updated : s).toList(),
@@ -199,11 +276,22 @@ class TmdbTvDetail {
                 : firstAir)
         : '';
 
-    final creators = (detail['created_by'] as List? ?? [])
-        .cast<Map>()
+    final createdBy = (detail['created_by'] as List? ?? []).cast<Map>();
+    final creators = createdBy
         .map((c) => c['name'] as String? ?? '')
         .where((n) => n.isNotEmpty)
         .join(', ');
+
+    final crew = createdBy.map((c) {
+      final profilePath = c['profile_path'] as String?;
+      return CrewMember(
+        name: c['name'] as String? ?? '',
+        role: 'Creator',
+        profileUrl: profilePath != null
+            ? 'https://image.tmdb.org/t/p/w200$profilePath'
+            : null,
+      );
+    }).where((m) => m.name.isNotEmpty).toList();
 
     final cast = (detail['credits']?['cast'] as List? ?? [])
         .cast<Map>()
@@ -256,6 +344,7 @@ class TmdbTvDetail {
       yearRange: yearRange,
       creator: creators.isNotEmpty ? creators : null,
       cast: cast,
+      crew: crew,
       providers: _parseProviders(providersJson),
       seasons: seasons,
       trailerKey: _parseTrailerKey(detail),
@@ -285,11 +374,15 @@ class TmdbTvDetail {
     final yearRange =
         year != null ? (isOngoing ? '$year – Present' : '$year') : '';
 
-    final studios = (d['studios'] as List? ?? [])
+    final studioNames = (d['studios'] as List? ?? [])
         .cast<Map>()
         .map((s) => s['name'] as String? ?? '')
         .where((n) => n.isNotEmpty)
-        .join(', ');
+        .toList();
+    final studios = studioNames.join(', ');
+    final crew = studioNames
+        .map((name) => CrewMember(name: name, role: 'Studio'))
+        .toList();
 
     final charList =
         (charactersJson['data'] as List? ?? []).cast<Map>().take(10);
@@ -385,6 +478,7 @@ class TmdbTvDetail {
       yearRange: yearRange,
       creator: studios.isNotEmpty ? studios : null,
       cast: cast,
+      crew: crew,
       providers: const [],
       seasons: seasons,
       trailerKey: jikanTrailerId,
@@ -414,11 +508,15 @@ class TmdbTvDetail {
                 : '$startYear')
         : '';
 
-    final studios = ((media['studios'] as Map?)?['nodes'] as List? ?? [])
+    final studioNames = ((media['studios'] as Map?)?['nodes'] as List? ?? [])
         .cast<Map>()
         .map((s) => s['name'] as String? ?? '')
         .where((n) => n.isNotEmpty)
-        .join(', ');
+        .toList();
+    final studios = studioNames.join(', ');
+    final crew = studioNames
+        .map((name) => CrewMember(name: name, role: 'Studio'))
+        .toList();
 
     final cast = ((media['characters'] as Map?)?['edges'] as List? ?? [])
         .cast<Map>()
@@ -515,6 +613,7 @@ class TmdbTvDetail {
       yearRange: yearRange,
       creator: studios.isNotEmpty ? studios : null,
       cast: cast,
+      crew: crew,
       providers: const [],
       seasons: seasons,
       trailerKey: trailerKey,

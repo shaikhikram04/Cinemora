@@ -5,6 +5,7 @@ import 'package:cinemora/common/widgets/buttons/pill_chip.dart';
 import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
 import 'package:cinemora/common/widgets/buttons/trailer_button.dart';
 import 'package:cinemora/common/widgets/detail/cast_section.dart';
+import 'package:cinemora/common/widgets/detail/crew_section.dart';
 import 'package:cinemora/common/widgets/detail/detail_hero_shell.dart';
 import 'package:cinemora/common/widgets/detail/detail_rating_section.dart';
 import 'package:cinemora/common/widgets/detail/detail_recommendations_section.dart';
@@ -56,8 +57,9 @@ class MovieDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl =
-        backdropImage != null && backdropImage!.isNotEmpty ? backdropImage! : movieImage;
+    final imageUrl = backdropImage != null && backdropImage!.isNotEmpty
+        ? backdropImage!
+        : movieImage;
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -112,6 +114,15 @@ class MovieDetailsContent extends StatelessWidget {
                 if (isDetailLoading || (detail?.cast.isNotEmpty ?? false)) ...[
                   CastSection(
                     cast: detail?.cast,
+                    isLoading: isDetailLoading,
+                  ),
+                  SizedBox(height: 16.h),
+                  Divider(color: context.colors.border),
+                  SizedBox(height: 16.h),
+                ],
+                if (isDetailLoading || (detail?.crew.isNotEmpty ?? false)) ...[
+                  CrewSection(
+                    crew: detail?.crew,
                     isLoading: isDetailLoading,
                   ),
                   SizedBox(height: 16.h),

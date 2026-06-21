@@ -42,7 +42,7 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
     return MovieDetailsState(
       isInWatchlist: entry?.status == WatchStatus.watchlist,
       isWatched: entry?.status == WatchStatus.watched,
-      userRating: entry?.userRating ?? 5.0,
+      userRating: entry?.userRating ?? 0.0,
     );
   }
 
