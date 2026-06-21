@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:cinemora/common/widgets/buttons/circle_icon_button.dart';
+import 'package:cinemora/common/widgets/dialogs/unmark_watched_dialog.dart';
 import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
 import 'package:cinemora/common/widgets/buttons/pill_chip.dart';
 import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
@@ -81,6 +82,7 @@ class MovieDetailsContent extends StatelessWidget {
                 _ActionButtons(
                   isInWatchlist: isInWatchlist,
                   isWatched: isWatched,
+                  userRating: userRating,
                   onToggleWatchlist: onToggleWatchlist,
                   onToggleWatched: onToggleWatched,
                   movieTitle: movieTitle,
@@ -362,6 +364,7 @@ class _HeroHeader extends StatelessWidget {
 class _ActionButtons extends StatelessWidget {
   final bool isInWatchlist;
   final bool isWatched;
+  final double userRating;
   final VoidCallback onToggleWatchlist;
   final VoidCallback onToggleWatched;
   final String? trailerKey;
@@ -370,6 +373,7 @@ class _ActionButtons extends StatelessWidget {
   const _ActionButtons({
     required this.isInWatchlist,
     required this.isWatched,
+    required this.userRating,
     required this.onToggleWatchlist,
     required this.onToggleWatched,
     required this.movieTitle,
@@ -386,18 +390,23 @@ class _ActionButtons extends StatelessWidget {
               child: ToggleActionButton(
                 selected: isInWatchlist,
                 selectedLabel: 'In Watchlist',
-                unselectedLabel: 'Add to Watchlist',
+                unselectedLabel: isWatched ? 'Rewatch' : 'Add to Watchlist',
                 selectedIcon: Icons.bookmark,
-                unselectedIcon: Icons.bookmark_outline,
+                unselectedIcon: isWatched ? Icons.replay_rounded : Icons.bookmark_outline,
                 onTap: onToggleWatchlist,
                 selectedBackground:
                     context.colors.primary.withValues(alpha: 0.14),
-                unselectedBackground:
-                    context.colors.accentRed.withValues(alpha: 0.9),
+                unselectedBackground: isWatched
+                    ? context.colors.chartBlue.withValues(alpha: 0.1)
+                    : context.colors.accentRed.withValues(alpha: 0.9),
                 selectedBorder: context.colors.primary,
-                unselectedBorder: context.colors.border,
+                unselectedBorder: isWatched
+                    ? context.colors.chartBlue.withValues(alpha: 0.5)
+                    : context.colors.border,
                 selectedForeground: context.colors.primary,
-                unselectedForeground: context.colors.primaryForeground,
+                unselectedForeground: isWatched
+                    ? context.colors.chartBlue
+                    : context.colors.primaryForeground,
               ),
             ),
             SizedBox(width: 12.w),
@@ -408,7 +417,10 @@ class _ActionButtons extends StatelessWidget {
                 unselectedLabel: 'Mark Watched',
                 selectedIcon: Icons.check_circle,
                 unselectedIcon: Icons.check_circle_outline,
-                onTap: onToggleWatched,
+                onTap: isWatched
+                    ? () => showUnmarkWatchedDialog(context,
+                        onConfirm: onToggleWatched, userRating: userRating)
+                    : onToggleWatched,
                 selectedBackground:
                     context.colors.success.withValues(alpha: 0.1),
                 unselectedBackground:

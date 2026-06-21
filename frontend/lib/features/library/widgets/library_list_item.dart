@@ -13,10 +13,14 @@ import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 
 class LibraryListItem extends StatelessWidget {
   final LibraryEntryModel entry;
+  final bool showWatchCount;
+  final bool fromWatchedTab;
 
   const LibraryListItem({
     super.key,
     required this.entry,
+    this.showWatchCount = false,
+    this.fromWatchedTab = false,
   });
 
   // If only one season was added, focus that season when opening series details.
@@ -58,6 +62,7 @@ class LibraryListItem extends StatelessWidget {
       builder: (sheetCtx) => _ActionsSheet(
         entry: entry,
         cubit: context.read<LibraryCubit>(),
+        fromWatchedTab: fromWatchedTab,
       ),
     );
   }
@@ -68,8 +73,9 @@ class LibraryListItem extends StatelessWidget {
         entry.progress != null &&
         entry.progress!.progressFraction > 0;
 
-    final rewatchCount = entry.watchedAt.length;
+    final watchCount = entry.watchedAt.length;
     final focusSeason = _focusSeason;
+    final hasSheetContent = _ActionsSheet.hasContent(entry, fromWatchedTab);
 
     return GestureDetector(
       onTap: () => _openDetail(context),
@@ -146,25 +152,26 @@ class LibraryListItem extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () => _openActionsSheet(context),
-                          behavior: HitTestBehavior.opaque,
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 8.w, top: 2.h),
-                            child: Container(
-                              padding: EdgeInsets.all(4.w),
-                              decoration: BoxDecoration(
-                                color: context.colors.surfaceMuted,
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                              child: Icon(
-                                Icons.more_horiz_rounded,
-                                size: 16.sp,
-                                color: context.colors.mutedSecondary,
+                        if (hasSheetContent)
+                          GestureDetector(
+                            onTap: () => _openActionsSheet(context),
+                            behavior: HitTestBehavior.opaque,
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 8.w, top: 2.h),
+                              child: Container(
+                                padding: EdgeInsets.all(4.w),
+                                decoration: BoxDecoration(
+                                  color: context.colors.surfaceMuted,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Icon(
+                                  Icons.more_horiz_rounded,
+                                  size: 16.sp,
+                                  color: context.colors.mutedSecondary,
+                                ),
                               ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                     SizedBox(height: 4.h),
@@ -240,7 +247,7 @@ class LibraryListItem extends StatelessWidget {
                       ],
                     ),
 
-                    // User rating stars + optional rewatch badge
+                    // User rating stars + optional watch count badge
                     if (entry.userRating != null && entry.userRating! > 0) ...[
                       SizedBox(height: 7.h),
                       Row(
@@ -255,15 +262,15 @@ class LibraryListItem extends StatelessWidget {
                           ),
                           SizedBox(width: 6.w),
                           _StarRow(rating: entry.userRating!),
-                          if (rewatchCount > 1) ...[
+                          if (showWatchCount && watchCount > 0) ...[
                             SizedBox(width: 8.w),
-                            _RewatchBadge(count: rewatchCount),
+                            _WatchCountBadge(count: watchCount),
                           ],
                         ],
                       ),
-                    ] else if (rewatchCount > 1) ...[
+                    ] else if (showWatchCount && watchCount > 0) ...[
                       SizedBox(height: 7.h),
-                      _RewatchBadge(count: rewatchCount),
+                      _WatchCountBadge(count: watchCount),
                     ],
 
                     // Progress bar + episode label
@@ -304,38 +311,44 @@ class LibraryListItem extends StatelessWidget {
   }
 }
 
-// ── Rewatch Badge ─────────────────────────────────────────────────────────────
+// ── Watch Count Badge ─────────────────────────────────────────────────────────
 
-class _RewatchBadge extends StatelessWidget {
+class _WatchCountBadge extends StatelessWidget {
   final int count;
 
-  const _RewatchBadge({required this.count});
+  const _WatchCountBadge({required this.count});
 
   @override
   Widget build(BuildContext context) {
+    final isRewatch = count > 1;
+    final color = isRewatch ? context.colors.chartBlue : context.colors.success;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+      padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
       decoration: BoxDecoration(
-        color: context.colors.accentRed.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6.r),
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: color.withValues(alpha: 0.22), width: 0.7),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.replay_rounded,
-            size: 10.sp,
-            color: context.colors.accentRed.withValues(alpha: 0.8),
+            isRewatch ? Icons.replay_rounded : Icons.visibility_rounded,
+            size: 11.sp,
+            color: color,
           ),
-          SizedBox(width: 2.w),
-          Text(
-            '$count×',
-            style: TextStyle(
-              color: context.colors.accentRed.withValues(alpha: 0.8),
-              fontSize: 9.sp,
-              fontWeight: FontWeight.w700,
+          if (isRewatch) ...[
+            SizedBox(width: 4.w),
+            Text(
+              '$count× watched',
+              style: TextStyle(
+                color: color,
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.1,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -439,21 +452,41 @@ class _PosterPlaceholder extends StatelessWidget {
 class _ActionsSheet extends StatelessWidget {
   final LibraryEntryModel entry;
   final LibraryCubit cubit;
+  final bool fromWatchedTab;
 
   const _ActionsSheet({
     required this.entry,
     required this.cubit,
+    this.fromWatchedTab = false,
   });
 
-  static const _moveStatuses = [
+  static const _allMoveOptions = [
     ('Watchlist', Icons.bookmark_rounded),
     ('Watched', Icons.check_circle_rounded),
   ];
+
+  static bool hasContent(LibraryEntryModel entry, bool fromWatchedTab) {
+    final canDrop = !entry.hasBeenWatched && entry.status != WatchStatus.dropped;
+    final hasRemoveOption = !fromWatchedTab &&
+        (entry.status == WatchStatus.watchlist ||
+            entry.status == WatchStatus.dropped);
+    return !fromWatchedTab ||
+        entry.status == WatchStatus.watched ||
+        canDrop ||
+        hasRemoveOption;
+  }
 
   @override
   Widget build(BuildContext context) {
     final isWatched = entry.status == WatchStatus.watched;
     final isDropped = entry.status == WatchStatus.dropped;
+    final canDrop = !isDropped && !entry.hasBeenWatched;
+    final hasRemoveOption =
+        !fromWatchedTab && (isDropped || entry.status == WatchStatus.watchlist);
+
+    final moveOptions = _allMoveOptions
+        .where((s) => s.$1 != entry.displayStatus && !fromWatchedTab)
+        .toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -522,82 +555,67 @@ class _ActionsSheet extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 4.h),
-              Text(
-                'Move to',
-                style: TextStyle(
-                  color: context.colors.mutedSecondary,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w500,
+              if (moveOptions.isNotEmpty) ...[
+                SizedBox(height: 4.h),
+                Text(
+                  'Move to',
+                  style: TextStyle(
+                    color: context.colors.mutedSecondary,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-              SizedBox(height: 12.h),
+                SizedBox(height: 12.h),
 
-              // ── Watchlist / Watched ──────────────────────────────────
-              Row(
-                children: _moveStatuses.map((s) {
-                  final (label, icon) = s;
-                  final isCurrent = entry.displayStatus == label;
-                  return Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          right: s == _moveStatuses.last ? 0 : 8.w),
-                      child: GestureDetector(
-                        onTap: isCurrent
-                            ? null
-                            : () {
-                                Navigator.pop(context);
-                                cubit.updateEntryStatus(
-                                    entry.tmdbId, entry.cinemaType, label);
-                              },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 150),
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          decoration: BoxDecoration(
-                            color: isCurrent
-                                ? context.colors.accentRed
-                                    .withValues(alpha: 0.12)
-                                : context.colors.surfaceRaised,
-                            borderRadius: BorderRadius.circular(14.r),
-                            border: Border.all(
-                              color: isCurrent
-                                  ? context.colors.accentRed
-                                      .withValues(alpha: 0.5)
-                                  : context.colors.borderStrong,
+                // ── Move options (excludes current status) ───────────────
+                Row(
+                  children: List.generate(moveOptions.length, (i) {
+                    final (label, icon) = moveOptions[i];
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            right: i < moveOptions.length - 1 ? 8.w : 0),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                            cubit.updateEntryStatus(
+                                entry.tmdbId, entry.cinemaType, label);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            decoration: BoxDecoration(
+                              color: context.colors.surfaceRaised,
+                              borderRadius: BorderRadius.circular(14.r),
+                              border: Border.all(
+                                  color: context.colors.borderStrong),
                             ),
-                          ),
-                          child: Column(
-                            children: [
-                              Icon(
-                                icon,
-                                size: 20.sp,
-                                color: isCurrent
-                                    ? context.colors.accentRed
-                                    : context.colors.mutedSecondary,
-                              ),
-                              SizedBox(height: 4.h),
-                              Text(
-                                label,
-                                style: TextStyle(
-                                  color: isCurrent
-                                      ? context.colors.foreground
-                                      : context.colors.mutedSecondary,
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.w600,
+                            child: Column(
+                              children: [
+                                Icon(icon,
+                                    size: 20.sp,
+                                    color: context.colors.mutedSecondary),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  label,
+                                  style: TextStyle(
+                                    color: context.colors.mutedSecondary,
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 10.h),
+                    );
+                  }),
+                ),
+              ], // end moveOptions
 
               // ── Rewatch — only when already watched ─────────────────
               if (isWatched) ...[
+                SizedBox(height: 10.h),
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
@@ -634,19 +652,20 @@ class _ActionsSheet extends StatelessWidget {
                     ),
                   ),
                 ),
+              ],
+              if (canDrop || hasRemoveOption) ...[
                 SizedBox(height: 10.h),
+                // ── Divider ──────────────────────────────────────────────
+                Divider(
+                  color: context.colors.borderStrong,
+                  height: 1,
+                  thickness: 1,
+                ),
               ],
 
-              // ── Divider ──────────────────────────────────────────────
-              Divider(
-                color: context.colors.borderStrong,
-                height: 1,
-                thickness: 1,
-              ),
-              SizedBox(height: 10.h),
-
               // ── Drop — only when not already dropped ─────────────────
-              if (!isDropped) ...[
+              if (canDrop) ...[
+                SizedBox(height: 10.h),
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
@@ -684,47 +703,49 @@ class _ActionsSheet extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 10.h),
               ],
 
               // ── Remove from library ───────────────────────────────────
-              GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                  cubit.removeEntry(entry.tmdbId, entry.cinemaType);
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 14.h),
-                  decoration: BoxDecoration(
-                    color: context.colors.accentRed.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(14.r),
-                    border: Border.all(
-                      color: context.colors.accentRed.withValues(alpha: 0.3),
+              if (hasRemoveOption) ...[
+                SizedBox(height: 10.h),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    cubit.removeEntry(entry.tmdbId, entry.cinemaType);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                    decoration: BoxDecoration(
+                      color: context.colors.accentRed.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(14.r),
+                      border: Border.all(
+                        color: context.colors.accentRed.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18.sp,
+                          color: context.colors.accentRed,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'Remove from library',
+                          style: TextStyle(
+                            color: context.colors.accentRed,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.delete_outline_rounded,
-                        size: 18.sp,
-                        color: context.colors.accentRed,
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'Remove from library',
-                        style: TextStyle(
-                          color: context.colors.accentRed,
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-              SizedBox(height: 8.h),
+                SizedBox(height: 8.h),
+              ],
             ],
           ),
         ),

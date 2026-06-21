@@ -43,26 +43,24 @@ class LibraryState extends Equatable {
     filteredEntries = _buildFiltered();
     statusCounts = {
       for (final s in _statuses)
-        s: entries.where((e) => e.status == WatchStatus.fromDisplayName(s)).length,
+        s: s == 'Watched'
+            ? entries.where(_isWatched).length
+            : entries.where((e) => e.status == WatchStatus.fromDisplayName(s)).length,
     };
-    watchedCount =
-        entries.where((e) => e.status == WatchStatus.watched).length;
+    watchedCount = entries.where(_isWatched).length;
     moviesWatched = entries
-        .where((e) =>
-            e.cinemaType == CinemaType.movie &&
-            e.status == WatchStatus.watched)
+        .where((e) => e.cinemaType == CinemaType.movie && _isWatched(e))
         .length;
     seriesWatched = entries
-        .where((e) =>
-            e.cinemaType == CinemaType.tv && e.status == WatchStatus.watched)
+        .where((e) => e.cinemaType == CinemaType.tv && _isWatched(e))
         .length;
     animeWatched = entries
-        .where((e) =>
-            e.cinemaType == CinemaType.anime &&
-            e.status == WatchStatus.watched)
+        .where((e) => e.cinemaType == CinemaType.anime && _isWatched(e))
         .length;
     totalWatchedMinutes = _buildWatchedMinutes();
   }
+
+  static bool _isWatched(LibraryEntryModel e) => e.hasBeenWatched;
 
   List<LibraryEntryModel> _buildFiltered() {
     final typeFilter = CinemaType.fromDisplayName(selectedType);
@@ -70,7 +68,9 @@ class LibraryState extends Equatable {
 
     final result = entries.where((entry) {
       final typeMatch = typeFilter == null || entry.cinemaType == typeFilter;
-      final statusMatch = entry.status == statusFilter;
+      final statusMatch = statusFilter == WatchStatus.watched
+          ? _isWatched(entry)
+          : entry.status == statusFilter;
       final searchMatch = searchQuery.isEmpty ||
           entry.title.toLowerCase().contains(searchQuery.toLowerCase());
       return typeMatch && statusMatch && searchMatch;
@@ -102,7 +102,7 @@ class LibraryState extends Equatable {
   int _buildWatchedMinutes() {
     int total = 0;
     for (final e in entries) {
-      if (e.status == WatchStatus.watched && e.runtimeMinutes != null) {
+      if (_isWatched(e) && e.runtimeMinutes != null) {
         final eps = e.cinemaType == CinemaType.movie
             ? 1
             : (e.progress?.totalEpisodes ?? 1);

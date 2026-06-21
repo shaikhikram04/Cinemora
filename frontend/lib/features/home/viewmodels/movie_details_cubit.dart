@@ -32,8 +32,6 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
     if (_tmdbId != null) _loadDetail();
   }
 
-
-
   Future<void> _loadDetail() async {
     final id = _tmdbId;
     if (id == null) return;

@@ -199,6 +199,9 @@ class LibraryEntryModel extends Equatable {
     );
   }
 
+  bool get hasBeenWatched =>
+      status == WatchStatus.watched || watchedAt.isNotEmpty;
+
   String get posterUrl {
     if (posterPath == null || posterPath!.isEmpty) return '';
     if (posterPath!.startsWith('http')) return posterPath!;

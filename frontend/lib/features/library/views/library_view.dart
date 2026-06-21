@@ -232,6 +232,8 @@ class _LibraryViewState extends State<LibraryView> {
                             padding: EdgeInsets.only(bottom: 10.h),
                             child: LibraryListItem(
                               entry: entry,
+                              showWatchCount: state.selectedStatus == 'Watched',
+                              fromWatchedTab: state.selectedStatus == 'Watched',
                             ),
                           );
                         },

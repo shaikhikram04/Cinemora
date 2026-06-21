@@ -152,7 +152,9 @@ class LibraryCubit extends Cubit<LibraryState> {
     emit(state.copyWith(entries: entries));
   }
 
-  /// Appends a new watch timestamp so the entry shows a rewatch count.
+  /// Moves a watched entry back to Watchlist for rewatching.
+  /// watchedAt is left untouched — a new timestamp is added only when the
+  /// user marks it as watched again.
   Future<void> markAsRewatch(int tmdbId, CinemaType cinemaType) async {
     final entries = List<LibraryEntryModel>.from(state.entries);
     final idx = entries.indexWhere(
@@ -160,17 +162,15 @@ class LibraryCubit extends Cubit<LibraryState> {
     if (idx < 0) return;
 
     final original = entries[idx];
-    final nowList = List<DateTime>.from(original.watchedAt)..add(DateTime.now());
     entries[idx] = original.copyWith(
-      watchedAt: nowList,
-      status: WatchStatus.watched,
+      status: WatchStatus.watchlist,
       updatedAt: DateTime.now(),
     );
     emit(state.copyWith(entries: entries));
 
     try {
       final confirmed =
-          await _repo.updateEntry(tmdbId, cinemaType, status: WatchStatus.watched);
+          await _repo.updateEntry(tmdbId, cinemaType, status: WatchStatus.watchlist);
       final refreshed = List<LibraryEntryModel>.from(state.entries);
       final i = refreshed.indexWhere(
           (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
