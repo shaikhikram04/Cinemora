@@ -41,8 +41,49 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
         _posterUrl = posterUrl,
         _tmdbRating = tmdbRating,
         _focusSeason = focusSeason,
-        super(SeriesDetailsState(seasons: initialSeasons)) {
+        super(_buildInitialState(
+          libraryCubit: libraryCubit,
+          id: id,
+          source: source,
+          initialSeasons: initialSeasons,
+        )) {
     if (id != null) _loadDetail();
+  }
+
+  static SeriesDetailsState _buildInitialState({
+    required LibraryCubit libraryCubit,
+    required int? id,
+    required String source,
+    required List<SeriesSeason> initialSeasons,
+  }) {
+    if (id == null) return SeriesDetailsState(seasons: initialSeasons);
+    final cinemaType = source == 'jikan' ? CinemaType.anime : CinemaType.tv;
+    final entry = libraryCubit.state.entries
+        .where((e) => e.tmdbId == id && e.cinemaType == cinemaType)
+        .firstOrNull;
+    final seasonsInWatchlist = entry?.seasons
+            .where((s) => s.status == WatchStatus.watchlist)
+            .map((s) => s.seasonNumber)
+            .toList() ??
+        [];
+    final seasonsWatched = entry?.seasons
+            .where((s) => s.status == WatchStatus.watched)
+            .map((s) => s.seasonNumber)
+            .toList() ??
+        [];
+    final seasonRatings = <int, double>{
+      for (final s in entry?.seasons ?? [])
+        if (s.rating != null) s.seasonNumber: s.rating!,
+    };
+    return SeriesDetailsState(
+      seasons: initialSeasons,
+      showInWatchlist: entry?.status == WatchStatus.watchlist,
+      isShowWatched: entry?.status == WatchStatus.watched,
+      showRating: entry?.userRating ?? 0.0,
+      seasonsInWatchlist: seasonsInWatchlist,
+      seasonsWatched: seasonsWatched,
+      seasonRatings: seasonRatings,
+    );
   }
 
   CinemaType get _cinemaType =>
@@ -57,7 +98,8 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
   // Best available per-episode runtime: TMDB episode_run_time first,
   // then average of loaded episode runtimes (e.g. "45m" strings).
   int? get _episodeRuntime {
-    if (state.detail?.runtimeMinutes != null) return state.detail!.runtimeMinutes;
+    if (state.detail?.runtimeMinutes != null)
+      return state.detail!.runtimeMinutes;
     final runtimes = state.seasons
         .expand((s) => s.episodes)
         .map((ep) {
@@ -358,8 +400,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     }
   }
 
-  void clearMutationError() =>
-      emit(state.copyWith(clearMutationError: true));
+  void clearMutationError() => emit(state.copyWith(clearMutationError: true));
 
   void toggleSeasonExpanded(int seasonNumber) {
     final list = List<int>.from(state.expandedSeasons);
@@ -382,35 +423,13 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           ? await _repo.fetchAnimeDetail(id)
           : await _repo.fetchTvDetail(id);
 
-      LibraryEntryModel? entry;
-      try {
-        entry = await _library.getEntry(id, _cinemaType);
-      } catch (_) {}
-
-      // Restore season-level tracking state from persisted entry
-      final seasonsInWatchlist = entry?.seasons
-              .where((s) => s.status == WatchStatus.watchlist)
-              .map((s) => s.seasonNumber)
-              .toList() ??
-          [];
-      final seasonsWatched = entry?.seasons
-              .where((s) => s.status == WatchStatus.watched)
-              .map((s) => s.seasonNumber)
-              .toList() ??
-          [];
-      final seasonRatings = <int, double>{
-        for (final s in entry?.seasons ?? [])
-          if (s.rating != null) s.seasonNumber: s.rating!,
-      };
-
       int startIndex = 0;
       if (_source == 'jikan') {
         final idx = detail.seasons.indexWhere((s) => s.malId == id);
         if (idx >= 0) startIndex = idx;
       }
       if (_focusSeason != null) {
-        final idx =
-            detail.seasons.indexWhere((s) => s.number == _focusSeason);
+        final idx = detail.seasons.indexWhere((s) => s.number == _focusSeason);
         if (idx >= 0) startIndex = idx;
       }
 
@@ -419,12 +438,6 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
         seasons: detail.seasons,
         selectedSeasonIndex: startIndex,
         detailStatus: DetailStatus.loaded,
-        showInWatchlist: entry?.status == WatchStatus.watchlist,
-        isShowWatched: entry?.status == WatchStatus.watched,
-        showRating: entry?.userRating ?? 0.0,
-        seasonsInWatchlist: seasonsInWatchlist,
-        seasonsWatched: seasonsWatched,
-        seasonRatings: seasonRatings,
       ));
 
       if (_source == 'tmdb' && detail.seasons.isNotEmpty) {
@@ -450,14 +463,16 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
       final updatedSeasons = state.seasons
           .map((s) => s.number == seasonNumber ? updatedSeason : s)
           .toList();
-      final loaded = Set<int>.from(state.loadedSeasonNumbers)..add(seasonNumber);
+      final loaded = Set<int>.from(state.loadedSeasonNumbers)
+        ..add(seasonNumber);
       emit(state.copyWith(
         detail: updatedDetail,
         seasons: updatedSeasons,
         loadedSeasonNumbers: loaded,
       ));
     } catch (_) {
-      final loaded = Set<int>.from(state.loadedSeasonNumbers)..add(seasonNumber);
+      final loaded = Set<int>.from(state.loadedSeasonNumbers)
+        ..add(seasonNumber);
       emit(state.copyWith(loadedSeasonNumbers: loaded));
     }
   }
@@ -466,7 +481,8 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     try {
       final episodes = await _repo.fetchAnimeEpisodes(malId);
       if (episodes.isEmpty) {
-        final loaded = Set<int>.from(state.loadedSeasonNumbers)..add(seasonNumber);
+        final loaded = Set<int>.from(state.loadedSeasonNumbers)
+          ..add(seasonNumber);
         emit(state.copyWith(loadedSeasonNumbers: loaded));
         return;
       }
@@ -477,14 +493,16 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
       final updatedSeasons = state.seasons
           .map((s) => s.number == seasonNumber ? updatedSeason : s)
           .toList();
-      final loaded = Set<int>.from(state.loadedSeasonNumbers)..add(seasonNumber);
+      final loaded = Set<int>.from(state.loadedSeasonNumbers)
+        ..add(seasonNumber);
       emit(state.copyWith(
         detail: updatedDetail,
         seasons: updatedSeasons,
         loadedSeasonNumbers: loaded,
       ));
     } catch (_) {
-      final loaded = Set<int>.from(state.loadedSeasonNumbers)..add(seasonNumber);
+      final loaded = Set<int>.from(state.loadedSeasonNumbers)
+        ..add(seasonNumber);
       emit(state.copyWith(loadedSeasonNumbers: loaded));
     }
   }

@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/utils/tmdb_url_utils.dart';
-import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
@@ -20,16 +19,31 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
   MovieDetailsCubit(
     this._repo,
     this._library,
-    this._libraryCubit,
-    this._tmdbId, {
+    LibraryCubit libraryCubit,
+    int? tmdbId, {
     required String title,
     String? posterUrl,
     double? tmdbRating,
-  })  : _title = title,
+  })  : _libraryCubit = libraryCubit,
+        _tmdbId = tmdbId,
+        _title = title,
         _posterUrl = posterUrl,
         _tmdbRating = tmdbRating,
-        super(const MovieDetailsState()) {
-    if (_tmdbId != null) _loadDetail();
+        super(_buildInitialState(libraryCubit, tmdbId)) {
+    if (tmdbId != null) _loadDetail();
+  }
+
+  static MovieDetailsState _buildInitialState(
+      LibraryCubit libraryCubit, int? tmdbId) {
+    if (tmdbId == null) return const MovieDetailsState();
+    final entry = libraryCubit.state.entries
+        .where((e) => e.tmdbId == tmdbId && e.cinemaType == CinemaType.movie)
+        .firstOrNull;
+    return MovieDetailsState(
+      isInWatchlist: entry?.status == WatchStatus.watchlist,
+      isWatched: entry?.status == WatchStatus.watched,
+      userRating: entry?.userRating ?? 5.0,
+    );
   }
 
   Future<void> _loadDetail() async {
@@ -38,16 +52,9 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
     emit(state.copyWith(detailStatus: DetailStatus.loading));
     try {
       final detail = await _repo.fetchMovieDetail(id);
-      LibraryEntryModel? entry;
-      try {
-        entry = await _library.getEntry(id, CinemaType.movie);
-      } catch (_) {}
       emit(state.copyWith(
         detail: detail,
         detailStatus: DetailStatus.loaded,
-        isInWatchlist: entry?.status == WatchStatus.watchlist,
-        isWatched: entry?.status == WatchStatus.watched,
-        userRating: entry?.userRating ?? 0.0,
       ));
     } catch (_) {
       emit(state.copyWith(detailStatus: DetailStatus.failed));
