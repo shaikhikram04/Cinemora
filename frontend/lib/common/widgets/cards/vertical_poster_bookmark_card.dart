@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 import 'poster_image.dart';
 
 class VerticalPosterBookmarkCard extends StatefulWidget {
@@ -15,7 +16,7 @@ class VerticalPosterBookmarkCard extends StatefulWidget {
   final double radius;
   final VoidCallback? onTap;
   final CinemaType cinemaType;
-  final bool isBookmarked;
+  final WatchStatus? watchStatus;
   final VoidCallback? onBookmark;
 
   const VerticalPosterBookmarkCard({
@@ -29,7 +30,7 @@ class VerticalPosterBookmarkCard extends StatefulWidget {
     required this.year,
     this.radius = WSizes.radiusXxl,
     this.onTap,
-    this.isBookmarked = false,
+    this.watchStatus,
     this.onBookmark,
   });
 
@@ -40,19 +41,19 @@ class VerticalPosterBookmarkCard extends StatefulWidget {
 
 class _VerticalPosterBookmarkCardState
     extends State<VerticalPosterBookmarkCard> {
-  late bool _inWatchlist;
+  late WatchStatus? _watchStatus;
 
   @override
   void initState() {
     super.initState();
-    _inWatchlist = widget.isBookmarked;
+    _watchStatus = widget.watchStatus;
   }
 
   @override
   void didUpdateWidget(VerticalPosterBookmarkCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.isBookmarked != widget.isBookmarked) {
-      setState(() => _inWatchlist = widget.isBookmarked);
+    if (oldWidget.watchStatus != widget.watchStatus) {
+      setState(() => _watchStatus = widget.watchStatus);
     }
   }
 
@@ -74,12 +75,15 @@ class _VerticalPosterBookmarkCardState
             radius: widget.radius,
             rating: widget.rating,
             showBookmark: true,
-            inWatchlist: _inWatchlist,
+            watchStatus: _watchStatus,
             titleOnImage: false,
-            onAddToWatchlist: () {
-              setState(() => _inWatchlist = !_inWatchlist);
-              widget.onBookmark?.call();
-            },
+            onAddToWatchlist: _watchStatus == WatchStatus.watched
+                ? null
+                : () {
+                    setState(() => _watchStatus =
+                        _watchStatus == null ? WatchStatus.watchlist : null);
+                    widget.onBookmark?.call();
+                  },
           ),
           SizedBox(height: 8.h),
           Padding(

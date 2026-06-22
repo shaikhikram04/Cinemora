@@ -47,7 +47,6 @@ class LibraryCubit extends Cubit<LibraryState> {
   int get moviesWatched => state.moviesWatched;
   int get seriesWatched => state.seriesWatched;
   int get animeWatched => state.animeWatched;
-  int get totalWatchedMinutes => state.totalWatchedMinutes;
 
   // ── Filtered + sorted list (precomputed in LibraryState) ──────────────────
 

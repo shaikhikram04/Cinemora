@@ -748,15 +748,13 @@ class _InsightCard extends StatelessWidget {
       return "Start watching to build your cinema journey.";
     }
     final total = stats!.totalEntries;
-    final hours = stats!.totalWatchHours;
     final topGenre = stats!.topGenreName ??
         (user?.preferences.genres.isNotEmpty == true
             ? user!.preferences.genres.first
             : 'Drama');
 
     return "You've watched $total titles across Movies, Series and Anime. "
-        "$topGenre stories dominate your collection. "
-        "You've spent $hours hours watching.";
+        "$topGenre stories dominate your collection.";
   }
 
   @override

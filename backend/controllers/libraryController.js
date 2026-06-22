@@ -20,10 +20,22 @@ const getLibrary = async (req, res, next) => {
   const { status, cinemaType, sort = "updatedAt" } = req.query;
 
   if (cinemaType && !VALID_CINEMA_TYPES.has(cinemaType)) {
-    return next(new AppError(400, "LIBRARY_INVALID_TYPE", `cinemaType must be one of: ${[...VALID_CINEMA_TYPES].join(", ")}`));
+    return next(
+      new AppError(
+        400,
+        "LIBRARY_INVALID_TYPE",
+        `cinemaType must be one of: ${[...VALID_CINEMA_TYPES].join(", ")}`,
+      ),
+    );
   }
   if (status && !VALID_STATUSES.has(status)) {
-    return next(new AppError(400, "LIBRARY_INVALID_STATUS", `status must be one of: ${[...VALID_STATUSES].join(", ")}`));
+    return next(
+      new AppError(
+        400,
+        "LIBRARY_INVALID_STATUS",
+        `status must be one of: ${[...VALID_STATUSES].join(", ")}`,
+      ),
+    );
   }
 
   const filter = { userId: req.user.userId };
@@ -49,13 +61,12 @@ const getStats = async (req, res) => {
   const userId = req.user.userId;
 
   const entries = await LibraryEntry.find({ userId }).select(
-    "status cinemaType genres runtimeMinutes watchedAt progress"
+    "status cinemaType genres watchedAt",
   );
 
   const byStatus = { watchlist: 0, watching: 0, watched: 0, dropped: 0 };
   const byCinemaType = { movie: 0, tv: 0, anime: 0 };
   const genreFreq = {};
-  let totalWatchMinutes = 0;
   let rewatchCount = 0;
 
   for (const entry of entries) {
@@ -67,12 +78,6 @@ const getStats = async (req, res) => {
     }
 
     const watchCount = entry.watchedAt.length;
-    if (watchCount > 0 && entry.runtimeMinutes) {
-      const totalEps = entry.progress?.totalEpisodes || 1;
-      const episodeMultiplier = entry.cinemaType === "movie" ? 1 : totalEps;
-      totalWatchMinutes += entry.runtimeMinutes * episodeMultiplier * watchCount;
-    }
-
     if (watchCount > 1) rewatchCount += watchCount - 1;
   }
 
@@ -85,7 +90,6 @@ const getStats = async (req, res) => {
     totalEntries: entries.length,
     byStatus,
     byCinemaType,
-    totalWatchMinutes,
     rewatchCount,
     topGenres,
   });
@@ -96,12 +100,25 @@ const getStats = async (req, res) => {
 // POST /api/library
 const addToLibrary = async (req, res, next) => {
   const {
-    tmdbId, cinemaType, title, posterPath, releaseYear,
-    genres, tmdbRating, runtimeMinutes, status,
+    tmdbId,
+    cinemaType,
+    title,
+    posterPath,
+    releaseYear,
+    genres,
+    tmdbRating,
+    runtimeMinutes,
+    status,
   } = req.body;
 
   if (!tmdbId || !cinemaType || !title) {
-    return next(new AppError(400, "LIBRARY_MISSING_FIELDS", "tmdbId, cinemaType, and title are required"));
+    return next(
+      new AppError(
+        400,
+        "LIBRARY_MISSING_FIELDS",
+        "tmdbId, cinemaType, and title are required",
+      ),
+    );
   }
 
   const existing = await LibraryEntry.findOne({
@@ -109,7 +126,10 @@ const addToLibrary = async (req, res, next) => {
     tmdbId,
     cinemaType,
   });
-  if (existing) return next(new AppError(409, "LIBRARY_ALREADY_EXISTS", "Already in library"));
+  if (existing)
+    return next(
+      new AppError(409, "LIBRARY_ALREADY_EXISTS", "Already in library"),
+    );
 
   const entry = await LibraryEntry.create({
     userId: req.user.userId,
@@ -132,20 +152,38 @@ const addToLibrary = async (req, res, next) => {
 // Handles watchedAt stamping the same way PUT /:tmdbId does.
 const upsertEntry = async (req, res, next) => {
   const {
-    tmdbId, cinemaType, title, posterPath, releaseYear,
-    genres, tmdbRating, runtimeMinutes, status,
-    userRating, progress,
+    tmdbId,
+    cinemaType,
+    title,
+    posterPath,
+    releaseYear,
+    genres,
+    tmdbRating,
+    runtimeMinutes,
+    status,
+    userRating,
+    progress,
   } = req.body;
 
   if (!tmdbId || !cinemaType || !title) {
-    return next(new AppError(400, "LIBRARY_MISSING_FIELDS", "tmdbId, cinemaType, and title are required"));
+    return next(
+      new AppError(
+        400,
+        "LIBRARY_MISSING_FIELDS",
+        "tmdbId, cinemaType, and title are required",
+      ),
+    );
   }
 
   const userId = req.user.userId;
   const numericTmdbId = Number(tmdbId);
   const resolvedStatus = status || "watchlist";
 
-  let entry = await LibraryEntry.findOne({ userId, tmdbId: numericTmdbId, cinemaType });
+  let entry = await LibraryEntry.findOne({
+    userId,
+    tmdbId: numericTmdbId,
+    cinemaType,
+  });
 
   if (!entry) {
     entry = await LibraryEntry.create({
@@ -173,7 +211,8 @@ const upsertEntry = async (req, res, next) => {
 
     entry.status = resolvedStatus;
     if (userRating !== undefined) entry.userRating = userRating;
-    if (progress !== undefined) entry.progress = { ...entry.progress?.toObject(), ...progress };
+    if (progress !== undefined)
+      entry.progress = { ...entry.progress?.toObject(), ...progress };
     if (runtimeMinutes !== undefined) entry.runtimeMinutes = runtimeMinutes;
 
     await entry.save();
@@ -185,22 +224,28 @@ const upsertEntry = async (req, res, next) => {
 // GET /api/library/:tmdbId?type=cinemaType
 const getEntry = async (req, res, next) => {
   if (!req.query.type) {
-    return next(new AppError(400, "LIBRARY_MISSING_TYPE", "type query param is required"));
+    return next(
+      new AppError(400, "LIBRARY_MISSING_TYPE", "type query param is required"),
+    );
   }
 
   const entry = await LibraryEntry.findOne(compoundFilter(req)).select("-__v");
-  if (!entry) return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
+  if (!entry)
+    return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
   res.json(entry);
 };
 
 // PUT /api/library/:tmdbId?type=cinemaType
 const updateEntry = async (req, res, next) => {
   if (!req.query.type) {
-    return next(new AppError(400, "LIBRARY_MISSING_TYPE", "type query param is required"));
+    return next(
+      new AppError(400, "LIBRARY_MISSING_TYPE", "type query param is required"),
+    );
   }
 
   const entry = await LibraryEntry.findOne(compoundFilter(req));
-  if (!entry) return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
+  if (!entry)
+    return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
 
   const { status, userRating, review, progress, runtimeMinutes } = req.body;
 
@@ -211,7 +256,8 @@ const updateEntry = async (req, res, next) => {
   if (status !== undefined) entry.status = status;
   if (userRating !== undefined) entry.userRating = userRating;
   if (review !== undefined) entry.review = review;
-  if (progress !== undefined) entry.progress = { ...entry.progress?.toObject(), ...progress };
+  if (progress !== undefined)
+    entry.progress = { ...entry.progress?.toObject(), ...progress };
   if (runtimeMinutes !== undefined) entry.runtimeMinutes = runtimeMinutes;
 
   await entry.save();
@@ -221,11 +267,14 @@ const updateEntry = async (req, res, next) => {
 // DELETE /api/library/:tmdbId?type=cinemaType
 const deleteEntry = async (req, res, next) => {
   if (!req.query.type) {
-    return next(new AppError(400, "LIBRARY_MISSING_TYPE", "type query param is required"));
+    return next(
+      new AppError(400, "LIBRARY_MISSING_TYPE", "type query param is required"),
+    );
   }
 
   const result = await LibraryEntry.deleteOne(compoundFilter(req));
-  if (result.deletedCount === 0) return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
+  if (result.deletedCount === 0)
+    return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
   res.json({ message: "Removed from library" });
 };
 
@@ -235,23 +284,46 @@ const deleteEntry = async (req, res, next) => {
 const upsertSeason = async (req, res, next) => {
   const cinemaType = req.query.type;
   if (!cinemaType) {
-    return next(new AppError(400, "LIBRARY_MISSING_TYPE", "type query param is required"));
+    return next(
+      new AppError(400, "LIBRARY_MISSING_TYPE", "type query param is required"),
+    );
   }
 
   const tmdbId = Number(req.params.tmdbId);
   const seasonNumber = Number(req.params.seasonNumber);
-  const { seasonId, status, rating, title, posterPath, releaseYear, genres, tmdbRating } = req.body;
+  const {
+    seasonId,
+    status,
+    rating,
+    title,
+    posterPath,
+    releaseYear,
+    genres,
+    tmdbRating,
+  } = req.body;
 
   if (!status) {
-    return next(new AppError(400, "LIBRARY_MISSING_FIELDS", "status is required"));
+    return next(
+      new AppError(400, "LIBRARY_MISSING_FIELDS", "status is required"),
+    );
   }
 
   // Find or create the parent show document
-  let entry = await LibraryEntry.findOne({ userId: req.user.userId, tmdbId, cinemaType });
+  let entry = await LibraryEntry.findOne({
+    userId: req.user.userId,
+    tmdbId,
+    cinemaType,
+  });
 
   if (!entry) {
     if (!title) {
-      return next(new AppError(400, "LIBRARY_MISSING_FIELDS", "title is required when creating a new entry"));
+      return next(
+        new AppError(
+          400,
+          "LIBRARY_MISSING_FIELDS",
+          "title is required when creating a new entry",
+        ),
+      );
     }
     entry = new LibraryEntry({
       userId: req.user.userId,
@@ -286,14 +358,21 @@ const upsertSeason = async (req, res, next) => {
 const deleteSeason = async (req, res, next) => {
   const cinemaType = req.query.type;
   if (!cinemaType) {
-    return next(new AppError(400, "LIBRARY_MISSING_TYPE", "type query param is required"));
+    return next(
+      new AppError(400, "LIBRARY_MISSING_TYPE", "type query param is required"),
+    );
   }
 
   const tmdbId = Number(req.params.tmdbId);
   const seasonNumber = Number(req.params.seasonNumber);
 
-  const entry = await LibraryEntry.findOne({ userId: req.user.userId, tmdbId, cinemaType });
-  if (!entry) return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
+  const entry = await LibraryEntry.findOne({
+    userId: req.user.userId,
+    tmdbId,
+    cinemaType,
+  });
+  if (!entry)
+    return next(new AppError(404, "LIBRARY_ENTRY_NOT_FOUND", "Not in library"));
 
   entry.seasons = entry.seasons.filter((s) => s.seasonNumber !== seasonNumber);
   entry.markModified("seasons");

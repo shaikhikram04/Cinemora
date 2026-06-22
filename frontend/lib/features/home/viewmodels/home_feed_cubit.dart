@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/core/utils/tmdb_url_utils.dart';
 import 'package:cinemora/features/home/models/jikan_anime_item.dart';
 import 'package:cinemora/features/home/models/movie_poster.dart';
@@ -22,10 +23,13 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
   }
 
   void _syncBookmarkedIds() {
-    final ids = {for (final e in _library.state.entries) e.tmdbId};
-    if (ids.length == state.bookmarkedIds.length &&
-        ids.every(state.bookmarkedIds.contains)) return;
-    emit(state.copyWith(bookmarkedIds: ids));
+    final status = {for (final e in _library.state.entries) e.tmdbId: e.status};
+    final current = state.libraryStatus;
+    if (status.length == current.length &&
+        status.entries.every((kv) => current[kv.key] == kv.value)) {
+      return;
+    }
+    emit(state.copyWith(libraryStatus: status));
   }
 
   @override
@@ -107,16 +111,16 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
     String? year,
     double? tmdbRating,
   }) {
-    final isBookmarked = state.bookmarkedIds.contains(id);
-    final updated = Set<int>.from(state.bookmarkedIds);
-    if (isBookmarked) {
+    final isInLibrary = state.libraryStatus.containsKey(id);
+    final updated = Map<int, WatchStatus>.from(state.libraryStatus);
+    if (isInLibrary) {
       updated.remove(id);
     } else {
-      updated.add(id);
+      updated[id] = WatchStatus.watchlist;
     }
-    emit(state.copyWith(bookmarkedIds: updated));
+    emit(state.copyWith(libraryStatus: updated));
 
-    if (isBookmarked) {
+    if (isInLibrary) {
       _library.removeEntry(id, cinemaType);
     } else {
       _library.addToWatchlist(

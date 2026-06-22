@@ -26,7 +26,6 @@ class LibraryStatsModel extends Equatable {
   final int movies;
   final int tvShows;
   final int anime;
-  final int totalWatchMinutes;
   final int rewatchCount;
   final List<GenreCount> topGenres;
 
@@ -39,7 +38,6 @@ class LibraryStatsModel extends Equatable {
     this.movies = 0,
     this.tvShows = 0,
     this.anime = 0,
-    this.totalWatchMinutes = 0,
     this.rewatchCount = 0,
     this.topGenres = const [],
   });
@@ -61,13 +59,10 @@ class LibraryStatsModel extends Equatable {
       movies: byCinemaType['movie'] as int? ?? 0,
       tvShows: byCinemaType['tv'] as int? ?? 0,
       anime: byCinemaType['anime'] as int? ?? 0,
-      totalWatchMinutes: json['totalWatchMinutes'] as int? ?? 0,
       rewatchCount: json['rewatchCount'] as int? ?? 0,
       topGenres: genreList,
     );
   }
-
-  int get totalWatchHours => (totalWatchMinutes / 60).round();
 
   String? get topGenreName =>
       topGenres.isNotEmpty ? topGenres.first.genre : null;
@@ -75,6 +70,6 @@ class LibraryStatsModel extends Equatable {
   @override
   List<Object?> get props => [
         totalEntries, watched, watchlist, watching, dropped,
-        movies, tvShows, anime, totalWatchMinutes, rewatchCount, topGenres,
+        movies, tvShows, anime, rewatchCount, topGenres,
       ];
 }

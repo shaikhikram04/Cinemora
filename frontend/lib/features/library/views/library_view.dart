@@ -6,7 +6,9 @@ import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/library/viewmodels/library_state.dart';
 import 'package:cinemora/features/library/widgets/library_list_item.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/features/library/widgets/library_stats_card.dart';
+import 'package:cinemora/features/library/widgets/shuffle_pick_sheet.dart';
 
 class LibraryView extends StatefulWidget {
   const LibraryView({super.key});
@@ -112,7 +114,16 @@ class _LibraryViewState extends State<LibraryView> {
                         WSizes.screenPadding.w, 0),
                     child: _LibraryHeader(
                       totalTitles: state.entries.length,
-                      totalWatchMinutes: cubit.totalWatchedMinutes,
+                      onShuffle: state.entries.any(
+                              (e) => e.status == WatchStatus.watchlist)
+                          ? () {
+                              final watchlist = state.entries
+                                  .where((e) =>
+                                      e.status == WatchStatus.watchlist)
+                                  .toList();
+                              showShufflePick(context, watchlist);
+                            }
+                          : null,
                     ),
                   ),
                 ),
@@ -123,7 +134,6 @@ class _LibraryViewState extends State<LibraryView> {
                     child: LibraryStatsCard(
                       watchedCount: cubit.watchedCount,
                       totalEntries: cubit.totalEntries,
-                      totalWatchMinutes: cubit.totalWatchedMinutes,
                       moviesWatched: cubit.moviesWatched,
                       seriesWatched: cubit.seriesWatched,
                       animeWatched: cubit.animeWatched,
@@ -255,26 +265,17 @@ class _LibraryViewState extends State<LibraryView> {
 
 class _LibraryHeader extends StatelessWidget {
   final int totalTitles;
-  final int totalWatchMinutes;
+  final VoidCallback? onShuffle;
 
   const _LibraryHeader({
     required this.totalTitles,
-    required this.totalWatchMinutes,
+    this.onShuffle,
   });
-
-  String get _watchTimeLabel {
-    if (totalWatchMinutes == 0) return '—';
-    final h = totalWatchMinutes ~/ 60;
-    final m = totalWatchMinutes % 60;
-    if (h == 0) return '${m}m total';
-    if (m == 0) return '${h}h total';
-    return '${h}h ${m}m total';
-  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: Column(
@@ -309,38 +310,34 @@ class _LibraryHeader extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 4.h),
-              Row(
-                children: [
-                  Text(
-                    '$totalTitles title${totalTitles == 1 ? '' : 's'}',
-                    style: TextStyle(
-                      color: context.colors.mutedSecondary,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Container(
-                    width: 3.w,
-                    height: 3.w,
-                    margin: EdgeInsets.symmetric(horizontal: 7.w),
-                    decoration: BoxDecoration(
-                      color: context.colors.mutedSecondaryDeep,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  Text(
-                    _watchTimeLabel,
-                    style: TextStyle(
-                      color: context.colors.mutedSecondary,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              Text(
+                '$totalTitles title${totalTitles == 1 ? '' : 's'}',
+                style: TextStyle(
+                  color: context.colors.mutedSecondary,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
         ),
+        if (onShuffle != null)
+          GestureDetector(
+            onTap: onShuffle,
+            child: Container(
+              padding: EdgeInsets.all(10.w),
+              decoration: BoxDecoration(
+                color: context.colors.surfaceRaised,
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(color: context.colors.borderStrong),
+              ),
+              child: Icon(
+                Icons.casino_outlined,
+                size: 22.sp,
+                color: context.colors.accentRed,
+              ),
+            ),
+          ),
       ],
     );
   }

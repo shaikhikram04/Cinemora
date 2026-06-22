@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 
 typedef BadgeBuilder = Widget Function(BuildContext context, String rating);
 
@@ -12,7 +13,7 @@ class PosterImage extends StatelessWidget {
   final double radius;
   final String? rating;
   final bool showBookmark;
-  final bool inWatchlist;
+  final WatchStatus? watchStatus;
   final VoidCallback? onAddToWatchlist;
   final BadgeBuilder? badgeBuilder;
   final String? tag;
@@ -31,7 +32,7 @@ class PosterImage extends StatelessWidget {
     this.radius = WSizes.radiusXxl,
     this.rating,
     this.showBookmark = false,
-    this.inWatchlist = false,
+    this.watchStatus,
     this.onAddToWatchlist,
     this.badgeBuilder,
     this.tag,
@@ -80,7 +81,7 @@ class PosterImage extends StatelessWidget {
             if (showBookmark)
               Positioned.fill(
                 child: _BookmarkOverlay(
-                  inWatchlist: inWatchlist,
+                  watchStatus: watchStatus,
                   onToggle: onAddToWatchlist,
                 ),
               ),
@@ -205,10 +206,10 @@ class _PosterGradient extends StatelessWidget {
 // ─── Animated bookmark overlay ────────────────────────────────────────────────
 
 class _BookmarkOverlay extends StatefulWidget {
-  final bool inWatchlist;
+  final WatchStatus? watchStatus;
   final VoidCallback? onToggle;
 
-  const _BookmarkOverlay({required this.inWatchlist, this.onToggle});
+  const _BookmarkOverlay({required this.watchStatus, this.onToggle});
 
   @override
   State<_BookmarkOverlay> createState() => _BookmarkOverlayState();
@@ -225,6 +226,9 @@ class _BookmarkOverlayState extends State<_BookmarkOverlay>
   // Ribbon: scales + fades in as controller goes 0 → 1
   late final Animation<double> _ribbonOpacity;
   late final Animation<double> _ribbonScale;
+
+  bool get _inWatchlist => widget.watchStatus == WatchStatus.watchlist;
+  bool get _isWatched => widget.watchStatus == WatchStatus.watched;
 
   @override
   void initState() {
@@ -248,14 +252,15 @@ class _BookmarkOverlayState extends State<_BookmarkOverlay>
       CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack),
     );
 
-    if (widget.inWatchlist) _ctrl.value = 1.0;
+    if (_inWatchlist) _ctrl.value = 1.0;
   }
 
   @override
   void didUpdateWidget(_BookmarkOverlay old) {
     super.didUpdateWidget(old);
-    if (widget.inWatchlist != old.inWatchlist) {
-      widget.inWatchlist ? _ctrl.forward() : _ctrl.reverse();
+    final wasWatchlist = old.watchStatus == WatchStatus.watchlist;
+    if (_inWatchlist != wasWatchlist) {
+      _inWatchlist ? _ctrl.forward() : _ctrl.reverse();
     }
   }
 
@@ -269,43 +274,58 @@ class _BookmarkOverlayState extends State<_BookmarkOverlay>
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Corner "+" — visible when NOT in watchlist
-        Positioned(
-          right: 0,
-          top: 0,
-          child: IgnorePointer(
-            ignoring: widget.inWatchlist,
-            child: FadeTransition(
-              opacity: _cornerOpacity,
-              child: ScaleTransition(
-                scale: _cornerScale,
-                alignment: Alignment.topRight,
-                child: _AddToWatchlistCorner(onTap: widget.onToggle),
+        if (!_isWatched) ...[
+          // Corner "+" — visible when NOT in watchlist
+          Positioned(
+            right: 0,
+            top: 0,
+            child: IgnorePointer(
+              ignoring: _inWatchlist,
+              child: FadeTransition(
+                opacity: _cornerOpacity,
+                child: ScaleTransition(
+                  scale: _cornerScale,
+                  alignment: Alignment.topRight,
+                  child: _AddToWatchlistCorner(onTap: widget.onToggle),
+                ),
               ),
             ),
           ),
-        ),
-        // Ribbon — visible when IN watchlist
-        Positioned(
-          right: -30.w,
-          top: 24.h,
-          child: IgnorePointer(
-            ignoring: !widget.inWatchlist,
-            child: FadeTransition(
-              opacity: _ribbonOpacity,
-              child: ScaleTransition(
-                scale: _ribbonScale,
-                child: GestureDetector(
-                  onTap: widget.onToggle,
-                  child: Transform.rotate(
-                    angle: 0.785398,
-                    child: const _WatchlistRibbon(label: 'IN WATCHLIST'),
+          // Ribbon — visible when IN watchlist
+          Positioned(
+            right: -30.w,
+            top: 24.h,
+            child: IgnorePointer(
+              ignoring: !_inWatchlist,
+              child: FadeTransition(
+                opacity: _ribbonOpacity,
+                child: ScaleTransition(
+                  scale: _ribbonScale,
+                  child: GestureDetector(
+                    onTap: widget.onToggle,
+                    child: Transform.rotate(
+                      angle: 0.785398,
+                      child: const _WatchlistRibbon(label: 'IN WATCHLIST'),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
+        if (_isWatched)
+          Positioned(
+            right: -30.w,
+            top: 24.h,
+            child: Transform.rotate(
+              angle: 0.785398,
+              child: const _WatchlistRibbon(
+                label: 'WATCHED',
+                color: Color(0xFF059669),
+                horizontalPadding: 40,
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -393,16 +413,26 @@ class _TopRightTriangleClipper extends CustomClipper<Path> {
 
 class _WatchlistRibbon extends StatelessWidget {
   final String label;
+  final Color? color;
+  final double? horizontalPadding;
 
-  const _WatchlistRibbon({required this.label});
+  const _WatchlistRibbon({
+    required this.label,
+    this.color,
+    this.horizontalPadding,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: context.colors.accentRed,
-      padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 28.w),
+      color: color ?? context.colors.accentRed,
+      padding: EdgeInsets.symmetric(
+        vertical: 2.h,
+        horizontal: (horizontalPadding ?? 28).w,
+      ),
       child: Text(
         label,
+        textAlign: TextAlign.center,
         style: TextStyle(
           color: Colors.white,
           fontSize: 8.sp,
@@ -413,3 +443,4 @@ class _WatchlistRibbon extends StatelessWidget {
     );
   }
 }
+

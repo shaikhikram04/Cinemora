@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/features/home/models/movie_poster.dart';
 import 'package:cinemora/features/home/models/tmdb_item.dart';
 
@@ -17,7 +18,7 @@ class HomeFeedState extends Equatable {
   final List<MoviePoster> criticallyAcclaimed;
   final List<MoviePoster> trendingSeries;
   final List<MoviePoster> topAnime;
-  final Set<int> bookmarkedIds;
+  final Map<int, WatchStatus> libraryStatus;
 
   const HomeFeedState({
     this.selectedTab = '✨   For You',
@@ -29,7 +30,7 @@ class HomeFeedState extends Equatable {
     this.criticallyAcclaimed = const [],
     this.trendingSeries = const [],
     this.topAnime = const [],
-    this.bookmarkedIds = const {},
+    this.libraryStatus = const {},
   });
 
   HomeFeedState copyWith({
@@ -42,7 +43,7 @@ class HomeFeedState extends Equatable {
     List<MoviePoster>? criticallyAcclaimed,
     List<MoviePoster>? trendingSeries,
     List<MoviePoster>? topAnime,
-    Set<int>? bookmarkedIds,
+    Map<int, WatchStatus>? libraryStatus,
   }) =>
       HomeFeedState(
         selectedTab: selectedTab ?? this.selectedTab,
@@ -58,7 +59,7 @@ class HomeFeedState extends Equatable {
         criticallyAcclaimed: criticallyAcclaimed ?? this.criticallyAcclaimed,
         trendingSeries: trendingSeries ?? this.trendingSeries,
         topAnime: topAnime ?? this.topAnime,
-        bookmarkedIds: bookmarkedIds ?? this.bookmarkedIds,
+        libraryStatus: libraryStatus ?? this.libraryStatus,
       );
 
   HomeFeedState withTab(String tab) => copyWith(selectedTab: tab);
@@ -78,6 +79,6 @@ class HomeFeedState extends Equatable {
         criticallyAcclaimed,
         trendingSeries,
         topAnime,
-        bookmarkedIds,
+        libraryStatus,
       ];
 }

@@ -25,8 +25,6 @@ class LibraryState extends Equatable {
   late final int moviesWatched;
   late final int seriesWatched;
   late final int animeWatched;
-  late final int totalWatchedMinutes;
-
   static const _statuses = ['Watchlist', 'Watched', 'Dropped'];
 
   LibraryState({
@@ -57,7 +55,6 @@ class LibraryState extends Equatable {
     animeWatched = entries
         .where((e) => e.cinemaType == CinemaType.anime && _isWatched(e))
         .length;
-    totalWatchedMinutes = _buildWatchedMinutes();
   }
 
   static bool _isWatched(LibraryEntryModel e) => e.hasBeenWatched;
@@ -97,19 +94,6 @@ class LibraryState extends Equatable {
         result.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     }
     return result;
-  }
-
-  int _buildWatchedMinutes() {
-    int total = 0;
-    for (final e in entries) {
-      if (_isWatched(e) && e.runtimeMinutes != null) {
-        final eps = e.cinemaType == CinemaType.movie
-            ? 1
-            : (e.progress?.totalEpisodes ?? 1);
-        total += e.runtimeMinutes! * eps;
-      }
-    }
-    return total;
   }
 
   LibraryState copyWith({

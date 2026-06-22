@@ -1,4 +1,5 @@
 import 'package:cinemora/core/models/cinema_type.dart';
+import 'package:cinemora/core/models/watch_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -89,7 +90,7 @@ class _HomeFeedContent extends StatelessWidget {
                   _HeroCard(
                     hero: state.hero,
                     isBookmarked: state.hero != null &&
-                        state.bookmarkedIds.contains(state.hero!.id),
+                        state.libraryStatus[state.hero!.id] == WatchStatus.watchlist,
                     onDetailsPressed: state.hero == null
                         ? () {}
                         : () => context.push(
@@ -123,7 +124,7 @@ class _HomeFeedContent extends StatelessWidget {
                     : _PosterCarousel(
                         items: state.trendingMovies,
                         type: CinemaType.movie,
-                        bookmarkedIds: state.bookmarkedIds,
+                        libraryStatus: state.libraryStatus,
                         onBookmark: (item) =>
                             cubit.bookmarkFromPoster(item, CinemaType.movie),
                         onTap: (item) => context.push(
@@ -151,7 +152,7 @@ class _HomeFeedContent extends StatelessWidget {
                     : _PosterCarousel(
                         items: state.topAnime,
                         type: CinemaType.anime,
-                        bookmarkedIds: state.bookmarkedIds,
+                        libraryStatus: state.libraryStatus,
                         onBookmark: (item) =>
                             cubit.bookmarkFromPoster(item, CinemaType.anime),
                         onTap: (item) => context.push(
@@ -185,7 +186,7 @@ class _HomeFeedContent extends StatelessWidget {
                     : _PosterCarousel(
                         items: state.trendingSeries,
                         type: CinemaType.tv,
-                        bookmarkedIds: state.bookmarkedIds,
+                        libraryStatus: state.libraryStatus,
                         onBookmark: (item) =>
                             cubit.bookmarkFromPoster(item, CinemaType.tv),
                         onTap: (item) => context.push(
@@ -214,7 +215,7 @@ class _HomeFeedContent extends StatelessWidget {
                     : _PosterCarousel(
                         items: state.criticallyAcclaimed,
                         type: CinemaType.movie,
-                        bookmarkedIds: state.bookmarkedIds,
+                        libraryStatus: state.libraryStatus,
                         onBookmark: (item) =>
                             cubit.bookmarkFromPoster(item, CinemaType.movie),
                         onTap: (item) => context.push(
@@ -337,14 +338,14 @@ class _PosterCarousel extends StatelessWidget {
   final List<MoviePoster> items;
   final CinemaType type;
   final void Function(MoviePoster) onTap;
-  final Set<int> bookmarkedIds;
+  final Map<int, WatchStatus> libraryStatus;
   final void Function(MoviePoster) onBookmark;
 
   const _PosterCarousel({
     required this.items,
     required this.type,
     required this.onTap,
-    required this.bookmarkedIds,
+    required this.libraryStatus,
     required this.onBookmark,
   });
 
@@ -368,7 +369,7 @@ class _PosterCarousel extends StatelessWidget {
             rating: item.rating,
             cinemaType: type,
             year: item.year,
-            isBookmarked: item.id != null && bookmarkedIds.contains(item.id),
+            watchStatus: item.id != null ? libraryStatus[item.id] : null,
             onBookmark: () => onBookmark(item),
             onTap: () => onTap(item),
           );

@@ -6,7 +6,6 @@ import 'package:cinemora/core/constants/app_colors.dart';
 class LibraryStatsCard extends StatelessWidget {
   final int watchedCount;
   final int totalEntries;
-  final int totalWatchMinutes;
   final int moviesWatched;
   final int seriesWatched;
   final int animeWatched;
@@ -15,22 +14,16 @@ class LibraryStatsCard extends StatelessWidget {
     super.key,
     required this.watchedCount,
     required this.totalEntries,
-    required this.totalWatchMinutes,
     required this.moviesWatched,
     required this.seriesWatched,
     required this.animeWatched,
   });
 
-  String get _formattedWatchTime {
-    if (totalWatchMinutes == 0) return '0h';
-    final h = totalWatchMinutes ~/ 60;
-    final m = totalWatchMinutes % 60;
-    if (m == 0) return '${h}h';
-    return '${h}h ${m}m';
-  }
-
   double get _ringProgress =>
       totalEntries == 0 ? 0.0 : (watchedCount / totalEntries).clamp(0.0, 1.0);
+
+  int get _completionPct =>
+      totalEntries == 0 ? 0 : (watchedCount / totalEntries * 100).round();
 
   @override
   Widget build(BuildContext context) {
@@ -85,9 +78,9 @@ class LibraryStatsCard extends StatelessWidget {
           ),
           Column(
             children: [
+              // ── Ring + completion % ───────────────────────────────
               Row(
                 children: [
-                  // ── Ring + watched/total ──────────────────────────────
                   SizedBox(
                     width: 90.w,
                     height: 90.w,
@@ -127,44 +120,54 @@ class LibraryStatsCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(width: 16.w),
-                  // ── Watch time ────────────────────────────────────────
+                  SizedBox(width: 20.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'TOTAL WATCH TIME',
+                          'COMPLETION',
                           style: TextStyle(
                             color: context.colors.mutedSecondary,
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.8,
                           ),
                         ),
-                        SizedBox(height: 6.h),
+                        SizedBox(height: 4.h),
                         RichText(
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: _formattedWatchTime,
+                                text: '$_completionPct',
                                 style: TextStyle(
                                   color: context.colors.accentRed,
-                                  fontSize: 28.sp,
+                                  fontSize: 42.sp,
                                   fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.5,
+                                  letterSpacing: -1,
+                                  height: 1.0,
                                 ),
                               ),
                               TextSpan(
-                                text:
-                                    '  across $totalEntries title${totalEntries == 1 ? '' : 's'}',
+                                text: '%',
                                 style: TextStyle(
-                                  color: context.colors.mutedSecondary,
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w500,
+                                  color: context.colors.accentRed,
+                                  fontSize: 22.sp,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.0,
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          'of your library has been watched',
+                          style: TextStyle(
+                            color: context.colors.mutedSecondary,
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w500,
+                            height: 1.4,
                           ),
                         ),
                       ],
