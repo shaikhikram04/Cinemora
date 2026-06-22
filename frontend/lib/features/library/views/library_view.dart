@@ -112,19 +112,17 @@ class _LibraryViewState extends State<LibraryView> {
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 16.h,
                         WSizes.screenPadding.w, 0),
-                    child: _LibraryHeader(
-                      totalTitles: state.entries.length,
-                      onShuffle: state.entries.any(
-                              (e) => e.status == WatchStatus.watchlist)
-                          ? () {
-                              final watchlist = state.entries
-                                  .where((e) =>
-                                      e.status == WatchStatus.watchlist)
-                                  .toList();
-                              showShufflePick(context, watchlist);
-                            }
-                          : null,
-                    ),
+                    child: Builder(builder: (context) {
+                      final watchlist = state.entries
+                          .where((e) => e.status == WatchStatus.watchlist)
+                          .toList();
+                      return _LibraryHeader(
+                        totalTitles: state.entries.length,
+                        onShuffle: watchlist.isEmpty
+                            ? null
+                            : () => showShufflePick(context, watchlist),
+                      );
+                    }),
                   ),
                 ),
                 SliverToBoxAdapter(

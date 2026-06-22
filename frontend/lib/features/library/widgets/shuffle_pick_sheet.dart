@@ -39,6 +39,7 @@ class _ShufflePickSheetState extends State<_ShufflePickSheet>
   late LibraryEntryModel _pick;
   int? _lastPickIndex;
   final _rng = Random();
+  int _spinGeneration = 0;
 
   late AnimationController _diceCtrl;
 
@@ -53,7 +54,7 @@ class _ShufflePickSheetState extends State<_ShufflePickSheet>
       duration: const Duration(milliseconds: 480),
     )..repeat();
     _pick = _pickRandom();
-    _runSpin(0);
+    _runSpin(0, _spinGeneration);
   }
 
   LibraryEntryModel _pickRandom() {
@@ -66,15 +67,15 @@ class _ShufflePickSheetState extends State<_ShufflePickSheet>
     return widget.watchlist[idx];
   }
 
-  void _runSpin(int tick) {
+  void _runSpin(int tick, int generation) {
     if (tick >= _intervals.length) {
-      _settle();
+      if (generation == _spinGeneration) _settle();
       return;
     }
     Future.delayed(Duration(milliseconds: _intervals[tick]), () {
-      if (!mounted) return;
+      if (!mounted || generation != _spinGeneration) return;
       setState(() => _spinIndex = _rng.nextInt(widget.watchlist.length));
-      _runSpin(tick + 1);
+      _runSpin(tick + 1, generation);
     });
   }
 
@@ -86,19 +87,21 @@ class _ShufflePickSheetState extends State<_ShufflePickSheet>
 
   void _reshuffle() {
     _pick = _pickRandom();
+    _spinGeneration++;
     _diceCtrl.repeat();
     setState(() {
       _phase = _Phase.spinning;
       _spinIndex = _rng.nextInt(widget.watchlist.length);
     });
-    _runSpin(0);
+    _runSpin(0, _spinGeneration);
   }
 
   void _openDetail(BuildContext ctx) {
+    final router = GoRouter.of(ctx);
     Navigator.pop(ctx);
     final e = _pick;
     if (e.cinemaType == CinemaType.movie) {
-      ctx.push(AppRoutes.movieDetails,
+      router.push(AppRoutes.movieDetails,
           extra: MovieRouteArgs(
             title: e.title,
             image: e.posterUrl,
@@ -106,7 +109,7 @@ class _ShufflePickSheetState extends State<_ShufflePickSheet>
             id: e.tmdbId,
           ));
     } else {
-      ctx.push(AppRoutes.seriesDetails,
+      router.push(AppRoutes.seriesDetails,
           extra: SeriesRouteArgs(
             title: e.title,
             image: e.posterUrl,
@@ -204,12 +207,13 @@ class _ShufflePickSheetState extends State<_ShufflePickSheet>
 
 class _BlurredBg extends StatelessWidget {
   final String url;
+  static final _filter = ImageFilter.blur(sigmaX: 32, sigmaY: 32);
   const _BlurredBg({required this.url});
 
   @override
   Widget build(BuildContext context) {
     return ImageFiltered(
-      imageFilter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
+      imageFilter: _filter,
       child: Image.network(
         url,
         fit: BoxFit.cover,

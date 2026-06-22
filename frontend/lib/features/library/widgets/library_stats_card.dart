@@ -22,8 +22,7 @@ class LibraryStatsCard extends StatelessWidget {
   double get _ringProgress =>
       totalEntries == 0 ? 0.0 : (watchedCount / totalEntries).clamp(0.0, 1.0);
 
-  int get _completionPct =>
-      totalEntries == 0 ? 0 : (watchedCount / totalEntries * 100).round();
+  int get _completionPct => (_ringProgress * 100).round();
 
   @override
   Widget build(BuildContext context) {

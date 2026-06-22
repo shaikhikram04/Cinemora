@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -1342,8 +1341,9 @@ class _TopFavoritesRow extends StatelessWidget {
             imageHeight: WSizes.posterImageHeight,
             title: entry.title,
             rating: (entry.userRating ?? 0).toStringAsFixed(1),
-            cinemaType: CinemaType.movie,
+            cinemaType: entry.cinemaType,
             year: entry.releaseYear ?? '',
+            watchStatus: entry.status,
           );
         },
         separatorBuilder: (_, __) => SizedBox(width: 12.w),

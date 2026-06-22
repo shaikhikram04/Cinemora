@@ -77,7 +77,8 @@ class _VerticalPosterBookmarkCardState
             showBookmark: true,
             watchStatus: _watchStatus,
             titleOnImage: false,
-            onAddToWatchlist: _watchStatus == WatchStatus.watched
+            onAddToWatchlist: (_watchStatus != null &&
+                    _watchStatus != WatchStatus.watchlist)
                 ? null
                 : () {
                     setState(() => _watchStatus =

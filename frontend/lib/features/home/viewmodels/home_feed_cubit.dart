@@ -111,16 +111,16 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
     String? year,
     double? tmdbRating,
   }) {
-    final isInLibrary = state.libraryStatus.containsKey(id);
+    final isWatchlisted = state.libraryStatus[id] == WatchStatus.watchlist;
     final updated = Map<int, WatchStatus>.from(state.libraryStatus);
-    if (isInLibrary) {
+    if (isWatchlisted) {
       updated.remove(id);
     } else {
       updated[id] = WatchStatus.watchlist;
     }
     emit(state.copyWith(libraryStatus: updated));
 
-    if (isInLibrary) {
+    if (isWatchlisted) {
       _library.removeEntry(id, cinemaType);
     } else {
       _library.addToWatchlist(
