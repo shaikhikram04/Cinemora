@@ -6,10 +6,10 @@ import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/home/widgets/home_bottom_nav_bar.dart';
 
-class WatcharyHomeShell extends StatelessWidget {
+class CinemoraHomeShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
-  const WatcharyHomeShell({super.key, required this.navigationShell});
+  const CinemoraHomeShell({super.key, required this.navigationShell});
 
   @override
   Widget build(BuildContext context) {

@@ -60,27 +60,40 @@ class _NotificationSettingsContent extends StatelessWidget {
                         items: [
                           _NotifToggleItem(
                             title: 'New Season Available',
-                            subtitle: 'When a new season drops for a tracked series',
-                            value: state.releaseAlertsEnabled && state.newSeasonAvailable,
-                            onChanged: state.releaseAlertsEnabled ? cubit.setNewSeasonAvailable : null,
+                            subtitle:
+                                'When a new season drops for a tracked series',
+                            value: state.releaseAlertsEnabled &&
+                                state.newSeasonAvailable,
+                            onChanged: state.releaseAlertsEnabled
+                                ? cubit.setNewSeasonAvailable
+                                : null,
                           ),
                           _NotifToggleItem(
                             title: 'New Episode Available',
                             subtitle: 'Per-episode alerts for ongoing shows',
-                            value: state.releaseAlertsEnabled && state.newEpisodeAvailable,
-                            onChanged: state.releaseAlertsEnabled ? cubit.setNewEpisodeAvailable : null,
+                            value: state.releaseAlertsEnabled &&
+                                state.newEpisodeAvailable,
+                            onChanged: state.releaseAlertsEnabled
+                                ? cubit.setNewEpisodeAvailable
+                                : null,
                           ),
                           _NotifToggleItem(
                             title: 'Upcoming Movie Release',
                             subtitle: 'Before a tracked movie hits theatres',
-                            value: state.releaseAlertsEnabled && state.upcomingMovieRelease,
-                            onChanged: state.releaseAlertsEnabled ? cubit.setUpcomingMovieRelease : null,
+                            value: state.releaseAlertsEnabled &&
+                                state.upcomingMovieRelease,
+                            onChanged: state.releaseAlertsEnabled
+                                ? cubit.setUpcomingMovieRelease
+                                : null,
                           ),
                           _NotifToggleItem(
                             title: 'Streaming Availability Changes',
                             subtitle: 'When titles arrive or leave platforms',
-                            value: state.releaseAlertsEnabled && state.streamingChanges,
-                            onChanged: state.releaseAlertsEnabled ? cubit.setStreamingChanges : null,
+                            value: state.releaseAlertsEnabled &&
+                                state.streamingChanges,
+                            onChanged: state.releaseAlertsEnabled
+                                ? cubit.setStreamingChanges
+                                : null,
                             isLast: true,
                           ),
                         ],
@@ -97,14 +110,20 @@ class _NotificationSettingsContent extends StatelessWidget {
                           _NotifToggleItem(
                             title: 'Watchlist Item Released',
                             subtitle: 'When something on your list is out',
-                            value: state.watchlistAlertsEnabled && state.watchlistItemReleased,
-                            onChanged: state.watchlistAlertsEnabled ? cubit.setWatchlistItemReleased : null,
+                            value: state.watchlistAlertsEnabled &&
+                                state.watchlistItemReleased,
+                            onChanged: state.watchlistAlertsEnabled
+                                ? cubit.setWatchlistItemReleased
+                                : null,
                           ),
                           _NotifToggleItem(
                             title: 'Watchlist Item Trending',
                             subtitle: 'When your item gains traction',
-                            value: state.watchlistAlertsEnabled && state.watchlistItemTrending,
-                            onChanged: state.watchlistAlertsEnabled ? cubit.setWatchlistItemTrending : null,
+                            value: state.watchlistAlertsEnabled &&
+                                state.watchlistItemTrending,
+                            onChanged: state.watchlistAlertsEnabled
+                                ? cubit.setWatchlistItemTrending
+                                : null,
                           ),
                         ],
                       ),
@@ -121,25 +140,32 @@ class _NotificationSettingsContent extends StatelessWidget {
                             title: 'Likes on Rankings',
                             subtitle: 'When someone likes your ranking lists',
                             value: state.socialEnabled && state.likesOnRankings,
-                            onChanged: state.socialEnabled ? cubit.setLikesOnRankings : null,
+                            onChanged: state.socialEnabled
+                                ? cubit.setLikesOnRankings
+                                : null,
                           ),
                           _NotifToggleItem(
                             title: 'Comments',
                             subtitle: 'Replies and comments on your content',
                             value: state.socialEnabled && state.comments,
-                            onChanged: state.socialEnabled ? cubit.setComments : null,
+                            onChanged:
+                                state.socialEnabled ? cubit.setComments : null,
                           ),
                           _NotifToggleItem(
                             title: 'New Followers',
                             subtitle: 'When someone follows your profile',
                             value: state.socialEnabled && state.newFollowers,
-                            onChanged: state.socialEnabled ? cubit.setNewFollowers : null,
+                            onChanged: state.socialEnabled
+                                ? cubit.setNewFollowers
+                                : null,
                           ),
                           _NotifToggleItem(
                             title: 'Friend Activity',
                             subtitle: 'What your friends are watching',
                             value: state.socialEnabled && state.friendActivity,
-                            onChanged: state.socialEnabled ? cubit.setFriendActivity : null,
+                            onChanged: state.socialEnabled
+                                ? cubit.setFriendActivity
+                                : null,
                             isLast: true,
                           ),
                         ],
@@ -156,20 +182,29 @@ class _NotificationSettingsContent extends StatelessWidget {
                           _NotifToggleItem(
                             title: 'Badge Unlocks',
                             subtitle: 'When you earn a new achievement badge',
-                            value: state.achievementsEnabled && state.badgeUnlocks,
-                            onChanged: state.achievementsEnabled ? cubit.setBadgeUnlocks : null,
+                            value:
+                                state.achievementsEnabled && state.badgeUnlocks,
+                            onChanged: state.achievementsEnabled
+                                ? cubit.setBadgeUnlocks
+                                : null,
                           ),
                           _NotifToggleItem(
                             title: 'Milestones',
                             subtitle: 'Significant collection milestones',
-                            value: state.achievementsEnabled && state.milestones,
-                            onChanged: state.achievementsEnabled ? cubit.setMilestones : null,
+                            value:
+                                state.achievementsEnabled && state.milestones,
+                            onChanged: state.achievementsEnabled
+                                ? cubit.setMilestones
+                                : null,
                           ),
                           _NotifToggleItem(
                             title: 'Collection Progress',
                             subtitle: 'Progress towards locked achievements',
-                            value: state.achievementsEnabled && state.collectionProgress,
-                            onChanged: state.achievementsEnabled ? cubit.setCollectionProgress : null,
+                            value: state.achievementsEnabled &&
+                                state.collectionProgress,
+                            onChanged: state.achievementsEnabled
+                                ? cubit.setCollectionProgress
+                                : null,
                             isLast: true,
                           ),
                         ],
@@ -187,13 +222,18 @@ class _NotificationSettingsContent extends StatelessWidget {
                             title: 'App Updates',
                             subtitle: 'Notifications about new app versions',
                             value: state.systemEnabled && state.appUpdates,
-                            onChanged: state.systemEnabled ? cubit.setAppUpdates : null,
+                            onChanged: state.systemEnabled
+                                ? cubit.setAppUpdates
+                                : null,
                           ),
                           _NotifToggleItem(
                             title: 'Product Announcements',
                             subtitle: 'New features and improvements',
-                            value: state.systemEnabled && state.productAnnouncements,
-                            onChanged: state.systemEnabled ? cubit.setProductAnnouncements : null,
+                            value: state.systemEnabled &&
+                                state.productAnnouncements,
+                            onChanged: state.systemEnabled
+                                ? cubit.setProductAnnouncements
+                                : null,
                             isLast: true,
                           ),
                         ],
@@ -210,7 +250,6 @@ class _NotificationSettingsContent extends StatelessWidget {
   }
 }
 
-
 // ── Notification banner ──────────────────────────────────────────────────────
 
 class _NotifBanner extends StatelessWidget {
@@ -223,7 +262,8 @@ class _NotifBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.warning.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: context.colors.warning.withValues(alpha: 0.2)),
+        border:
+            Border.all(color: context.colors.warning.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -232,7 +272,7 @@ class _NotifBanner extends StatelessWidget {
           SizedBox(width: 10.w),
           Expanded(
             child: Text(
-              'Manage which notifications Watchary can send you.',
+              'Manage which notifications Cinemora can send you.',
               style: TextStyle(
                 color: context.colors.mutedSecondarySoft,
                 fontSize: 12.sp,

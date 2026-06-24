@@ -140,7 +140,7 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
       // ── Shell (bottom nav) ────────────────────────────────────────────────
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
-            WatcharyHomeShell(navigationShell: navigationShell),
+            CinemoraHomeShell(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(routes: [
             GoRoute(

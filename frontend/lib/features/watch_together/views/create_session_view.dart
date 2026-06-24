@@ -136,8 +136,7 @@ class _CreateSessionContentState extends State<_CreateSessionContent> {
                         Wrap(
                           spacing: 8.w,
                           runSpacing: 8.h,
-                          children:
-                              _CreateSessionContent._genres.map((genre) {
+                          children: _CreateSessionContent._genres.map((genre) {
                             final selected =
                                 state.selectedGenres.contains(genre);
                             return _GenreChip(
@@ -317,7 +316,8 @@ class _ContentTypeChip extends StatelessWidget {
               child: Text(
                 label,
                 style: TextStyle(
-                  color: selected ? Colors.white : context.colors.mutedSecondary,
+                  color:
+                      selected ? Colors.white : context.colors.mutedSecondary,
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -350,7 +350,9 @@ class _GenreChip extends StatelessWidget {
             : context.colors.surfaceChip,
         borderRadius: BorderRadius.circular(999.r),
         border: Border.all(
-          color: selected ? context.colors.accentPurple : context.colors.surfaceChipBorder,
+          color: selected
+              ? context.colors.accentPurple
+              : context.colors.surfaceChipBorder,
         ),
       ),
       child: Material(
@@ -471,8 +473,7 @@ class _InviteCodeSheet extends StatelessWidget {
                 ),
               ],
             ),
-            child:
-                Icon(Icons.check_rounded, color: Colors.white, size: 28.sp),
+            child: Icon(Icons.check_rounded, color: Colors.white, size: 28.sp),
           ),
           SizedBox(height: 16.h),
           Text(
@@ -542,7 +543,7 @@ class _InviteCodeSheet extends StatelessWidget {
                   label: 'Share Link',
                   onTap: () {
                     Clipboard.setData(
-                      ClipboardData(text: 'watchary://join/$code'),
+                      ClipboardData(text: 'cinemora://join/$code'),
                     );
                     _showSnack(context, 'Link copied!');
                   },
@@ -582,8 +583,8 @@ class _InviteCodeSheet extends StatelessWidget {
       context: context,
       builder: (_) => Dialog(
         backgroundColor: context.colors.surfaceRaised,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.r)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
         child: Padding(
           padding: EdgeInsets.all(24.w),
           child: Column(

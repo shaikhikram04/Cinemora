@@ -29,7 +29,7 @@ void main() async {
   final themeModeCubit = ThemeModeCubit(prefs);
 
   FlutterNativeSplash.remove();
-  runApp(WatcharyApp(
+  runApp(CinemoraApp(
     authCubit: authCubit,
     userRepository: userRepository,
     homeRepository: homeRepository,

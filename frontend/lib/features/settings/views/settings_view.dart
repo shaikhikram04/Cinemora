@@ -38,7 +38,8 @@ class SettingsView extends StatelessWidget {
                       _SettingsTile(
                         icon: Icons.person_outline_rounded,
                         iconColor: context.colors.accentRed,
-                        iconBg: context.colors.accentRed.withValues(alpha: 0.12),
+                        iconBg:
+                            context.colors.accentRed.withValues(alpha: 0.12),
                         title: 'Edit Profile',
                         subtitle: 'Name, bio, avatar & cover',
                         onTap: () => context.push(AppRoutes.editProfile),
@@ -70,7 +71,8 @@ class SettingsView extends StatelessWidget {
                       _SettingsTile(
                         icon: Icons.dark_mode_outlined,
                         iconColor: context.colors.accentPurple,
-                        iconBg: context.colors.accentPurple.withValues(alpha: 0.12),
+                        iconBg:
+                            context.colors.accentPurple.withValues(alpha: 0.12),
                         title: 'Theme',
                         subtitle: 'Dark',
                         onTap: () => context.push(AppRoutes.appearance),
@@ -85,11 +87,11 @@ class SettingsView extends StatelessWidget {
                       _SettingsTile(
                         icon: Icons.visibility_outlined,
                         iconColor: context.colors.chartBlue,
-                        iconBg: context.colors.chartBlue.withValues(alpha: 0.12),
+                        iconBg:
+                            context.colors.chartBlue.withValues(alpha: 0.12),
                         title: 'Privacy Controls',
                         subtitle: 'Profile & content visibility',
-                        onTap: () =>
-                            context.push(AppRoutes.privacySecurity),
+                        onTap: () => context.push(AppRoutes.privacySecurity),
                       ),
                     ],
                   ),
@@ -101,7 +103,8 @@ class SettingsView extends StatelessWidget {
                       _SettingsTile(
                         icon: Icons.file_download_outlined,
                         iconColor: context.colors.chartGreen,
-                        iconBg: context.colors.chartGreen.withValues(alpha: 0.12),
+                        iconBg:
+                            context.colors.chartGreen.withValues(alpha: 0.12),
                         title: 'Export Data',
                         subtitle: 'Collection, rankings, history',
                         onTap: () => context.push(AppRoutes.dataLibrary),
@@ -116,8 +119,8 @@ class SettingsView extends StatelessWidget {
                       _SettingsTile(
                         icon: Icons.support_agent_rounded,
                         iconColor: context.colors.mutedSecondarySoft,
-                        iconBg:
-                            context.colors.mutedSecondarySoft.withValues(alpha: 0.10),
+                        iconBg: context.colors.mutedSecondarySoft
+                            .withValues(alpha: 0.10),
                         title: 'Contact Support',
                         subtitle: 'Get help from the team',
                         onTap: () => context.push(AppRoutes.helpSupport),
@@ -132,15 +135,17 @@ class SettingsView extends StatelessWidget {
                       _SettingsTile(
                         icon: Icons.info_outline_rounded,
                         iconColor: context.colors.chartBlue,
-                        iconBg: context.colors.chartBlue.withValues(alpha: 0.12),
-                        title: 'About Watchary',
+                        iconBg:
+                            context.colors.chartBlue.withValues(alpha: 0.12),
+                        title: 'About Cinemora',
                         subtitle: 'Version 1.0.0 (Build 100)',
                         onTap: () => context.push(AppRoutes.about),
                       ),
                       _SettingsTile(
                         icon: Icons.privacy_tip_outlined,
                         iconColor: context.colors.chartBlue,
-                        iconBg: context.colors.chartBlue.withValues(alpha: 0.12),
+                        iconBg:
+                            context.colors.chartBlue.withValues(alpha: 0.12),
                         title: 'Privacy Policy',
                         subtitle: 'How we handle your data',
                         onTap: () {},
@@ -148,7 +153,8 @@ class SettingsView extends StatelessWidget {
                       _SettingsTile(
                         icon: Icons.article_outlined,
                         iconColor: context.colors.chartBlue,
-                        iconBg: context.colors.chartBlue.withValues(alpha: 0.12),
+                        iconBg:
+                            context.colors.chartBlue.withValues(alpha: 0.12),
                         title: 'Terms of Service',
                         subtitle: 'Terms and conditions',
                         isLast: true,
@@ -215,9 +221,7 @@ class SettingsView extends StatelessWidget {
       ],
     );
   }
-
 }
-
 
 // ── Settings tile ────────────────────────────────────────────────────────────
 
@@ -314,12 +318,14 @@ class _SignOutButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: context.colors.accentRed.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: context.colors.accentRed.withValues(alpha: 0.20)),
+          border: Border.all(
+              color: context.colors.accentRed.withValues(alpha: 0.20)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.logout_rounded, size: 18.sp, color: context.colors.accentRed),
+            Icon(Icons.logout_rounded,
+                size: 18.sp, color: context.colors.accentRed),
             SizedBox(width: 8.w),
             Text(
               'Sign Out',
@@ -351,7 +357,7 @@ class _SignOutButton extends StatelessWidget {
           ),
         ),
         content: Text(
-          'Are you sure you want to sign out of Watchary?',
+          'Are you sure you want to sign out of Cinemora?',
           style: TextStyle(
             color: context.colors.mutedSecondarySoft,
             fontSize: 14.sp,

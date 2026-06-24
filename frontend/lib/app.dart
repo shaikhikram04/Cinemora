@@ -12,14 +12,14 @@ import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 
-class WatcharyApp extends StatefulWidget {
+class CinemoraApp extends StatefulWidget {
   final AppAuthCubit authCubit;
   final UserRepository userRepository;
   final HomeRepository homeRepository;
   final LibraryRepository libraryRepository;
   final ThemeModeCubit themeModeCubit;
 
-  const WatcharyApp({
+  const CinemoraApp({
     super.key,
     required this.authCubit,
     required this.userRepository,
@@ -29,10 +29,10 @@ class WatcharyApp extends StatefulWidget {
   });
 
   @override
-  State<WatcharyApp> createState() => _WatcharyAppState();
+  State<CinemoraApp> createState() => _CinemoraAppState();
 }
 
-class _WatcharyAppState extends State<WatcharyApp> {
+class _CinemoraAppState extends State<CinemoraApp> {
   late final GoRouter _router;
   late final _RouterNotifier _notifier;
 
@@ -69,7 +69,7 @@ class _WatcharyAppState extends State<WatcharyApp> {
         splitScreenMode: true,
         builder: (_, __) => BlocBuilder<ThemeModeCubit, ThemeMode>(
           builder: (context, themeMode) => MaterialApp.router(
-            title: 'Watchary',
+            title: 'Cinemora',
             debugShowCheckedModeBanner: false,
             themeMode: themeMode,
             theme: WTheme.lightTheme,

@@ -93,7 +93,8 @@ class HelpSupportView extends StatelessWidget {
                   SizedBox(height: 10.h),
                   Container(
                     decoration: BoxDecoration(
-                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
+                      color:
+                          context.colors.surfaceRaised.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20.r),
                       border: Border.all(color: context.colors.borderStrong),
                     ),
@@ -113,7 +114,7 @@ class HelpSupportView extends StatelessWidget {
                             icon: Icons.email_outlined,
                             iconColor: context.colors.chartBlue,
                             title: 'Email Us',
-                            subtitle: 'support@watchary.app',
+                            subtitle: 'support@cinemora.app',
                             onTap: () {},
                           ),
                           _DividerLine(),
@@ -145,7 +146,6 @@ class HelpSupportView extends StatelessWidget {
     );
   }
 }
-
 
 class _SectionLabel extends StatelessWidget {
   final String label;
@@ -345,8 +345,8 @@ class _FaqSectionState extends State<_FaqSection> {
                             width: 28.w,
                             height: 28.w,
                             decoration: BoxDecoration(
-                              color:
-                                  context.colors.accentPurple.withValues(alpha: 0.10),
+                              color: context.colors.accentPurple
+                                  .withValues(alpha: 0.10),
                               borderRadius: BorderRadius.circular(9.r),
                             ),
                             child: Icon(

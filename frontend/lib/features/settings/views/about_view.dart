@@ -37,7 +37,8 @@ class AboutView extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
-                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
+                      color:
+                          context.colors.surfaceRaised.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20.r),
                       border: Border.all(color: context.colors.borderStrong),
                     ),
@@ -62,11 +63,12 @@ class AboutView extends StatelessWidget {
                         Container(
                           padding: EdgeInsets.all(12.w),
                           decoration: BoxDecoration(
-                            color: context.colors.accentPurple.withValues(alpha: 0.06),
+                            color: context.colors.accentPurple
+                                .withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(12.r),
                             border: Border.all(
-                              color:
-                                  context.colors.accentPurple.withValues(alpha: 0.15),
+                              color: context.colors.accentPurple
+                                  .withValues(alpha: 0.15),
                             ),
                           ),
                           child: Text(
@@ -88,7 +90,8 @@ class AboutView extends StatelessWidget {
                   SizedBox(height: 10.h),
                   Container(
                     decoration: BoxDecoration(
-                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
+                      color:
+                          context.colors.surfaceRaised.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20.r),
                       border: Border.all(color: context.colors.borderStrong),
                     ),
@@ -101,7 +104,7 @@ class AboutView extends StatelessWidget {
                             icon: Icons.alternate_email_rounded,
                             iconColor: const Color(0xFF1DA1F2),
                             title: 'Twitter / X',
-                            subtitle: '@watcharyapp',
+                            subtitle: '@cinemoraapp',
                             onTap: () {},
                           ),
                           _DividerLine(),
@@ -109,7 +112,7 @@ class AboutView extends StatelessWidget {
                             icon: Icons.camera_alt_outlined,
                             iconColor: const Color(0xFFE1306C),
                             title: 'Instagram',
-                            subtitle: '@watcharyapp',
+                            subtitle: '@cinemoraapp',
                             isLast: true,
                             onTap: () {},
                           ),
@@ -122,7 +125,7 @@ class AboutView extends StatelessWidget {
                   // Footer
                   Center(
                     child: Text(
-                      '© 2026 Watchary. Made with ♥ for cinema lovers.',
+                      '© 2026 Cinemora. Made with ♥ for cinema lovers.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: context.colors.mutedSecondaryHeader,
@@ -141,7 +144,6 @@ class AboutView extends StatelessWidget {
     );
   }
 }
-
 
 class _SectionLabel extends StatelessWidget {
   final String label;
@@ -272,7 +274,7 @@ class _BrandingCard extends StatelessWidget {
                 ),
                 SizedBox(height: 16.h),
                 Text(
-                  'Watchary',
+                  'Cinemora',
                   style: TextStyle(
                     color: context.colors.foreground,
                     fontSize: 28.sp,
