@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as dev;
 import 'package:dio/dio.dart';
 import '../constants/api_constants.dart';
 import '../exceptions/app_exception.dart';
@@ -17,6 +18,7 @@ class ApiClient {
       receiveTimeout: const Duration(seconds: 15),
     ));
 
+    dio.interceptors.add(_LogInterceptor());
     dio.interceptors.add(_AuthInterceptor(storage, _plainDio));
   }
 
@@ -38,7 +40,8 @@ class ApiClient {
       }
 
       final data = error.response?.data;
-      if (data is Map<String, dynamic> && data['error'] is Map<String, dynamic>) {
+      if (data is Map<String, dynamic> &&
+          data['error'] is Map<String, dynamic>) {
         final errMap = data['error'] as Map<String, dynamic>;
         final code = errMap['code'] as String? ?? 'UNKNOWN';
         final message = errMap['message'] as String?;
@@ -47,6 +50,29 @@ class ApiClient {
     }
 
     return const NetworkException();
+  }
+}
+
+class _LogInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    dev.log('[API] --> ${options.method} ${options.baseUrl}${options.path}'
+        '${options.queryParameters.isNotEmpty ? '?${options.queryParameters}' : ''}');
+    handler.next(options);
+  }
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    dev.log('[API] <-- ${response.statusCode} ${response.requestOptions.path}');
+    handler.next(response);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    dev.log('[API] ERR ${err.requestOptions.path} '
+        '— type: ${err.type}, status: ${err.response?.statusCode}, '
+        'msg: ${err.message}');
+    handler.next(err);
   }
 }
 
@@ -108,14 +134,18 @@ class _AuthInterceptor extends Interceptor {
       final newToken = res.data['accessToken'] as String;
       await _storage.saveAccessToken(newToken);
 
-      for (final c in _queue) { c.complete(newToken); }
+      for (final c in _queue) {
+        c.complete(newToken);
+      }
 
       final opts = err.requestOptions;
       opts.headers['Authorization'] = 'Bearer $newToken';
       handler.resolve(await _plainDio.fetch(opts));
     } catch (_) {
       await _storage.clearAll();
-      for (final c in _queue) { c.completeError('refresh failed'); }
+      for (final c in _queue) {
+        c.completeError('refresh failed');
+      }
       handler.next(err);
     } finally {
       _queue.clear();

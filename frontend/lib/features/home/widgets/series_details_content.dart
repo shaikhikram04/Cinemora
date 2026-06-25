@@ -28,6 +28,7 @@ class SeriesDetailsContent extends StatelessWidget {
   final String seriesImage;
   final String? backdropImage;
   final String rating;
+  final String source;
   final TmdbTvDetail? detail;
   final bool isDetailLoading;
 
@@ -60,6 +61,7 @@ class SeriesDetailsContent extends StatelessWidget {
     required this.seriesImage,
     this.backdropImage,
     required this.rating,
+    this.source = 'tmdb',
     this.detail,
     this.isDetailLoading = false,
     required this.seasons,
@@ -105,6 +107,7 @@ class SeriesDetailsContent extends StatelessWidget {
             bottomContent: _SeriesHeroMeta(
               seriesTitle: seriesTitle,
               rating: rating,
+              isAnime: source == 'jikan',
               seasonCount: seasons.length,
               genres: detail?.genres ?? const [],
               yearRange: detail?.yearRange,
@@ -213,6 +216,7 @@ class SeriesDetailsContent extends StatelessWidget {
 class _SeriesHeroMeta extends StatelessWidget {
   final String seriesTitle;
   final String rating;
+  final bool isAnime;
   final int seasonCount;
   final List<String> genres;
   final String? yearRange;
@@ -222,6 +226,7 @@ class _SeriesHeroMeta extends StatelessWidget {
   const _SeriesHeroMeta({
     required this.seriesTitle,
     required this.rating,
+    this.isAnime = false,
     required this.seasonCount,
     required this.genres,
     this.yearRange,
@@ -270,7 +275,7 @@ class _SeriesHeroMeta extends StatelessWidget {
                     color: context.colors.accentPurple.withValues(alpha: 0.45)),
               ),
               child: Text(
-                'SERIES',
+                isAnime ? 'ANIME' : 'SERIES',
                 style: TextStyle(
                   fontSize: 9.sp,
                   fontWeight: FontWeight.w800,

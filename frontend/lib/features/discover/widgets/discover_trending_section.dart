@@ -4,7 +4,9 @@ import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class DiscoverTrendingSection extends StatelessWidget {
-  const DiscoverTrendingSection({super.key});
+  final ValueChanged<String> onTap;
+
+  const DiscoverTrendingSection({super.key, required this.onTap});
 
   static const List<String> _items = [
     'Christopher Nolan',
@@ -51,6 +53,7 @@ class DiscoverTrendingSection extends StatelessWidget {
             itemBuilder: (context, index) => _TrendingItem(
               rank: index + 1,
               title: _items[index],
+              onTap: () => onTap(_items[index]),
             ),
           ),
         ],
@@ -62,8 +65,13 @@ class DiscoverTrendingSection extends StatelessWidget {
 class _TrendingItem extends StatefulWidget {
   final int rank;
   final String title;
+  final VoidCallback onTap;
 
-  const _TrendingItem({required this.rank, required this.title});
+  const _TrendingItem({
+    required this.rank,
+    required this.title,
+    required this.onTap,
+  });
 
   @override
   State<_TrendingItem> createState() => _TrendingItemState();
@@ -73,7 +81,7 @@ class _TrendingItemState extends State<_TrendingItem> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: widget.onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 120),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),

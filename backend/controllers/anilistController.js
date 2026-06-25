@@ -1,9 +1,29 @@
 const anilist = require("../config/anilist");
 const AppError = require("../utils/AppError");
 
+// GET /api/anilist/search?q=&limit=
+const searchAnime = async (req, res, next) => {
+  const { q, limit = 15 } = req.query;
+  if (!q) return next(new AppError(400, "ANILIST_QUERY_REQUIRED", "q is required"));
+
+  try {
+    const media = await anilist.searchAnime(q, parseInt(limit, 10));
+    res.json({ data: media });
+  } catch (err) {
+    console.error("[AniList] searchAnime failed:", err.message);
+    next(err);
+  }
+};
+
 // GET /api/anilist/anime/:malId
 const getAnimeDetail = async (req, res, next) => {
-  const data = await anilist.getAnimeByMalId(req.params.malId);
+  let data;
+  try {
+    data = await anilist.getAnimeByMalId(req.params.malId);
+  } catch (err) {
+    console.error("[AniList] getAnimeByMalId failed:", err.message);
+    return next(err);
+  }
 
   if (data?.errors?.length) {
     const first = data.errors[0];
@@ -35,10 +55,16 @@ const getAnimeDetail = async (req, res, next) => {
   );
 
   // Traverse the full PREQUEL and SEQUEL chains in parallel
-  const [fullPrequels, fullSequels] = await Promise.all([
-    anilist.traverseSeasonChain(directPrequels, "PREQUEL"),
-    anilist.traverseSeasonChain(directSequels, "SEQUEL"),
-  ]);
+  let fullPrequels, fullSequels;
+  try {
+    [fullPrequels, fullSequels] = await Promise.all([
+      anilist.traverseSeasonChain(directPrequels, "PREQUEL"),
+      anilist.traverseSeasonChain(directSequels, "SEQUEL"),
+    ]);
+  } catch (err) {
+    console.error("[AniList] traverseSeasonChain failed:", err.message);
+    return next(err);
+  }
 
   console.log(
     `[AniList] "${title}" full chain — ` +
@@ -56,4 +82,4 @@ const getAnimeDetail = async (req, res, next) => {
   res.json(data);
 };
 
-module.exports = { getAnimeDetail };
+module.exports = { searchAnime, getAnimeDetail };

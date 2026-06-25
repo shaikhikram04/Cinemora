@@ -5,12 +5,16 @@ import 'package:cinemora/core/constants/sizes.dart';
 
 class DiscoverRecentSearches extends StatelessWidget {
   final List<String> recentSearches;
+  final ValueChanged<String> onTap;
   final ValueChanged<String> onRemove;
+  final VoidCallback onClearAll;
 
   const DiscoverRecentSearches({
     super.key,
     required this.recentSearches,
+    required this.onTap,
     required this.onRemove,
+    required this.onClearAll,
   });
 
   @override
@@ -27,7 +31,7 @@ class DiscoverRecentSearches extends StatelessWidget {
               Icon(
                 Icons.history_rounded,
                 color: context.colors.mutedForeground,
-                size: 20.sp,
+                size: 18.sp,
               ),
               SizedBox(width: 6.w),
               Text(
@@ -36,6 +40,18 @@ class DiscoverRecentSearches extends StatelessWidget {
                   color: context.colors.foreground,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: onClearAll,
+                child: Text(
+                  'Clear all',
+                  style: TextStyle(
+                    color: context.colors.primary,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -47,7 +63,7 @@ class DiscoverRecentSearches extends StatelessWidget {
             children: recentSearches
                 .map((item) => _RecentChip(
                       label: item,
-                      onTap: () {},
+                      onTap: () => onTap(item),
                       onRemove: () => onRemove(item),
                     ))
                 .toList(),
@@ -74,7 +90,7 @@ class _RecentChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
+        padding: EdgeInsets.only(left: 10.w, right: 4.w, top: 7.h, bottom: 7.h),
         decoration: BoxDecoration(
           color: context.colors.surfaceChip,
           borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
@@ -95,6 +111,19 @@ class _RecentChip extends StatelessWidget {
                 color: context.colors.mutedSecondaryAlt,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(width: 6.w),
+            GestureDetector(
+              onTap: onRemove,
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 12.sp,
+                  color: context.colors.mutedForeground,
+                ),
               ),
             ),
           ],

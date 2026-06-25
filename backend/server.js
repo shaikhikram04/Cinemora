@@ -9,6 +9,16 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request logger — prints method, path, status, and latency for every request
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    const ms = Date.now() - start;
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} → ${res.statusCode} (${ms}ms)`);
+  });
+  next();
+});
+
 // Broad limit: 300 req/min per IP across all API routes.
 app.use("/api", rateLimiter(300, 60_000));
 

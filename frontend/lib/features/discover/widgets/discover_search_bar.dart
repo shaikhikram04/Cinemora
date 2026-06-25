@@ -6,14 +6,18 @@ class DiscoverSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final ValueChanged<String> onChanged;
+  final ValueChanged<String> onSubmitted;
   final VoidCallback onClear;
+  final VoidCallback? onFocusGained;
 
   const DiscoverSearchBar({
     super.key,
     required this.controller,
     required this.focusNode,
     required this.onChanged,
+    required this.onSubmitted,
     required this.onClear,
+    this.onFocusGained,
   });
 
   @override
@@ -40,6 +44,9 @@ class DiscoverSearchBar extends StatelessWidget {
               controller: controller,
               focusNode: focusNode,
               onChanged: onChanged,
+              onSubmitted: onSubmitted,
+              onTap: onFocusGained,
+              textInputAction: TextInputAction.search,
               style: TextStyle(
                 color: context.colors.foreground,
                 fontSize: 15.sp,

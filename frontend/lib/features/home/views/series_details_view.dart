@@ -49,6 +49,7 @@ class SeriesDetailsView extends StatelessWidget {
         seriesImage: seriesImage,
         backdropImage: backdropImage,
         rating: rating,
+        source: source,
       ),
     );
   }
@@ -59,12 +60,14 @@ class _SeriesDetailsContent extends StatelessWidget {
   final String seriesImage;
   final String? backdropImage;
   final String rating;
+  final String source;
 
   const _SeriesDetailsContent({
     required this.seriesTitle,
     required this.seriesImage,
     this.backdropImage,
     required this.rating,
+    required this.source,
   });
 
   void _openSeasonRatingSheet(
@@ -118,6 +121,7 @@ class _SeriesDetailsContent extends StatelessWidget {
             seriesImage: seriesImage,
             backdropImage: backdropImage,
             rating: rating,
+            source: source,
             detail: state.detail,
             isDetailLoading: state.isDetailLoading,
             seasons: seasons,

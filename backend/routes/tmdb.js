@@ -9,6 +9,7 @@ const {
   getMovieProviders,
   getTvProviders,
   getGenres,
+  discover,
 } = require("../controllers/tmdbController");
 
 router.use(auth);
@@ -16,6 +17,7 @@ router.use(auth);
 router.get("/trending", getTrending);
 router.get("/search", search);
 router.get("/genres", getGenres);
+router.get("/discover", discover);
 router.get("/movie/:id", getMovie);
 router.get("/movie/:id/watch-providers", getMovieProviders);
 router.get("/tv/:id", getTv);

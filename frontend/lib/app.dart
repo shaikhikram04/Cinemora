@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/themes/theme.dart';
 import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:cinemora/features/discover/repositories/discover_repository.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
@@ -17,7 +19,9 @@ class CinemoraApp extends StatefulWidget {
   final UserRepository userRepository;
   final HomeRepository homeRepository;
   final LibraryRepository libraryRepository;
+  final DiscoverRepository discoverRepository;
   final ThemeModeCubit themeModeCubit;
+  final SharedPreferences prefs;
 
   const CinemoraApp({
     super.key,
@@ -25,7 +29,9 @@ class CinemoraApp extends StatefulWidget {
     required this.userRepository,
     required this.homeRepository,
     required this.libraryRepository,
+    required this.discoverRepository,
     required this.themeModeCubit,
+    required this.prefs,
   });
 
   @override
@@ -62,6 +68,8 @@ class _CinemoraAppState extends State<CinemoraApp> {
         RepositoryProvider.value(value: widget.userRepository),
         RepositoryProvider.value(value: widget.homeRepository),
         RepositoryProvider.value(value: widget.libraryRepository),
+        RepositoryProvider.value(value: widget.discoverRepository),
+        RepositoryProvider<SharedPreferences>.value(value: widget.prefs),
       ],
       child: ScreenUtilInit(
         designSize: const Size(390, 844),

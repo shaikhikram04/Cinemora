@@ -109,7 +109,9 @@ const getRelationsById = async (anilistId) => {
 // A node is a "season" if it's a TV anime — filters out OVAs, Movies, Specials
 const isSeasonNode = (node) =>
   node?.type === "ANIME" &&
-  (node?.format === "TV" || node?.format === "TV_SHORT" || node?.format == null);
+  (node?.format === "TV" ||
+    node?.format === "TV_SHORT" ||
+    node?.format == null);
 
 // Iteratively follows PREQUEL or SEQUEL links until the chain ends.
 // AniList only exposes direct relations, so we must hop node-by-node.
@@ -128,7 +130,7 @@ const traverseSeasonChain = async (directNodes, direction) => {
           (e) =>
             e.relationType === direction &&
             isSeasonNode(e.node) &&
-            !visited.has(e.node.id)
+            !visited.has(e.node.id),
         )
         .map((e) => e.node);
 
@@ -145,4 +147,39 @@ const traverseSeasonChain = async (directNodes, direction) => {
   return allNodes;
 };
 
-module.exports = { getAnimeByMalId, isSeasonNode, traverseSeasonChain };
+const SEARCH_QUERY = `
+  query ($search: String, $perPage: Int) {
+    Page(page: 1, perPage: $perPage) {
+      media(
+        search: $search
+        type: ANIME
+        format_in: [TV, TV_SHORT]
+        sort: [SEARCH_MATCH, POPULARITY_DESC]
+      ) {
+        id
+        idMal
+        title { english romaji }
+        coverImage { large }
+        averageScore
+        startDate { year }
+      }
+    }
+  }
+`;
+
+const searchAnime = async (query, perPage = 20) => {
+  const { data } = await anilist.post("", {
+    query: SEARCH_QUERY,
+    variables: { search: query, perPage },
+  });
+  const media = data?.data?.Page?.media ?? [];
+  // Drop entries with no MAL ID — they can't be opened in the detail screen
+  return media.filter((m) => m.idMal != null);
+};
+
+module.exports = {
+  getAnimeByMalId,
+  searchAnime,
+  isSeasonNode,
+  traverseSeasonChain,
+};
