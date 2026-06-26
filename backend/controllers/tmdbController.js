@@ -20,13 +20,13 @@ const getTrending = async (req, res, next) => {
     );
 
     const now = new Date();
-    data.results = data.results.filter((item) => {
+    const filtered = data.results.filter((item) => {
       const dateStr = item.release_date || item.first_air_date;
       if (!dateStr) return false;
       return new Date(dateStr) <= now;
     });
 
-    res.json(data);
+    res.json({ ...data, results: filtered });
   } catch (err) {
     console.error("[TMDB] getTrending failed:", err.message);
     next(err);
@@ -131,24 +131,28 @@ const getGenres = async (req, res, next) => {
 
 // GET /api/tmdb/discover?type=movie|tv&genre_id=28&page=1
 const discover = async (req, res, next) => {
-  const { type = "movie", genre_id, page = 1 } = req.query;
+  const { type = "movie", genre_id, page = "1" } = req.query;
   if (!["movie", "tv"].includes(type))
     return next(new AppError(400, "TMDB_INVALID_TYPE", "type must be movie or tv"));
 
   try {
-    const params = { sort_by: "popularity.desc", page, include_adult: false };
+    const params = {
+      sort_by: "popularity.desc",
+      page: parseInt(page, 10) || 1,
+      include_adult: false,
+    };
     if (genre_id) params.with_genres = genre_id;
 
     const data = await tmdb.get(`/discover/${type}`, params, tmdb.TTL.trending);
 
     const now = new Date();
-    data.results = data.results.filter((item) => {
+    const filtered = data.results.filter((item) => {
       const dateStr = item.release_date || item.first_air_date;
       if (!dateStr) return false;
       return new Date(dateStr) <= now;
     });
 
-    res.json(data);
+    res.json({ ...data, results: filtered });
   } catch (err) {
     console.error("[TMDB] discover failed:", err.message);
     next(err);

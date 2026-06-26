@@ -13,6 +13,9 @@ class DiscoverCubit extends Cubit<DiscoverState> {
   static const _recentKey = 'discover_recent_searches';
   static const _maxRecent = 10;
 
+  int _searchGen = 0;
+  int _genreGen = 0;
+
   // Maps the filter chip index to a content type string used in the repo
   static const _filterTypes = ['all', 'movie', 'anime', 'tv'];
 
@@ -58,7 +61,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
     // Only update query text now; defer loading status until debounce settles.
     emit(state.copyWith(searchQuery: trimmed));
 
-    _debounce = Timer(const Duration(milliseconds: 400), () {
+    _debounce = Timer(const Duration(milliseconds: 600), () {
       if (isClosed) return;
       emit(state.copyWith(searchStatus: DiscoverSearchStatus.loading));
       _doSearch(trimmed);
@@ -146,6 +149,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
   // ── Internal ──────────────────────────────────────────────────────────────
 
   Future<void> _doSearch(String query, {int? filterIndex}) async {
+    final gen = ++_searchGen;
     final fi = filterIndex ?? state.selectedFilterIndex;
     final type = _filterTypes[fi]; // 'all' | 'movie' | 'anime' | 'tv'
 
@@ -165,7 +169,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
           results = await _repo.searchAll(query);
       }
 
-      if (isClosed) return;
+      if (isClosed || gen != _searchGen) return;
       emit(state.copyWith(
         searchStatus: results.isEmpty
             ? DiscoverSearchStatus.empty
@@ -174,7 +178,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
         clearError: true,
       ));
     } catch (e) {
-      if (isClosed) return;
+      if (isClosed || gen != _searchGen) return;
       emit(state.copyWith(
         searchStatus: DiscoverSearchStatus.failure,
         errorMessage: 'Something went wrong. Tap to retry.',
@@ -183,6 +187,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
   }
 
   Future<void> _doGenreBrowse(int genreId, {required String label}) async {
+    final gen = ++_genreGen;
     final fi = state.selectedFilterIndex;
     // Genre browse only supports TMDB types (movies + series)
     // If filter is 'anime' (index 2) or 'all' (index 0), default to both
@@ -203,7 +208,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
         results = [...both[0], ...both[1]];
       }
 
-      if (isClosed) return;
+      if (isClosed || gen != _genreGen) return;
       emit(state.copyWith(
         searchStatus: results.isEmpty
             ? DiscoverSearchStatus.empty
@@ -212,7 +217,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
         clearError: true,
       ));
     } catch (e) {
-      if (isClosed) return;
+      if (isClosed || gen != _genreGen) return;
       emit(state.copyWith(
         searchStatus: DiscoverSearchStatus.failure,
         errorMessage: 'Could not load $label content.',

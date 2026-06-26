@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as dev;
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 import '../exceptions/app_exception.dart';
 import '../services/secure_storage_service.dart';
@@ -18,7 +19,7 @@ class ApiClient {
       receiveTimeout: const Duration(seconds: 15),
     ));
 
-    dio.interceptors.add(_LogInterceptor());
+    if (kDebugMode) dio.interceptors.add(_LogInterceptor());
     dio.interceptors.add(_AuthInterceptor(storage, _plainDio));
   }
 

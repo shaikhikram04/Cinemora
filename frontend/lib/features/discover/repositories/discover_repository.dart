@@ -16,18 +16,14 @@ class DiscoverRepository {
       _searchTmdb(query, 'tv');
 
   Future<List<SearchResultItem>> searchAnime(String query) async {
-    try {
-      final res = await _apiClient.dio.get(
-        '/anilist/search',
-        queryParameters: {'q': query},
-      );
-      return (res.data['data'] as List? ?? [])
-          .cast<Map<String, dynamic>>()
-          .map(SearchResultItem.fromAniList)
-          .toList();
-    } catch (_) {
-      return [];
-    }
+    final res = await _apiClient.dio.get(
+      '/anilist/search',
+      queryParameters: {'q': query},
+    );
+    return (res.data['data'] as List? ?? [])
+        .cast<Map<String, dynamic>>()
+        .map(SearchResultItem.fromAniList)
+        .toList();
   }
 
   // Genre-based discovery — hits the new /tmdb/discover endpoint
@@ -53,25 +49,20 @@ class DiscoverRepository {
   }
 
   Future<List<SearchResultItem>> _searchTmdb(String query, String type) async {
-    try {
-      final res = await _apiClient.dio.get(
-        '/tmdb/search',
-        queryParameters: {'q': query, 'type': type},
-      );
-      final results = (res.data['results'] as List? ?? [])
-          .cast<Map<String, dynamic>>()
-          .where((e) {
-            // multi returns people too — skip them
-            final mt = e['media_type'] as String?;
-            return mt == null || mt == 'movie' || mt == 'tv';
-          })
-          .map(SearchResultItem.fromTmdb)
-          .where((e) => e.posterPath != null && e.posterPath!.isNotEmpty)
-          .toList();
-      return results;
-    } catch (_) {
-      return [];
-    }
+    final res = await _apiClient.dio.get(
+      '/tmdb/search',
+      queryParameters: {'q': query, 'type': type},
+    );
+    return (res.data['results'] as List? ?? [])
+        .cast<Map<String, dynamic>>()
+        .where((e) {
+          // multi returns people too — skip them
+          final mt = e['media_type'] as String?;
+          return mt == null || mt == 'movie' || mt == 'tv';
+        })
+        .map(SearchResultItem.fromTmdb)
+        .where((e) => e.posterPath != null && e.posterPath!.isNotEmpty)
+        .toList();
   }
 
 }

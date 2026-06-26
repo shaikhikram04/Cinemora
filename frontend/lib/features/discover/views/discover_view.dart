@@ -92,35 +92,39 @@ class _DiscoverContentState extends State<_DiscoverContent> {
                 ),
 
                 // ── Search bar ───────────────────────────────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
-                      14.h,
-                      WSizes.screenPadding.w,
-                      0,
-                    ),
-                    child: DiscoverSearchBar(
-                      controller: _searchController,
-                      focusNode: _focusNode,
-                      onChanged: cubit.onSearchChanged,
-                      onSubmitted: cubit.onSearchSubmitted,
-                      onClear: () => _clearSearch(cubit),
-                      onFocusGained: cubit.onSearchFocused,
+                if (!state.isGenreBrowse)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        WSizes.screenPadding.w,
+                        14.h,
+                        WSizes.screenPadding.w,
+                        0,
+                      ),
+                      child: DiscoverSearchBar(
+                        controller: _searchController,
+                        focusNode: _focusNode,
+                        onChanged: cubit.onSearchChanged,
+                        onSubmitted: cubit.onSearchSubmitted,
+                        onClear: () => _clearSearch(cubit),
+                        onFocusGained: cubit.onSearchFocused,
+                        isActive: state.isSearching,
+                        onDismiss: () => _clearSearch(cubit),
+                      ),
                     ),
                   ),
-                ),
 
-                // ── Filter chips (always visible) ────────────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 16.h),
-                    child: DiscoverFilterChips(
-                      selectedIndex: state.selectedFilterIndex,
-                      onSelect: cubit.selectFilter,
+                // ── Filter chips ─────────────────────────────────────────
+                if (!state.isGenreBrowse)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 16.h),
+                      child: DiscoverFilterChips(
+                        selectedIndex: state.selectedFilterIndex,
+                        onSelect: cubit.selectFilter,
+                      ),
                     ),
                   ),
-                ),
 
                 // ── Mode-specific body ───────────────────────────────────
                 if (state.isBrowsing) ..._browseSlivers(context, state, cubit),

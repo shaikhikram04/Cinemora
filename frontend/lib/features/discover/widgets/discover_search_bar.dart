@@ -9,6 +9,8 @@ class DiscoverSearchBar extends StatelessWidget {
   final ValueChanged<String> onSubmitted;
   final VoidCallback onClear;
   final VoidCallback? onFocusGained;
+  final bool isActive;
+  final VoidCallback? onDismiss;
 
   const DiscoverSearchBar({
     super.key,
@@ -18,6 +20,8 @@ class DiscoverSearchBar extends StatelessWidget {
     required this.onSubmitted,
     required this.onClear,
     this.onFocusGained,
+    this.isActive = false,
+    this.onDismiss,
   });
 
   @override
@@ -73,13 +77,16 @@ class DiscoverSearchBar extends StatelessWidget {
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: controller,
             builder: (_, value, __) {
-              if (value.text.isEmpty) return const SizedBox.shrink();
+              final hasText = value.text.isNotEmpty;
+              if (!hasText && !isActive) return const SizedBox.shrink();
               return GestureDetector(
-                onTap: onClear,
+                onTap: hasText ? onClear : onDismiss,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10.w),
                   child: Icon(
-                    Icons.close_rounded,
+                    hasText
+                        ? Icons.close_rounded
+                        : Icons.keyboard_control_key_sharp,
                     color: context.colors.mutedForeground,
                     size: 18.sp,
                   ),

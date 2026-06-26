@@ -111,12 +111,13 @@ class _ResultsList extends StatelessWidget {
           ),
 
         // Cards
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: results.length,
-          separatorBuilder: (_, __) => SizedBox(height: 10.h),
-          itemBuilder: (_, i) => DiscoverResultCard(item: results[i]),
+        Column(
+          children: [
+            for (int i = 0; i < results.length; i++) ...[
+              if (i > 0) SizedBox(height: 10.h),
+              DiscoverResultCard(item: results[i]),
+            ],
+          ],
         ),
         SizedBox(height: 32.h),
       ],

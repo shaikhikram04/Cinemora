@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:cinemora/core/constants/api_constants.dart';
 
 class SearchResultItem extends Equatable {
   final int id;
@@ -21,7 +22,7 @@ class SearchResultItem extends Equatable {
 
   String get posterUrl {
     if (source == 'jikan') return posterPath ?? '';
-    return posterPath != null ? 'https://image.tmdb.org/t/p/w342$posterPath' : '';
+    return posterPath != null ? '${ApiConstants.tmdbImageBase}/w342$posterPath' : '';
   }
 
   String get ratingDisplay => rating > 0 ? rating.toStringAsFixed(1) : '—';
@@ -113,5 +114,5 @@ class SearchResultItem extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, source, mediaType];
+  List<Object?> get props => [id, source, mediaType, title, posterPath];
 }

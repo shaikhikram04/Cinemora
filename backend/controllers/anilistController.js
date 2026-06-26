@@ -7,7 +7,7 @@ const searchAnime = async (req, res, next) => {
   if (!q) return next(new AppError(400, "ANILIST_QUERY_REQUIRED", "q is required"));
 
   try {
-    const media = await anilist.searchAnime(q, parseInt(limit, 10));
+    const media = await anilist.searchAnime(q, parseInt(limit, 10) || 15);
     res.json({ data: media });
   } catch (err) {
     console.error("[AniList] searchAnime failed:", err.message);
