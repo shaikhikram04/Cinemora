@@ -11,12 +11,16 @@ class ApiClient {
   late final Dio _plainDio; // no interceptors — used only for token refresh
 
   ApiClient(SecureStorageService storage) {
-    _plainDio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
+    _plainDio = Dio(BaseOptions(
+      baseUrl: ApiConstants.baseUrl,
+      headers: {'ngrok-skip-browser-warning': 'true'},
+    ));
 
     dio = Dio(BaseOptions(
       baseUrl: ApiConstants.baseUrl,
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
+      headers: {'ngrok-skip-browser-warning': 'true'},
     ));
 
     if (kDebugMode) dio.interceptors.add(_LogInterceptor());
