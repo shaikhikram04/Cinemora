@@ -98,13 +98,13 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
   Future<void> toggleWatched() async {
     final id = _tmdbId;
     if (state.isWatched) {
-      emit(state.copyWith(isWatched: false));
+      emit(state.copyWith(isWatched: false, userRating: 0.0));
       if (id == null) return;
       try {
         await _library.deleteEntry(id, CinemaType.movie);
         _libraryCubit.removeEntryLocal(id, CinemaType.movie);
       } catch (_) {
-        emit(state.copyWith(isWatched: true));
+        emit(state.copyWith(isWatched: true, userRating: state.userRating));
       }
     } else {
       final wasInWatchlist = state.isInWatchlist;

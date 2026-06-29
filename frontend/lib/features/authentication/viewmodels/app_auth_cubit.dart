@@ -67,6 +67,8 @@ class AppAuthCubit extends Cubit<AppAuthState> {
 
   Future<void> signOut() async {
     await _authService.signOut();
+    hasSeenWelcome = true;
+    await _authService.setHasSeenWelcome();
     emit(const AppAuthUnauthenticated());
   }
 }

@@ -9,6 +9,7 @@ import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/themes/theme.dart';
 import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:cinemora/features/authentication/viewmodels/app_auth_state.dart';
 import 'package:cinemora/features/discover/repositories/discover_repository.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
@@ -42,18 +43,30 @@ class CinemoraApp extends StatefulWidget {
 class _CinemoraAppState extends State<CinemoraApp> {
   late final GoRouter _router;
   late final _RouterNotifier _notifier;
+  late final LibraryCubit _libraryCubit;
+  late final StreamSubscription<AppAuthState> _authSub;
 
   @override
   void initState() {
     super.initState();
+    _libraryCubit = LibraryCubit(widget.libraryRepository);
     _notifier = _RouterNotifier(widget.authCubit);
     _router = buildAppRouter(widget.authCubit, _notifier);
+
+    _authSub = widget.authCubit.stream.listen((state) {
+      if (state is AppAuthAuthenticated) {
+        _libraryCubit.loadData();
+      }
+    });
+
     widget.authCubit.checkAuthStatus();
   }
 
   @override
   void dispose() {
+    _authSub.cancel();
     _notifier.dispose();
+    _libraryCubit.close();
     super.dispose();
   }
 
@@ -63,9 +76,7 @@ class _CinemoraAppState extends State<CinemoraApp> {
       providers: [
         BlocProvider.value(value: widget.authCubit),
         BlocProvider.value(value: widget.themeModeCubit),
-        BlocProvider(
-          create: (_) => LibraryCubit(widget.libraryRepository)..loadData(),
-        ),
+        BlocProvider.value(value: _libraryCubit),
         BlocProvider(
           create: (_) => RankingsCubit(),
         ),

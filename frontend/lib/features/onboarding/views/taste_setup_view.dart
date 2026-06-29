@@ -18,28 +18,28 @@ import 'package:cinemora/features/onboarding/widgets/content_type_card.dart';
 
 const _kContentTypes = [
   {
-    'key': 'Movies',
+    'key': 'movies',
     'title': 'Movies',
     'subtitle': 'Feature films from\naround the world',
     'imageUrl':
         'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=450&q=80',
   },
   {
-    'key': 'Web Series',
+    'key': 'series',
     'title': 'Web Series',
     'subtitle': 'Binge-worthy episodic\nstorytelling',
     'imageUrl':
         'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=450&q=80',
   },
   {
-    'key': 'Anime',
+    'key': 'anime',
     'title': 'Anime',
     'subtitle': 'Japanese animation &\nmanga adaptations',
     'imageUrl':
         'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=450&q=80',
   },
   {
-    'key': 'Documentaries',
+    'key': 'documentaries',
     'title': 'Documentaries',
     'subtitle': 'Real stories from\nthe real world',
     'imageUrl':
@@ -367,13 +367,13 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
 
   Widget _contentTypeIcon(String key) {
     switch (key) {
-      case 'Movies':
+      case 'movies':
         return Icon(Icons.movie_creation_outlined, size: 22.sp);
-      case 'Web Series':
+      case 'series':
         return Icon(Icons.tv_outlined, size: 22.sp);
-      case 'Anime':
+      case 'anime':
         return Text('⛩️', style: TextStyle(fontSize: 20.sp));
-      case 'Documentaries':
+      case 'documentaries':
         return Icon(Icons.video_camera_back_outlined, size: 22.sp);
       default:
         return Icon(Icons.movie_outlined, size: 22.sp);

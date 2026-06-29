@@ -175,13 +175,13 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
   Future<void> toggleShowWatched() async {
     final id = _id;
     if (state.isShowWatched) {
-      emit(state.copyWith(isShowWatched: false));
+      emit(state.copyWith(isShowWatched: false, showRating: 0.0));
       if (id == null) return;
       try {
         await _library.deleteEntry(id, _cinemaType);
         _libraryCubit.removeEntryLocal(id, _cinemaType);
       } catch (_) {
-        emit(state.copyWith(isShowWatched: true));
+        emit(state.copyWith(isShowWatched: true, showRating: state.showRating));
       }
     } else {
       final wasInWatchlist = state.showInWatchlist;

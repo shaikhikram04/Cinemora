@@ -140,7 +140,8 @@ class TmdbMovieDetail {
       overview: detail['overview'] as String? ?? '',
       genres: genres,
       runtime: runtimeStr,
-      runtimeMinutes: (runtimeMins != null && runtimeMins > 0) ? runtimeMins : null,
+      runtimeMinutes:
+          (runtimeMins != null && runtimeMins > 0) ? runtimeMins : null,
       year: year,
       director: directors.isNotEmpty ? directors : null,
       cast: cast,
@@ -282,16 +283,19 @@ class TmdbTvDetail {
         .where((n) => n.isNotEmpty)
         .join(', ');
 
-    final crew = createdBy.map((c) {
-      final profilePath = c['profile_path'] as String?;
-      return CrewMember(
-        name: c['name'] as String? ?? '',
-        role: 'Creator',
-        profileUrl: profilePath != null
-            ? 'https://image.tmdb.org/t/p/w200$profilePath'
-            : null,
-      );
-    }).where((m) => m.name.isNotEmpty).toList();
+    final crew = createdBy
+        .map((c) {
+          final profilePath = c['profile_path'] as String?;
+          return CrewMember(
+            name: c['name'] as String? ?? '',
+            role: 'Creator',
+            profileUrl: profilePath != null
+                ? 'https://image.tmdb.org/t/p/w200$profilePath'
+                : null,
+          );
+        })
+        .where((m) => m.name.isNotEmpty)
+        .toList();
 
     final cast = (detail['credits']?['cast'] as List? ?? [])
         .cast<Map>()
@@ -418,7 +422,8 @@ class TmdbTvDetail {
           );
 
     // Helper: build a placeholder season from a related anime detail response
-    SeriesSeason buildRelatedSeason(Map<String, dynamic> relJson, int seasonNum) {
+    SeriesSeason buildRelatedSeason(
+        Map<String, dynamic> relJson, int seasonNum) {
       final data = relJson['data'] as Map<String, dynamic>? ?? {};
       final relYear = data['year'] as int?;
       final epCount = (data['episodes'] as int? ?? 0).clamp(1, 500);
@@ -429,7 +434,8 @@ class TmdbTvDetail {
         rating: score,
         episodes: List.generate(
           epCount,
-          (i) => SeriesEpisode(number: i + 1, title: 'Episode ${i + 1}', runtime: '24m'),
+          (i) => SeriesEpisode(
+              number: i + 1, title: 'Episode ${i + 1}', runtime: '24m'),
         ),
       );
     }
@@ -489,12 +495,11 @@ class TmdbTvDetail {
   // ─── AniList (single GraphQL request replaces 4 Jikan calls) ─────────────────
 
   factory TmdbTvDetail.fromAniListJson(Map<String, dynamic> json) {
-    final media = ((json['data'] as Map?)?['Media'] as Map<String, dynamic>?) ?? {};
+    final media =
+        ((json['data'] as Map?)?['Media'] as Map<String, dynamic>?) ?? {};
 
-    final genres = (media['genres'] as List? ?? [])
-        .cast<String>()
-        .take(3)
-        .toList();
+    final genres =
+        (media['genres'] as List? ?? []).cast<String>().take(3).toList();
 
     final startYear = (media['startDate'] as Map?)?['year'] as int?;
     final endYear = (media['endDate'] as Map?)?['year'] as int?;
@@ -549,14 +554,16 @@ class TmdbTvDetail {
         rating: scoreDisplay(node['averageScore'] as int?),
         episodes: List.generate(
           epCount,
-          (i) => SeriesEpisode(number: i + 1, title: 'Episode ${i + 1}', runtime: '24m'),
+          (i) => SeriesEpisode(
+              number: i + 1, title: 'Episode ${i + 1}', runtime: '24m'),
         ),
         malId: malId,
       );
     }
 
     // Parse PREQUEL and SEQUEL relations (ANIME type only), sorted by year
-    final edges = ((media['relations'] as Map?)?['edges'] as List? ?? []).cast<Map>();
+    final edges =
+        ((media['relations'] as Map?)?['edges'] as List? ?? []).cast<Map>();
 
     int startYearOf(Map node) =>
         (node['startDate'] as Map?)?['year'] as int? ?? 9999;
@@ -590,7 +597,8 @@ class TmdbTvDetail {
         rating: scoreDisplay(media['averageScore'] as int?),
         episodes: List.generate(
           currentEpCount,
-          (i) => SeriesEpisode(number: i + 1, title: 'Episode ${i + 1}', runtime: '24m'),
+          (i) => SeriesEpisode(
+              number: i + 1, title: 'Episode ${i + 1}', runtime: '24m'),
         ),
         malId: currentMalId,
       ),
@@ -601,11 +609,13 @@ class TmdbTvDetail {
     // Trailer — only YouTube
     final trailerMap = media['trailer'] as Map?;
     final trailerSite = (trailerMap?['site'] as String? ?? '').toLowerCase();
-    final trailerKey = trailerSite == 'youtube' ? (trailerMap?['id'] as String?) : null;
+    final trailerKey =
+        trailerSite == 'youtube' ? (trailerMap?['id'] as String?) : null;
 
     // Strip any residual HTML tags from description
     final rawDescription = media['description'] as String? ?? '';
-    final description = rawDescription.replaceAll(RegExp(r'<[^>]*>'), '').trim();
+    final description =
+        rawDescription.replaceAll(RegExp(r'<[^>]*>'), '').trim();
 
     return TmdbTvDetail(
       overview: description,
@@ -647,30 +657,39 @@ String? _parseTrailerKey(Map<String, dynamic> detail) {
 
 // ─── Provider parsing helper ──────────────────────────────────────────────────
 
+// Strip ad-tier and other qualifier suffixes so "X with Ads" deduplicates against "X".
+String _normalizeProviderName(String name) =>
+    name.replaceAll(RegExp(r'\s+with\s+\w+$', caseSensitive: false), '').trim();
+
 List<StreamingProvider> _parseProviders(Map<String, dynamic> json) {
   final results = json['results'] as Map<String, dynamic>? ?? {};
   final region = (results['IN'] ?? results['US'] ?? <String, dynamic>{})
       as Map<String, dynamic>;
 
   final providers = <StreamingProvider>[];
-  final seen = <String>{};
+  final seenIds = <int>{};
+  final seenNormalized = <String>{};
 
   void addFromList(dynamic list, String type) {
     for (final p in (list as List? ?? [])) {
       final m = p as Map<String, dynamic>;
       final name = m['provider_name'] as String? ?? '';
+      final id = m['provider_id'] as int?;
       final logoPath = m['logo_path'] as String?;
-      if (name.isNotEmpty && !seen.contains(name)) {
-        seen.add(name);
-        providers.add(StreamingProvider(
-          name: name,
-          type: type,
-          assetPath: AppImages.forProvider(name),
-          logoUrl: logoPath != null
-              ? 'https://image.tmdb.org/t/p/original$logoPath'
-              : null,
-        ));
-      }
+      if (name.isEmpty) continue;
+      if (id != null && seenIds.contains(id)) continue;
+      final normalized = _normalizeProviderName(name);
+      if (seenNormalized.contains(normalized)) continue;
+      if (id != null) seenIds.add(id);
+      seenNormalized.add(normalized);
+      providers.add(StreamingProvider(
+        name: name,
+        type: type,
+        assetPath: AppImages.forProvider(name),
+        logoUrl: logoPath != null
+            ? 'https://image.tmdb.org/t/p/original$logoPath'
+            : null,
+      ));
     }
   }
 
