@@ -34,7 +34,6 @@ class RankingsView extends StatelessWidget {
         final lists = state.lists;
         final listCount = lists.length;
         final rankedCount = state.totalRanked;
-        final topCount = listCount; // each list has a #1 if non-empty
 
         return Container(
           color: context.colors.background,
@@ -71,7 +70,7 @@ class RankingsView extends StatelessWidget {
                               Text(
                                 listCount == 0
                                     ? 'No lists yet'
-                                    : '$listCount curated ${listCount == 1 ? 'list' : 'lists'}',
+                                    : '$listCount ${listCount == 1 ? 'list' : 'lists'} · $rankedCount titles ranked',
                                 style: TextStyle(
                                   color: context.colors.mutedSecondary,
                                   fontSize: 14.sp,
@@ -99,7 +98,8 @@ class RankingsView extends StatelessWidget {
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.add, size: 16.sp, color: Colors.white),
+                                Icon(Icons.add,
+                                    size: 16.sp, color: Colors.white),
                                 SizedBox(width: 6.w),
                                 Text(
                                   'New List',
@@ -118,37 +118,6 @@ class RankingsView extends StatelessWidget {
                   ),
                 ),
                 if (listCount > 0) ...[
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        WSizes.screenPadding.w,
-                        14.h,
-                        WSizes.screenPadding.w,
-                        0,
-                      ),
-                      child: Row(
-                        children: [
-                          _StatCard(
-                            value: '$listCount',
-                            label: 'Lists',
-                            accent: context.colors.accentRed,
-                          ),
-                          SizedBox(width: 12.w),
-                          _StatCard(
-                            value: '$rankedCount',
-                            label: 'Ranked',
-                            accent: const Color(0xFF6077FA),
-                          ),
-                          SizedBox(width: 12.w),
-                          _StatCard(
-                            value: '$topCount',
-                            label: 'Top #1s',
-                            accent: const Color(0xFFDDA60F),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                   SliverPadding(
                     padding: EdgeInsets.fromLTRB(
                       WSizes.screenPadding.w,
@@ -156,13 +125,7 @@ class RankingsView extends StatelessWidget {
                       WSizes.screenPadding.w,
                       18.h,
                     ),
-                    sliver: SliverGrid(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12.w,
-                        mainAxisSpacing: 12.h,
-                        childAspectRatio: 0.9,
-                      ),
+                    sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           if (index == lists.length) {
@@ -171,19 +134,22 @@ class RankingsView extends StatelessWidget {
                             );
                           }
                           final list = lists[index];
-                          return _RankingCard(
-                            list: list,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => BlocProvider.value(
-                                    value: context.read<RankingsCubit>(),
-                                    child: RankingDetailView(list: list),
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: 12.h),
+                            child: _RankingCard(
+                              list: list,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => BlocProvider.value(
+                                      value: context.read<RankingsCubit>(),
+                                      child: RankingDetailView(list: list),
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           );
                         },
                         childCount: lists.length + 1,
@@ -208,7 +174,7 @@ class RankingsView extends StatelessWidget {
   }
 }
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
+// ─── Tab-level empty state (no lists) ────────────────────────────────────────
 
 class _EmptyRankingsState extends StatelessWidget {
   final VoidCallback onCreateTap;
@@ -216,61 +182,176 @@ class _EmptyRankingsState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: 72.w,
-          height: 72.w,
-          decoration: BoxDecoration(
-            color: context.colors.accentRed.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Text('🏆', style: TextStyle(fontSize: 30.sp, inherit: false)),
-          ),
-        ),
-        SizedBox(height: 18.h),
-        Text(
-          'No rankings yet',
-          style: TextStyle(
-            color: context.colors.foreground,
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        SizedBox(height: 8.h),
-        Text(
-          'Create a list and rank your\nfavorite movies & series',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: context.colors.mutedSecondary,
-            fontSize: 13.sp,
-            height: 1.5,
-          ),
-        ),
-        SizedBox(height: 24.h),
-        GestureDetector(
-          onTap: onCreateTap,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 36.w),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 82.w,
+            height: 82.w,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [context.colors.accentRed, const Color(0xFFC81B23)],
+              color: context.colors.accentRed.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: context.colors.accentRed.withValues(alpha: 0.2),
+                width: 1.5,
               ),
-              borderRadius: BorderRadius.circular(999.r),
+              boxShadow: [
+                BoxShadow(
+                  color: context.colors.accentRed.withValues(alpha: 0.12),
+                  blurRadius: 28,
+                  spreadRadius: 2,
+                ),
+              ],
             ),
-            child: Text(
-              'Create your first list',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w700,
+            child: Center(
+              child:
+                  Text('🏆', style: TextStyle(fontSize: 34.sp, inherit: false)),
+            ),
+          ),
+          SizedBox(height: 22.h),
+          Text(
+            'No rankings yet',
+            style: TextStyle(
+              color: context.colors.foreground,
+              fontSize: 22.sp,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.3,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'Create a list and start ranking your favourite movies & series.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: context.colors.mutedSecondary,
+              fontSize: 13.sp,
+              height: 1.6,
+            ),
+          ),
+          SizedBox(height: 28.h),
+          GestureDetector(
+            onTap: onCreateTap,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 13.h),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [context.colors.accentRed, const Color(0xFFC81B23)],
+                ),
+                borderRadius: BorderRadius.circular(999.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: context.colors.accentRed.withValues(alpha: 0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Text(
+                'Create your first list',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Detail-level empty state (list exists but has no entries) ────────────────
+
+class _EmptyDetailState extends StatelessWidget {
+  final RankingList list;
+  const _EmptyDetailState({required this.list});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 36.w),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 82.w,
+            height: 82.w,
+            decoration: BoxDecoration(
+              color: list.accent.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: list.accent.withValues(alpha: 0.22),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: list.accent.withValues(alpha: 0.12),
+                  blurRadius: 28,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                list.emoji,
+                style: TextStyle(inherit: false, fontSize: 34.sp),
+              ),
+            ),
+          ),
+          SizedBox(height: 22.h),
+          Text(
+            'Nothing ranked yet',
+            style: TextStyle(
+              color: context.colors.foreground,
+              fontSize: 22.sp,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.3,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'Open any movie or series and add it to this list to start building your ranking.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: context.colors.mutedSecondary,
+              fontSize: 13.sp,
+              height: 1.6,
+            ),
+          ),
+          SizedBox(height: 20.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: list.accent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(color: list.accent.withValues(alpha: 0.18)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 13.sp,
+                  color: list.accent.withValues(alpha: 0.7),
+                ),
+                SizedBox(width: 6.w),
+                Text(
+                  'Rate a title → "Add to ranking"',
+                  style: TextStyle(
+                    color: list.accent.withValues(alpha: 0.8),
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -378,122 +459,128 @@ class _RankingDetailContent extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(
-                    WSizes.screenPadding.w,
-                    14.h,
-                    WSizes.screenPadding.w,
-                    12.h,
-                  ),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
-                  decoration: BoxDecoration(
-                    color: list.accent.withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(
-                      color: list.accent.withValues(alpha: 0.15),
+                if (entries.isNotEmpty)
+                  Container(
+                    margin: EdgeInsets.fromLTRB(
+                      WSizes.screenPadding.w,
+                      14.h,
+                      WSizes.screenPadding.w,
+                      12.h,
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.emoji_events_rounded,
-                              size: 16.sp,
-                              color: list.accent.withValues(alpha: 0.8),
-                            ),
-                            SizedBox(width: 8.w),
-                            Expanded(
-                              child: Text(
-                                list.subtitle,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: list.accent.withValues(alpha: 0.8),
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.2,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
+                    decoration: BoxDecoration(
+                      color: list.accent.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(
+                        color: list.accent.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.emoji_events_rounded,
+                                size: 16.sp,
+                                color: list.accent.withValues(alpha: 0.8),
+                              ),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Text(
+                                  list.subtitle.isNotEmpty
+                                      ? list.subtitle
+                                      : list.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: list.accent.withValues(alpha: 0.8),
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.2,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10.w,
-                          vertical: 4.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: list.accent.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(999.r),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.drag_handle_rounded,
-                              size: 12.sp,
-                              color: list.accent.withValues(alpha: 0.7),
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              'Hold & drag to reorder',
-                              style: TextStyle(
+                        SizedBox(width: 8.w),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: list.accent.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(999.r),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.drag_handle_rounded,
+                                size: 12.sp,
                                 color: list.accent.withValues(alpha: 0.7),
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w600,
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 4.w),
+                              Text(
+                                'Hold & drag to reorder',
+                                style: TextStyle(
+                                  color: list.accent.withValues(alpha: 0.7),
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
                 Expanded(
-                  child: ReorderableListView.builder(
-                    padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
-                      6.h,
-                      WSizes.screenPadding.w,
-                      16.h,
-                    ),
-                    buildDefaultDragHandles: false,
-                    onReorder: (oldIndex, newIndex) {
-                      cubit.reorder(oldIndex, newIndex);
-                      context.read<RankingsCubit>().reorderEntries(
-                            list.title,
-                            oldIndex,
-                            newIndex,
-                          );
-                    },
-                    proxyDecorator: (child, _, animation) => AnimatedBuilder(
-                      animation: animation,
-                      builder: (_, __) => Material(
-                        color: Colors.transparent,
-                        elevation: 8,
-                        borderRadius: BorderRadius.circular(16.r),
-                        child: child,
-                      ),
-                    ),
-                    itemCount: entries.length,
-                    itemBuilder: (context, index) {
-                      final entry = entries[index];
-                      return Padding(
-                        key: ValueKey('${entry.title}_$index'),
-                        padding: EdgeInsets.only(bottom: 10.h),
-                        child: _RankingEntryTile(
-                          entry: entry,
-                          rank: index + 1,
-                          accent: list.accent,
-                          index: index,
+                  child: entries.isEmpty
+                      ? _EmptyDetailState(list: list)
+                      : ReorderableListView.builder(
+                          padding: EdgeInsets.fromLTRB(
+                            WSizes.screenPadding.w,
+                            6.h,
+                            WSizes.screenPadding.w,
+                            16.h,
+                          ),
+                          buildDefaultDragHandles: false,
+                          onReorder: (oldIndex, newIndex) {
+                            cubit.reorder(oldIndex, newIndex);
+                            context.read<RankingsCubit>().reorderEntries(
+                                  list.title,
+                                  oldIndex,
+                                  newIndex,
+                                );
+                          },
+                          proxyDecorator: (child, _, animation) =>
+                              AnimatedBuilder(
+                            animation: animation,
+                            builder: (_, __) => Material(
+                              color: Colors.transparent,
+                              elevation: 8,
+                              borderRadius: BorderRadius.circular(16.r),
+                              child: child,
+                            ),
+                          ),
+                          itemCount: entries.length,
+                          itemBuilder: (context, index) {
+                            final entry = entries[index];
+                            return Padding(
+                              key: ValueKey('${entry.title}_$index'),
+                              padding: EdgeInsets.only(bottom: 10.h),
+                              child: _RankingEntryTile(
+                                entry: entry,
+                                rank: index + 1,
+                                accent: list.accent,
+                                index: index,
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
               ],
             ),
@@ -504,139 +591,130 @@ class _RankingDetailContent extends StatelessWidget {
   }
 }
 
-// ─── Shared private widgets ────────────────────────────────────────────────────
-
-class _StatCard extends StatelessWidget {
-  final String value;
-  final String label;
-  final Color accent;
-
-  const _StatCard({
-    required this.value,
-    required this.label,
-    required this.accent,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 8.h),
-        decoration: BoxDecoration(
-          color: context.colors.surfaceChip.withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(
-            color: context.colors.surfaceChipBorder.withValues(alpha: 0.6),
-          ),
-        ),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: TextStyle(
-                color: accent,
-                fontSize: 22.sp,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            Text(
-              label,
-              style: TextStyle(
-                color: context.colors.mutedSecondaryDeep,
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// ─── Ranking card (full-width horizontal) ─────────────────────────────────────
 
 class _RankingCard extends StatelessWidget {
   final RankingList list;
   final VoidCallback onTap;
 
-  const _RankingCard({
-    required this.list,
-    required this.onTap,
-  });
+  const _RankingCard({required this.list, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
           color: context.colors.surfaceChip.withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(24.r),
-          border: Border.all(
-            color: list.accent.withValues(alpha: 0.2),
-          ),
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(color: list.accent.withValues(alpha: 0.22)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
           children: [
-            _ImageStack(images: list.images, accent: list.accent),
-            SizedBox(height: 16.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 2.0),
-                  child: Text(
-                    list.emoji,
-                    style: TextStyle(
-                      inherit: false,
-                      fontSize: 16.sp,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 6.w),
-                Expanded(
-                  child: Text(
-                    list.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: context.colors.foreground,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10.w,
-                    vertical: 4.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: list.accent.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(999.r),
-                  ),
-                  child: Text(
-                    '${list.count} titles',
-                    style: TextStyle(
-                      color: list.accent,
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Icon(
-                  Icons.chevron_right,
-                  size: 18.sp,
+            // Left accent bar — stretches full height via Positioned
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: Container(
+                width: 4.w,
+                decoration: BoxDecoration(
                   color: list.accent,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20.r),
+                    bottomLeft: Radius.circular(20.r),
+                  ),
                 ),
-              ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 14.h, 14.w, 14.h),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _PosterFan(
+                    images: list.images,
+                    accent: list.accent,
+                    emoji: list.emoji,
+                  ),
+                  SizedBox(width: 14.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              list.emoji,
+                              style: TextStyle(inherit: false, fontSize: 14.sp),
+                            ),
+                            SizedBox(width: 5.w),
+                            Expanded(
+                              child: Text(
+                                list.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: context.colors.foreground,
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (list.subtitle.isNotEmpty) ...[
+                          SizedBox(height: 4.h),
+                          Text(
+                            list.subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: context.colors.mutedSecondary,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                        SizedBox(height: 10.h),
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 3.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: list.accent.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(999.r),
+                              ),
+                              child: Text(
+                                list.count == 0
+                                    ? 'Empty'
+                                    : '${list.count} ${list.count == 1 ? 'title' : 'titles'}',
+                                style: TextStyle(
+                                  color: list.accent,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              size: 18.sp,
+                              color: list.accent.withValues(alpha: 0.7),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -645,52 +723,93 @@ class _RankingCard extends StatelessWidget {
   }
 }
 
-class _ImageStack extends StatelessWidget {
+// ─── Poster fan ───────────────────────────────────────────────────────────────
+
+class _PosterFan extends StatelessWidget {
   final List<String> images;
   final Color accent;
+  final String emoji;
 
-  const _ImageStack({required this.images, required this.accent});
+  const _PosterFan({
+    required this.images,
+    required this.accent,
+    required this.emoji,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final safeImages = images.take(3).toList();
+    if (images.isEmpty) {
+      return Container(
+        width: 68.w,
+        height: 68.h,
+        decoration: BoxDecoration(
+          color: accent.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(color: accent.withValues(alpha: 0.2)),
+        ),
+        child: Center(
+          child: Text(emoji, style: TextStyle(inherit: false, fontSize: 26.sp)),
+        ),
+      );
+    }
+
+    final safe = images.take(3).toList();
+
+    if (safe.length == 1) {
+      return _buildPoster(safe[0], 46.w, 66.h);
+    }
+
     return SizedBox(
-      height: 64.h,
+      width: 76.w,
+      height: 68.h,
       child: Stack(
         clipBehavior: Clip.none,
-        children: List.generate(safeImages.length, (index) {
-          final drawIndex = safeImages.length - 1 - index;
-          final offset = drawIndex * 20.w;
-          final rotation = (drawIndex - 1) * 0.2;
-          return Positioned(
-            left: offset,
-            child: Transform.rotate(
-              angle: rotation,
-              child: Container(
-                width: 52.w,
-                height: 64.w,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14.r),
-                  border: Border.all(
-                    color: accent.withValues(alpha: 0.4),
-                    width: 1.2,
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12.r),
-                  child: Image.network(
-                    safeImages[drawIndex],
-                    fit: BoxFit.cover,
-                  ),
-                ),
+        children: [
+          if (safe.length >= 3)
+            Positioned(
+              right: 0,
+              top: 5.h,
+              child: Transform.rotate(
+                angle: 0.18,
+                child: _buildPoster(safe[2], 42.w, 58.h),
               ),
             ),
-          );
-        }),
+          if (safe.length >= 2)
+            Positioned(
+              right: 14.w,
+              top: 2.h,
+              child: Transform.rotate(
+                angle: 0.07,
+                child: _buildPoster(safe[1], 44.w, 62.h),
+              ),
+            ),
+          Positioned(
+            left: 0,
+            top: 0,
+            child: _buildPoster(safe[0], 46.w, 66.h),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPoster(String url, double w, double h) {
+    return Container(
+      width: w,
+      height: h,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: accent.withValues(alpha: 0.35), width: 1),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(9.r),
+        child: Image.network(url, fit: BoxFit.cover),
       ),
     );
   }
 }
+
+// ─── New list card (full-width dashed row) ────────────────────────────────────
 
 class _NewListCard extends StatelessWidget {
   final VoidCallback onTap;
@@ -702,51 +821,40 @@ class _NewListCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: _DashedBorderBox(
-        radius: 24.r,
+        radius: 20.r,
         strokeWidth: 1.2,
         dashWidth: 6,
-        dashGap: 6,
+        dashGap: 5,
         color: context.colors.borderStrong,
         child: Container(
-          padding: EdgeInsets.all(14.w),
+          padding: EdgeInsets.symmetric(vertical: 20.h),
           decoration: BoxDecoration(
-            color: context.colors.surfaceChip.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(18.r),
+            color: context.colors.surfaceChip.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(20.r),
           ),
-          child: Column(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 44.w,
-                height: 44.w,
+                width: 28.w,
+                height: 28.w,
                 decoration: BoxDecoration(
                   color: context.colors.accentRed.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(14.r),
-                  border:
-                      Border.all(color: context.colors.primary.withValues(alpha: 0.3)),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(
                   Icons.add,
                   color: context.colors.accentRed,
-                  size: 20.sp,
+                  size: 16.sp,
                 ),
               ),
-              SizedBox(height: 10.h),
+              SizedBox(width: 10.w),
               Text(
-                'New List',
-                style: TextStyle(
-                  color: context.colors.accentRed,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              SizedBox(height: 4.h),
-              Text(
-                'Create ranking',
+                'Create a new ranking list',
                 style: TextStyle(
                   color: context.colors.mutedSecondary,
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -756,6 +864,8 @@ class _NewListCard extends StatelessWidget {
     );
   }
 }
+
+// ─── Dashed border ────────────────────────────────────────────────────────────
 
 class _DashedBorderBox extends StatelessWidget {
   final Widget child;
@@ -841,6 +951,8 @@ class _DashedRoundedRectPainter extends CustomPainter {
   }
 }
 
+// ─── Ranking entry tile ───────────────────────────────────────────────────────
+
 class _RankingEntryTile extends StatelessWidget {
   final RankingEntry entry;
   final int rank;
@@ -870,7 +982,8 @@ class _RankingEntryTile extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(color: context.colors.backgroundAlt, width: 0.8),
+              border:
+                  Border.all(color: context.colors.backgroundAlt, width: 0.8),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(14.r),
@@ -972,6 +1085,7 @@ class _Medal extends StatelessWidget {
   }
 }
 
+// ─── Create list sheet ────────────────────────────────────────────────────────
 
 class _CreateListSheet extends StatefulWidget {
   const _CreateListSheet();
@@ -1050,7 +1164,8 @@ class _CreateListSheetState extends State<_CreateListSheet> {
   Widget build(BuildContext context) {
     final canSubmit = _nameController.text.trim().isNotEmpty;
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.fromLTRB(20.w, 14.h, 20.w, 24.h),
         decoration: BoxDecoration(
@@ -1143,8 +1258,18 @@ class _EmojiPicker extends StatelessWidget {
   const _EmojiPicker({required this.selected, required this.onSelect});
 
   static const List<String> _emojis = [
-    '🏆', '❤️', '🚀', '⛩️', '📺', '🎬',
-    '🤯', '🖤', '👻', '💎', '🔥', '⭐',
+    '🏆',
+    '❤️',
+    '🚀',
+    '⛩️',
+    '📺',
+    '🎬',
+    '🤯',
+    '🖤',
+    '👻',
+    '💎',
+    '🔥',
+    '⭐',
   ];
 
   @override

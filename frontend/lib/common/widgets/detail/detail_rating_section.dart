@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:cinemora/common/widgets/rating/rating_success_chip.dart';
 import 'package:cinemora/common/widgets/rating/star_rating_bar.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
@@ -156,14 +155,6 @@ class DetailRatingSection extends StatelessWidget {
                   rating: rating,
                   starSize: starSize.sp,
                   ratingColor: ratingColor,
-                ),
-              ],
-              if (showRatingSuccess && hasRated) ...[
-                SizedBox(height: 18.h),
-                RatingSuccessChip(
-                  emoji: ratingEmoji!,
-                  ratingColor: ratingColor,
-                  rankingLabel: rankingLabel,
                 ),
               ],
             ],
