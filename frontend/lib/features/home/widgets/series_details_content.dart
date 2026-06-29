@@ -53,7 +53,6 @@ class SeriesDetailsContent extends StatelessWidget {
   final void Function(int season, double rating) onRateSeason;
   final ValueChanged<double> onRateShow;
   final ValueChanged<int> onToggleSeasonExpanded;
-  final VoidCallback onManageRankings;
 
   const SeriesDetailsContent({
     super.key,
@@ -84,7 +83,6 @@ class SeriesDetailsContent extends StatelessWidget {
     required this.onRateSeason,
     required this.onRateShow,
     required this.onToggleSeasonExpanded,
-    required this.onManageRankings,
   });
 
   SeriesSeason? get _currentSeason => seasons.isNotEmpty
@@ -195,7 +193,6 @@ class SeriesDetailsContent extends StatelessWidget {
                   showRatingSuccess: showRatingSuccess,
                   rankingLabel: 'Best TV Shows',
                   onRate: onRateShow,
-                  onManageRankings: onManageRankings,
                 ),
                 SizedBox(height: 28.h),
                 Divider(color: context.colors.border),

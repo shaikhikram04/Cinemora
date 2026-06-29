@@ -14,7 +14,6 @@ class DetailRatingSection extends StatelessWidget {
   final bool showRatingSuccess;
   final String rankingLabel;
   final ValueChanged<double> onRate;
-  final VoidCallback onManageRankings;
 
   const DetailRatingSection({
     super.key,
@@ -24,7 +23,6 @@ class DetailRatingSection extends StatelessWidget {
     required this.showRatingSuccess,
     required this.rankingLabel,
     required this.onRate,
-    required this.onManageRankings,
   });
 
   @override
@@ -166,7 +164,6 @@ class DetailRatingSection extends StatelessWidget {
                   emoji: ratingEmoji!,
                   ratingColor: ratingColor,
                   rankingLabel: rankingLabel,
-                  onManageRankings: onManageRankings,
                 ),
               ],
             ],

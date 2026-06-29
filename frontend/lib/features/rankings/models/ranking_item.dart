@@ -18,6 +18,29 @@ class RankingList {
     required this.images,
     required this.entries,
   });
+
+  Map<String, dynamic> toJson() => {
+        'emoji': emoji,
+        'title': title,
+        'subtitle': subtitle,
+        'count': count,
+        // ignore: deprecated_member_use
+        'accent': accent.value,
+        'images': images,
+        'entries': entries.map((e) => e.toJson()).toList(),
+      };
+
+  factory RankingList.fromJson(Map<String, dynamic> json) => RankingList(
+        emoji: json['emoji'] as String,
+        title: json['title'] as String,
+        subtitle: json['subtitle'] as String,
+        count: json['count'] as int,
+        accent: Color(json['accent'] as int),
+        images: List<String>.from(json['images'] as List),
+        entries: (json['entries'] as List)
+            .map((e) => RankingEntry.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
 }
 
 class RankingEntry {
@@ -34,6 +57,22 @@ class RankingEntry {
     required this.rating,
     required this.image,
   });
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'year': year,
+        'type': type,
+        'rating': rating,
+        'image': image,
+      };
+
+  factory RankingEntry.fromJson(Map<String, dynamic> json) => RankingEntry(
+        title: json['title'] as String,
+        year: json['year'] as String,
+        type: json['type'] as String,
+        rating: json['rating'] as String,
+        image: json['image'] as String,
+      );
 }
 
 const kRankingLists = [

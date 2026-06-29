@@ -13,6 +13,7 @@ import 'package:cinemora/features/discover/repositories/discover_repository.dart
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
+import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
 
 class CinemoraApp extends StatefulWidget {
   final AppAuthCubit authCubit;
@@ -64,6 +65,9 @@ class _CinemoraAppState extends State<CinemoraApp> {
         BlocProvider.value(value: widget.themeModeCubit),
         BlocProvider(
           create: (_) => LibraryCubit(widget.libraryRepository)..loadData(),
+        ),
+        BlocProvider(
+          create: (_) => RankingsCubit(),
         ),
         RepositoryProvider.value(value: widget.userRepository),
         RepositoryProvider.value(value: widget.homeRepository),

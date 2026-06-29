@@ -8,14 +8,12 @@ class RatingSuccessChip extends StatelessWidget {
   final String emoji;
   final Color ratingColor;
   final String rankingLabel;
-  final VoidCallback onManageRankings;
 
   const RatingSuccessChip({
     super.key,
     required this.emoji,
     required this.ratingColor,
     required this.rankingLabel,
-    required this.onManageRankings,
   });
 
   @override
@@ -52,25 +50,6 @@ class RatingSuccessChip extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ),
-          GestureDetector(
-            onTap: onManageRankings,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
-              decoration: BoxDecoration(
-                color: ratingColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
-                border: Border.all(color: ratingColor.withValues(alpha: 0.35)),
-              ),
-              child: Text(
-                'Manage Rankings',
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w600,
-                  color: ratingColor,
-                ),
-              ),
             ),
           ),
         ],

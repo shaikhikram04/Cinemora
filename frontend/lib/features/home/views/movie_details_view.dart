@@ -61,21 +61,31 @@ class _MovieDetailsContent extends StatelessWidget {
     required this.rating,
   });
 
-  void _openRankingsSheet(BuildContext context, MovieDetailsState state) {
+  void _showRankingsSheet(BuildContext context, MovieDetailsState state) {
     showPostRatingSheet(
       context,
       movieTitle: movieTitle,
       movieImage: movieImage,
       movieType: 'Movie',
+      movieYear: state.detail?.year ?? '',
       userRating: state.userRating,
       ratingLabel: ratingLabelFor(state.userRating),
       ratingColor: ratingColorFor(state.userRating),
+      genres: state.detail?.genres ?? [],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MovieDetailsCubit, MovieDetailsState>(
+    return BlocConsumer<MovieDetailsCubit, MovieDetailsState>(
+      listenWhen: (prev, curr) =>
+          (prev.userRating != curr.userRating && curr.userRating > 0) ||
+          (!prev.isWatched && curr.isWatched),
+      listener: (context, state) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _showRankingsSheet(context, state),
+        );
+      },
       builder: (context, state) {
         final cubit = context.read<MovieDetailsCubit>();
         return Scaffold(
@@ -96,7 +106,6 @@ class _MovieDetailsContent extends StatelessWidget {
             onToggleWatched: cubit.toggleWatched,
             onRate: cubit.updateRating,
             onToggleTags: cubit.toggleTags,
-            onManageRankings: () => _openRankingsSheet(context, state),
           ),
         );
       },

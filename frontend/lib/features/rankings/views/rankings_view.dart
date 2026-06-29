@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,188 +7,270 @@ import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/rankings/models/ranking_item.dart';
 import 'package:cinemora/features/rankings/viewmodels/ranking_detail_cubit.dart';
 import 'package:cinemora/features/rankings/viewmodels/ranking_detail_state.dart';
+import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
+import 'package:cinemora/features/rankings/viewmodels/rankings_state.dart';
 
 // ─── Rankings list view ────────────────────────────────────────────────────────
 
 class RankingsView extends StatelessWidget {
   const RankingsView({super.key});
 
-  static const _lists = kRankingLists;
-
   void _openCreateListSheet(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) {
-        return const _CreateListSheet();
-      },
+      builder: (_) => BlocProvider.value(
+        value: context.read<RankingsCubit>(),
+        child: const _CreateListSheet(),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final listCount = _lists.length;
-    const rankedCount = 15;
-    const topCount = 6;
+    return BlocBuilder<RankingsCubit, RankingsState>(
+      builder: (context, state) {
+        final lists = state.lists;
+        final listCount = lists.length;
+        final rankedCount = state.totalRanked;
+        final topCount = listCount; // each list has a #1 if non-empty
 
-    return Container(
-      color: context.colors.background,
-      child: SafeArea(
-        bottom: false,
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  WSizes.screenPadding.w,
-                  16.h,
-                  WSizes.screenPadding.w,
-                  0,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'My Rankings',
-                            style: TextStyle(
-                              color: context.colors.foreground,
-                              fontSize: 28.sp,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.5,
+        return Container(
+          color: context.colors.background,
+          child: SafeArea(
+            bottom: false,
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      WSizes.screenPadding.w,
+                      16.h,
+                      WSizes.screenPadding.w,
+                      0,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'My Rankings',
+                                style: TextStyle(
+                                  color: context.colors.foreground,
+                                  fontSize: 28.sp,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              SizedBox(height: 1.h),
+                              Text(
+                                listCount == 0
+                                    ? 'No lists yet'
+                                    : '$listCount curated ${listCount == 1 ? 'list' : 'lists'}',
+                                style: TextStyle(
+                                  color: context.colors.mutedSecondary,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => _openCreateListSheet(context),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 14.w,
+                              vertical: 8.h,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  context.colors.accentRed,
+                                  const Color(0xFFC81B23),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(999.r),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.add, size: 16.sp, color: Colors.white),
+                                SizedBox(width: 6.w),
+                                Text(
+                                  'New List',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(height: 1.h),
-                          Text(
-                            '$listCount curated lists',
-                            style: TextStyle(
-                              color: context.colors.mutedSecondary,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (listCount > 0) ...[
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        WSizes.screenPadding.w,
+                        14.h,
+                        WSizes.screenPadding.w,
+                        0,
+                      ),
+                      child: Row(
+                        children: [
+                          _StatCard(
+                            value: '$listCount',
+                            label: 'Lists',
+                            accent: context.colors.accentRed,
+                          ),
+                          SizedBox(width: 12.w),
+                          _StatCard(
+                            value: '$rankedCount',
+                            label: 'Ranked',
+                            accent: const Color(0xFF6077FA),
+                          ),
+                          SizedBox(width: 12.w),
+                          _StatCard(
+                            value: '$topCount',
+                            label: 'Top #1s',
+                            accent: const Color(0xFFDDA60F),
                           ),
                         ],
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () => _openCreateListSheet(context),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 14.w,
-                          vertical: 8.h,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              context.colors.accentRed,
-                              Color(0xFFC81B23),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(999.r),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.add,
-                              size: 16.sp,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 6.w),
-                            Text(
-                              'New List',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
+                  ),
+                  SliverPadding(
+                    padding: EdgeInsets.fromLTRB(
+                      WSizes.screenPadding.w,
+                      16.h,
+                      WSizes.screenPadding.w,
+                      18.h,
+                    ),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12.w,
+                        mainAxisSpacing: 12.h,
+                        childAspectRatio: 0.9,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          if (index == lists.length) {
+                            return _NewListCard(
+                              onTap: () => _openCreateListSheet(context),
+                            );
+                          }
+                          final list = lists[index];
+                          return _RankingCard(
+                            list: list,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BlocProvider.value(
+                                    value: context.read<RankingsCubit>(),
+                                    child: RankingDetailView(list: list),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        childCount: lists.length + 1,
                       ),
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                ] else ...[
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _EmptyRankingsState(
+                      onCreateTap: () => _openCreateListSheet(context),
+                    ),
+                  ),
+                ],
+                SliverToBoxAdapter(child: SizedBox(height: 80.h)),
+              ],
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  WSizes.screenPadding.w,
-                  14.h,
-                  WSizes.screenPadding.w,
-                  0,
-                ),
-                child: Row(
-                  children: [
-                    _StatCard(
-                      value: '$listCount',
-                      label: 'Lists',
-                      accent: context.colors.accentRed,
-                    ),
-                    SizedBox(width: 12.w),
-                    _StatCard(
-                      value: '$rankedCount',
-                      label: 'Ranked',
-                      accent: const Color(0xFF6077FA),
-                    ),
-                    SizedBox(width: 12.w),
-                    _StatCard(
-                      value: '$topCount',
-                      label: 'Top #1s',
-                      accent: const Color(0xFFDDA60F),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SliverPadding(
-              padding: EdgeInsets.fromLTRB(
-                WSizes.screenPadding.w,
-                16.h,
-                WSizes.screenPadding.w,
-                18.h,
-              ),
-              sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12.w,
-                  mainAxisSpacing: 12.h,
-                  childAspectRatio: 0.9,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    if (index == _lists.length) {
-                      return _NewListCard(
-                        onTap: () => _openCreateListSheet(context),
-                      );
-                    }
+          ),
+        );
+      },
+    );
+  }
+}
 
-                    final list = _lists[index];
-                    return _RankingCard(
-                      list: list,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => RankingDetailView(list: list),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  childCount: _lists.length + 1,
-                ),
+// ─── Empty state ──────────────────────────────────────────────────────────────
+
+class _EmptyRankingsState extends StatelessWidget {
+  final VoidCallback onCreateTap;
+  const _EmptyRankingsState({required this.onCreateTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 72.w,
+          height: 72.w,
+          decoration: BoxDecoration(
+            color: context.colors.accentRed.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text('🏆', style: TextStyle(fontSize: 30.sp, inherit: false)),
+          ),
+        ),
+        SizedBox(height: 18.h),
+        Text(
+          'No rankings yet',
+          style: TextStyle(
+            color: context.colors.foreground,
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Text(
+          'Create a list and rank your\nfavorite movies & series',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: context.colors.mutedSecondary,
+            fontSize: 13.sp,
+            height: 1.5,
+          ),
+        ),
+        SizedBox(height: 24.h),
+        GestureDetector(
+          onTap: onCreateTap,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [context.colors.accentRed, const Color(0xFFC81B23)],
+              ),
+              borderRadius: BorderRadius.circular(999.r),
+            ),
+            child: Text(
+              'Create your first list',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            SliverToBoxAdapter(child: SizedBox(height: 80.h)),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -350,8 +433,14 @@ class _RankingDetailContent extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
+                            Icon(
+                              Icons.drag_handle_rounded,
+                              size: 12.sp,
+                              color: list.accent.withValues(alpha: 0.7),
+                            ),
+                            SizedBox(width: 4.w),
                             Text(
-                              'Use ↑↓ to reorder',
+                              'Hold & drag to reorder',
                               style: TextStyle(
                                 color: list.accent.withValues(alpha: 0.7),
                                 fontSize: 10.sp,
@@ -365,25 +454,43 @@ class _RankingDetailContent extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: ListView.separated(
+                  child: ReorderableListView.builder(
                     padding: EdgeInsets.fromLTRB(
                       WSizes.screenPadding.w,
                       6.h,
                       WSizes.screenPadding.w,
                       16.h,
                     ),
+                    buildDefaultDragHandles: false,
+                    onReorder: (oldIndex, newIndex) {
+                      cubit.reorder(oldIndex, newIndex);
+                      context.read<RankingsCubit>().reorderEntries(
+                            list.title,
+                            oldIndex,
+                            newIndex,
+                          );
+                    },
+                    proxyDecorator: (child, _, animation) => AnimatedBuilder(
+                      animation: animation,
+                      builder: (_, __) => Material(
+                        color: Colors.transparent,
+                        elevation: 8,
+                        borderRadius: BorderRadius.circular(16.r),
+                        child: child,
+                      ),
+                    ),
                     itemCount: entries.length,
-                    separatorBuilder: (_, __) => SizedBox(height: 10.h),
                     itemBuilder: (context, index) {
                       final entry = entries[index];
-                      return _RankingEntryTile(
-                        entry: entry,
-                        rank: index + 1,
-                        accent: list.accent,
-                        canMoveUp: index > 0,
-                        canMoveDown: index < entries.length - 1,
-                        onMoveUp: () => cubit.move(index, -1),
-                        onMoveDown: () => cubit.move(index, 1),
+                      return Padding(
+                        key: ValueKey('${entry.title}_$index'),
+                        padding: EdgeInsets.only(bottom: 10.h),
+                        child: _RankingEntryTile(
+                          entry: entry,
+                          rank: index + 1,
+                          accent: list.accent,
+                          index: index,
+                        ),
                       );
                     },
                   ),
@@ -738,19 +845,13 @@ class _RankingEntryTile extends StatelessWidget {
   final RankingEntry entry;
   final int rank;
   final Color accent;
-  final bool canMoveUp;
-  final bool canMoveDown;
-  final VoidCallback onMoveUp;
-  final VoidCallback onMoveDown;
+  final int index;
 
   const _RankingEntryTile({
     required this.entry,
     required this.rank,
     required this.accent,
-    required this.canMoveUp,
-    required this.canMoveDown,
-    required this.onMoveUp,
-    required this.onMoveDown,
+    required this.index,
   });
 
   @override
@@ -829,20 +930,16 @@ class _RankingEntryTile extends StatelessWidget {
               ],
             ),
           ),
-          Column(
-            children: [
-              _MoveButton(
-                icon: Icons.keyboard_arrow_up_rounded,
-                enabled: canMoveUp,
-                onTap: onMoveUp,
+          ReorderableDragStartListener(
+            index: index,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
+              child: Icon(
+                Icons.drag_handle_rounded,
+                size: 20.sp,
+                color: context.colors.mutedSecondaryDeep,
               ),
-              SizedBox(height: 4.h),
-              _MoveButton(
-                icon: Icons.keyboard_arrow_down_rounded,
-                enabled: canMoveDown,
-                onTap: onMoveDown,
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -875,38 +972,6 @@ class _Medal extends StatelessWidget {
   }
 }
 
-class _MoveButton extends StatelessWidget {
-  final IconData icon;
-  final bool enabled;
-  final VoidCallback onTap;
-
-  const _MoveButton({
-    required this.icon,
-    required this.enabled,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: Container(
-        width: 26.w,
-        height: 26.w,
-        decoration: BoxDecoration(
-          color: enabled ? context.colors.surface : null,
-          borderRadius: BorderRadius.circular(8.r),
-          border: enabled ? Border.all(color: context.colors.borderStrong) : null,
-        ),
-        child: Icon(
-          icon,
-          size: 16.sp,
-          color: enabled ? context.colors.mutedSecondary : context.colors.mutedSecondaryHeader,
-        ),
-      ),
-    );
-  }
-}
 
 class _CreateListSheet extends StatefulWidget {
   const _CreateListSheet();
@@ -916,21 +981,76 @@ class _CreateListSheet extends StatefulWidget {
 }
 
 class _CreateListSheetState extends State<_CreateListSheet> {
+  static const _hintPool = [
+    'All-Time Favorites',
+    'Hidden Gems',
+    'Comfort Watches',
+    'Mind-Blowing Endings',
+    'Best Thrillers',
+    'Feel-Good Films',
+    'Masterpieces Only',
+    'Guilty Pleasures',
+    'Award Winners',
+    'Underrated Classics',
+    'Weekend Picks',
+    'Date Night Films',
+    'Best Horror',
+    'Animated Favorites',
+    'Crime & Mystery',
+    'Binge-Worthy Series',
+    'Dark & Intense',
+    'Best Sci-Fi',
+    'Top Anime',
+    'Tearjerkers',
+    'Action Packed',
+    'Foreign Language Favorites',
+    'Based on True Events',
+    'Best Documentaries',
+  ];
+
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
+  String _selectedEmoji = '🏆';
+  late final String _hint;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = context
+        .read<RankingsCubit>()
+        .state
+        .lists
+        .map((l) => l.title.toLowerCase())
+        .toSet();
+    final available =
+        _hintPool.where((h) => !existing.contains(h.toLowerCase())).toList();
+    final pool = available.isNotEmpty ? available : _hintPool;
+    _hint = pool[Random().nextInt(pool.length)];
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _descController.dispose();
     super.dispose();
+  }
+
+  void _submit() {
+    final title = _nameController.text.trim();
+    if (title.isEmpty) return;
+    context.read<RankingsCubit>().createList(
+          emoji: _selectedEmoji,
+          title: title,
+          subtitle: _descController.text.trim(),
+        );
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     final canSubmit = _nameController.text.trim().isNotEmpty;
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.fromLTRB(20.w, 14.h, 20.w, 24.h),
         decoration: BoxDecoration(
@@ -968,18 +1088,24 @@ class _CreateListSheetState extends State<_CreateListSheet> {
               ),
             ),
             SizedBox(height: 14.h),
-            _EmojiPicker(),
+            _EmojiPicker(
+              selected: _selectedEmoji,
+              onSelect: (e) => setState(() => _selectedEmoji = e),
+            ),
             SizedBox(height: 18.h),
             _InputField(
-              hint: 'List name (e.g. Best Horror)',
+              hint: _hint,
               controller: _nameController,
               onChanged: (_) => setState(() {}),
             ),
             SizedBox(height: 12.h),
-            _InputField(hint: 'Short description...(optional)'),
+            _InputField(
+              hint: 'Short description... (optional)',
+              controller: _descController,
+            ),
             SizedBox(height: 24.h),
-            InkWell(
-              onTap: canSubmit ? () => Navigator.pop(context) : null,
+            GestureDetector(
+              onTap: canSubmit ? _submit : null,
               child: Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: 14.h),
@@ -1010,30 +1136,16 @@ class _CreateListSheetState extends State<_CreateListSheet> {
   }
 }
 
-class _EmojiPicker extends StatefulWidget {
-  const _EmojiPicker();
+class _EmojiPicker extends StatelessWidget {
+  final String selected;
+  final ValueChanged<String> onSelect;
 
-  @override
-  State<_EmojiPicker> createState() => _EmojiPickerState();
-}
+  const _EmojiPicker({required this.selected, required this.onSelect});
 
-class _EmojiPickerState extends State<_EmojiPicker> {
   static const List<String> _emojis = [
-    '🏆',
-    '❤️',
-    '🚀',
-    '⛩️',
-    '📺',
-    '🎬',
-    '🤯',
-    '🖤',
-    '👻',
-    '💎',
-    '🔥',
-    '⭐',
+    '🏆', '❤️', '🚀', '⛩️', '📺', '🎬',
+    '🤯', '🖤', '👻', '💎', '🔥', '⭐',
   ];
-
-  int _selectedIndex = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -1041,11 +1153,10 @@ class _EmojiPickerState extends State<_EmojiPicker> {
       spacing: 8.w,
       runSpacing: 8.h,
       alignment: WrapAlignment.center,
-      children: List.generate(_emojis.length, (index) {
-        final emoji = _emojis[index];
-        final isSelected = index == _selectedIndex;
+      children: _emojis.map((emoji) {
+        final isSelected = emoji == selected;
         return GestureDetector(
-          onTap: () => setState(() => _selectedIndex = index),
+          onTap: () => onSelect(emoji),
           child: Container(
             width: 38.w,
             height: 38.w,
@@ -1064,15 +1175,12 @@ class _EmojiPickerState extends State<_EmojiPicker> {
             child: Center(
               child: Text(
                 emoji,
-                style: TextStyle(
-                  inherit: false,
-                  fontSize: 16.sp,
-                ),
+                style: TextStyle(inherit: false, fontSize: 16.sp),
               ),
             ),
           ),
         );
-      }),
+      }).toList(),
     );
   }
 }

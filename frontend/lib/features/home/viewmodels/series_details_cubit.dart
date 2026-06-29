@@ -98,8 +98,9 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
   // Best available per-episode runtime: TMDB episode_run_time first,
   // then average of loaded episode runtimes (e.g. "45m" strings).
   int? get _episodeRuntime {
-    if (state.detail?.runtimeMinutes != null)
+    if (state.detail?.runtimeMinutes != null) {
       return state.detail!.runtimeMinutes;
+    }
     final runtimes = state.seasons
         .expand((s) => s.episodes)
         .map((ep) {

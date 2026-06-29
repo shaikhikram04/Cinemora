@@ -14,4 +14,13 @@ class RankingDetailCubit extends Cubit<RankingDetailState> {
     updated.insert(newIndex, item);
     emit(state.copyWith(entries: updated));
   }
+
+  // Called by ReorderableListView — newIndex is already adjusted for removal
+  void reorder(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) newIndex--;
+    final updated = List.of(state.entries);
+    final item = updated.removeAt(oldIndex);
+    updated.insert(newIndex, item);
+    emit(state.copyWith(entries: updated));
+  }
 }

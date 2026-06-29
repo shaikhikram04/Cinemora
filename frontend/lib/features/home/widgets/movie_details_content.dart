@@ -33,7 +33,6 @@ class MovieDetailsContent extends StatelessWidget {
   final VoidCallback onToggleWatched;
   final ValueChanged<double> onRate;
   final VoidCallback onToggleTags;
-  final VoidCallback onManageRankings;
 
   const MovieDetailsContent({
     super.key,
@@ -52,7 +51,6 @@ class MovieDetailsContent extends StatelessWidget {
     required this.onToggleWatched,
     required this.onRate,
     required this.onToggleTags,
-    required this.onManageRankings,
   });
 
   @override
@@ -136,7 +134,6 @@ class MovieDetailsContent extends StatelessWidget {
                   showRatingSuccess: showRatingSuccess,
                   rankingLabel: 'All-Time Favorites',
                   onRate: onRate,
-                  onManageRankings: onManageRankings,
                 ),
                 SizedBox(height: 28.h),
                 Divider(color: context.colors.border),

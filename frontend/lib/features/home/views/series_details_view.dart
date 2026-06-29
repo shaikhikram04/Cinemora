@@ -70,7 +70,7 @@ class _SeriesDetailsContent extends StatelessWidget {
     required this.source,
   });
 
-  void _openSeasonRatingSheet(
+  void _showSeasonRatingSheet(
     BuildContext context,
     int seasonNumber,
     double rating,
@@ -88,7 +88,7 @@ class _SeriesDetailsContent extends StatelessWidget {
     });
   }
 
-  void _openShowRankingsSheet(BuildContext context, SeriesDetailsState state) {
+  void _showRankingsSheet(BuildContext context, SeriesDetailsState state) {
     showPostRatingSheet(
       context,
       movieTitle: seriesTitle,
@@ -97,6 +97,7 @@ class _SeriesDetailsContent extends StatelessWidget {
       userRating: state.showRating,
       ratingLabel: ratingLabelFor(state.showRating),
       ratingColor: ratingColorFor(state.showRating),
+      genres: state.detail?.genres ?? [],
     );
   }
 
@@ -104,12 +105,21 @@ class _SeriesDetailsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<SeriesDetailsCubit, SeriesDetailsState>(
       listenWhen: (prev, curr) =>
-          curr.mutationError != null && curr.mutationError != prev.mutationError,
+          (curr.mutationError != null &&
+              curr.mutationError != prev.mutationError) ||
+          (prev.showRating != curr.showRating && curr.showRating > 0) ||
+          (!prev.isShowWatched && curr.isShowWatched),
       listener: (context, state) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(state.mutationError!)),
+        if (state.mutationError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.mutationError!)),
+          );
+          context.read<SeriesDetailsCubit>().clearMutationError();
+          return;
+        }
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _showRankingsSheet(context, state),
         );
-        context.read<SeriesDetailsCubit>().clearMutationError();
       },
       builder: (context, state) {
         final cubit = context.read<SeriesDetailsCubit>();
@@ -143,11 +153,10 @@ class _SeriesDetailsContent extends StatelessWidget {
             onToggleEpisodeWatched: cubit.toggleEpisodeWatched,
             onRateSeason: (seasonNumber, r) {
               cubit.rateSeason(seasonNumber, r);
-              _openSeasonRatingSheet(context, seasonNumber, r);
+              _showSeasonRatingSheet(context, seasonNumber, r);
             },
             onRateShow: cubit.rateShow,
             onToggleSeasonExpanded: cubit.toggleSeasonExpanded,
-            onManageRankings: () => _openShowRankingsSheet(context, state),
           ),
         );
       },
