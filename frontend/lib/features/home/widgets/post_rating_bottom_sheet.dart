@@ -1,4 +1,5 @@
 import 'package:cinemora/core/models/cinema_type.dart';
+import 'package:cinemora/core/utils/tmdb_url_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,6 +22,7 @@ void showPostRatingSheet(
   required Color ratingColor,
   String movieYear = '',
   List<String> genres = const [],
+  int? tmdbId,
 }) {
   final rankingsCubit = context.read<RankingsCubit>();
   showModalBottomSheet(
@@ -39,6 +41,7 @@ void showPostRatingSheet(
         ratingLabel: ratingLabel,
         ratingColor: ratingColor,
         genres: genres,
+        tmdbId: tmdbId,
       ),
     ),
   );
@@ -55,6 +58,7 @@ class _PostRatingSheet extends StatefulWidget {
   final String ratingLabel;
   final Color ratingColor;
   final List<String> genres;
+  final int? tmdbId;
 
   const _PostRatingSheet({
     required this.movieTitle,
@@ -65,6 +69,7 @@ class _PostRatingSheet extends StatefulWidget {
     required this.ratingLabel,
     required this.ratingColor,
     required this.genres,
+    this.tmdbId,
   });
 
   @override
@@ -296,32 +301,40 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
     return _ratingTiers.last;
   }
 
-  void _handlePlaceInRankings(BuildContext context) {
+  Future<void> _handlePlaceInRankings() async {
     if (_selectedTitle == null) return;
     final cubit = context.read<RankingsCubit>();
     var targetList =
         cubit.state.lists.where((l) => l.title == _selectedTitle).firstOrNull;
 
     if (targetList == null) {
-      // Suggested list doesn't exist yet — find emoji from either pool
+      // Suggested list doesn't exist yet — create it on the backend first
       final allPools = [..._genrePool, ..._ratingTiers];
       final poolItem =
           allPools.where((s) => s['title'] == _selectedTitle).firstOrNull;
-      cubit.createList(
+      targetList = await cubit.createList(
         emoji: poolItem?['emoji'] ?? '🏆',
         title: _selectedTitle!,
         subtitle: poolItem?['sub'] ?? '',
       );
-      targetList =
-          cubit.state.lists.firstWhere((l) => l.title == _selectedTitle);
+      if (!mounted || targetList == null) return;
     }
 
+    final cinemaType = switch (widget.movieType.toLowerCase()) {
+      'series' => 'tv',
+      'anime' => 'anime',
+      _ => 'movie',
+    };
+
     final newEntry = RankingEntry(
+      tmdbId: widget.tmdbId,
+      cinemaType: cinemaType,
       title: widget.movieTitle,
       year: widget.movieYear,
       type: widget.movieType,
       rating: widget.userRating.toStringAsFixed(1),
       image: widget.movieImage,
+      posterPath: extractTmdbPosterPath(widget.movieImage),
     );
 
     // If this title already exists, strip it from the battle list so the
@@ -335,6 +348,7 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
     final listForBattle = existingIndex == -1
         ? targetList
         : RankingList(
+            id: targetList.id,
             emoji: targetList.emoji,
             title: targetList.title,
             subtitle: targetList.subtitle,
@@ -344,6 +358,7 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
             entries: List.of(targetList.entries)..removeAt(existingIndex),
           );
 
+    if (!mounted) return;
     Navigator.pop(context);
     Navigator.push(
       context,
@@ -477,7 +492,7 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
             _BottomCTA(
               ratingColor: widget.ratingColor,
               hasSelection: _hasSelection,
-              onPlaceTap: () => _handlePlaceInRankings(context),
+              onPlaceTap: _handlePlaceInRankings,
               onDiscoverTap: () => setState(() => _showDiscover = true),
             ),
         ],

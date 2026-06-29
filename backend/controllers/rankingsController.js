@@ -65,7 +65,7 @@ const deleteList = async (req, res, next) => {
 
 // POST /api/rankings/:id/entries
 const addEntry = async (req, res, next) => {
-  const { tmdbId, cinemaType, title, posterPath, year } = req.body;
+  const { tmdbId, cinemaType, title, posterPath, year, userRating } = req.body;
   if (!tmdbId || !cinemaType || !title) {
     return next(new AppError(400, "RANKING_MISSING_FIELDS", "tmdbId, cinemaType, and title are required"));
   }
@@ -86,6 +86,7 @@ const addEntry = async (req, res, next) => {
     title,
     posterPath,
     year,
+    userRating,
   });
 
   await list.save();

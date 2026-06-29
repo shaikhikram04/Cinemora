@@ -43,6 +43,7 @@ class MovieDetailsView extends StatelessWidget {
         movieImage: movieImage,
         backdropImage: backdropImage,
         rating: rating,
+        tmdbId: tmdbId,
       ),
     );
   }
@@ -53,12 +54,14 @@ class _MovieDetailsContent extends StatelessWidget {
   final String movieImage;
   final String? backdropImage;
   final String rating;
+  final int? tmdbId;
 
   const _MovieDetailsContent({
     required this.movieTitle,
     required this.movieImage,
     this.backdropImage,
     required this.rating,
+    this.tmdbId,
   });
 
   void _showRankingsSheet(BuildContext context, MovieDetailsState state) {
@@ -72,6 +75,7 @@ class _MovieDetailsContent extends StatelessWidget {
       ratingLabel: ratingLabelFor(state.userRating),
       ratingColor: ratingColorFor(state.userRating),
       genres: state.detail?.genres ?? [],
+      tmdbId: tmdbId,
     );
   }
 

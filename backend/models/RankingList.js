@@ -12,6 +12,7 @@ const entrySchema = new mongoose.Schema(
     title: { type: String, required: true },
     posterPath: { type: String },
     year: { type: String },
+    userRating: { type: Number },
   },
   { _id: false }
 );

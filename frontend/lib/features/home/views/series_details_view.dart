@@ -50,6 +50,7 @@ class SeriesDetailsView extends StatelessWidget {
         backdropImage: backdropImage,
         rating: rating,
         source: source,
+        tmdbId: id,
       ),
     );
   }
@@ -61,6 +62,7 @@ class _SeriesDetailsContent extends StatelessWidget {
   final String? backdropImage;
   final String rating;
   final String source;
+  final int? tmdbId;
 
   const _SeriesDetailsContent({
     required this.seriesTitle,
@@ -68,6 +70,7 @@ class _SeriesDetailsContent extends StatelessWidget {
     this.backdropImage,
     required this.rating,
     required this.source,
+    this.tmdbId,
   });
 
   void _showSeasonRatingSheet(
@@ -84,6 +87,7 @@ class _SeriesDetailsContent extends StatelessWidget {
         userRating: rating,
         ratingLabel: ratingLabelFor(rating),
         ratingColor: ratingColorFor(rating),
+        tmdbId: tmdbId,
       );
     });
   }
@@ -98,6 +102,7 @@ class _SeriesDetailsContent extends StatelessWidget {
       ratingLabel: ratingLabelFor(state.showRating),
       ratingColor: ratingColorFor(state.showRating),
       genres: state.detail?.genres ?? [],
+      tmdbId: tmdbId,
     );
   }
 

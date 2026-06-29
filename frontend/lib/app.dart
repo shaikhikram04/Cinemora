@@ -14,6 +14,7 @@ import 'package:cinemora/features/discover/repositories/discover_repository.dart
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
+import 'package:cinemora/features/rankings/repositories/rankings_repository.dart';
 import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
 
 class CinemoraApp extends StatefulWidget {
@@ -22,6 +23,7 @@ class CinemoraApp extends StatefulWidget {
   final HomeRepository homeRepository;
   final LibraryRepository libraryRepository;
   final DiscoverRepository discoverRepository;
+  final RankingsRepository rankingsRepository;
   final ThemeModeCubit themeModeCubit;
   final SharedPreferences prefs;
 
@@ -32,6 +34,7 @@ class CinemoraApp extends StatefulWidget {
     required this.homeRepository,
     required this.libraryRepository,
     required this.discoverRepository,
+    required this.rankingsRepository,
     required this.themeModeCubit,
     required this.prefs,
   });
@@ -44,18 +47,23 @@ class _CinemoraAppState extends State<CinemoraApp> {
   late final GoRouter _router;
   late final _RouterNotifier _notifier;
   late final LibraryCubit _libraryCubit;
+  late final RankingsCubit _rankingsCubit;
   late final StreamSubscription<AppAuthState> _authSub;
 
   @override
   void initState() {
     super.initState();
     _libraryCubit = LibraryCubit(widget.libraryRepository);
+    _rankingsCubit = RankingsCubit(widget.rankingsRepository);
     _notifier = _RouterNotifier(widget.authCubit);
     _router = buildAppRouter(widget.authCubit, _notifier);
 
     _authSub = widget.authCubit.stream.listen((state) {
       if (state is AppAuthAuthenticated) {
         _libraryCubit.loadData();
+        _rankingsCubit.loadLists();
+      } else if (state is AppAuthUnauthenticated) {
+        _rankingsCubit.clear();
       }
     });
 
@@ -67,6 +75,7 @@ class _CinemoraAppState extends State<CinemoraApp> {
     _authSub.cancel();
     _notifier.dispose();
     _libraryCubit.close();
+    _rankingsCubit.close();
     super.dispose();
   }
 
@@ -77,9 +86,7 @@ class _CinemoraAppState extends State<CinemoraApp> {
         BlocProvider.value(value: widget.authCubit),
         BlocProvider.value(value: widget.themeModeCubit),
         BlocProvider.value(value: _libraryCubit),
-        BlocProvider(
-          create: (_) => RankingsCubit(),
-        ),
+        BlocProvider.value(value: _rankingsCubit),
         RepositoryProvider.value(value: widget.userRepository),
         RepositoryProvider.value(value: widget.homeRepository),
         RepositoryProvider.value(value: widget.libraryRepository),

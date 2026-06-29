@@ -551,7 +551,7 @@ class _RankingDetailContent extends StatelessWidget {
                           onReorder: (oldIndex, newIndex) {
                             cubit.reorder(oldIndex, newIndex);
                             context.read<RankingsCubit>().reorderEntries(
-                                  list.title,
+                                  list.id,
                                   oldIndex,
                                   newIndex,
                                 );

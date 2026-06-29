@@ -201,7 +201,7 @@ class _PlacedView extends StatelessWidget {
           child: GestureDetector(
             onTap: () {
               context.read<RankingsCubit>().updateListEntries(
-                    list.title,
+                    list.id,
                     state.entries,
                   );
               Navigator.pop(context);
@@ -304,9 +304,9 @@ class _PlacedView extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   final cubit = context.read<RankingsCubit>();
-                  cubit.updateListEntries(list.title, state.entries);
+                  cubit.updateListEntries(list.id, state.entries);
                   final updatedList = cubit.state.lists
-                      .firstWhere((l) => l.title == list.title);
+                      .firstWhere((l) => l.id == list.id);
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -345,7 +345,7 @@ class _PlacedView extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   context.read<RankingsCubit>().updateListEntries(
-                        list.title,
+                        list.id,
                         state.entries,
                       );
                   Navigator.pop(context);
