@@ -40,6 +40,9 @@ class ProfileState extends Equatable {
     return rated.take(5).toList();
   }
 
+  int get watchedCount =>
+      entries.where((e) => e.status == WatchStatus.watched).length;
+
   List<LibraryEntryModel> get recentActivity {
     final sorted = [...entries]
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));

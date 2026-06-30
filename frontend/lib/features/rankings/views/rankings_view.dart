@@ -448,23 +448,21 @@ class _RankingDetailContentState extends State<_RankingDetailContent> {
                               children: [
                                 Text(
                                   list.emoji,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     inherit: false,
-                                    color: context.colors.foreground,
                                     fontSize: 16.sp,
-                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
-                                Text(
-                                  '  ${list.title}',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: context.colors.foreground,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w800,
+                                Expanded(
+                                  child: Text(
+                                    '  ${list.title}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: context.colors.foreground,
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w800,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -525,8 +523,8 @@ class _RankingDetailContentState extends State<_RankingDetailContent> {
                           decoration: BoxDecoration(
                             color: context.colors.surfaceChip,
                             borderRadius: BorderRadius.circular(10.r),
-                            border: Border.all(
-                                color: context.colors.borderStrong),
+                            border:
+                                Border.all(color: context.colors.borderStrong),
                           ),
                           child: Icon(
                             Icons.delete_outline_rounded,

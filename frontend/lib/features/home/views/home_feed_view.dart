@@ -18,7 +18,6 @@ import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
-import 'package:cinemora/features/watch_together/widgets/watch_together_card.dart';
 
 const _kTabs = ['✨   For You', '🎬   Movies', '⛩️   Anime', '📺   Series'];
 
@@ -77,8 +76,6 @@ class _HomeFeedContent extends StatelessWidget {
                     selectedTab: state.selectedTab,
                     onSelected: cubit.selectTab),
                 SizedBox(height: 14.h),
-                const WatchTogetherCard(),
-                SizedBox(height: 16.h),
 
                 // Hero card
                 if (loading)
@@ -90,7 +87,8 @@ class _HomeFeedContent extends StatelessWidget {
                   _HeroCard(
                     hero: state.hero,
                     isBookmarked: state.hero != null &&
-                        state.libraryStatus[state.hero!.id] == WatchStatus.watchlist,
+                        state.libraryStatus[state.hero!.id] ==
+                            WatchStatus.watchlist,
                     onDetailsPressed: state.hero == null
                         ? () {}
                         : () => context.push(
