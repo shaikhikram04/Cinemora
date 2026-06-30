@@ -23,4 +23,9 @@ class RankingDetailCubit extends Cubit<RankingDetailState> {
     updated.insert(newIndex, item);
     emit(state.copyWith(entries: updated));
   }
+
+  void removeEntry(int index) {
+    final updated = List.of(state.entries)..removeAt(index);
+    emit(state.copyWith(entries: updated));
+  }
 }

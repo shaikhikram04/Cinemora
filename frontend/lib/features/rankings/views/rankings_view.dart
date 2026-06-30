@@ -372,17 +372,42 @@ class RankingDetailView extends StatelessWidget {
   }
 }
 
-class _RankingDetailContent extends StatelessWidget {
+class _RankingDetailContent extends StatefulWidget {
   final RankingList list;
 
   const _RankingDetailContent({required this.list});
+
+  @override
+  State<_RankingDetailContent> createState() => _RankingDetailContentState();
+}
+
+class _RankingDetailContentState extends State<_RankingDetailContent> {
+  bool _isEditMode = false;
+
+  void _showDeleteSheet(BuildContext ctx) {
+    final rankingsCubit = ctx.read<RankingsCubit>();
+    showModalBottomSheet<void>(
+      context: ctx,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) => _DeleteListSheet(
+        list: widget.list,
+        onConfirm: () {
+          rankingsCubit.deleteList(widget.list.id);
+          Navigator.pop(sheetCtx);
+          Navigator.pop(ctx);
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RankingDetailCubit, RankingDetailState>(
       builder: (context, state) {
         final cubit = context.read<RankingDetailCubit>();
+        final rankingsCubit = context.read<RankingsCubit>();
         final entries = state.entries;
+        final list = widget.list;
         return Scaffold(
           backgroundColor: context.colors.background,
           body: SafeArea(
@@ -456,6 +481,60 @@ class _RankingDetailContent extends StatelessWidget {
                           ],
                         ),
                       ),
+                      // Edit / Done chip — only when list has entries
+                      if (entries.isNotEmpty) ...[
+                        SizedBox(width: 8.w),
+                        GestureDetector(
+                          onTap: () =>
+                              setState(() => _isEditMode = !_isEditMode),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12.w, vertical: 7.h),
+                            decoration: BoxDecoration(
+                              color: _isEditMode
+                                  ? list.accent.withValues(alpha: 0.12)
+                                  : context.colors.surfaceChip,
+                              borderRadius: BorderRadius.circular(10.r),
+                              border: Border.all(
+                                color: _isEditMode
+                                    ? list.accent.withValues(alpha: 0.3)
+                                    : context.colors.borderStrong,
+                              ),
+                            ),
+                            child: Text(
+                              _isEditMode ? 'Done' : 'Edit',
+                              style: TextStyle(
+                                color: _isEditMode
+                                    ? list.accent
+                                    : context.colors.foreground,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                      SizedBox(width: 8.w),
+                      // Delete list
+                      GestureDetector(
+                        onTap: () => _showDeleteSheet(context),
+                        child: Container(
+                          width: 34.w,
+                          height: 34.w,
+                          decoration: BoxDecoration(
+                            color: context.colors.surfaceChip,
+                            borderRadius: BorderRadius.circular(10.r),
+                            border: Border.all(
+                                color: context.colors.borderStrong),
+                          ),
+                          child: Icon(
+                            Icons.delete_outline_rounded,
+                            size: 16.sp,
+                            color: context.colors.mutedSecondary,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -482,16 +561,20 @@ class _RankingDetailContent extends StatelessWidget {
                           child: Row(
                             children: [
                               Icon(
-                                Icons.emoji_events_rounded,
+                                _isEditMode
+                                    ? Icons.remove_circle_outline_rounded
+                                    : Icons.emoji_events_rounded,
                                 size: 16.sp,
                                 color: list.accent.withValues(alpha: 0.8),
                               ),
                               SizedBox(width: 8.w),
                               Expanded(
                                 child: Text(
-                                  list.subtitle.isNotEmpty
-                                      ? list.subtitle
-                                      : list.title,
+                                  _isEditMode
+                                      ? 'Tap × to remove a title from this list'
+                                      : (list.subtitle.isNotEmpty
+                                          ? list.subtitle
+                                          : list.title),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -505,35 +588,37 @@ class _RankingDetailContent extends StatelessWidget {
                             ],
                           ),
                         ),
-                        SizedBox(width: 8.w),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10.w,
-                            vertical: 4.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: list.accent.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(999.r),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.drag_handle_rounded,
-                                size: 12.sp,
-                                color: list.accent.withValues(alpha: 0.7),
-                              ),
-                              SizedBox(width: 4.w),
-                              Text(
-                                'Hold & drag to reorder',
-                                style: TextStyle(
+                        if (!_isEditMode) ...[
+                          SizedBox(width: 8.w),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10.w,
+                              vertical: 4.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: list.accent.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(999.r),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.drag_handle_rounded,
+                                  size: 12.sp,
                                   color: list.accent.withValues(alpha: 0.7),
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.w600,
                                 ),
-                              ),
-                            ],
+                                SizedBox(width: 4.w),
+                                Text(
+                                  'Hold & drag to reorder',
+                                  style: TextStyle(
+                                    color: list.accent.withValues(alpha: 0.7),
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ),
@@ -550,11 +635,11 @@ class _RankingDetailContent extends StatelessWidget {
                           buildDefaultDragHandles: false,
                           onReorder: (oldIndex, newIndex) {
                             cubit.reorder(oldIndex, newIndex);
-                            context.read<RankingsCubit>().reorderEntries(
-                                  list.id,
-                                  oldIndex,
-                                  newIndex,
-                                );
+                            rankingsCubit.reorderEntries(
+                              list.id,
+                              oldIndex,
+                              newIndex,
+                            );
                           },
                           proxyDecorator: (child, _, animation) =>
                               AnimatedBuilder(
@@ -577,6 +662,11 @@ class _RankingDetailContent extends StatelessWidget {
                                 rank: index + 1,
                                 accent: list.accent,
                                 index: index,
+                                isEditMode: _isEditMode,
+                                onRemove: () {
+                                  cubit.removeEntry(index);
+                                  rankingsCubit.removeEntry(list.id, index);
+                                },
                               ),
                             );
                           },
@@ -958,12 +1048,16 @@ class _RankingEntryTile extends StatelessWidget {
   final int rank;
   final Color accent;
   final int index;
+  final bool isEditMode;
+  final VoidCallback? onRemove;
 
   const _RankingEntryTile({
     required this.entry,
     required this.rank,
     required this.accent,
     required this.index,
+    this.isEditMode = false,
+    this.onRemove,
   });
 
   @override
@@ -1043,17 +1137,37 @@ class _RankingEntryTile extends StatelessWidget {
               ],
             ),
           ),
-          ReorderableDragStartListener(
-            index: index,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
-              child: Icon(
-                Icons.drag_handle_rounded,
-                size: 20.sp,
-                color: context.colors.mutedSecondaryDeep,
+          if (isEditMode)
+            GestureDetector(
+              onTap: onRemove,
+              child: Container(
+                width: 28.w,
+                height: 28.w,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE84B57).withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: const Color(0xFFE84B57).withValues(alpha: 0.3)),
+                ),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 14.sp,
+                  color: const Color(0xFFE84B57),
+                ),
+              ),
+            )
+          else
+            ReorderableDragStartListener(
+              index: index,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
+                child: Icon(
+                  Icons.drag_handle_rounded,
+                  size: 20.sp,
+                  color: context.colors.mutedSecondaryDeep,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -1080,6 +1194,123 @@ class _Medal extends StatelessWidget {
           fontWeight: FontWeight.w800,
           color: color,
         ),
+      ),
+    );
+  }
+}
+
+// ─── Delete list confirmation sheet ──────────────────────────────────────────
+
+class _DeleteListSheet extends StatelessWidget {
+  final RankingList list;
+  final VoidCallback onConfirm;
+
+  const _DeleteListSheet({required this.list, required this.onConfirm});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(20.w, 14.h, 20.w, 32.h),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+        border: Border.all(color: context.colors.borderStrong),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 36.w,
+            height: 4.h,
+            margin: EdgeInsets.only(bottom: 20.h),
+            decoration: BoxDecoration(
+              color: context.colors.mutedSecondaryDeep,
+              borderRadius: BorderRadius.circular(999.r),
+            ),
+          ),
+          Container(
+            width: 64.w,
+            height: 64.w,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE84B57).withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: const Color(0xFFE84B57).withValues(alpha: 0.22)),
+            ),
+            child: Center(
+              child: Text(
+                list.emoji,
+                style: TextStyle(fontSize: 28.sp, inherit: false),
+              ),
+            ),
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            'Delete this list?',
+            style: TextStyle(
+              color: context.colors.foreground,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            '"${list.title}" and all ${list.count} ranked ${list.count == 1 ? 'title' : 'titles'} will be permanently removed.',
+            style: TextStyle(
+              color: context.colors.mutedSecondary,
+              fontSize: 13.sp,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 24.h),
+          GestureDetector(
+            onTap: onConfirm,
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 14.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE84B57).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(
+                    color: const Color(0xFFE84B57).withValues(alpha: 0.3)),
+              ),
+              child: Center(
+                child: Text(
+                  'Delete List',
+                  style: TextStyle(
+                    color: const Color(0xFFE84B57),
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 10.h),
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 14.h),
+              decoration: BoxDecoration(
+                color: context.colors.surfaceChip,
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(color: context.colors.borderStrong),
+              ),
+              child: Center(
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: context.colors.foreground,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

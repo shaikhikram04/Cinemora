@@ -95,6 +95,14 @@ class RankingsCubit extends Cubit<RankingsState> {
     }
   }
 
+  void removeEntry(String listId, int index) {
+    final list = state.lists.firstWhere((l) => l.id == listId,
+        orElse: () => state.lists.first);
+    final entries = List<RankingEntry>.of(list.entries)..removeAt(index);
+    _replaceEntries(listId, entries);
+    _repo.reorderEntries(listId, entries).then(_replaceListInState).catchError((_) {});
+  }
+
   // ── helpers ─────────────────────────────────────────────────────────────────
 
   void _replaceEntries(String listId, List<RankingEntry> entries) {

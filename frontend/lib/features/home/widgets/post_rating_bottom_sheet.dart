@@ -82,6 +82,25 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
 
   bool get _hasSelection => _selectedTitle != null;
 
+  @override
+  void initState() {
+    super.initState();
+    _preselectExistingList();
+  }
+
+  void _preselectExistingList() {
+    final lists = context.read<RankingsCubit>().state.lists;
+    for (final list in lists) {
+      final inList = list.entries.any((e) => widget.tmdbId != null
+          ? e.tmdbId == widget.tmdbId
+          : e.title.toLowerCase() == widget.movieTitle.toLowerCase());
+      if (inList) {
+        _selectedTitle = list.title;
+        break;
+      }
+    }
+  }
+
   // ── Genre-based suggestion pool (matched against TMDB genre names) ──────────
   static const _genrePool = [
     {
@@ -488,13 +507,10 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
             ),
           ),
           // Bottom CTA
-          if (!_showDiscover)
-            _BottomCTA(
-              ratingColor: widget.ratingColor,
-              hasSelection: _hasSelection,
-              onPlaceTap: _handlePlaceInRankings,
-              onDiscoverTap: () => setState(() => _showDiscover = true),
-            ),
+          _BottomCTA(
+            hasSelection: _hasSelection,
+            onPlaceTap: _handlePlaceInRankings,
+          ),
         ],
       ),
     );
@@ -733,11 +749,33 @@ class _RankingsBody extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: WSizes.screenPadding.w, vertical: 8.h),
-            child: Text(
-              'Create ranking lists to organise your cinema.',
-              style: TextStyle(
-                  fontSize: 12.sp, color: context.colors.mutedSecondary),
-              textAlign: TextAlign.center,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+              decoration: BoxDecoration(
+                color: context.colors.chartPurple.withValues(alpha: 0.07),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                    color: context.colors.chartPurple.withValues(alpha: 0.18)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline_rounded,
+                      size: 14.sp,
+                      color: context.colors.chartPurple.withValues(alpha: 0.7)),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text(
+                      'Tap a Smart Suggestion above — it\'ll create the list for you automatically.',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color:
+                            context.colors.chartPurple.withValues(alpha: 0.85),
+                        height: 1.45,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           )
         else
@@ -1047,16 +1085,12 @@ class _DiscoverBody extends StatelessWidget {
 // ─── Bottom CTA ───────────────────────────────────────────────────────────────
 
 class _BottomCTA extends StatelessWidget {
-  final Color ratingColor;
   final bool hasSelection;
   final VoidCallback onPlaceTap;
-  final VoidCallback onDiscoverTap;
 
   const _BottomCTA({
-    required this.ratingColor,
     required this.hasSelection,
     required this.onPlaceTap,
-    required this.onDiscoverTap,
   });
 
   @override
@@ -1100,36 +1134,7 @@ class _BottomCTA extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 10.h),
           ],
-          // Secondary: Discover Similar
-          GestureDetector(
-            onTap: onDiscoverTap,
-            child: Container(
-              height: 50.h,
-              decoration: BoxDecoration(
-                color: context.colors.surfaceRaised,
-                borderRadius: BorderRadius.circular(14.r),
-                border: Border.all(
-                    color: ratingColor.withValues(alpha: 0.4), width: 1.2),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Discover Similar Content',
-                    style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
-                        color: ratingColor),
-                  ),
-                  SizedBox(width: 8.w),
-                  Icon(Icons.trending_up_rounded,
-                      color: ratingColor, size: 18.sp),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );

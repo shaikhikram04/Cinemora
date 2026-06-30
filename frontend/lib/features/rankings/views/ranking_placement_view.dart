@@ -97,13 +97,14 @@ class _ComparingView extends StatelessWidget {
           step: state.stepsTaken + 1,
           maxSteps: state.maxSteps,
           progress: progress,
+          accent: list.accent,
         ),
         SizedBox(height: 20.h),
         Text(
           'Which deserves a higher rank?',
           style: TextStyle(
             color: context.colors.foreground,
-            fontSize: 15.sp,
+            fontSize: 16.sp,
             fontWeight: FontWeight.w700,
           ),
           textAlign: TextAlign.center,
@@ -123,7 +124,34 @@ class _ComparingView extends StatelessWidget {
                     onTap: cubit.chooseNew,
                   ),
                 ),
-                SizedBox(width: 12.w),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 7.w, vertical: 7.h),
+                        decoration: BoxDecoration(
+                          color: list.accent.withValues(alpha: 0.10),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                              color: list.accent.withValues(alpha: 0.25)),
+                        ),
+                        child: Text(
+                          'VS',
+                          style: TextStyle(
+                            color: list.accent,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.8,
+                            inherit: false,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Expanded(
                   child: _BattleCard(
                     entry: state.currentComparison,
@@ -226,17 +254,25 @@ class _PlacedView extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        // Trophy icon
+        // List emoji circle
         Container(
           width: 72.w,
           height: 72.w,
           decoration: BoxDecoration(
             color: list.accent.withValues(alpha: 0.12),
             shape: BoxShape.circle,
+            border: Border.all(
+                color: list.accent.withValues(alpha: 0.22), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                  color: list.accent.withValues(alpha: 0.15),
+                  blurRadius: 24,
+                  spreadRadius: 2)
+            ],
           ),
           child: Center(
             child: Text(
-              '🏆',
+              list.emoji,
               style: TextStyle(fontSize: 32.sp, inherit: false),
             ),
           ),
@@ -251,7 +287,7 @@ class _PlacedView extends StatelessWidget {
             letterSpacing: -0.5,
           ),
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: 6.h),
         RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
@@ -259,7 +295,6 @@ class _PlacedView extends StatelessWidget {
               color: context.colors.mutedSecondary,
               fontSize: 14.sp,
               fontFamily: 'Inter',
-              height: 1.5,
             ),
             children: [
               TextSpan(
@@ -269,16 +304,40 @@ class _PlacedView extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const TextSpan(text: ' is now '),
-              TextSpan(
-                text: '#$rank',
-                style: TextStyle(
-                  color: list.accent,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 18.sp,
-                ),
-              ),
-              const TextSpan(text: ' in\n'),
+              const TextSpan(text: ' is now'),
+            ],
+          ),
+        ),
+        SizedBox(height: 8.h),
+        TweenAnimationBuilder<double>(
+          key: ValueKey(rank),
+          tween: Tween(begin: 0.4, end: 1.0),
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.elasticOut,
+          builder: (_, scale, child) =>
+              Transform.scale(scale: scale, child: child),
+          child: Text(
+            '#$rank',
+            style: TextStyle(
+              color: list.accent,
+              fontWeight: FontWeight.w900,
+              fontSize: 48.sp,
+              letterSpacing: -1.5,
+              inherit: false,
+            ),
+          ),
+        ),
+        SizedBox(height: 4.h),
+        RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            style: TextStyle(
+              color: context.colors.mutedSecondary,
+              fontSize: 14.sp,
+              fontFamily: 'Inter',
+            ),
+            children: [
+              const TextSpan(text: 'in '),
               TextSpan(
                 text: '${list.emoji} ${list.title}',
                 style: TextStyle(
@@ -305,8 +364,8 @@ class _PlacedView extends StatelessWidget {
                 onTap: () {
                   final cubit = context.read<RankingsCubit>();
                   cubit.updateListEntries(list.id, state.entries);
-                  final updatedList = cubit.state.lists
-                      .firstWhere((l) => l.id == list.id);
+                  final updatedList =
+                      cubit.state.lists.firstWhere((l) => l.id == list.id);
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -730,7 +789,9 @@ class _Header extends StatelessWidget {
                 ),
                 SizedBox(height: 1.h),
                 Text(
-                  'Find the right rank',
+                  list.entries.isEmpty
+                      ? 'Your first entry in this list'
+                      : 'Comparing against ${list.entries.length} ${list.entries.length == 1 ? 'title' : 'titles'}',
                   style: TextStyle(
                     color: context.colors.mutedSecondary,
                     fontSize: 11.sp,
@@ -752,11 +813,13 @@ class _ProgressBar extends StatelessWidget {
   final int step;
   final int maxSteps;
   final double progress;
+  final Color accent;
 
   const _ProgressBar({
     required this.step,
     required this.maxSteps,
     required this.progress,
+    required this.accent,
   });
 
   @override
@@ -792,7 +855,7 @@ class _ProgressBar extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               backgroundColor: context.colors.surfaceChip,
-              valueColor: AlwaysStoppedAnimation(context.colors.accentRed),
+              valueColor: AlwaysStoppedAnimation(accent),
               minHeight: 4.h,
             ),
           ),
