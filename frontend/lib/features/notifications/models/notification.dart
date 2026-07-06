@@ -79,15 +79,6 @@ const kInitialNotifications = [
     posterColorAlt: Color(0xFF2A0A0A),
   ),
   WNotif(
-    id: '3',
-    variant: NotifCardVariant.compact,
-    title: 'Cinephile Badge Unlocked',
-    body: "100 movies watched. You've earned it.",
-    timeLabel: '3h ago',
-    compactIcon: Icons.military_tech_rounded,
-    compactIconColor: Color(0xFFFFBB00),
-  ),
-  WNotif(
     id: '4',
     variant: NotifCardVariant.compact,
     title: 'Update your Sci-Fi rankings',

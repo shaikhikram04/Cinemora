@@ -1,4 +1,5 @@
 import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/features/franchise/models/franchise_summary.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
 
 class CastMember {
@@ -75,6 +76,7 @@ class TmdbMovieDetail {
   final List<CrewMember> crew;
   final List<StreamingProvider> providers;
   final String? trailerKey; // YouTube video ID
+  final FranchiseSummary? collection;
 
   const TmdbMovieDetail({
     required this.overview,
@@ -87,6 +89,7 @@ class TmdbMovieDetail {
     this.crew = const [],
     required this.providers,
     this.trailerKey,
+    this.collection,
   });
 
   factory TmdbMovieDetail.fromJson(
@@ -148,6 +151,10 @@ class TmdbMovieDetail {
       crew: crew,
       providers: _parseProviders(providersJson),
       trailerKey: _parseTrailerKey(detail),
+      collection: detail['belongs_to_collection'] != null
+          ? FranchiseSummary.fromTmdbJson(
+              detail['belongs_to_collection'] as Map<String, dynamic>)
+          : null,
     );
   }
 }

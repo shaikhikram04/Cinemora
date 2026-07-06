@@ -177,340 +177,106 @@ class _NotificationsContent extends StatelessWidget {
     );
   }
 
-  // ── Card dispatcher ─────────────────────────────────────────────────────────
+  // ── Notification row ────────────────────────────────────────────────────────
+  //
+  // One shared row layout for every variant — a flat list with hairline
+  // dividers instead of a stack of individually bordered/filled cards, which
+  // read as too many nested "boxes" when several sit next to each other.
 
   Widget _buildNotifCard(BuildContext context, WNotif notif, NotificationsCubit cubit) {
-    return switch (notif.variant) {
-      NotifCardVariant.media => _buildMediaCard(context, notif, cubit),
-      NotifCardVariant.recommendation =>
-        _buildRecommendationCard(context, notif, cubit),
-      NotifCardVariant.compact => _buildCompactCard(context, notif, cubit),
-    };
-  }
-
-  // ── Media card ──────────────────────────────────────────────────────────────
-
-  Widget _buildMediaCard(BuildContext context, WNotif notif, NotificationsCubit cubit) {
     final isUnread = !notif.isRead;
+    final label = notif.tag ?? notif.becauseOf;
+    final labelColor = notif.tag != null
+        ? context.colors.primary
+        : context.colors.mutedSecondaryHighlight;
 
     return GestureDetector(
       onTap: () => cubit.markRead(notif.id),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        margin: EdgeInsets.symmetric(
-            horizontal: WSizes.screenPadding.w, vertical: 4.h),
+        padding: EdgeInsets.symmetric(
+            horizontal: WSizes.screenPadding.w, vertical: 14.h),
         decoration: BoxDecoration(
           color: isUnread
-              ? context.colors.surfaceRaised
-              : context.colors.surfaceBorderAlt.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
-          border: Border.all(
-            color: isUnread
-                ? context.colors.primary.withValues(alpha: 0.35)
-                : context.colors.border,
-          ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(14.w),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 56.w,
-                height: 80.h,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(WSizes.radiusMd.r),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      notif.posterColor,
-                      notif.posterColorAlt ??
-                          notif.posterColor.withValues(alpha: 0.6),
-                    ],
-                  ),
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.play_circle_outline_rounded,
-                    color: Colors.white.withValues(alpha: 0.22),
-                    size: 22.sp,
-                  ),
-                ),
-              ),
-              SizedBox(width: 14.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        if (notif.tag != null)
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 6.w, vertical: 2.h),
-                            decoration: BoxDecoration(
-                              color: context.colors.primary.withValues(alpha: 0.14),
-                              borderRadius: BorderRadius.circular(4.r),
-                            ),
-                            child: Text(
-                              notif.tag!,
-                              style: TextStyle(
-                                color: context.colors.primary,
-                                fontSize: 9.sp,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.6,
-                              ),
-                            ),
-                          ),
-                        const Spacer(),
-                        Text(
-                          notif.timeLabel,
-                          style: TextStyle(
-                            color: context.colors.mutedSecondaryDeep,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8.h),
-                    if (notif.seriesTitle != null)
-                      Text(
-                        notif.seriesTitle!,
-                        style: TextStyle(
-                          color: isUnread
-                              ? context.colors.foreground
-                              : context.colors.mutedSecondarySoft,
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                    SizedBox(height: 3.h),
-                    Text(
-                      notif.body,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: isUnread
-                            ? context.colors.mutedForeground
-                            : context.colors.mutedSecondaryDeep,
-                        fontSize: 11.sp,
-                        height: 1.4,
-                      ),
-                    ),
-                    if (notif.ctaLabel != null) ...[
-                      SizedBox(height: 12.h),
-                      Row(
-                        children: [
-                          Text(
-                            notif.ctaLabel!,
-                            style: TextStyle(
-                              color: context.colors.primary,
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          SizedBox(width: 3.w),
-                          Icon(Icons.arrow_forward_rounded,
-                              color: context.colors.primary, size: 12.sp),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Recommendation card ─────────────────────────────────────────────────────
-
-  Widget _buildRecommendationCard(BuildContext context, WNotif notif, NotificationsCubit cubit) {
-    final isUnread = !notif.isRead;
-
-    return GestureDetector(
-      onTap: () => cubit.markRead(notif.id),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        margin: EdgeInsets.symmetric(
-            horizontal: WSizes.screenPadding.w, vertical: 4.h),
-        decoration: BoxDecoration(
-          color: isUnread
-              ? context.colors.surfaceRaised
-              : context.colors.surfaceBorderAlt.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
-          border: Border.all(
-            color: isUnread ? context.colors.borderStrong : context.colors.border,
-          ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(14.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (notif.becauseOf != null)
-                Row(
-                  children: [
-                    Icon(
-                      Icons.auto_awesome_rounded,
-                      color: context.colors.mutedSecondaryHighlight,
-                      size: 11.sp,
-                    ),
-                    SizedBox(width: 5.w),
-                    Text(
-                      notif.becauseOf!,
-                      style: TextStyle(
-                        color: context.colors.mutedSecondaryHighlight,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.1,
-                      ),
-                    ),
-                  ],
-                ),
-              SizedBox(height: 10.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          notif.title,
-                          style: TextStyle(
-                            color: isUnread
-                                ? context.colors.foreground
-                                : context.colors.mutedSecondarySoft,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.4,
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          notif.body,
-                          style: TextStyle(
-                            color: isUnread
-                                ? context.colors.mutedForeground
-                                : context.colors.mutedSecondaryDeep,
-                            fontSize: 11.sp,
-                            height: 1.4,
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          notif.timeLabel,
-                          style: TextStyle(
-                            color: context.colors.mutedSecondaryDeep,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 14.w),
-                  Container(
-                    width: 50.w,
-                    height: 70.h,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(WSizes.radiusMd.r),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          notif.posterColor,
-                          notif.posterColorAlt ??
-                              notif.posterColor.withValues(alpha: 0.55),
-                        ],
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.movie_rounded,
-                        color: Colors.white.withValues(alpha: 0.18),
-                        size: 18.sp,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Compact card ────────────────────────────────────────────────────────────
-
-  Widget _buildCompactCard(BuildContext context, WNotif notif, NotificationsCubit cubit) {
-    final isUnread = !notif.isRead;
-    final iconColor = notif.compactIconColor ?? context.colors.mutedSecondary;
-
-    return GestureDetector(
-      onTap: () => cubit.markRead(notif.id),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        margin: EdgeInsets.symmetric(
-            horizontal: WSizes.screenPadding.w, vertical: 3.h),
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-        decoration: BoxDecoration(
-          color: isUnread
-              ? context.colors.surfaceRaised
-              : context.colors.surfaceBorderAlt.withValues(alpha: 0.4),
-          borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
-          border: Border.all(
-            color: isUnread ? context.colors.borderStrong : context.colors.border,
-          ),
+              ? context.colors.primary.withValues(alpha: 0.05)
+              : Colors.transparent,
+          border: Border(bottom: BorderSide(color: context.colors.border)),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 36.w,
-              height: 36.w,
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(WSizes.radiusMd.r),
-              ),
-              child: Icon(
-                notif.compactIcon ?? Icons.notifications_rounded,
-                color: iconColor,
-                size: 17.sp,
-              ),
-            ),
+            notif.variant == NotifCardVariant.compact
+                ? _buildCompactIcon(context, notif)
+                : _buildPosterThumb(context, notif),
             SizedBox(width: 12.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (label != null) ...[
+                    Row(
+                      children: [
+                        if (notif.becauseOf != null) ...[
+                          Icon(Icons.auto_awesome_rounded,
+                              color: labelColor, size: 11.sp),
+                          SizedBox(width: 4.w),
+                        ],
+                        Text(
+                          label.toUpperCase(),
+                          style: TextStyle(
+                            color: labelColor,
+                            fontSize: 9.5.sp,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4.h),
+                  ],
                   Text(
-                    notif.title,
+                    notif.seriesTitle ?? notif.title,
                     style: TextStyle(
                       color: isUnread
                           ? context.colors.foreground
                           : context.colors.mutedSecondarySoft,
-                      fontSize: 13.sp,
-                      fontWeight:
-                          isUnread ? FontWeight.w700 : FontWeight.w500,
-                      letterSpacing: -0.1,
+                      fontSize: 14.5.sp,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
                     ),
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 3.h),
                   Text(
                     notif.body,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: context.colors.mutedSecondaryDeep,
-                      fontSize: 11.sp,
-                      height: 1.35,
+                      color: isUnread
+                          ? context.colors.mutedForeground
+                          : context.colors.mutedSecondaryDeep,
+                      fontSize: 12.sp,
+                      height: 1.4,
                     ),
                   ),
+                  if (notif.ctaLabel != null) ...[
+                    SizedBox(height: 6.h),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          notif.ctaLabel!,
+                          style: TextStyle(
+                            color: context.colors.primary,
+                            fontSize: 11.5.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(width: 3.w),
+                        Icon(Icons.arrow_forward_rounded,
+                            color: context.colors.primary, size: 12.sp),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -518,6 +284,15 @@ class _NotificationsContent extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                Text(
+                  notif.timeLabel,
+                  style: TextStyle(
+                    color: context.colors.mutedSecondaryDeep,
+                    fontSize: 10.5.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 6.h),
                 AnimatedOpacity(
                   opacity: isUnread ? 1.0 : 0.0,
                   duration: const Duration(milliseconds: 300),
@@ -530,19 +305,54 @@ class _NotificationsContent extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 4.h),
-                Text(
-                  notif.timeLabel,
-                  style: TextStyle(
-                    color: context.colors.mutedSecondaryDeep,
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPosterThumb(BuildContext context, WNotif notif) {
+    return Container(
+      width: 48.w,
+      height: 64.h,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(WSizes.radiusMd.r),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            notif.posterColor,
+            notif.posterColorAlt ?? notif.posterColor.withValues(alpha: 0.6),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          notif.variant == NotifCardVariant.recommendation
+              ? Icons.movie_rounded
+              : Icons.play_circle_outline_rounded,
+          color: Colors.white.withValues(alpha: 0.22),
+          size: 20.sp,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactIcon(BuildContext context, WNotif notif) {
+    final iconColor = notif.compactIconColor ?? context.colors.mutedSecondary;
+    return Container(
+      width: 48.w,
+      height: 48.w,
+      decoration: BoxDecoration(
+        color: iconColor.withValues(alpha: 0.12),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        notif.compactIcon ?? Icons.notifications_rounded,
+        color: iconColor,
+        size: 18.sp,
       ),
     );
   }

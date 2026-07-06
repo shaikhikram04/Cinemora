@@ -21,6 +21,10 @@ abstract class AppRoutes {
   static const movieDetails = '/movie';
   static const seriesDetails = '/series';
 
+  // ── Franchises ─────────────────────────────────────────────────────────────
+  static const franchiseList = '/franchise';
+  static const franchiseDetail = '/franchise/detail';
+
   // ── Notifications ─────────────────────────────────────────────────────────
   static const notifications = '/notifications';
 

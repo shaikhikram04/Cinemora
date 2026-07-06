@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/discover/repositories/discover_repository.dart';
 import 'package:cinemora/features/discover/viewmodels/discover_cubit.dart';
 import 'package:cinemora/features/discover/viewmodels/discover_state.dart';
@@ -204,6 +206,17 @@ class _DiscoverContentState extends State<_DiscoverContent> {
       if (state.recentSearches.isNotEmpty)
         SliverToBoxAdapter(child: SizedBox(height: 24.h)),
 
+      // Franchises entry point
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+          child: _FranchisesBanner(
+            onTap: () => context.push(AppRoutes.franchiseList),
+          ),
+        ),
+      ),
+      SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+
       // Genre grid
       SliverToBoxAdapter(
         child: DiscoverGenreGrid(
@@ -260,5 +273,68 @@ class _DiscoverContentState extends State<_DiscoverContent> {
           ),
         ),
     ];
+  }
+}
+
+// ── Franchises entry point ─────────────────────────────────────────────────
+
+class _FranchisesBanner extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _FranchisesBanner({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          color: context.colors.surfaceChip,
+          borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+          border: Border.all(
+            color: context.colors.surfaceChipBorder.withValues(alpha: 0.5),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.collections_bookmark_rounded,
+              color: context.colors.primary,
+              size: 22.sp,
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Franchises',
+                    style: TextStyle(
+                      color: context.colors.foreground,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    'Browse movie collections like John Wick',
+                    style: TextStyle(
+                      color: context.colors.mutedForeground,
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: context.colors.mutedForeground,
+              size: 20.sp,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

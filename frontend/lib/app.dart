@@ -11,6 +11,7 @@ import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_state.dart';
 import 'package:cinemora/features/discover/repositories/discover_repository.dart';
+import 'package:cinemora/features/franchise/repositories/franchise_repository.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
@@ -23,6 +24,7 @@ class CinemoraApp extends StatefulWidget {
   final HomeRepository homeRepository;
   final LibraryRepository libraryRepository;
   final DiscoverRepository discoverRepository;
+  final FranchiseRepository franchiseRepository;
   final RankingsRepository rankingsRepository;
   final ThemeModeCubit themeModeCubit;
   final SharedPreferences prefs;
@@ -34,6 +36,7 @@ class CinemoraApp extends StatefulWidget {
     required this.homeRepository,
     required this.libraryRepository,
     required this.discoverRepository,
+    required this.franchiseRepository,
     required this.rankingsRepository,
     required this.themeModeCubit,
     required this.prefs,
@@ -91,6 +94,7 @@ class _CinemoraAppState extends State<CinemoraApp> {
         RepositoryProvider.value(value: widget.homeRepository),
         RepositoryProvider.value(value: widget.libraryRepository),
         RepositoryProvider.value(value: widget.discoverRepository),
+        RepositoryProvider.value(value: widget.franchiseRepository),
         RepositoryProvider<SharedPreferences>.value(value: widget.prefs),
       ],
       child: ScreenUtilInit(

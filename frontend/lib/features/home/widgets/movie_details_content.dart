@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:cinemora/common/widgets/buttons/pill_chip.dart';
 import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
@@ -9,11 +10,15 @@ import 'package:cinemora/common/widgets/detail/crew_section.dart';
 import 'package:cinemora/common/widgets/detail/detail_hero_shell.dart';
 import 'package:cinemora/common/widgets/detail/detail_rating_section.dart';
 import 'package:cinemora/common/widgets/detail/detail_recommendations_section.dart';
+import 'package:cinemora/common/widgets/detail/franchise_banner_section.dart';
 import 'package:cinemora/common/widgets/detail/overview_section.dart';
 import 'package:cinemora/common/widgets/detail/where_to_watch_section.dart';
 import 'package:cinemora/common/widgets/dialogs/unmark_watched_dialog.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/router/app_router.dart';
+import 'package:cinemora/core/router/app_routes.dart';
+import 'package:cinemora/features/franchise/models/franchise_summary.dart';
 import 'package:cinemora/features/home/models/tmdb_detail.dart';
 import 'package:cinemora/features/home/views/trailer_player_screen.dart';
 
@@ -127,6 +132,12 @@ class MovieDetailsContent extends StatelessWidget {
                   Divider(color: context.colors.border),
                   SizedBox(height: 16.h),
                 ],
+                if (detail?.collection != null) ...[
+                  _FranchiseBanner(collection: detail!.collection!),
+                  SizedBox(height: 16.h),
+                  Divider(color: context.colors.border),
+                  SizedBox(height: 16.h),
+                ],
                 DetailRatingSection(
                   title: 'Your Rating',
                   subtitle: 'Tap star halves to rate',
@@ -144,6 +155,29 @@ class MovieDetailsContent extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Franchise banner ─────────────────────────────────────────────────────────
+
+class _FranchiseBanner extends StatelessWidget {
+  final FranchiseSummary collection;
+
+  const _FranchiseBanner({required this.collection});
+
+  @override
+  Widget build(BuildContext context) {
+    return FranchiseBannerSection(
+      collection: collection,
+      onTap: () => context.push(
+        AppRoutes.franchiseDetail,
+        extra: FranchiseRouteArgs(
+          collectionId: collection.id,
+          name: collection.name,
+          backdropUrl: collection.backdropUrl,
+        ),
       ),
     );
   }

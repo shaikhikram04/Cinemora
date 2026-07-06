@@ -1,5 +1,6 @@
 const tmdb = require("../config/tmdb");
 const AppError = require("../utils/AppError");
+const curatedCollections = require("../config/curatedCollections");
 
 // GET /api/tmdb/trending?type=all&time=day
 const getTrending = async (req, res, next) => {
@@ -114,6 +115,71 @@ const getTvProviders = async (req, res, next) => {
   }
 };
 
+// GET /api/tmdb/collection/featured
+const getFeaturedCollections = async (req, res, next) => {
+  try {
+    const results = await Promise.allSettled(
+      curatedCollections.map(({ id }) =>
+        tmdb.get(`/collection/${id}`, {}, tmdb.TTL.genres),
+      ),
+    );
+
+    const collections = [];
+    results.forEach((result, i) => {
+      if (result.status === "fulfilled") {
+        collections.push(result.value);
+      } else {
+        console.error(
+          `[TMDB] getFeaturedCollections: skipping "${curatedCollections[i].name}" —`,
+          result.reason?.message,
+        );
+      }
+    });
+
+    if (collections.length === 0) {
+      return next(new AppError(502, "TMDB_UNAVAILABLE", "Could not reach TMDB"));
+    }
+
+    res.json(
+      collections.map((c) => ({
+        id: c.id,
+        name: c.name,
+        posterPath: c.poster_path,
+        backdropPath: c.backdrop_path,
+        movieCount: (c.parts || []).length,
+      })),
+    );
+  } catch (err) {
+    console.error("[TMDB] getFeaturedCollections failed:", err.message);
+    next(err);
+  }
+};
+
+// GET /api/tmdb/collection/search?q=
+const searchCollections = async (req, res, next) => {
+  const { q } = req.query;
+  if (!q) return next(new AppError(400, "TMDB_QUERY_REQUIRED", "q is required"));
+
+  try {
+    const data = await tmdb.fetch("/search/collection", { query: q });
+    res.json(data);
+  } catch (err) {
+    console.error("[TMDB] searchCollections failed:", err.message);
+    next(err);
+  }
+};
+
+// GET /api/tmdb/collection/:id
+const getCollection = async (req, res, next) => {
+  try {
+    const data = await tmdb.get(`/collection/${req.params.id}`);
+    res.json(data);
+  } catch (err) {
+    console.error("[TMDB] getCollection failed:", err.message);
+    next(err);
+  }
+};
+
 // GET /api/tmdb/genres?type=movie|tv
 const getGenres = async (req, res, next) => {
   const { type = "movie" } = req.query;
@@ -167,6 +233,9 @@ module.exports = {
   getSeason,
   getMovieProviders,
   getTvProviders,
+  getFeaturedCollections,
+  searchCollections,
+  getCollection,
   getGenres,
   discover,
 };

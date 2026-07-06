@@ -12,7 +12,6 @@ import 'package:cinemora/features/profile/viewmodels/profile_state.dart';
 import 'package:cinemora/features/profile/widgets/profile_activity_card.dart';
 import 'package:cinemora/features/profile/widgets/profile_collection_card.dart';
 import 'package:cinemora/features/profile/widgets/profile_header_card.dart';
-import 'package:cinemora/features/profile/widgets/profile_insight_card.dart';
 import 'package:cinemora/features/profile/widgets/profile_ranking_grid.dart';
 import 'package:cinemora/features/profile/widgets/profile_section_header.dart';
 import 'package:cinemora/features/profile/widgets/profile_stat_grid.dart';
@@ -85,17 +84,6 @@ class _ProfileContent extends StatelessWidget {
                           SizedBox(height: 14.h),
                           ProfileStatGrid(
                             stats: profileState.stats,
-                            isLoading: isLoading,
-                          ),
-                          SizedBox(height: 32.h),
-                          const ProfileSectionHeader(
-                            title: 'Your Cinema Journey',
-                            subtitle: 'An evolving portrait of your taste',
-                          ),
-                          SizedBox(height: 10.h),
-                          ProfileInsightCard(
-                            stats: profileState.stats,
-                            user: user,
                             isLoading: isLoading,
                           ),
                           SizedBox(height: 32.h),

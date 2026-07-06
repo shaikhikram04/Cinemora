@@ -7,6 +7,8 @@ import 'package:cinemora/features/authentication/views/login_view.dart';
 import 'package:cinemora/features/authentication/views/welcome_view.dart';
 import 'package:cinemora/features/splash/views/splash_screen.dart';
 import 'package:cinemora/features/discover/views/discover_view.dart';
+import 'package:cinemora/features/franchise/views/franchise_detail_view.dart';
+import 'package:cinemora/features/franchise/views/franchise_list_view.dart';
 import 'package:cinemora/features/home/screens/home.dart';
 import 'package:cinemora/features/home/views/home_feed_view.dart';
 import 'package:cinemora/features/home/views/movie_details_view.dart';
@@ -60,6 +62,17 @@ class SeriesRouteArgs {
     this.id,
     this.source = 'tmdb',
     this.focusSeason,
+  });
+}
+
+class FranchiseRouteArgs {
+  final int collectionId;
+  final String? name;
+  final String? backdropUrl;
+  const FranchiseRouteArgs({
+    required this.collectionId,
+    this.name,
+    this.backdropUrl,
   });
 }
 
@@ -196,6 +209,23 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
             id: args.id,
             source: args.source,
             focusSeason: args.focusSeason,
+          );
+        },
+      ),
+
+      // ── Franchises ─────────────────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.franchiseList,
+        builder: (context, state) => const FranchiseListView(),
+      ),
+      GoRoute(
+        path: AppRoutes.franchiseDetail,
+        builder: (context, state) {
+          final args = state.extra! as FranchiseRouteArgs;
+          return FranchiseDetailView(
+            collectionId: args.collectionId,
+            name: args.name,
+            backdropUrl: args.backdropUrl,
           );
         },
       ),

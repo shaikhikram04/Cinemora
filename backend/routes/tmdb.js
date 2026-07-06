@@ -8,6 +8,9 @@ const {
   getSeason,
   getMovieProviders,
   getTvProviders,
+  getFeaturedCollections,
+  searchCollections,
+  getCollection,
   getGenres,
   discover,
 } = require("../controllers/tmdbController");
@@ -23,5 +26,8 @@ router.get("/movie/:id/watch-providers", getMovieProviders);
 router.get("/tv/:id", getTv);
 router.get("/tv/:id/season/:season", getSeason);
 router.get("/tv/:id/watch-providers", getTvProviders);
+router.get("/collection/featured", getFeaturedCollections);
+router.get("/collection/search", searchCollections);
+router.get("/collection/:id", getCollection);
 
 module.exports = router;

@@ -7,6 +7,7 @@ import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/core/services/auth_service.dart';
 import 'package:cinemora/features/discover/repositories/discover_repository.dart';
+import 'package:cinemora/features/franchise/repositories/franchise_repository.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/rankings/repositories/rankings_repository.dart';
@@ -29,6 +30,7 @@ void main() async {
   final libraryRepository = LibraryRepository(apiClient);
   final rankingsRepository = RankingsRepository(apiClient);
   final discoverRepository = DiscoverRepository(apiClient);
+  final franchiseRepository = FranchiseRepository(apiClient);
   final prefs = await SharedPreferences.getInstance();
   final themeModeCubit = ThemeModeCubit(prefs);
 
@@ -40,6 +42,7 @@ void main() async {
     libraryRepository: libraryRepository,
     rankingsRepository: rankingsRepository,
     discoverRepository: discoverRepository,
+    franchiseRepository: franchiseRepository,
     themeModeCubit: themeModeCubit,
     prefs: prefs,
   ));
