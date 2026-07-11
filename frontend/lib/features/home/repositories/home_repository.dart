@@ -1,6 +1,10 @@
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/network/api_client.dart';
+import 'package:cinemora/features/home/models/home_recommendations.dart';
 import 'package:cinemora/features/home/models/jikan_anime_item.dart';
+import 'package:cinemora/features/home/models/mood_reply.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
+import 'package:cinemora/features/home/models/similar_item.dart';
 import 'package:cinemora/features/home/models/tmdb_detail.dart';
 import 'package:cinemora/features/home/models/tmdb_item.dart';
 
@@ -40,6 +44,41 @@ class HomeRepository {
     return results
         .map((e) => JikanAnimeItem.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<HomeRecommendations> fetchHomeRecommendations(
+      {CinemaType? type}) async {
+    final res =
+        await _apiClient.dio.get('/recommendations/home', queryParameters: {
+      'type': type?.apiValue ?? 'all',
+    });
+    return HomeRecommendations.fromJson(res.data as Map<String, dynamic>);
+  }
+
+  Future<List<SimilarItem>> fetchSimilar(
+      CinemaType cinemaType, int sourceId) async {
+    final res = await _apiClient.dio.get(
+      '/recommendations/similar/${cinemaType.apiValue}/$sourceId',
+    );
+    final results = res.data as List;
+    return results
+        .map((e) => SimilarItem.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  // Mood chat — sessionId is null on the first message, then echoed back to
+  // continue the same conversation. Rate-limit / not-configured errors come
+  // back as BackendException with a user-facing message.
+  Future<MoodReply> sendMoodMessage(
+      {String? sessionId, required String message}) async {
+    final res = await _apiClient.dio.post(
+      '/recommendations/mood/message',
+      data: {
+        if (sessionId != null) 'sessionId': sessionId,
+        'message': message,
+      },
+    );
+    return MoodReply.fromJson(res.data as Map<String, dynamic>);
   }
 
   Future<TmdbMovieDetail> fetchMovieDetail(int id) async {
@@ -88,7 +127,10 @@ class HomeRepository {
       year: airYear,
       rating: voteAvg > 0 ? voteAvg.toStringAsFixed(1) : '—',
       episodes: episodes.isEmpty
-          ? List.generate(1, (i) => SeriesEpisode(number: i + 1, title: 'Episode ${i + 1}', runtime: '—'))
+          ? List.generate(
+              1,
+              (i) => SeriesEpisode(
+                  number: i + 1, title: 'Episode ${i + 1}', runtime: '—'))
           : episodes,
     );
   }
@@ -105,7 +147,8 @@ class HomeRepository {
       '/jikan/anime/$malId/episodes',
       queryParameters: {'page': 1},
     );
-    final rawEps = await _paginateAnimeEpisodes(malId, ep1Res.data as Map<String, dynamic>);
+    final rawEps = await _paginateAnimeEpisodes(
+        malId, ep1Res.data as Map<String, dynamic>);
     return rawEps
         .map((e) => SeriesEpisode(
               number: e['mal_id'] as int? ?? 0,
@@ -123,7 +166,8 @@ class HomeRepository {
     final eps = List<Map<String, dynamic>>.from(
       (firstPage['data'] as List? ?? []).cast<Map<String, dynamic>>(),
     );
-    var hasNext = (firstPage['pagination'] as Map?)?['has_next_page'] as bool? ?? false;
+    var hasNext =
+        (firstPage['pagination'] as Map?)?['has_next_page'] as bool? ?? false;
     var page = 2;
     while (hasNext && page <= 6) {
       try {
@@ -133,7 +177,8 @@ class HomeRepository {
         );
         final data = res.data as Map<String, dynamic>;
         eps.addAll((data['data'] as List? ?? []).cast<Map<String, dynamic>>());
-        hasNext = (data['pagination'] as Map?)?['has_next_page'] as bool? ?? false;
+        hasNext =
+            (data['pagination'] as Map?)?['has_next_page'] as bool? ?? false;
         page++;
       } catch (_) {
         break;

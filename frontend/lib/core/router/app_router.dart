@@ -11,6 +11,7 @@ import 'package:cinemora/features/franchise/views/franchise_detail_view.dart';
 import 'package:cinemora/features/franchise/views/franchise_list_view.dart';
 import 'package:cinemora/features/home/screens/home.dart';
 import 'package:cinemora/features/home/views/home_feed_view.dart';
+import 'package:cinemora/features/home/views/mood_chat_view.dart';
 import 'package:cinemora/features/home/views/movie_details_view.dart';
 import 'package:cinemora/features/home/views/series_details_view.dart';
 import 'package:cinemora/features/library/views/library_view.dart';
@@ -234,6 +235,13 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
       GoRoute(
         path: AppRoutes.notifications,
         builder: (context, state) => const NotificationsView(),
+      ),
+
+      // ── Mood chat ─────────────────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.moodChat,
+        builder: (context, state) =>
+            MoodChatView(args: state.extra as MoodChatArgs?),
       ),
 
       // ── Watch Together ────────────────────────────────────────────────────

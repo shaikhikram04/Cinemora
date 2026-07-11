@@ -13,13 +13,13 @@ import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/home/models/movie_poster.dart';
-import 'package:cinemora/features/home/models/tmdb_item.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
+import 'package:cinemora/features/home/views/mood_chat_view.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 
-const _kTabs = ['✨   For You', '🎬   Movies', '⛩️   Anime', '📺   Series'];
+final _kTabs = homeTabs.map((t) => t.label).toList();
 
 const _kMoods = [
   (label: 'Emotional', emoji: '🥲'),
@@ -77,40 +77,38 @@ class _HomeFeedContent extends StatelessWidget {
                     onSelected: cubit.selectTab),
                 SizedBox(height: 14.h),
 
-                // Hero card
+                // Hero — Pick of the Week (falls back to the top trending item
+                // when the user has no personalized picks yet, e.g. cold start).
                 if (loading)
                   _HeroCardSkeleton()
                 else if (state.status == FeedStatus.failure)
                   _ErrorBanner(
                       message: state.errorMessage, onRetry: cubit.loadFeed)
-                else
-                  _HeroCard(
-                    hero: state.hero,
-                    isBookmarked: state.hero != null &&
-                        state.libraryStatus[state.hero!.id] ==
+                else if (state.pickOfWeek.isNotEmpty)
+                  _PickOfWeekHero(
+                    picks: state.pickOfWeek,
+                    libraryStatus: state.libraryStatus,
+                    onBookmark: (item) => cubit.bookmarkFromPoster(
+                      item,
+                      CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                    ),
+                    onDetails: (item) => _navigateToMixedPoster(context, item),
+                  )
+                else if (state.trending.isNotEmpty)
+                  _FallbackHero(
+                    item: state.trending.first,
+                    type: state.trendingType,
+                    isBookmarked: state.trending.first.id != null &&
+                        state.libraryStatus[state.trending.first.id] ==
                             WatchStatus.watchlist,
-                    onDetailsPressed: state.hero == null
-                        ? () {}
-                        : () => context.push(
-                              AppRoutes.movieDetails,
-                              extra: MovieRouteArgs(
-                                title: state.hero!.title,
-                                image: state.hero!.posterUrl,
-                                backdropImage:
-                                    state.hero!.backdropUrl.isNotEmpty
-                                        ? state.hero!.backdropUrl
-                                        : null,
-                                rating: state.hero!.ratingDisplay,
-                                id: state.hero!.id,
-                              ),
-                            ),
-                    onWatchlistPressed: state.hero == null
-                        ? () {}
-                        : () => cubit.bookmarkHero(state.hero!),
+                    onDetails: () => _navigateToTyped(
+                        context, state.trending.first, state.trendingType),
+                    onBookmark: () => cubit.bookmarkFromPoster(
+                        state.trending.first, state.trendingType),
                   ),
                 SizedBox(height: 24.h),
 
-                // Trending Now
+                // Trending Now — scoped to the selected tab's type.
                 WSectionHeader(
                   icon: Icons.local_fire_department_rounded,
                   iconColor: context.colors.accentRed,
@@ -120,86 +118,38 @@ class _HomeFeedContent extends StatelessWidget {
                 loading
                     ? _SkeletonCarousel()
                     : _PosterCarousel(
-                        items: state.trendingMovies,
-                        type: CinemaType.movie,
+                        items: state.trending,
+                        type: state.trendingType,
                         libraryStatus: state.libraryStatus,
                         onBookmark: (item) =>
-                            cubit.bookmarkFromPoster(item, CinemaType.movie),
-                        onTap: (item) => context.push(
-                          AppRoutes.movieDetails,
-                          extra: MovieRouteArgs(
-                            title: item.title,
-                            image: item.image,
-                            backdropImage: item.backdropImage,
-                            rating: item.rating,
-                            id: item.id,
-                          ),
-                        ),
+                            cubit.bookmarkFromPoster(item, state.trendingType),
+                        onTap: (item) =>
+                            _navigateToTyped(context, item, state.trendingType),
                       ),
                 SizedBox(height: 24.h),
 
-                // Top Anime
-                WSectionHeader(
-                  icon: Icons.movie_filter_rounded,
-                  iconColor: context.colors.accentPurple,
-                  title: 'Top Anime This Season',
-                ),
-                SizedBox(height: 10.h),
-                loading
-                    ? _SkeletonCarousel()
-                    : _PosterCarousel(
-                        items: state.topAnime,
-                        type: CinemaType.anime,
-                        libraryStatus: state.libraryStatus,
-                        onBookmark: (item) =>
-                            cubit.bookmarkFromPoster(item, CinemaType.anime),
-                        onTap: (item) => context.push(
-                          AppRoutes.seriesDetails,
-                          extra: SeriesRouteArgs(
-                            title: item.title,
-                            image: item.image,
-                            rating: item.rating,
-                            id: item.id,
-                            source: 'jikan',
-                          ),
-                        ),
-                      ),
-                SizedBox(height: 24.h),
-
-                _MoodPickerCard(
-                  selectedMood: state.selectedMood,
-                  onSelected: cubit.toggleMood,
-                ),
-                SizedBox(height: 24.h),
-
-                // Binge-Worthy Series
-                WSectionHeader(
-                  icon: Icons.live_tv_rounded,
-                  iconColor: context.colors.warning,
-                  title: 'Binge-Worthy Series',
-                ),
-                SizedBox(height: 10.h),
-                loading
-                    ? _SkeletonCarousel()
-                    : _PosterCarousel(
-                        items: state.trendingSeries,
-                        type: CinemaType.tv,
-                        libraryStatus: state.libraryStatus,
-                        onBookmark: (item) =>
-                            cubit.bookmarkFromPoster(item, CinemaType.tv),
-                        onTap: (item) => context.push(
-                          AppRoutes.seriesDetails,
-                          extra: SeriesRouteArgs(
-                            title: item.title,
-                            image: item.image,
-                            backdropImage: item.backdropImage,
-                            rating: item.rating,
-                            id: item.id,
-                            source: 'tmdb',
-                          ),
-                        ),
-                      ),
-                SizedBox(height: 24.h),
+                if (state.becauseYouRanked.isNotEmpty) ...[
+                  // Because You Ranked <anchor>
+                  WSectionHeader(
+                    icon: Icons.favorite_rounded,
+                    iconColor: context.colors.accentRed,
+                    title: state.becauseYouRankedAnchorTitle != null
+                        ? 'Because You Ranked ${state.becauseYouRankedAnchorTitle}'
+                        : 'Because You Ranked This',
+                  ),
+                  SizedBox(height: 10.h),
+                  _PosterCarousel(
+                    items: state.becauseYouRanked,
+                    type: CinemaType.movie,
+                    libraryStatus: state.libraryStatus,
+                    onBookmark: (item) => cubit.bookmarkFromPoster(
+                      item,
+                      CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                    ),
+                    onTap: (item) => _navigateToMixedPoster(context, item),
+                  ),
+                  SizedBox(height: 24.h),
+                ],
 
                 // Critically Acclaimed
                 WSectionHeader(
@@ -214,20 +164,22 @@ class _HomeFeedContent extends StatelessWidget {
                         items: state.criticallyAcclaimed,
                         type: CinemaType.movie,
                         libraryStatus: state.libraryStatus,
-                        onBookmark: (item) =>
-                            cubit.bookmarkFromPoster(item, CinemaType.movie),
-                        onTap: (item) => context.push(
-                          AppRoutes.movieDetails,
-                          extra: MovieRouteArgs(
-                            title: item.title,
-                            image: item.image,
-                            backdropImage: item.backdropImage,
-                            rating: item.rating,
-                            id: item.id,
-                          ),
+                        onBookmark: (item) => cubit.bookmarkFromPoster(
+                          item,
+                          CinemaType.fromJson(item.cinemaType ?? 'movie'),
                         ),
+                        onTap: (item) => _navigateToMixedPoster(context, item),
                       ),
+                SizedBox(height: 24.h),
+
+                _MoodPickerCard(
+                  onOpen: ([String? starter]) => context.push(
+                    AppRoutes.moodChat,
+                    extra: MoodChatArgs(starter: starter),
+                  ),
+                ),
                 SizedBox(height: 18.h),
+
                 const _RankingCard(),
                 SizedBox(height: 18.h),
               ],
@@ -330,6 +282,65 @@ class _SkeletonCarousel extends StatelessWidget {
   }
 }
 
+// Fixed-type carousels (Trending Now) — every item is the carousel's own
+// cinema type, so route by that type directly.
+void _navigateToTyped(BuildContext context, MoviePoster item, CinemaType type) {
+  if (type == CinemaType.movie) {
+    context.push(
+      AppRoutes.movieDetails,
+      extra: MovieRouteArgs(
+        title: item.title,
+        image: item.image,
+        backdropImage: item.backdropImage,
+        rating: item.rating,
+        id: item.id,
+      ),
+    );
+  } else {
+    context.push(
+      AppRoutes.seriesDetails,
+      extra: SeriesRouteArgs(
+        title: item.title,
+        image: item.image,
+        backdropImage: item.backdropImage,
+        rating: item.rating,
+        id: item.id,
+        source: type == CinemaType.anime ? 'jikan' : 'tmdb',
+      ),
+    );
+  }
+}
+
+// Shared by mixed-type carousels (Critically Acclaimed, Because You Ranked)
+// where each poster may carry its own cinemaType/source rather than the
+// carousel's fixed type — routes to the right detail screen per item.
+void _navigateToMixedPoster(BuildContext context, MoviePoster item) {
+  if (item.cinemaType == null || item.cinemaType == 'movie') {
+    context.push(
+      AppRoutes.movieDetails,
+      extra: MovieRouteArgs(
+        title: item.title,
+        image: item.image,
+        backdropImage: item.backdropImage,
+        rating: item.rating,
+        id: item.id,
+      ),
+    );
+  } else {
+    context.push(
+      AppRoutes.seriesDetails,
+      extra: SeriesRouteArgs(
+        title: item.title,
+        image: item.image,
+        backdropImage: item.backdropImage,
+        rating: item.rating,
+        id: item.id,
+        source: item.source ?? 'tmdb',
+      ),
+    );
+  }
+}
+
 // ── Poster carousel ───────────────────────────────────────────────────────────
 
 class _PosterCarousel extends StatelessWidget {
@@ -365,7 +376,9 @@ class _PosterCarousel extends StatelessWidget {
             imageHeight: WSizes.posterImageHeight.h,
             title: item.title,
             rating: item.rating,
-            cinemaType: type,
+            cinemaType: item.cinemaType != null
+                ? CinemaType.fromJson(item.cinemaType!)
+                : type,
             year: item.year,
             watchStatus: item.id != null ? libraryStatus[item.id] : null,
             onBookmark: () => onBookmark(item),
@@ -522,16 +535,149 @@ class _CategoryTabs extends StatelessWidget {
   }
 }
 
-// ── Hero card ─────────────────────────────────────────────────────────────────
+// ── Pick of the Week hero (swipeable) ─────────────────────────────────────────
 
-class _HeroCard extends StatelessWidget {
-  final TmdbItem? hero;
+class _PickOfWeekHero extends StatefulWidget {
+  final List<MoviePoster> picks;
+  final Map<int, WatchStatus> libraryStatus;
+  final void Function(MoviePoster) onBookmark;
+  final void Function(MoviePoster) onDetails;
+
+  const _PickOfWeekHero({
+    required this.picks,
+    required this.libraryStatus,
+    required this.onBookmark,
+    required this.onDetails,
+  });
+
+  @override
+  State<_PickOfWeekHero> createState() => _PickOfWeekHeroState();
+}
+
+class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
+  final _controller = PageController();
+  int _page = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 284.h,
+          child: PageView.builder(
+            controller: _controller,
+            itemCount: widget.picks.length,
+            onPageChanged: (i) => setState(() => _page = i),
+            itemBuilder: (context, i) {
+              final item = widget.picks[i];
+              final isBookmarked = item.id != null &&
+                  widget.libraryStatus[item.id] == WatchStatus.watchlist;
+              return _HeroCardShell(
+                imageUrl: item.image,
+                badgeLabel: 'PICK OF THE WEEK',
+                badgeIcon: Icons.auto_awesome_rounded,
+                rating: item.rating,
+                typeLabel:
+                    CinemaType.fromJson(item.cinemaType ?? 'movie').displayName,
+                year: item.year,
+                title: item.title,
+                isBookmarked: isBookmarked,
+                onDetailsPressed: () => widget.onDetails(item),
+                onWatchlistPressed: () => widget.onBookmark(item),
+              );
+            },
+          ),
+        ),
+        if (widget.picks.length > 1) ...[
+          SizedBox(height: 10.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(widget.picks.length, (i) {
+              final active = i == _page;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: EdgeInsets.symmetric(horizontal: 3.w),
+                width: active ? 18.w : 6.w,
+                height: 6.h,
+                decoration: BoxDecoration(
+                  color: active
+                      ? context.colors.accentRed
+                      : context.colors.mutedSecondary.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(999.r),
+                ),
+              );
+            }),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+// ── Fallback hero ─────────────────────────────────────────────────────────────
+
+// Shown when the user has no personalized Pick of the Week yet (cold start /
+// logged out): the top trending item of the current tab, single card.
+class _FallbackHero extends StatelessWidget {
+  final MoviePoster item;
+  final CinemaType type;
+  final bool isBookmarked;
+  final VoidCallback onDetails;
+  final VoidCallback onBookmark;
+
+  const _FallbackHero({
+    required this.item,
+    required this.type,
+    required this.isBookmarked,
+    required this.onDetails,
+    required this.onBookmark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _HeroCardShell(
+      imageUrl: item.image,
+      badgeLabel: 'TRENDING #1',
+      badgeIcon: Icons.local_fire_department_rounded,
+      rating: item.rating,
+      typeLabel: type.displayName,
+      year: item.year,
+      title: item.title,
+      isBookmarked: isBookmarked,
+      onDetailsPressed: onDetails,
+      onWatchlistPressed: onBookmark,
+    );
+  }
+}
+
+// ── Shared hero visual ────────────────────────────────────────────────────────
+
+class _HeroCardShell extends StatelessWidget {
+  final String imageUrl;
+  final String badgeLabel;
+  final IconData badgeIcon;
+  final String rating;
+  final String typeLabel;
+  final String year;
+  final String title;
   final bool isBookmarked;
   final VoidCallback onDetailsPressed;
   final VoidCallback onWatchlistPressed;
 
-  const _HeroCard({
-    required this.hero,
+  const _HeroCardShell({
+    required this.imageUrl,
+    required this.badgeLabel,
+    required this.badgeIcon,
+    required this.rating,
+    required this.typeLabel,
+    required this.year,
+    required this.title,
     required this.isBookmarked,
     required this.onDetailsPressed,
     required this.onWatchlistPressed,
@@ -539,10 +685,6 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = hero != null
-        ? (hero!.backdropUrl.isNotEmpty ? hero!.backdropUrl : hero!.posterUrl)
-        : '';
-
     return Container(
       height: 284.h,
       decoration: BoxDecoration(
@@ -604,11 +746,10 @@ class _HeroCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.local_fire_department_rounded,
-                              size: 13.sp, color: Colors.white),
+                          Icon(badgeIcon, size: 13.sp, color: Colors.white),
                           SizedBox(width: 4.w),
                           Text(
-                            'TRENDING #1',
+                            badgeLabel,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 11.sp,
@@ -621,45 +762,46 @@ class _HeroCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  if (hero != null)
-                    Row(
-                      children: [
-                        Icon(Icons.star_rounded,
-                            color: context.colors.tertiary, size: 16.sp),
-                        SizedBox(width: 3.w),
-                        Text(
-                          hero!.ratingDisplay,
-                          style: TextStyle(
-                            color: context.colors.tertiary,
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
+                  Row(
+                    children: [
+                      Icon(Icons.star_rounded,
+                          color: context.colors.tertiary, size: 16.sp),
+                      SizedBox(width: 3.w),
+                      Text(
+                        rating,
+                        style: TextStyle(
+                          color: context.colors.tertiary,
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w700,
                         ),
-                        SizedBox(width: 10.w),
+                      ),
+                      SizedBox(width: 10.w),
+                      Text(
+                        typeLabel,
+                        style: TextStyle(
+                          color: context.colors.mutedSecondary,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (year.isNotEmpty) ...[
+                        SizedBox(width: 8.w),
                         Text(
-                          hero!.mediaTypeLabel,
+                          year,
                           style: TextStyle(
                             color: context.colors.mutedSecondary,
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        if (hero!.year.isNotEmpty) ...[
-                          SizedBox(width: 8.w),
-                          Text(
-                            hero!.year,
-                            style: TextStyle(
-                              color: context.colors.mutedSecondary,
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
                       ],
-                    ),
+                    ],
+                  ),
                   SizedBox(height: 6.h),
                   Text(
-                    hero?.title ?? '',
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24.sp,
@@ -776,131 +918,93 @@ class _RankingCard extends StatelessWidget {
 
 // ── Mood picker card ──────────────────────────────────────────────────────────
 
-class _MoodPickerCard extends StatelessWidget {
-  final String? selectedMood;
-  final ValueChanged<String> onSelected;
+// Maps the quick-mood chips to a natural opening message for the chat.
+const _kMoodStarters = {
+  'Emotional': "I'm feeling emotional tonight — something that'll move me.",
+  'Mind-Blown': 'I want something mind-blowing.',
+  'Scared': "I'm in the mood for something scary.",
+};
 
-  const _MoodPickerCard({required this.selectedMood, required this.onSelected});
+class _MoodPickerCard extends StatelessWidget {
+  // Opens the mood chat, optionally seeded with a starter message.
+  final void Function([String? starter]) onOpen;
+
+  const _MoodPickerCard({required this.onOpen});
 
   @override
   Widget build(BuildContext context) {
-    final showPick = selectedMood == 'Emotional';
-    return Container(
-      padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        color: context.colors.surfaceMuted.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: context.colors.surfaceBorderAlt),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 36.w,
-                height: 36.w,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      context.colors.accentPurple,
-                      context.colors.accentPink
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(14.r),
-                ),
-                child: Icon(Icons.auto_awesome_rounded,
-                    size: 17.sp, color: Colors.white),
-              ),
-              SizedBox(width: 10.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'AI Mood Picker',
-                    style: TextStyle(
-                      color: context.colors.foreground,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    "What's your vibe tonight?",
-                    style: TextStyle(
-                      color: context.colors.mutedSecondaryDeep,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Wrap(
-            spacing: 8.w,
-            runSpacing: 8.h,
-            children: _kMoods.map((mood) {
-              final selected = selectedMood == mood.label;
-              return _MoodChip(
-                text: '${mood.emoji} ${mood.label}',
-                selected: selected,
-                onTap: () => onSelected(mood.label),
-              );
-            }).toList(),
-          ),
-          if (showPick) ...[
-            SizedBox(height: 12.h),
-            Container(
-              padding: EdgeInsets.all(10.w),
-              decoration: BoxDecoration(
-                color: context.colors.surface,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: context.colors.surfaceBorderAlt),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44.w,
-                    height: 54.h,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14.r),
-                      color: context.colors.surfaceMuted,
-                    ),
-                    child: Icon(Icons.movie_rounded,
-                        color: context.colors.mutedForeground, size: 22.sp),
-                  ),
-                  SizedBox(width: 10.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'AI Pick for you',
-                          style: TextStyle(
-                            color: context.colors.mutedSecondaryHighlight,
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(height: 3.h),
-                        Text(
-                          'Coming soon…',
-                          style: TextStyle(
-                            color: context.colors.foreground,
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
+    return GestureDetector(
+      onTap: () => onOpen(),
+      child: Container(
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          color: context.colors.surfaceMuted.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(color: context.colors.surfaceBorderAlt),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 36.w,
+                  height: 36.w,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        context.colors.accentPurple,
+                        context.colors.accentPink
                       ],
                     ),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
-                ],
-              ),
+                  child: Icon(Icons.auto_awesome_rounded,
+                      size: 17.sp, color: Colors.white),
+                ),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AI Mood Picker',
+                        style: TextStyle(
+                          color: context.colors.foreground,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        "What's your vibe tonight?",
+                        style: TextStyle(
+                          color: context.colors.mutedSecondaryDeep,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded,
+                    color: context.colors.mutedForeground, size: 22.sp),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: _kMoods.map((mood) {
+                return _MoodChip(
+                  text: '${mood.emoji} ${mood.label}',
+                  selected: false,
+                  onTap: () => onOpen(_kMoodStarters[mood.label]),
+                );
+              }).toList(),
             ),
           ],
-        ],
+        ),
       ),
     );
   }

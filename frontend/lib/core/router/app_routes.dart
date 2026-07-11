@@ -28,6 +28,9 @@ abstract class AppRoutes {
   // ── Notifications ─────────────────────────────────────────────────────────
   static const notifications = '/notifications';
 
+  // ── Mood chat ─────────────────────────────────────────────────────────────
+  static const moodChat = '/mood-chat';
+
   // ── Watch Together ────────────────────────────────────────────────────────
   static const watchTogether = '/watch-together';
   static const watchTogetherCreate = '/watch-together/create';

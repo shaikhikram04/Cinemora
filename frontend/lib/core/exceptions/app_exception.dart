@@ -17,11 +17,14 @@ class BackendException extends AppException {
   @override
   String get userMessage => switch (code) {
         // Auth
-        'AUTH_INVALID_FIREBASE_TOKEN' => 'Authentication failed. Please try again.',
-        'AUTH_TOKEN_EXPIRED' => 'Your session has expired. Please sign in again.',
+        'AUTH_INVALID_FIREBASE_TOKEN' =>
+          'Authentication failed. Please try again.',
+        'AUTH_TOKEN_EXPIRED' =>
+          'Your session has expired. Please sign in again.',
         'AUTH_NO_TOKEN' => 'Please sign in to continue.',
         'AUTH_USER_NOT_FOUND' => 'Account not found.',
-        'AUTH_INVALID_REFRESH_TOKEN' => 'Your session has expired. Please sign in again.',
+        'AUTH_INVALID_REFRESH_TOKEN' =>
+          'Your session has expired. Please sign in again.',
         // Library
         'LIBRARY_ALREADY_EXISTS' => 'This title is already in your library.',
         'LIBRARY_ENTRY_NOT_FOUND' => 'This title is not in your library.',
@@ -41,6 +44,10 @@ class BackendException extends AppException {
         'USER_NOT_FOUND' => 'Account not found.',
         // Notifications
         'NOTIFICATION_NOT_FOUND' => 'Notification not found.',
+        // Mood chat — the recommender sends a specific user-facing reason
+        // (rate limit, not configured) in devMessage.
+        'MOOD_CHAT_ERROR' =>
+          devMessage ?? 'Mood chat is unavailable right now.',
         // Fallback
         _ => 'Something went wrong. Please try again.',
       };
@@ -52,7 +59,8 @@ class NetworkException extends AppException {
 
   @override
   String get userMessage => switch (code) {
-        'NETWORK_TIMEOUT' => 'Request timed out. Check your connection and try again.',
+        'NETWORK_TIMEOUT' =>
+          'Request timed out. Check your connection and try again.',
         'NETWORK_NO_CONNECTION' => 'No internet connection.',
         _ => 'Network error. Check your connection and try again.',
       };
@@ -86,8 +94,12 @@ class PlatformSignInException extends AppException {
         'cancelled' ||
         'com.apple.AuthenticationServices.AuthorizationError.1001' =>
           'Sign-in was cancelled.',
-        'network_error' || 'NETWORK_ERROR' => 'Network error. Check your connection.',
-        'sign_in_failed' || 'SIGN_IN_FAILED' => 'Sign-in failed. Please try again.',
+        'network_error' ||
+        'NETWORK_ERROR' =>
+          'Network error. Check your connection.',
+        'sign_in_failed' ||
+        'SIGN_IN_FAILED' =>
+          'Sign-in failed. Please try again.',
         _ => 'Sign-in failed. Please try again.',
       };
 }

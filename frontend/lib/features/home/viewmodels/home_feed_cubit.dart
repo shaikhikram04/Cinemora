@@ -3,12 +3,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/core/utils/tmdb_url_utils.dart';
+import 'package:cinemora/features/home/models/home_recommendations.dart';
 import 'package:cinemora/features/home/models/jikan_anime_item.dart';
 import 'package:cinemora/features/home/models/movie_poster.dart';
+import 'package:cinemora/features/home/models/similar_item.dart';
 import 'package:cinemora/features/home/models/tmdb_item.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
+
+// Home tabs. `type` null = "For You" (mixed / all types).
+const homeTabs = <({String label, CinemaType? type})>[
+  (label: '✨   For You', type: null),
+  (label: '🎬   Movies', type: CinemaType.movie),
+  (label: '⛩️   Anime', type: CinemaType.anime),
+  (label: '📺   Series', type: CinemaType.tv),
+];
 
 class HomeFeedCubit extends Cubit<HomeFeedState> {
   final HomeRepository _repository;
@@ -38,29 +48,37 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
     return super.close();
   }
 
-  void selectTab(String tab) => emit(state.withTab(tab));
+  CinemaType? get _selectedType =>
+      homeTabs.firstWhere((t) => t.label == state.selectedTab).type;
 
-  void toggleMood(String label) {
-    final newMood = state.selectedMood == label ? null : label;
-    emit(state.withMood(newMood));
+  void selectTab(String tab) {
+    if (tab == state.selectedTab) return;
+    emit(state.copyWith(selectedTab: tab));
+    loadFeed();
   }
 
   Future<void> loadFeed() async {
     emit(state.copyWith(status: FeedStatus.loading, errorMessage: null));
+    final type = _selectedType;
 
-    // Each section fails independently — a Jikan timeout won't wipe out TMDB sections.
+    // Recommendations (Pick of Week, Because You Ranked, Critically Acclaimed)
+    // and the type-scoped Trending Now row fail independently.
     final results = await Future.wait([
-      _repository.fetchTrendingMovies().catchError((_) => <TmdbItem>[]),
-      _repository.fetchTrendingSeries().catchError((_) => <TmdbItem>[]),
-      _repository.fetchTopAnime().catchError((_) => <JikanAnimeItem>[]),
+      _repository
+          .fetchHomeRecommendations(type: type)
+          .catchError((_) => const HomeRecommendations()),
+      _fetchTrending(type).catchError((_) => <MoviePoster>[]),
     ]);
 
-    final movies = results[0] as List<TmdbItem>;
-    final series = results[1] as List<TmdbItem>;
-    final anime = results[2] as List<JikanAnimeItem>;
+    final recommendations = results[0] as HomeRecommendations;
+    final trending = results[1] as List<MoviePoster>;
+    // For You / Movies use movie posters; Series uses tv; Anime uses anime.
+    final trendingType = type ?? CinemaType.movie;
 
-    // Only show full error state if everything failed.
-    if (movies.isEmpty && series.isEmpty && anime.isEmpty) {
+    final everythingEmpty = trending.isEmpty &&
+        recommendations.pickOfWeek.isEmpty &&
+        recommendations.criticallyAcclaimed.isEmpty;
+    if (everythingEmpty) {
       emit(state.copyWith(
         status: FeedStatus.failure,
         errorMessage: 'Could not load feed. Tap to retry.',
@@ -70,13 +88,32 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
 
     emit(state.copyWith(
       status: FeedStatus.success,
-      hero: movies.isNotEmpty ? movies.first : null,
-      trendingMovies: movies.take(10).map(_fromTmdb).toList(),
-      criticallyAcclaimed: movies.skip(10).map(_fromTmdb).toList(),
-      trendingSeries: series.take(10).map(_fromTmdb).toList(),
-      topAnime: anime.map(_fromAnime).toList(),
+      pickOfWeek: recommendations.pickOfWeek.map(_fromSimilar).toList(),
+      trending: trending,
+      trendingType: trendingType,
+      criticallyAcclaimed:
+          recommendations.criticallyAcclaimed.map(_fromSimilar).toList(),
+      becauseYouRankedAnchorTitle: recommendations.becauseYouRankedAnchorTitle,
+      becauseYouRanked:
+          recommendations.becauseYouRanked.map(_fromSimilar).toList(),
       errorMessage: null,
     ));
+  }
+
+  // Trending Now is raw Node popularity data, scoped to the tab's type.
+  Future<List<MoviePoster>> _fetchTrending(CinemaType? type) async {
+    switch (type) {
+      case CinemaType.anime:
+        final anime = await _repository.fetchTopAnime();
+        return anime.map(_fromAnime).toList();
+      case CinemaType.tv:
+        final series = await _repository.fetchTrendingSeries();
+        return series.take(10).map(_fromTmdb).toList();
+      case CinemaType.movie:
+      case null:
+        final movies = await _repository.fetchTrendingMovies();
+        return movies.take(10).map(_fromTmdb).toList();
+    }
   }
 
   void bookmarkFromPoster(MoviePoster item, CinemaType type) {
@@ -89,17 +126,6 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
       posterPath: extractTmdbPosterPath(item.image),
       year: item.year,
       tmdbRating: double.tryParse(item.rating),
-    );
-  }
-
-  void bookmarkHero(TmdbItem hero) {
-    _toggleBookmark(
-      id: hero.id,
-      title: hero.title,
-      cinemaType: CinemaType.fromJson(hero.mediaType),
-      posterPath: hero.posterPath,
-      year: hero.year,
-      tmdbRating: hero.voteAverage,
     );
   }
 
@@ -150,5 +176,16 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
         image: e.imageUrl,
         year: e.year?.toString() ?? '',
         tag: 'Anime',
+      );
+
+  static MoviePoster _fromSimilar(SimilarItem e) => MoviePoster(
+        id: e.sourceId,
+        title: e.title,
+        rating: e.ratingDisplay,
+        image: e.posterUrl,
+        year: e.year ?? '',
+        tag: e.cinemaType == 'anime' ? 'Anime' : null,
+        cinemaType: e.cinemaType,
+        source: e.source,
       );
 }

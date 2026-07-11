@@ -15,6 +15,7 @@ import 'package:cinemora/common/widgets/dialogs/unmark_watched_dialog.dart';
 import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
 import 'package:cinemora/features/home/models/tmdb_detail.dart';
@@ -29,6 +30,7 @@ class SeriesDetailsContent extends StatelessWidget {
   final String? backdropImage;
   final String rating;
   final String source;
+  final int? seriesId;
   final TmdbTvDetail? detail;
   final bool isDetailLoading;
 
@@ -61,6 +63,7 @@ class SeriesDetailsContent extends StatelessWidget {
     this.backdropImage,
     required this.rating,
     this.source = 'tmdb',
+    this.seriesId,
     this.detail,
     this.isDetailLoading = false,
     required this.seasons,
@@ -197,7 +200,11 @@ class SeriesDetailsContent extends StatelessWidget {
                 SizedBox(height: 28.h),
                 Divider(color: context.colors.border),
                 SizedBox(height: 16.h),
-                const DetailRecommendationsSection(),
+                DetailRecommendationsSection(
+                  cinemaType:
+                      source == 'jikan' ? CinemaType.anime : CinemaType.tv,
+                  sourceId: seriesId,
+                ),
                 SizedBox(height: 32.h),
               ],
             ),
