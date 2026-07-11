@@ -99,6 +99,7 @@ class _MovieDetailsContent extends StatelessWidget {
             movieImage: movieImage,
             backdropImage: backdropImage,
             rating: rating,
+            movieId: tmdbId,
             detail: state.detail,
             isDetailLoading: state.isDetailLoading,
             isInWatchlist: state.isInWatchlist,

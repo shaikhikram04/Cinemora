@@ -137,6 +137,7 @@ class _SeriesDetailsContent extends StatelessWidget {
             backdropImage: backdropImage,
             rating: rating,
             source: source,
+            seriesId: tmdbId,
             detail: state.detail,
             isDetailLoading: state.isDetailLoading,
             seasons: seasons,

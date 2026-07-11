@@ -16,6 +16,7 @@ import 'package:cinemora/common/widgets/detail/where_to_watch_section.dart';
 import 'package:cinemora/common/widgets/dialogs/unmark_watched_dialog.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/franchise/models/franchise_summary.dart';
@@ -27,6 +28,7 @@ class MovieDetailsContent extends StatelessWidget {
   final String movieImage;
   final String? backdropImage;
   final String rating;
+  final int? movieId;
   final TmdbMovieDetail? detail;
   final bool isDetailLoading;
   final bool isInWatchlist;
@@ -45,6 +47,7 @@ class MovieDetailsContent extends StatelessWidget {
     required this.movieImage,
     this.backdropImage,
     required this.rating,
+    this.movieId,
     this.detail,
     this.isDetailLoading = false,
     required this.isInWatchlist,
@@ -149,7 +152,10 @@ class MovieDetailsContent extends StatelessWidget {
                 SizedBox(height: 28.h),
                 Divider(color: context.colors.border),
                 SizedBox(height: 16.h),
-                const DetailRecommendationsSection(),
+                DetailRecommendationsSection(
+                  cinemaType: CinemaType.movie,
+                  sourceId: movieId,
+                ),
                 SizedBox(height: 24.h),
               ],
             ),
