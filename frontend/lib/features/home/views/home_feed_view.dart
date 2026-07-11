@@ -179,9 +179,6 @@ class _HomeFeedContent extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 18.h),
-
-                const _RankingCard(),
-                SizedBox(height: 18.h),
               ],
             ),
           ),
@@ -839,78 +836,6 @@ class _HeroCardShell extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ── Ranking card ──────────────────────────────────────────────────────────────
-
-class _RankingCard extends StatelessWidget {
-  const _RankingCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            context.colors.accentPurple.withValues(alpha: 0.12),
-            context.colors.accentRed.withValues(alpha: 0.12),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20.r),
-        border:
-            Border.all(color: context.colors.accentRed.withValues(alpha: 0.12)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 46.w,
-            height: 46.w,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  context.colors.accentPink,
-                  context.colors.accentPurple
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16.r),
-            ),
-            child: Icon(Icons.trending_up_rounded,
-                color: Colors.white, size: 22.sp),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'My Ranking Lists',
-                  style: TextStyle(
-                    color: context.colors.foreground,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  '6 curated lists · Drag to reorder',
-                  style: TextStyle(
-                    color: context.colors.mutedSecondary,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right_rounded,
-              color: context.colors.mutedForeground, size: 22.sp),
-        ],
       ),
     );
   }
