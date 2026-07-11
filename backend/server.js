@@ -37,6 +37,7 @@ app.use("/api/anilist", require("./routes/anilist"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/watch-together", require("./routes/watchTogether"));
 app.use("/api/notifications", require("./routes/notifications"));
+app.use("/api/recommendations", require("./routes/recommendations"));
 
 app.use((err, req, res, next) => {
   console.error(err);
