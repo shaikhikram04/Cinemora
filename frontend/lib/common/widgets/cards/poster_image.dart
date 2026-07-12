@@ -46,8 +46,10 @@ class PosterImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dpr = MediaQuery.of(context).devicePixelRatio;
+    final renderedHeight = height.h;
     return Container(
-      height: height.h,
+      height: renderedHeight,
       width: width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius.r),
@@ -67,6 +69,17 @@ class PosterImage extends StatelessWidget {
             Image.network(
               image,
               fit: BoxFit.cover,
+              // Decode at the rendered size instead of the source resolution —
+              // TMDB posters come in far larger than the ~100-140dp we display
+              // them at, and decoding full-res per card is a major scroll-jank
+              // source in image-heavy carousels. Only ONE of cacheWidth/
+              // cacheHeight is ever set: passing both stretches the decode to
+              // that exact box, distorting the image if its real aspect ratio
+              // doesn't match — specifying just one lets the decoder scale
+              // the other dimension to preserve the source's true proportions.
+              cacheWidth: width != null ? (width! * dpr).round() : null,
+              cacheHeight:
+                  width == null ? (renderedHeight * dpr).round() : null,
               errorBuilder: (context, error, stackTrace) => Container(
                 color: context.colors.surfaceMuted,
                 alignment: Alignment.center,
@@ -169,7 +182,8 @@ class PosterImage extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Icon(
                       actionAdded ? Icons.check_rounded : Icons.add,
-                      color: actionAdded ? context.colors.accentRed : Colors.white,
+                      color:
+                          actionAdded ? context.colors.accentRed : Colors.white,
                       size: 18.sp,
                     ),
                   ),
@@ -443,4 +457,3 @@ class _WatchlistRibbon extends StatelessWidget {
     );
   }
 }
-

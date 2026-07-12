@@ -28,9 +28,6 @@ import 'package:cinemora/features/settings/views/help_support_view.dart';
 import 'package:cinemora/features/settings/views/notification_settings_view.dart';
 import 'package:cinemora/features/settings/views/privacy_security_view.dart';
 import 'package:cinemora/features/settings/views/settings_view.dart';
-import 'package:cinemora/features/watch_together/views/create_session_view.dart';
-import 'package:cinemora/features/watch_together/views/join_session_view.dart';
-import 'package:cinemora/features/watch_together/views/watch_together_intro_view.dart';
 
 class MovieRouteArgs {
   final String title;
@@ -243,17 +240,6 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
         builder: (context, state) =>
             MoodChatView(args: state.extra as MoodChatArgs?),
       ),
-
-      // ── Watch Together ────────────────────────────────────────────────────
-      GoRoute(
-          path: AppRoutes.watchTogether,
-          builder: (context, state) => const WatchTogetherIntroView()),
-      GoRoute(
-          path: AppRoutes.watchTogetherCreate,
-          builder: (context, state) => const CreateSessionView()),
-      GoRoute(
-          path: AppRoutes.watchTogetherJoin,
-          builder: (context, state) => const JoinSessionView()),
 
       // ── Settings ──────────────────────────────────────────────────────────
       GoRoute(

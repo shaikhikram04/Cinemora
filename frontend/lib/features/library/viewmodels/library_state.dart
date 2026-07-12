@@ -19,12 +19,12 @@ class LibraryState extends Equatable {
 
   // Precomputed on construction — derived from entries + filter params.
   // Computed once per state emit, not once per widget rebuild.
-  late final List<LibraryEntryModel> filteredEntries;
-  late final Map<String, int> statusCounts;
-  late final int watchedCount;
-  late final int moviesWatched;
-  late final int seriesWatched;
-  late final int animeWatched;
+  final List<LibraryEntryModel> filteredEntries;
+  final Map<String, int> statusCounts;
+  final int watchedCount;
+  final int moviesWatched;
+  final int seriesWatched;
+  final int animeWatched;
   static const _statuses = ['Watchlist', 'Watched', 'Dropped'];
 
   LibraryState({
@@ -37,39 +37,79 @@ class LibraryState extends Equatable {
     this.selectedSort = 'Recently added',
     this.isSortOpen = false,
     this.searchQuery = '',
-  }) {
-    filteredEntries = _buildFiltered();
-    statusCounts = {
-      for (final s in _statuses)
-        s: s == 'Watched'
-            ? entries.where(_isWatched).length
-            : entries.where((e) => e.status == WatchStatus.fromDisplayName(s)).length,
-    };
-    watchedCount = entries.where(_isWatched).length;
-    moviesWatched = entries
-        .where((e) => e.cinemaType == CinemaType.movie && _isWatched(e))
-        .length;
-    seriesWatched = entries
-        .where((e) => e.cinemaType == CinemaType.tv && _isWatched(e))
-        .length;
-    animeWatched = entries
-        .where((e) => e.cinemaType == CinemaType.anime && _isWatched(e))
-        .length;
-  }
+  })  : filteredEntries = _buildFiltered(
+          entries,
+          selectedType,
+          selectedStatus,
+          selectedSort,
+          searchQuery,
+        ),
+        statusCounts = _buildStatusCounts(entries),
+        watchedCount = entries.where(_isWatched).length,
+        moviesWatched = entries
+            .where((e) => e.cinemaType == CinemaType.movie && _isWatched(e))
+            .length,
+        seriesWatched = entries
+            .where((e) => e.cinemaType == CinemaType.tv && _isWatched(e))
+            .length,
+        animeWatched = entries
+            .where((e) => e.cinemaType == CinemaType.anime && _isWatched(e))
+            .length;
+
+  // Bypasses recomputation in copyWith when the underlying inputs (entries,
+  // filters, sort, search) didn't actually change — used so that unrelated
+  // state changes (toggling the sort panel, clearing a mutation error) don't
+  // re-scan and re-sort the whole library.
+  const LibraryState._cached({
+    required this.status,
+    required this.entries,
+    required this.errorMessage,
+    required this.mutationError,
+    required this.selectedType,
+    required this.selectedStatus,
+    required this.selectedSort,
+    required this.isSortOpen,
+    required this.searchQuery,
+    required this.filteredEntries,
+    required this.statusCounts,
+    required this.watchedCount,
+    required this.moviesWatched,
+    required this.seriesWatched,
+    required this.animeWatched,
+  });
 
   static bool _isWatched(LibraryEntryModel e) => e.hasBeenWatched;
 
-  List<LibraryEntryModel> _buildFiltered() {
+  static Map<String, int> _buildStatusCounts(
+      List<LibraryEntryModel> entries) {
+    return {
+      for (final s in _statuses)
+        s: s == 'Watched'
+            ? entries.where(_isWatched).length
+            : entries
+                .where((e) => e.status == WatchStatus.fromDisplayName(s))
+                .length,
+    };
+  }
+
+  static List<LibraryEntryModel> _buildFiltered(
+    List<LibraryEntryModel> entries,
+    String selectedType,
+    String selectedStatus,
+    String selectedSort,
+    String searchQuery,
+  ) {
     final typeFilter = CinemaType.fromDisplayName(selectedType);
     final statusFilter = WatchStatus.fromDisplayName(selectedStatus);
+    final lowerQuery = searchQuery.toLowerCase();
 
     final result = entries.where((entry) {
       final typeMatch = typeFilter == null || entry.cinemaType == typeFilter;
       final statusMatch = statusFilter == WatchStatus.watched
           ? _isWatched(entry)
           : entry.status == statusFilter;
-      final searchMatch = searchQuery.isEmpty ||
-          entry.title.toLowerCase().contains(searchQuery.toLowerCase());
+      final searchMatch =
+          lowerQuery.isEmpty || entry.title.toLowerCase().contains(lowerQuery);
       return typeMatch && statusMatch && searchMatch;
     }).toList();
 
@@ -108,17 +148,53 @@ class LibraryState extends Equatable {
     bool? isSortOpen,
     String? searchQuery,
   }) {
-    return LibraryState(
+    final newEntries = entries ?? this.entries;
+    final newType = selectedType ?? this.selectedType;
+    final newStatus = selectedStatus ?? this.selectedStatus;
+    final newSort = selectedSort ?? this.selectedSort;
+    final newQuery = searchQuery ?? this.searchQuery;
+
+    final entriesChanged = entries != null;
+    final filtersChanged = entriesChanged ||
+        selectedType != null ||
+        selectedStatus != null ||
+        selectedSort != null ||
+        searchQuery != null;
+
+    return LibraryState._cached(
       status: status ?? this.status,
-      entries: entries ?? this.entries,
+      entries: newEntries,
       errorMessage: errorMessage ?? this.errorMessage,
       mutationError:
           clearMutationError ? null : (mutationError ?? this.mutationError),
-      selectedType: selectedType ?? this.selectedType,
-      selectedStatus: selectedStatus ?? this.selectedStatus,
-      selectedSort: selectedSort ?? this.selectedSort,
+      selectedType: newType,
+      selectedStatus: newStatus,
+      selectedSort: newSort,
       isSortOpen: isSortOpen ?? this.isSortOpen,
-      searchQuery: searchQuery ?? this.searchQuery,
+      searchQuery: newQuery,
+      filteredEntries: filtersChanged
+          ? _buildFiltered(newEntries, newType, newStatus, newSort, newQuery)
+          : filteredEntries,
+      statusCounts:
+          entriesChanged ? _buildStatusCounts(newEntries) : statusCounts,
+      watchedCount: entriesChanged
+          ? newEntries.where(_isWatched).length
+          : watchedCount,
+      moviesWatched: entriesChanged
+          ? newEntries
+              .where((e) => e.cinemaType == CinemaType.movie && _isWatched(e))
+              .length
+          : moviesWatched,
+      seriesWatched: entriesChanged
+          ? newEntries
+              .where((e) => e.cinemaType == CinemaType.tv && _isWatched(e))
+              .length
+          : seriesWatched,
+      animeWatched: entriesChanged
+          ? newEntries
+              .where((e) => e.cinemaType == CinemaType.anime && _isWatched(e))
+              .length
+          : animeWatched,
     );
   }
 

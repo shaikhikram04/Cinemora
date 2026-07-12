@@ -1,9 +1,7 @@
-import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/utils/tmdb_url_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/rankings/models/ranking_item.dart';
@@ -77,8 +75,8 @@ class _PostRatingSheet extends StatefulWidget {
 }
 
 class _PostRatingSheetState extends State<_PostRatingSheet> {
-  bool _showDiscover = false;
   String? _selectedTitle;
+  final _scrollController = ScrollController();
 
   bool get _hasSelection => _selectedTitle != null;
 
@@ -86,6 +84,12 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
   void initState() {
     super.initState();
     _preselectExistingList();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _preselectExistingList() {
@@ -393,46 +397,13 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
     );
   }
 
-  static const _recs = [
-    {
-      'title': 'Breaking Bad',
-      'tag': 'SERIES',
-      'rating': '9.5',
-      'image':
-          'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=400&auto=format&fit=crop'
-    },
-    {
-      'title': 'Attack on Titan',
-      'tag': 'ANIME',
-      'rating': '9.1',
-      'image':
-          'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=400&auto=format&fit=crop'
-    },
-    {
-      'title': 'Fullmetal Alchemist: Brotherhood',
-      'tag': 'ANIME',
-      'rating': '9.1',
-      'image':
-          'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=400&auto=format&fit=crop'
-    },
-    {
-      'title': 'Steins;Gate',
-      'tag': 'ANIME',
-      'rating': '9.1',
-      'image':
-          'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?q=80&w=400&auto=format&fit=crop'
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     final screenH = MediaQuery.of(context).size.height;
     // Rankings content is compact; Discover needs more room for poster cards
-    final sheetHeight = _showDiscover ? screenH * 0.58 : screenH * 0.78;
+    final sheetHeight = screenH * 0.78;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 320),
-      curve: Curves.easeInOut,
+    return Container(
       height: sheetHeight,
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E24),
@@ -457,14 +428,6 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
           Expanded(
             child: Builder(
               builder: (ctx) {
-                if (_showDiscover) {
-                  return _DiscoverBody(
-                    movieTitle: widget.movieTitle,
-                    rating: widget.userRating,
-                    recs: _recs,
-                    scrollController: ScrollController(),
-                  );
-                }
                 final lists = ctx.read<RankingsCubit>().state.lists;
                 final existingTitles = lists.map((l) => l.title).toSet();
 
@@ -501,7 +464,7 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
                   selectedTitle: _selectedTitle,
                   onToggle: (title) => setState(() =>
                       _selectedTitle = _selectedTitle == title ? null : title),
-                  scrollController: ScrollController(),
+                  scrollController: _scrollController,
                 );
               },
             ),
@@ -566,6 +529,10 @@ class _SheetHeader extends StatelessWidget {
               width: 52.w,
               height: 66.h,
               fit: BoxFit.cover,
+              // Width only — see poster_image.dart for why passing both
+              // dims can distort the decoded image.
+              cacheWidth:
+                  (52.w * MediaQuery.of(context).devicePixelRatio).round(),
               errorBuilder: (_, __, ___) => Container(
                 width: 52.w,
                 height: 66.h,
@@ -1002,82 +969,6 @@ class _ListRow extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-// ─── Discover body ────────────────────────────────────────────────────────────
-
-class _DiscoverBody extends StatelessWidget {
-  final String movieTitle;
-  final double rating;
-  final List<Map<String, String>> recs;
-  final ScrollController scrollController;
-
-  const _DiscoverBody({
-    required this.movieTitle,
-    required this.rating,
-    required this.recs,
-    required this.scrollController,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      controller: scrollController,
-      padding: EdgeInsets.zero,
-      children: [
-        SizedBox(height: 12.h),
-        // Subtitle
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
-          child: RichText(
-            text: TextSpan(
-              style: TextStyle(
-                  fontSize: 13.sp,
-                  color: context.colors.mutedSecondary,
-                  fontFamily: 'Inter'),
-              children: [
-                const TextSpan(text: 'Because you rated '),
-                TextSpan(
-                  text: movieTitle,
-                  style: TextStyle(
-                      color: context.colors.success,
-                      fontWeight: FontWeight.w700),
-                ),
-                TextSpan(
-                  text: ' ${rating.toStringAsFixed(1)}★',
-                  style: TextStyle(
-                      color: context.colors.success,
-                      fontWeight: FontWeight.w700),
-                ),
-                const TextSpan(text: ', try these:'),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(height: 14.h),
-        // Rec cards horizontal scroll
-        SizedBox(
-          height: WSizes.imageCarouselHeight.h,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
-            itemCount: recs.length,
-            separatorBuilder: (_, i) => SizedBox(width: 8.w),
-            itemBuilder: (_, i) => VerticalPosterBookmarkCard(
-              title: recs[i]['title']!,
-              rating: recs[i]['rating']!,
-              image: recs[i]['image']!,
-              width: WSizes.posterImageWidth.w,
-              imageHeight: WSizes.posterImageHeight.h,
-              cinemaType: CinemaType.anime,
-              year: '2020',
-            ),
-          ),
-        ),
-        SizedBox(height: 16.h),
-      ],
     );
   }
 }

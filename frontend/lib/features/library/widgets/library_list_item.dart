@@ -102,6 +102,11 @@ class LibraryListItem extends StatelessWidget {
                           ? Image.network(
                               entry.posterUrl,
                               fit: BoxFit.cover,
+                              // Width only — see poster_image.dart for why
+                              // passing both dims can distort the decode.
+                              cacheWidth: (90.w *
+                                      MediaQuery.of(context).devicePixelRatio)
+                                  .round(),
                               errorBuilder: (_, __, ___) => _PosterPlaceholder(
                                 type: entry.cinemaType,
                               ),

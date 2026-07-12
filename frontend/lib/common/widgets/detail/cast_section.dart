@@ -68,6 +68,15 @@ class CastSection extends StatelessWidget {
                                   ? Image.network(
                                       member.profileUrl!,
                                       fit: BoxFit.cover,
+                                      // Width only — profile photos are
+                                      // portrait, not square; passing both
+                                      // dims would squish them into the
+                                      // circle instead of letting cover
+                                      // crop them correctly.
+                                      cacheWidth: (72.w *
+                                              MediaQuery.of(context)
+                                                  .devicePixelRatio)
+                                          .round(),
                                       errorBuilder: (_, __, ___) =>
                                           _InitialAvatar(
                                         name: member.name,

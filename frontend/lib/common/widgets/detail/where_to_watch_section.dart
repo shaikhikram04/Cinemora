@@ -187,6 +187,10 @@ class _ProviderLogo extends StatelessWidget {
           width: 30.w,
           height: 30.h,
           fit: BoxFit.cover,
+          // Width only — see poster_image.dart for why passing both dims
+          // can distort the decoded image.
+          cacheWidth:
+              (30.w * MediaQuery.of(context).devicePixelRatio).round(),
           errorBuilder: (_, __, ___) => _FallbackLogo(provider: provider),
         ),
       );

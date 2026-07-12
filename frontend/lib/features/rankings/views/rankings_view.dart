@@ -653,7 +653,20 @@ class _RankingDetailContentState extends State<_RankingDetailContent> {
                           itemBuilder: (context, index) {
                             final entry = entries[index];
                             return Padding(
-                              key: ValueKey('${entry.title}_$index'),
+                              // A stable, position-independent key is required
+                              // for ReorderableListView to track which item
+                              // moved during a drag — an index-based key
+                              // invalidates every item between the old and
+                              // new position on each reorder, forcing Flutter
+                              // to rebuild them from scratch instead of just
+                              // animating the one that moved. tmdbId alone
+                              // isn't unique across sources (anime entries are
+                              // sourced from Jikan/AniList, not TMDB, so their
+                              // numeric ids can collide with a TMDB id) —
+                              // scope it by cinemaType too.
+                              key: ValueKey(entry.tmdbId != null
+                                  ? '${entry.cinemaType}_${entry.tmdbId}'
+                                  : entry.title),
                               padding: EdgeInsets.only(bottom: 10.h),
                               child: _RankingEntryTile(
                                 entry: entry,
@@ -844,7 +857,7 @@ class _PosterFan extends StatelessWidget {
     final safe = images.take(3).toList();
 
     if (safe.length == 1) {
-      return _buildPoster(safe[0], 46.w, 66.h);
+      return _buildPoster(context, safe[0], 46.w, 66.h);
     }
 
     return SizedBox(
@@ -859,7 +872,7 @@ class _PosterFan extends StatelessWidget {
               top: 5.h,
               child: Transform.rotate(
                 angle: 0.18,
-                child: _buildPoster(safe[2], 42.w, 58.h),
+                child: _buildPoster(context, safe[2], 42.w, 58.h),
               ),
             ),
           if (safe.length >= 2)
@@ -868,20 +881,21 @@ class _PosterFan extends StatelessWidget {
               top: 2.h,
               child: Transform.rotate(
                 angle: 0.07,
-                child: _buildPoster(safe[1], 44.w, 62.h),
+                child: _buildPoster(context, safe[1], 44.w, 62.h),
               ),
             ),
           Positioned(
             left: 0,
             top: 0,
-            child: _buildPoster(safe[0], 46.w, 66.h),
+            child: _buildPoster(context, safe[0], 46.w, 66.h),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPoster(String url, double w, double h) {
+  Widget _buildPoster(BuildContext context, String url, double w, double h) {
+    final dpr = MediaQuery.of(context).devicePixelRatio;
     return Container(
       width: w,
       height: h,
@@ -891,7 +905,13 @@ class _PosterFan extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(9.r),
-        child: Image.network(url, fit: BoxFit.cover),
+        child: Image.network(
+          url,
+          fit: BoxFit.cover,
+          // Width only — passing both dims can distort the decode if the
+          // source image's real aspect ratio doesn't match this box.
+          cacheWidth: (w * dpr).round(),
+        ),
       ),
     );
   }
@@ -1084,6 +1104,10 @@ class _RankingEntryTile extends StatelessWidget {
                 width: 46.w,
                 height: 64.w,
                 fit: BoxFit.cover,
+                // Width only — see poster_image.dart for why passing both
+                // dims can distort the decoded image.
+                cacheWidth:
+                    (46.w * MediaQuery.of(context).devicePixelRatio).round(),
               ),
             ),
           ),

@@ -9,8 +9,7 @@ import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 
-void showShufflePick(
-    BuildContext context, List<LibraryEntryModel> watchlist) {
+void showShufflePick(BuildContext context, List<LibraryEntryModel> watchlist) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -212,12 +211,24 @@ class _BlurredBg extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ImageFiltered(
-      imageFilter: _filter,
-      child: Image.network(
-        url,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+    final size = MediaQuery.of(context).size;
+    final dpr = MediaQuery.of(context).devicePixelRatio;
+    // Isolated in its own compositing layer so the spin animation (rotating
+    // dice icon, gradient scrim, rapid title swaps) doesn't force this heavy
+    // gaussian blur to be repainted every frame — it only needs to repaint
+    // when the picked entry (and therefore the bg image) actually changes.
+    return RepaintBoundary(
+      child: ImageFiltered(
+        imageFilter: _filter,
+        child: Image.network(
+          url,
+          fit: BoxFit.cover,
+          // Width only — see poster_image.dart for why passing both dims
+          // can distort the decode (harmless here anyway under this much
+          // blur, but kept consistent with the rest of the app).
+          cacheWidth: (size.width * dpr).round(),
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+        ),
       ),
     );
   }
@@ -334,6 +345,11 @@ class _ResultView extends StatelessWidget {
                         width: 104.w,
                         height: 156.h,
                         fit: BoxFit.cover,
+                        // Width only — see poster_image.dart for why
+                        // passing both dims can distort the decode.
+                        cacheWidth:
+                            (104.w * MediaQuery.of(context).devicePixelRatio)
+                                .round(),
                         errorBuilder: (_, __, ___) =>
                             _Fallback(width: 104.w, height: 156.h),
                       )
@@ -433,15 +449,13 @@ class _ResultView extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 14.h),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14.r),
-                border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.13)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.13)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.casino_outlined,
-                      size: 15.sp,
-                      color: context.colors.mutedSecondary),
+                      size: 15.sp, color: context.colors.mutedSecondary),
                   SizedBox(width: 8.w),
                   Text(
                     'Shuffle Again',

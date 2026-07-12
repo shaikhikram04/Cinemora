@@ -50,6 +50,14 @@ class _HomeFeedContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeFeedCubit, HomeFeedState>(
+      // Bookmark toggles (here or anywhere else in the app) only change
+      // libraryStatus — every poster card resolves its own bookmark status
+      // via a scoped BlocSelector below, so this rebuild would otherwise
+      // tear down and rebuild the entire feed (hero, all carousels, images)
+      // for a single icon flip.
+      buildWhen: (prev, curr) =>
+          prev.copyWith(libraryStatus: const {}) !=
+          curr.copyWith(libraryStatus: const {}),
       builder: (context, state) {
         final cubit = context.read<HomeFeedCubit>();
         final loading = state.isLoading;
@@ -87,7 +95,6 @@ class _HomeFeedContent extends StatelessWidget {
                 else if (state.pickOfWeek.isNotEmpty)
                   _PickOfWeekHero(
                     picks: state.pickOfWeek,
-                    libraryStatus: state.libraryStatus,
                     onBookmark: (item) => cubit.bookmarkFromPoster(
                       item,
                       CinemaType.fromJson(item.cinemaType ?? 'movie'),
@@ -98,9 +105,6 @@ class _HomeFeedContent extends StatelessWidget {
                   _FallbackHero(
                     item: state.trending.first,
                     type: state.trendingType,
-                    isBookmarked: state.trending.first.id != null &&
-                        state.libraryStatus[state.trending.first.id] ==
-                            WatchStatus.watchlist,
                     onDetails: () => _navigateToTyped(
                         context, state.trending.first, state.trendingType),
                     onBookmark: () => cubit.bookmarkFromPoster(
@@ -120,7 +124,6 @@ class _HomeFeedContent extends StatelessWidget {
                     : _PosterCarousel(
                         items: state.trending,
                         type: state.trendingType,
-                        libraryStatus: state.libraryStatus,
                         onBookmark: (item) =>
                             cubit.bookmarkFromPoster(item, state.trendingType),
                         onTap: (item) =>
@@ -141,7 +144,6 @@ class _HomeFeedContent extends StatelessWidget {
                   _PosterCarousel(
                     items: state.becauseYouRanked,
                     type: CinemaType.movie,
-                    libraryStatus: state.libraryStatus,
                     onBookmark: (item) => cubit.bookmarkFromPoster(
                       item,
                       CinemaType.fromJson(item.cinemaType ?? 'movie'),
@@ -163,7 +165,6 @@ class _HomeFeedContent extends StatelessWidget {
                     : _PosterCarousel(
                         items: state.criticallyAcclaimed,
                         type: CinemaType.movie,
-                        libraryStatus: state.libraryStatus,
                         onBookmark: (item) => cubit.bookmarkFromPoster(
                           item,
                           CinemaType.fromJson(item.cinemaType ?? 'movie'),
@@ -344,14 +345,12 @@ class _PosterCarousel extends StatelessWidget {
   final List<MoviePoster> items;
   final CinemaType type;
   final void Function(MoviePoster) onTap;
-  final Map<int, WatchStatus> libraryStatus;
   final void Function(MoviePoster) onBookmark;
 
   const _PosterCarousel({
     required this.items,
     required this.type,
     required this.onTap,
-    required this.libraryStatus,
     required this.onBookmark,
   });
 
@@ -367,19 +366,25 @@ class _PosterCarousel extends StatelessWidget {
         separatorBuilder: (_, __) => SizedBox(width: 12.w),
         itemBuilder: (_, index) {
           final item = items[index];
-          return VerticalPosterBookmarkCard(
-            image: item.image,
-            width: WSizes.posterImageWidth.w,
-            imageHeight: WSizes.posterImageHeight.h,
-            title: item.title,
-            rating: item.rating,
-            cinemaType: item.cinemaType != null
-                ? CinemaType.fromJson(item.cinemaType!)
-                : type,
-            year: item.year,
-            watchStatus: item.id != null ? libraryStatus[item.id] : null,
-            onBookmark: () => onBookmark(item),
-            onTap: () => onTap(item),
+          // Scoped to this item's bookmark status only, so toggling one
+          // card's bookmark doesn't rebuild the rest of the carousel.
+          return BlocSelector<HomeFeedCubit, HomeFeedState, WatchStatus?>(
+            selector: (s) =>
+                item.id != null ? s.libraryStatus[item.id] : null,
+            builder: (context, watchStatus) => VerticalPosterBookmarkCard(
+              image: item.image,
+              width: WSizes.posterImageWidth.w,
+              imageHeight: WSizes.posterImageHeight.h,
+              title: item.title,
+              rating: item.rating,
+              cinemaType: item.cinemaType != null
+                  ? CinemaType.fromJson(item.cinemaType!)
+                  : type,
+              year: item.year,
+              watchStatus: watchStatus,
+              onBookmark: () => onBookmark(item),
+              onTap: () => onTap(item),
+            ),
           );
         },
       ),
@@ -536,13 +541,11 @@ class _CategoryTabs extends StatelessWidget {
 
 class _PickOfWeekHero extends StatefulWidget {
   final List<MoviePoster> picks;
-  final Map<int, WatchStatus> libraryStatus;
   final void Function(MoviePoster) onBookmark;
   final void Function(MoviePoster) onDetails;
 
   const _PickOfWeekHero({
     required this.picks,
-    required this.libraryStatus,
     required this.onBookmark,
     required this.onDetails,
   });
@@ -573,20 +576,23 @@ class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
             onPageChanged: (i) => setState(() => _page = i),
             itemBuilder: (context, i) {
               final item = widget.picks[i];
-              final isBookmarked = item.id != null &&
-                  widget.libraryStatus[item.id] == WatchStatus.watchlist;
-              return _HeroCardShell(
-                imageUrl: item.image,
-                badgeLabel: 'PICK OF THE WEEK',
-                badgeIcon: Icons.auto_awesome_rounded,
-                rating: item.rating,
-                typeLabel:
-                    CinemaType.fromJson(item.cinemaType ?? 'movie').displayName,
-                year: item.year,
-                title: item.title,
-                isBookmarked: isBookmarked,
-                onDetailsPressed: () => widget.onDetails(item),
-                onWatchlistPressed: () => widget.onBookmark(item),
+              return BlocSelector<HomeFeedCubit, HomeFeedState, bool>(
+                selector: (s) =>
+                    item.id != null &&
+                    s.libraryStatus[item.id] == WatchStatus.watchlist,
+                builder: (context, isBookmarked) => _HeroCardShell(
+                  imageUrl: item.image,
+                  badgeLabel: 'PICK OF THE WEEK',
+                  badgeIcon: Icons.auto_awesome_rounded,
+                  rating: item.rating,
+                  typeLabel: CinemaType.fromJson(item.cinemaType ?? 'movie')
+                      .displayName,
+                  year: item.year,
+                  title: item.title,
+                  isBookmarked: isBookmarked,
+                  onDetailsPressed: () => widget.onDetails(item),
+                  onWatchlistPressed: () => widget.onBookmark(item),
+                ),
               );
             },
           ),
@@ -624,31 +630,33 @@ class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
 class _FallbackHero extends StatelessWidget {
   final MoviePoster item;
   final CinemaType type;
-  final bool isBookmarked;
   final VoidCallback onDetails;
   final VoidCallback onBookmark;
 
   const _FallbackHero({
     required this.item,
     required this.type,
-    required this.isBookmarked,
     required this.onDetails,
     required this.onBookmark,
   });
 
   @override
   Widget build(BuildContext context) {
-    return _HeroCardShell(
-      imageUrl: item.image,
-      badgeLabel: 'TRENDING #1',
-      badgeIcon: Icons.local_fire_department_rounded,
-      rating: item.rating,
-      typeLabel: type.displayName,
-      year: item.year,
-      title: item.title,
-      isBookmarked: isBookmarked,
-      onDetailsPressed: onDetails,
-      onWatchlistPressed: onBookmark,
+    return BlocSelector<HomeFeedCubit, HomeFeedState, bool>(
+      selector: (s) =>
+          item.id != null && s.libraryStatus[item.id] == WatchStatus.watchlist,
+      builder: (context, isBookmarked) => _HeroCardShell(
+        imageUrl: item.image,
+        badgeLabel: 'TRENDING #1',
+        badgeIcon: Icons.local_fire_department_rounded,
+        rating: item.rating,
+        typeLabel: type.displayName,
+        year: item.year,
+        title: item.title,
+        isBookmarked: isBookmarked,
+        onDetailsPressed: onDetails,
+        onWatchlistPressed: onBookmark,
+      ),
     );
   }
 }
@@ -682,6 +690,8 @@ class _HeroCardShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dpr = MediaQuery.of(context).devicePixelRatio;
+    final screenW = MediaQuery.of(context).size.width;
     return Container(
       height: 284.h,
       decoration: BoxDecoration(
@@ -700,6 +710,10 @@ class _HeroCardShell extends StatelessWidget {
             if (imageUrl.isNotEmpty)
               Image.network(imageUrl,
                   fit: BoxFit.cover,
+                  // Width only — passing both dims stretches the decode
+                  // to that exact box and distorts the image if its real
+                  // aspect ratio doesn't match.
+                  cacheWidth: (screenW * dpr).round(),
                   errorBuilder: (_, __, ___) =>
                       Container(color: context.colors.surfaceMuted))
             else
