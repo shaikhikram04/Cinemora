@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Source = Literal["tmdb", "jikan"]
+Source = Literal["tmdb", "anilist"]
 CinemaType = Literal["movie", "tv", "anime"]
 
 

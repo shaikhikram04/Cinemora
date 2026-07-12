@@ -5,13 +5,13 @@ from bson.errors import InvalidId
 
 from db.mongo import library_entries_collection
 from db.redis import get_redis
-from tmdb import jikan_client, tmdb_client
+from tmdb import anilist_client, tmdb_client
 
 # Live-proxy TMDB's `/recommendations` endpoint (movie/tv — curated
 # "users who liked X also liked Y", not TMDB's `/similar`, which is a weak
 # genre/keyword match with total_results running into the hundreds of
-# thousands, i.e. effectively noise) and Jikan's crowd-voted
-# `/recommendations` endpoint (anime — a different shape, own mapper).
+# thousands, i.e. effectively noise) and AniList's crowd-voted
+# `recommendations` field (anime — a different shape, own mapper).
 # Deliberately not routed through Node even though Node already fetches
 # TMDB's `similar` field and discards it: that field is the noisy one, it
 # skips anime entirely, and it splits recommendation logic across services.
@@ -40,14 +40,15 @@ def _public_tmdb(r: dict, media_type: str) -> dict:
     }
 
 
-def _public_jikan(entry: dict) -> dict:
-    anime = entry.get("entry") or entry
+def _public_anilist(node: dict) -> dict:
+    anime = node.get("mediaRecommendation") or {}
+    title_obj = anime.get("title") or {}
     return {
-        "source": "jikan",
-        "sourceId": anime.get("mal_id"),
+        "source": "anilist",
+        "sourceId": anime.get("idMal"),
         "cinemaType": "anime",
-        "title": anime.get("title") or "Untitled",
-        "posterPath": ((anime.get("images") or {}).get("jpg") or {}).get("image_url"),
+        "title": title_obj.get("english") or title_obj.get("romaji") or "Untitled",
+        "posterPath": (anime.get("coverImage") or {}).get("large"),
         "year": None,
         "rating": None,
         "genres": [],
@@ -80,8 +81,11 @@ async def _fetch_candidates(cinema_type: str, source_id: int) -> list[dict]:
         return json.loads(cached)
 
     if cinema_type == "anime":
-        data = await jikan_client.fetch_recommendations(source_id)
-        candidates = [_public_jikan(e) for e in data.get("data", [])]
+        data = await anilist_client.fetch_recommendations(source_id)
+        nodes = (((data.get("data") or {}).get("Media") or {}).get("recommendations") or {}).get(
+            "nodes", []
+        )
+        candidates = [_public_anilist(n) for n in nodes if (n.get("mediaRecommendation") or {}).get("idMal")]
     else:
         data = await tmdb_client.fetch_recommendations(cinema_type, source_id)
         candidates = [

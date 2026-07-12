@@ -33,8 +33,8 @@ _RANKING_WEIGHT_MULTIPLIER = 3.0
 # user today, so an era-matching term would be dead code. Its weight was
 # folded into genre affinity instead. Revisit if onboarding ever persists it.
 _WEIGHT_GENRE_AFFINITY = 0.6
-_WEIGHT_RATING = 0.3
-_WEIGHT_LANGUAGE = 0.1
+_WEIGHT_RATING = 0.2
+_WEIGHT_LANGUAGE = 0.2
 
 
 def _to_object_id(user_id: str) -> ObjectId | None:
@@ -83,7 +83,7 @@ def _rank_weight(rank: int) -> float:
 
 
 def _catalog_key(cinema_type: str, tmdb_id: int) -> tuple[str, int, str]:
-    source = "jikan" if cinema_type == "anime" else "tmdb"
+    source = "anilist" if cinema_type == "anime" else "tmdb"
     return (source, tmdb_id, cinema_type)
 
 
@@ -179,10 +179,13 @@ def _public(doc: dict) -> dict:
     }
 
 
-async def score_candidates(user_id: str, cinema_type: str | None, limit: int = 20) -> list[dict]:
+async def score_candidates(user_id: str, cinema_type: str | None, limit: int | None = 20) -> list[dict]:
     """General personalized candidate scorer — the shared engine behind both
     'Because You Ranked' (live, Phase 2a) and 'Pick of the Week' (weekly
-    precompute, Phase 2b). cinema_type=None scores across the whole catalog."""
+    precompute, Phase 2b). cinema_type=None scores across the whole catalog.
+    limit=None returns the full ranked list, unsliced — used by callers that
+    need to apply their own selection on top of the ranking (e.g. Pick of the
+    Week's type-mix cap)."""
     user = await _user_doc(user_id)
     language_codes = to_iso_codes(((user or {}).get("preferences") or {}).get("languages") or [])
 
@@ -211,7 +214,8 @@ async def score_candidates(user_id: str, cinema_type: str | None, limit: int = 2
         scored.append((score, doc))
 
     scored.sort(key=lambda pair: pair[0], reverse=True)
-    return [_public(doc) for _, doc in scored[:limit]]
+    ranked = scored if limit is None else scored[:limit]
+    return [_public(doc) for _, doc in ranked]
 
 
 def _matches_type(entry: dict, cinema_type: str | None) -> bool:
