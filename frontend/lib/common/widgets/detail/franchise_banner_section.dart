@@ -39,6 +39,11 @@ class FranchiseBannerSection extends StatelessWidget {
                     ? Image.network(
                         collection.posterUrl,
                         fit: BoxFit.cover,
+                        // Width only — see poster_image.dart for why
+                        // passing both dims can distort the decode.
+                        cacheWidth: (44.w *
+                                MediaQuery.of(context).devicePixelRatio)
+                            .round(),
                         errorBuilder: (_, __, ___) => Icon(
                           Icons.collections_bookmark_rounded,
                           color: context.colors.mutedForeground,

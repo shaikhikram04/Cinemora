@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
@@ -8,6 +9,7 @@ import 'library_state.dart';
 
 class LibraryCubit extends Cubit<LibraryState> {
   final LibraryRepository _repo;
+  Timer? _searchDebounce;
 
   LibraryCubit(this._repo) : super(LibraryState());
 
@@ -63,7 +65,16 @@ class LibraryCubit extends Cubit<LibraryState> {
 
   void toggleSortPanel() => emit(state.copyWith(isSortOpen: !state.isSortOpen));
 
-  void updateSearch(String query) => emit(state.copyWith(searchQuery: query));
+  // Debounced — searchQuery drives a full filter+sort pass over the whole
+  // library (see LibraryState), so emitting on every keystroke would re-scan
+  // the list on every character typed.
+  void updateSearch(String query) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+      if (isClosed) return;
+      emit(state.copyWith(searchQuery: query));
+    });
+  }
 
   void selectSort(String sort) =>
       emit(state.copyWith(selectedSort: sort, isSortOpen: false));
@@ -186,5 +197,11 @@ class LibraryCubit extends Cubit<LibraryState> {
       ..removeWhere(
           (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
     emit(state.copyWith(entries: entries));
+  }
+
+  @override
+  Future<void> close() {
+    _searchDebounce?.cancel();
+    return super.close();
   }
 }

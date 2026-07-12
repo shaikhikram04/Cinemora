@@ -511,6 +511,11 @@ class _RankingPreview extends StatelessWidget {
                           width: 36.w,
                           height: 50.h,
                           fit: BoxFit.cover,
+                          // Width only — see poster_image.dart for why
+                          // passing both dims can distort the decode.
+                          cacheWidth: (36.w *
+                                  MediaQuery.of(context).devicePixelRatio)
+                              .round(),
                           errorBuilder: (_, __, ___) => Container(
                             width: 36.w,
                             height: 50.h,
@@ -690,6 +695,15 @@ class _BattleCardState extends State<_BattleCard> {
                     height: 176.h,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    // Card is one of two side-by-side Expanded columns —
+                    // roughly half the screen width minus padding/gutter.
+                    // Width only — see poster_image.dart for why passing
+                    // both dims can distort the decode.
+                    cacheWidth: ((MediaQuery.of(context).size.width -
+                                WSizes.screenPadding.w * 2) /
+                            2 *
+                            MediaQuery.of(context).devicePixelRatio)
+                        .round(),
                     errorBuilder: (_, __, ___) => Container(
                       height: 176.h,
                       color: context.colors.surfaceMuted,

@@ -20,13 +20,24 @@ class DetailHeroShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dpr = MediaQuery.of(context).devicePixelRatio;
+    final screenW = MediaQuery.of(context).size.width;
     return Stack(
       children: [
         Container(
           height: WSizes.imageDetailsHeroHeight.h,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: NetworkImage(imageUrl),
+              // DecorationImage has no cacheWidth/cacheHeight of its own —
+              // ResizeImage caps the decode size the same way, avoiding a
+              // full-resolution TMDB backdrop decode on every details page.
+              // Width only: passing both dims stretches the decode to that
+              // exact box, distorting the image if its real aspect ratio
+              // doesn't match.
+              image: ResizeImage(
+                NetworkImage(imageUrl),
+                width: (screenW * dpr).round(),
+              ),
               fit: BoxFit.cover,
             ),
           ),

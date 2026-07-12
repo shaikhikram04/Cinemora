@@ -72,6 +72,15 @@ class _DiscoverContentState extends State<_DiscoverContent> {
           if (state.searchQuery.isNotEmpty) _focusNode.requestFocus();
         }
       },
+      // onSearchChanged emits a new searchQuery on every keystroke (the
+      // actual network search is debounced separately) so the TextField's
+      // own listener above can stay in sync. Without this, that per-keystroke
+      // emission would rebuild the whole CustomScrollView — including any
+      // already-rendered results grid — on every character typed. Once the
+      // debounce settles and searchStatus/searchResults actually change,
+      // buildWhen lets the rebuild through and picks up the final query.
+      buildWhen: (prev, curr) =>
+          prev.copyWith(searchQuery: '') != curr.copyWith(searchQuery: ''),
       builder: (context, state) {
         final cubit = context.read<DiscoverCubit>();
         return GestureDetector(

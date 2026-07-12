@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["Watchary"]
+  "cSpell.words": ["Watchary"],
+  "python.defaultInterpreterPath": "${workspaceFolder}/recommender/.venv/bin/python"
 }

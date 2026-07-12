@@ -148,6 +148,10 @@ class _PosterThumbnail extends StatelessWidget {
             ? Image.network(
                 url,
                 fit: BoxFit.cover,
+                // Width only — see poster_image.dart for why passing both
+                // dims can distort the decoded image.
+                cacheWidth:
+                    (54.w * MediaQuery.of(context).devicePixelRatio).round(),
                 errorBuilder: (_, __, ___) => _placeholder(context),
               )
             : _placeholder(context),
