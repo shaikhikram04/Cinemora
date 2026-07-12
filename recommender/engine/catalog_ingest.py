@@ -6,13 +6,25 @@ from pymongo.errors import DuplicateKeyError
 from config.settings import get_settings
 from db.mongo import content_catalog_collection, ingestion_locks_collection
 from engine.genre_map import canonicalize_genres
-from tmdb import jikan_client, tmdb_client
+from tmdb import anilist_client, tmdb_client
 
 _LOCK_ID = "catalog_ingest"
 _LOCK_LEASE_SECONDS = 30 * 60
 
 _TMDB_MEDIA_TYPES = ["movie", "tv"]
-_JIKAN_FILTERS = ["bypopularity", "favorite"]
+_ANILIST_SORTS = ["POPULARITY_DESC", "FAVOURITES_DESC"]
+
+# TMDB's trending/top_rated for movie & tv include Japanese anime (TMDB has
+# no separate "anime" media_type) — Genre 16 is "Animation". Anime already
+# has a dedicated, better-fitted pipeline via AniList (_collect_anilist) with
+# its own genres and MAL-linked score, so TMDB anime hits are skipped here
+# rather than reclassified, to avoid ending up with the same title twice in
+# the catalog under two different sources.
+_TMDB_ANIMATION_GENRE_ID = 16
+
+
+def _is_tmdb_anime(r: dict) -> bool:
+    return _TMDB_ANIMATION_GENRE_ID in (r.get("genre_ids") or []) and r.get("original_language") == "ja"
 
 
 async def _acquire_lock() -> bool:
@@ -46,6 +58,8 @@ def _accumulate_tmdb_item(items: dict[int, dict], r: dict, media_type: str, genr
     source_id = r.get("id")
     if not source_id:
         return
+    if _is_tmdb_anime(r):
+        return
     title = r.get("title") or r.get("name") or "Untitled"
     date = r.get("release_date") or r.get("first_air_date") or ""
     genre_names = [genre_map.get(gid) for gid in r.get("genre_ids", [])]
@@ -76,39 +90,46 @@ async def _collect_tmdb(media_type: str, genre_map: dict[int, str], page_limit: 
     return list(items.values())
 
 
-def _accumulate_jikan_item(items: dict[int, dict], r: dict) -> None:
-    source_id = r.get("mal_id")
+def _accumulate_anilist_item(items: dict[int, dict], r: dict) -> None:
+    # idMal is what LibraryEntry/ranking entries store in tmdbId for anime
+    # (see tmdbId-not-globally-unique convention) — entries AniList carries
+    # that have no MAL mapping (manhwa/donghua typed as ANIME) can't be
+    # cross-referenced against user data, so they're skipped.
+    source_id = r.get("idMal")
     if not source_id:
         return
-    raw_genres = [g.get("name") for g in (r.get("genres") or [])]
-    raw_genres += [g.get("name") for g in (r.get("themes") or [])]
-    aired_from = (r.get("aired") or {}).get("from") or ""
-    year = aired_from.split("-")[0] if aired_from else (str(r["year"]) if r.get("year") else None)
+    title_obj = r.get("title") or {}
+    title = title_obj.get("english") or title_obj.get("romaji") or "Untitled"
+    year = (r.get("startDate") or {}).get("year")
     items[source_id] = {
-        "source": "jikan",
+        "source": "anilist",
         "sourceId": source_id,
         "cinemaType": "anime",
-        "title": r.get("title") or "Untitled",
-        "posterPath": ((r.get("images") or {}).get("jpg") or {}).get("image_url"),
-        "year": year,
-        "genres": canonicalize_genres([g for g in raw_genres if g]),
-        "rawRating": float(r.get("score") or 0.0),
-        "voteCount": int(r.get("scored_by") or 0),
-        # Jikan/MAL is anime-specific — original audio is Japanese by convention.
+        "title": title,
+        "posterPath": (r.get("coverImage") or {}).get("large"),
+        "year": str(year) if year else None,
+        "genres": canonicalize_genres(r.get("genres") or []),
+        # averageScore is 0-100 on AniList; normalize to the 0-10 scale used
+        # by TMDB's vote_average so Bayesian scoring can compare fairly.
+        "rawRating": float(r.get("averageScore") or 0.0) / 10,
+        # AniList doesn't expose a "number of scorers" — popularity (list
+        # adds) is the closest confidence proxy for the Bayesian prior.
+        "voteCount": int(r.get("popularity") or 0),
+        # AniList/MAL anime — original audio is Japanese by convention.
         "originalLanguage": "ja",
     }
 
 
-async def _collect_jikan(page_limit: int) -> list[dict]:
+async def _collect_anilist(page_limit: int) -> list[dict]:
     items: dict[int, dict] = {}
-    for filt in _JIKAN_FILTERS:
+    for sort in _ANILIST_SORTS:
         for page in range(1, page_limit + 1):
-            data = await jikan_client.fetch_top(filt, page, limit=25)
-            entries = data.get("data", [])
+            data = await anilist_client.fetch_top(sort, page, per_page=25)
+            entries = ((data.get("data") or {}).get("Page") or {}).get("media", [])
             if not entries:
                 break
             for r in entries:
-                _accumulate_jikan_item(items, r)
+                _accumulate_anilist_item(items, r)
     return list(items.values())
 
 
@@ -162,7 +183,7 @@ async def run_ingestion() -> dict:
         for media_type in _TMDB_MEDIA_TYPES:
             genre_map = await _build_tmdb_genre_map(media_type)
             raw_items += await _collect_tmdb(media_type, genre_map, settings.catalog_page_limit)
-        raw_items += await _collect_jikan(settings.catalog_page_limit)
+        raw_items += await _collect_anilist(settings.catalog_page_limit)
 
         scored = _apply_bayesian_scores(raw_items)
         upserted = await _upsert_catalog(scored)

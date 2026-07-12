@@ -13,7 +13,7 @@ from db.mongo import (
 from db.redis import close_redis
 from engine.catalog_ingest import run_ingestion
 from routes import health, ingest, mood, recommendations
-from tmdb import jikan_client, tmdb_client
+from tmdb import anilist_client, tmdb_client
 
 scheduler = AsyncIOScheduler()
 
@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
     yield
     scheduler.shutdown(wait=False)
     await tmdb_client.close_client()
-    await jikan_client.close_client()
+    await anilist_client.close_client()
     await close_db()
     await close_redis()
 
