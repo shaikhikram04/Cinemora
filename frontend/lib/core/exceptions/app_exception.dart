@@ -42,6 +42,12 @@ class BackendException extends AppException {
         'SESSION_MISSING_FIELDS' => 'Missing required session fields.',
         // Users
         'USER_NOT_FOUND' => 'Account not found.',
+        // Profile images
+        'IMAGE_INVALID_TYPE' => 'Please pick a JPEG, PNG or WebP image.',
+        'IMAGE_TOO_LARGE' => 'That image is too large — pick one under 5 MB.',
+        'IMAGE_REQUIRED' => 'No image was selected.',
+        'IMAGE_UPLOAD_FAILED' =>
+          'Could not upload the image. Please try again.',
         // Notifications
         'NOTIFICATION_NOT_FOUND' => 'Notification not found.',
         // Mood chat — the recommender sends a specific user-facing reason

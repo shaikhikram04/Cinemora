@@ -21,6 +21,7 @@ class EditProfileView extends StatelessWidget {
     return BlocProvider(
       create: (ctx) => EditProfileCubit(
         ctx.read<UserRepository>(),
+        ctx.read<AppAuthCubit>(),
         user ?? const UserModel(id: '', name: '', email: '', isOnboarded: true),
       ),
       child: const _EditProfileContent(),
@@ -98,9 +99,8 @@ class _EditProfileContentState extends State<_EditProfileContent> {
     'Indonesian',
   ];
 
-  static const _profileImage =
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80';
-
+  // Placeholder cover, shown only until the user picks one of their own. There's
+  // no avatar equivalent — an unset avatar falls back to a person icon.
   static const _coverImage =
       'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80';
 
@@ -190,6 +190,9 @@ class _EditProfileContentState extends State<_EditProfileContent> {
         builder: (context, state) {
           final cubit = context.read<EditProfileCubit>();
           final isSaving = state.status == EditProfileStatus.saving;
+          // Saving mid-upload would race the image write against the profile
+          // write and could return a user without the new URL.
+          final canSave = !isSaving && !state.isUploading;
 
           return Scaffold(
             backgroundColor: context.colors.background,
@@ -198,19 +201,16 @@ class _EditProfileContentState extends State<_EditProfileContent> {
               child: Column(
                 children: [
                   _TopBar(
-                    onSave: isSaving ? null : () => _handleSave(context),
+                    onSave: canSave ? () => _handleSave(context) : null,
                     isSaving: isSaving,
                   ),
                   SizedBox(height: 12.h),
                   Expanded(
                     child: ListView(
-                      padding: EdgeInsets.fromLTRB(0, 0, 0, 100.h),
+                      padding: EdgeInsets.fromLTRB(0, 0, 0, 48.h),
                       physics: const BouncingScrollPhysics(),
                       children: [
-                        _CoverAvatarSection(
-                          coverImage: _coverImage,
-                          profileImage: _profileImage,
-                        ),
+                        const _CoverAvatarSection(coverImage: _coverImage),
                         SizedBox(height: 24.h),
                         Padding(
                           padding: EdgeInsets.symmetric(
@@ -330,48 +330,6 @@ class _EditProfileContentState extends State<_EditProfileContent> {
                                 ],
                               ),
                               SizedBox(height: 24.h),
-                              GestureDetector(
-                                onTap: cubit.togglePreview,
-                                child: Row(
-                                  children: [
-                                    const _SectionLabel(
-                                        label: 'PROFILE PREVIEW'),
-                                    const Spacer(),
-                                    Text(
-                                      state.showPreview ? 'Hide' : 'Show',
-                                      style: TextStyle(
-                                        color: context.colors.accentRed,
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              if (state.showPreview) ...[
-                                SizedBox(height: 12.h),
-                                // Rebuild the preview on every keystroke by
-                                // listening to the controllers via ValueListenableBuilder.
-                                ValueListenableBuilder(
-                                  valueListenable: _nameController,
-                                  builder: (_, __, ___) =>
-                                      ValueListenableBuilder(
-                                    valueListenable: _usernameController,
-                                    builder: (_, __, ___) =>
-                                        ValueListenableBuilder(
-                                      valueListenable: _bioController,
-                                      builder: (_, __, ___) =>
-                                          _ProfilePreviewCard(
-                                        name: _nameController.text,
-                                        username: _usernameController.text,
-                                        bio: _bioController.text,
-                                        profileImage: _profileImage,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              SizedBox(height: 24.h),
                               _SaveButton(
                                 onSave: isSaving
                                     ? null
@@ -487,105 +445,155 @@ class _TopBar extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _CoverAvatarSection extends StatelessWidget {
+  /// Shown until the user has picked a cover of their own.
   final String coverImage;
-  final String profileImage;
 
-  const _CoverAvatarSection({
-    required this.coverImage,
-    required this.profileImage,
-  });
+  const _CoverAvatarSection({required this.coverImage});
 
   @override
   Widget build(BuildContext context) {
-    // Read live avatar from auth state so it reflects the real photo.
-    final authState = context.read<AppAuthCubit>().state;
-    final avatarUrl =
-        authState is AppAuthAuthenticated ? authState.user.avatar : null;
+    final cubit = context.read<EditProfileCubit>();
 
-    return SizedBox(
-      height: 200.h,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            height: 150.h,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(coverImage),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    context.colors.background.withValues(alpha: 0.7),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 12.h,
-            right: 16.w,
-            child: const _EditOverlay(label: 'Cover'),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Stack(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(3.w),
+    return BlocBuilder<EditProfileCubit, EditProfileState>(
+      builder: (context, state) {
+        final coverUrl = state.coverUrl;
+        final avatarUrl = state.avatarUrl;
+
+        return SizedBox(
+          height: 200.h,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              GestureDetector(
+                onTap: state.isUploading ? null : cubit.pickCover,
+                child: Container(
+                  height: 150.h,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(coverUrl ?? coverImage),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: Container(
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
                       gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                         colors: [
-                          context.colors.accentPurple.withValues(alpha: 0.8),
-                          context.colors.accentRed.withValues(alpha: 0.8),
+                          Colors.transparent,
+                          context.colors.background.withValues(alpha: 0.7),
                         ],
                       ),
                     ),
-                    child: CircleAvatar(
-                      radius: 48.r,
-                      backgroundImage: avatarUrl != null
-                          ? NetworkImage(avatarUrl)
-                          : NetworkImage(profileImage),
-                      backgroundColor: context.colors.surfaceRaised2,
-                    ),
+                    child: state.isUploadingCover
+                        ? const _UploadingScrim()
+                        : null,
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      width: 28.w,
-                      height: 28.w,
-                      decoration: BoxDecoration(
-                        color: context.colors.accentRed,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: context.colors.background,
-                          width: 2,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.camera_alt_rounded,
-                        size: 14.sp,
-                        color: context.colors.primaryForeground,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              Positioned(
+                top: 12.h,
+                right: 16.w,
+                child: GestureDetector(
+                  onTap: state.isUploading ? null : cubit.pickCover,
+                  child: const _EditOverlay(label: 'Cover'),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: GestureDetector(
+                    onTap: state.isUploading ? null : cubit.pickAvatar,
+                    child: Stack(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(3.w),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [
+                                context.colors.accentPurple
+                                    .withValues(alpha: 0.8),
+                                context.colors.accentRed.withValues(alpha: 0.8),
+                              ],
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 48.r,
+                            backgroundColor: context.colors.surfaceRaised2,
+                            backgroundImage: avatarUrl != null
+                                ? NetworkImage(avatarUrl)
+                                : null,
+                            child: state.isUploadingAvatar
+                                ? const _UploadingScrim(circular: true)
+                                : avatarUrl == null
+                                    ? Icon(
+                                        Icons.person_rounded,
+                                        size: 40.sp,
+                                        color: context.colors.mutedSecondary,
+                                      )
+                                    : null,
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            width: 28.w,
+                            height: 28.w,
+                            decoration: BoxDecoration(
+                              color: context.colors.accentRed,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: context.colors.background,
+                                width: 2,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.camera_alt_rounded,
+                              size: 14.sp,
+                              color: context.colors.primaryForeground,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        );
+      },
+    );
+  }
+}
+
+/// Darkens the image being replaced and spins over it while the upload runs.
+class _UploadingScrim extends StatelessWidget {
+  final bool circular;
+
+  const _UploadingScrim({this.circular = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: context.colors.background.withValues(alpha: 0.55),
+        shape: circular ? BoxShape.circle : BoxShape.rectangle,
+      ),
+      child: Center(
+        child: SizedBox(
+          width: 24.w,
+          height: 24.w,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: context.colors.accentRed,
+          ),
+        ),
       ),
     );
   }
@@ -976,122 +984,6 @@ class _MoreLanguagesSheet extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Profile preview
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _ProfilePreviewCard extends StatelessWidget {
-  final String name;
-  final String username;
-  final String bio;
-  final String profileImage;
-
-  const _ProfilePreviewCard({
-    required this.name,
-    required this.username,
-    required this.bio,
-    required this.profileImage,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final authState = context.read<AppAuthCubit>().state;
-    final avatarUrl =
-        authState is AppAuthAuthenticated ? authState.user.avatar : null;
-
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: context.colors.surfaceRaised.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: context.colors.borderStrong),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-            decoration: BoxDecoration(
-              color: context.colors.accentPurple.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(
-                  color: context.colors.accentPurple.withValues(alpha: 0.2)),
-            ),
-            child: Text(
-              'PREVIEW',
-              style: TextStyle(
-                color: context.colors.accentPurple,
-                fontSize: 9.sp,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-          SizedBox(height: 14.h),
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(2.w),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [
-                      context.colors.accentPurple.withValues(alpha: 0.6),
-                      context.colors.accentRed.withValues(alpha: 0.6),
-                    ],
-                  ),
-                ),
-                child: CircleAvatar(
-                  radius: 24.r,
-                  backgroundImage: avatarUrl != null
-                      ? NetworkImage(avatarUrl)
-                      : NetworkImage(profileImage),
-                  backgroundColor: context.colors.surfaceRaised2,
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name.isEmpty ? 'Display Name' : name,
-                      style: TextStyle(
-                        color: context.colors.foreground,
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      '@${username.isEmpty ? "username" : username}',
-                      style: TextStyle(
-                        color: context.colors.mutedSecondary,
-                        fontSize: 12.sp,
-                      ),
-                    ),
-                    if (bio.isNotEmpty) ...[
-                      SizedBox(height: 4.h),
-                      Text(
-                        bio,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: context.colors.mutedSecondarySoft,
-                          fontSize: 11.sp,
-                          height: 1.3,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

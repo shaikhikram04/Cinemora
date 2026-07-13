@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../models/library_entry_model.dart';
 import '../models/library_stats_model.dart';
 import '../models/user_model.dart';
@@ -12,6 +14,29 @@ class UserRepository {
     final res = await _apiClient.dio.get('/auth/me');
     return UserModel.fromJson(res.data as Map<String, dynamic>);
   }
+
+  /// Uploads the picked image and returns the user with the new URL already
+  /// persisted — the backend stores it on Cloudinary and writes the URL to
+  /// Mongo in one request, so there's nothing left for the caller to save.
+  Future<UserModel> _uploadImage(String path, String endpoint) async {
+    try {
+      final form = FormData.fromMap({
+        'image': await MultipartFile.fromFile(path),
+      });
+      final res = await _apiClient.dio.post(endpoint, data: form);
+      return UserModel.fromJson(res.data as Map<String, dynamic>);
+    } catch (e) {
+      // Surfaces the backend's own reason (too large, wrong type) instead of a
+      // bare DioException the cubit would flatten into "something went wrong".
+      throw ApiClient.parseError(e);
+    }
+  }
+
+  Future<UserModel> uploadAvatar(String path) =>
+      _uploadImage(path, '/users/avatar');
+
+  Future<UserModel> uploadCover(String path) =>
+      _uploadImage(path, '/users/cover');
 
   Future<UserModel> updateProfile({
     required String name,

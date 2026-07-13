@@ -89,6 +89,17 @@ class _AuthInterceptor extends Interceptor {
 
   _AuthInterceptor(this._storage, this._plainDio);
 
+  /// A FormData body is a single-use stream: it was already consumed by the
+  /// request that 401'd, so replaying it verbatim uploads an empty body. Clone
+  /// it (multipart files are re-read from their path) before retrying.
+  RequestOptions _replayable(RequestOptions opts, String token) {
+    opts.headers['Authorization'] = 'Bearer $token';
+    if (opts.data is FormData) {
+      opts.data = (opts.data as FormData).clone();
+    }
+    return opts;
+  }
+
   @override
   Future<void> onRequest(
     RequestOptions options,
@@ -118,9 +129,9 @@ class _AuthInterceptor extends Interceptor {
       _queue.add(completer);
       try {
         final newToken = await completer.future;
-        final opts = err.requestOptions;
-        opts.headers['Authorization'] = 'Bearer $newToken';
-        handler.resolve(await _plainDio.fetch(opts));
+        handler.resolve(
+          await _plainDio.fetch(_replayable(err.requestOptions, newToken)),
+        );
       } catch (_) {
         handler.next(err);
       }
@@ -143,9 +154,9 @@ class _AuthInterceptor extends Interceptor {
         c.complete(newToken);
       }
 
-      final opts = err.requestOptions;
-      opts.headers['Authorization'] = 'Bearer $newToken';
-      handler.resolve(await _plainDio.fetch(opts));
+      handler.resolve(
+        await _plainDio.fetch(_replayable(err.requestOptions, newToken)),
+      );
     } catch (_) {
       await _storage.clearAll();
       for (final c in _queue) {

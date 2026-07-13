@@ -7,7 +7,15 @@ class EditProfileState extends Equatable {
   final EditProfileStatus status;
   final List<String> selectedGenres;
   final List<String> selectedLanguages;
-  final bool showPreview;
+
+  // Avatar and cover persist the moment they're picked, independently of the
+  // Save button — so they carry their own URLs and in-flight flags rather than
+  // riding on `status` (which the view uses to pop the screen on success).
+  final String? avatarUrl;
+  final String? coverUrl;
+  final bool isUploadingAvatar;
+  final bool isUploadingCover;
+
   final UserModel? savedUser;
   final String? error;
 
@@ -15,7 +23,10 @@ class EditProfileState extends Equatable {
     this.status = EditProfileStatus.idle,
     this.selectedGenres = const ['Drama', 'Thriller', 'Psychological'],
     this.selectedLanguages = const ['English'],
-    this.showPreview = false,
+    this.avatarUrl,
+    this.coverUrl,
+    this.isUploadingAvatar = false,
+    this.isUploadingCover = false,
     this.savedUser,
     this.error,
   });
@@ -28,14 +39,21 @@ class EditProfileState extends Equatable {
       selectedLanguages: user.preferences.languages.isNotEmpty
           ? List<String>.from(user.preferences.languages)
           : const ['English'],
+      avatarUrl: user.avatar,
+      coverUrl: user.framePoster,
     );
   }
+
+  bool get isUploading => isUploadingAvatar || isUploadingCover;
 
   EditProfileState copyWith({
     EditProfileStatus? status,
     List<String>? selectedGenres,
     List<String>? selectedLanguages,
-    bool? showPreview,
+    String? avatarUrl,
+    String? coverUrl,
+    bool? isUploadingAvatar,
+    bool? isUploadingCover,
     UserModel? savedUser,
     String? error,
   }) {
@@ -43,7 +61,10 @@ class EditProfileState extends Equatable {
       status: status ?? this.status,
       selectedGenres: selectedGenres ?? this.selectedGenres,
       selectedLanguages: selectedLanguages ?? this.selectedLanguages,
-      showPreview: showPreview ?? this.showPreview,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      coverUrl: coverUrl ?? this.coverUrl,
+      isUploadingAvatar: isUploadingAvatar ?? this.isUploadingAvatar,
+      isUploadingCover: isUploadingCover ?? this.isUploadingCover,
       savedUser: savedUser ?? this.savedUser,
       error: error ?? this.error,
     );
@@ -54,7 +75,10 @@ class EditProfileState extends Equatable {
         status,
         selectedGenres,
         selectedLanguages,
-        showPreview,
+        avatarUrl,
+        coverUrl,
+        isUploadingAvatar,
+        isUploadingCover,
         savedUser,
         error,
       ];
