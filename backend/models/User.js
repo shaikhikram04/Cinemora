@@ -23,7 +23,8 @@ const userSchema = new mongoose.Schema(
       },
       genres: { type: [String], default: [] },
       languages: { type: [String], default: [] },
-      era: { type: String },
+      // `era` was removed: favorite era is now derived from the user's library
+      // rather than hand-picked. Existing docs may still carry the dead field.
     },
     fcmToken: { type: String },
   },

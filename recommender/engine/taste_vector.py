@@ -26,12 +26,13 @@ _LIBRARY_STATUS_BASE = {
 }
 _RANKING_WEIGHT_MULTIPLIER = 3.0
 
-# era_match was dropped from the scoring formula: onboarding collects an
-# `era` preference field, but nothing in the app currently writes to it
-# (frontend/lib/features/onboarding/viewmodels/onboarding_cubit.dart only
-# sends contentTypes/genres/languages) — it's always null for every real
-# user today, so an era-matching term would be dead code. Its weight was
-# folded into genre affinity instead. Revisit if onboarding ever persists it.
+# era_match is deliberately absent from the scoring formula. Favorite era is no
+# longer a stored preference at all — it's derived from the user's library on the
+# client for display only (frontend/lib/core/utils/era_insight.dart, which mirrors
+# the status/rating/rewatch weights above). Era is real signal now, so an era term
+# here is finally possible; it's held back until the derived era proves itself,
+# since scoring on it narrows every personalized row toward one decade. Its weight
+# stays folded into genre affinity for now.
 _WEIGHT_GENRE_AFFINITY = 0.6
 _WEIGHT_RATING = 0.2
 _WEIGHT_LANGUAGE = 0.2

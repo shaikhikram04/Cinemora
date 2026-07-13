@@ -33,16 +33,19 @@ class WSectionHeader extends StatelessWidget {
           child: Icon(icon, size: 12.sp, color: iconColor),
         ),
         SizedBox(width: WSizes.sm.w),
-        Text(
-          title,
-          style: TextStyle(
-            color: context.colors.foreground,
-            fontSize: 17.sp,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.2,
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              color: context.colors.foreground,
+              fontSize: 17.sp,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.2,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        const Spacer(),
         if (onTapSuffix != null)
           Material(
             color: Colors.transparent,
@@ -62,15 +65,6 @@ class WSectionHeader extends StatelessWidget {
               ),
             ),
           )
-        else
-          Text(
-            suffixLabel,
-            style: TextStyle(
-              color: context.colors.accentRedAlt,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
       ],
     );
   }

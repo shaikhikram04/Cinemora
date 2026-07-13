@@ -102,7 +102,10 @@ class _ProfileContent extends StatelessWidget {
                             subtitle: 'What defines your watch list',
                           ),
                           SizedBox(height: 10.h),
-                          ProfileTasteSection(user: user),
+                          ProfileTasteSection(
+                            user: user,
+                            era: profileState.favoriteEra,
+                          ),
                           SizedBox(height: 32.h),
                           const ProfileSectionHeader(
                             title: 'Top Favorites',

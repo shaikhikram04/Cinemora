@@ -20,10 +20,15 @@ class EditProfileCubit extends Cubit<EditProfileState> {
     emit(state.copyWith(selectedGenres: current));
   }
 
-  void selectLanguage(String language) =>
-      emit(state.copyWith(selectedLanguage: language));
-
-  void selectEra(String era) => emit(state.copyWith(selectedEra: era));
+  void toggleLanguage(String language) {
+    final current = List<String>.from(state.selectedLanguages);
+    if (current.contains(language)) {
+      current.remove(language);
+    } else {
+      current.add(language);
+    }
+    emit(state.copyWith(selectedLanguages: current));
+  }
 
   void togglePreview() =>
       emit(state.copyWith(showPreview: !state.showPreview));
@@ -43,8 +48,7 @@ class EditProfileCubit extends Cubit<EditProfileState> {
         username: username.trim().isEmpty ? null : username.trim(),
         bio: bio.trim().isEmpty ? null : bio.trim(),
         genres: state.selectedGenres,
-        language: state.selectedLanguage,
-        era: state.selectedEra,
+        languages: state.selectedLanguages,
       );
 
       if (!isClosed) {

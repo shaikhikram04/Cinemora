@@ -1,16 +1,16 @@
 import 'package:equatable/equatable.dart';
 
+// Favorite era used to live here as a hand-picked string. It's now derived from
+// the user's library instead — see core/utils/era_insight.dart.
 class UserPreferences extends Equatable {
   final List<String> contentTypes;
   final List<String> genres;
   final List<String> languages;
-  final String? era;
 
   const UserPreferences({
     this.contentTypes = const [],
     this.genres = const [],
     this.languages = const [],
-    this.era,
   });
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) {
@@ -18,7 +18,6 @@ class UserPreferences extends Equatable {
       contentTypes: List<String>.from(json['contentTypes'] as List? ?? []),
       genres: List<String>.from(json['genres'] as List? ?? []),
       languages: List<String>.from(json['languages'] as List? ?? []),
-      era: json['era'] as String?,
     );
   }
 
@@ -26,18 +25,16 @@ class UserPreferences extends Equatable {
     List<String>? contentTypes,
     List<String>? genres,
     List<String>? languages,
-    String? era,
   }) {
     return UserPreferences(
       contentTypes: contentTypes ?? this.contentTypes,
       genres: genres ?? this.genres,
       languages: languages ?? this.languages,
-      era: era ?? this.era,
     );
   }
 
   @override
-  List<Object?> get props => [contentTypes, genres, languages, era];
+  List<Object?> get props => [contentTypes, genres, languages];
 }
 
 class UserModel extends Equatable {

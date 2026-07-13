@@ -43,17 +43,59 @@ class _EditProfileContentState extends State<_EditProfileContent> {
   late final TextEditingController _bioController;
 
   static const _allGenres = [
-    'Drama', 'Thriller', 'Sci-Fi', 'Crime', 'Horror', 'Action',
-    'Psychological', 'Mystery', 'Romance', 'Fantasy', 'Documentary',
+    'Drama',
+    'Thriller',
+    'Sci-Fi',
+    'Crime',
+    'Horror',
+    'Action',
+    'Psychological',
+    'Mystery',
+    'Romance',
+    'Fantasy',
+    'Documentary',
     'Animation',
   ];
 
   static const _languages = [
-    'English', 'Japanese', 'Korean', 'French', 'Spanish', 'German', 'Hindi',
+    'English',
+    'Japanese',
+    'Korean',
+    'French',
+    'Spanish',
+    'German',
+    'Hindi',
   ];
 
-  static const _eras = [
-    'Pre-1970s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s',
+  // Full predefined list shown inside the "Others" sheet — leads with the
+  // quick-pick row above (so it doubles as a complete picker), followed by
+  // the languages already offered during onboarding (taste_setup_view's
+  // _kLanguages: Tamil, Telugu, Malayalam, Marathi) for consistency, then a
+  // broader predefined set.
+  static const _moreLanguages = [
+    ..._languages,
+    'Tamil',
+    'Telugu',
+    'Malayalam',
+    'Marathi',
+    'Mandarin',
+    'Cantonese',
+    'Italian',
+    'Portuguese',
+    'Russian',
+    'Arabic',
+    'Turkish',
+    'Thai',
+    'Vietnamese',
+    'Bengali',
+    'Punjabi',
+    'Gujarati',
+    'Kannada',
+    'Urdu',
+    'Dutch',
+    'Swedish',
+    'Polish',
+    'Indonesian',
   ];
 
   static const _profileImage =
@@ -67,15 +109,12 @@ class _EditProfileContentState extends State<_EditProfileContent> {
     super.initState();
     // Pre-populate from the AppAuthCubit user so fields reflect live data.
     final authState = context.read<AppAuthCubit>().state;
-    final user =
-        authState is AppAuthAuthenticated ? authState.user : null;
+    final user = authState is AppAuthAuthenticated ? authState.user : null;
 
-    _nameController =
-        TextEditingController(text: user?.name ?? '');
+    _nameController = TextEditingController(text: user?.name ?? '');
     _usernameController =
         TextEditingController(text: user?.displayUsername ?? '');
-    _bioController =
-        TextEditingController(text: user?.bio ?? '');
+    _bioController = TextEditingController(text: user?.bio ?? '');
   }
 
   @override
@@ -94,11 +133,25 @@ class _EditProfileContentState extends State<_EditProfileContent> {
         );
   }
 
+  void _openMoreLanguagesSheet(BuildContext context) {
+    final cubit = context.read<EditProfileCubit>();
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => BlocProvider.value(
+        value: cubit,
+        child: _MoreLanguagesSheet(options: _moreLanguages),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<EditProfileCubit, EditProfileState>(
       listener: (context, state) {
-        if (state.status == EditProfileStatus.success && state.savedUser != null) {
+        if (state.status == EditProfileStatus.success &&
+            state.savedUser != null) {
           // Propagate the updated user up to AppAuthCubit so every screen
           // that reads auth state (profile card, settings, etc.) refreshes.
           context.read<AppAuthCubit>().updateUser(state.savedUser!);
@@ -113,15 +166,13 @@ class _EditProfileContentState extends State<_EditProfileContent> {
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r)),
-              margin:
-                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+              margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             ),
           );
           Navigator.maybePop(context);
         }
 
-        if (state.status == EditProfileStatus.error &&
-            state.error != null) {
+        if (state.status == EditProfileStatus.error && state.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.error!, style: TextStyle(fontSize: 14.sp)),
@@ -129,8 +180,7 @@ class _EditProfileContentState extends State<_EditProfileContent> {
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r)),
-              margin:
-                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+              margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             ),
           );
           context.read<EditProfileCubit>().clearError();
@@ -196,18 +246,16 @@ class _EditProfileContentState extends State<_EditProfileContent> {
                               SizedBox(height: 12.h),
                               _FormCard(
                                 children: [
-                                  const _FieldLabel(
-                                      label: 'FAVORITE GENRES'),
+                                  const _FieldLabel(label: 'FAVORITE GENRES'),
                                   SizedBox(height: 10.h),
                                   Wrap(
                                     spacing: 8.w,
                                     runSpacing: 8.h,
                                     children: _allGenres.map((genre) {
-                                      final selected = state.selectedGenres
-                                          .contains(genre);
+                                      final selected =
+                                          state.selectedGenres.contains(genre);
                                       return GestureDetector(
-                                        onTap: () =>
-                                            cubit.toggleGenre(genre),
+                                        onTap: () => cubit.toggleGenre(genre),
                                         child: _GenreChip(
                                           label: genre,
                                           selected: selected,
@@ -221,57 +269,64 @@ class _EditProfileContentState extends State<_EditProfileContent> {
                               _FormCard(
                                 children: [
                                   const _FieldLabel(
-                                      label: 'FAVORITE LANGUAGE'),
+                                      label: 'FAVORITE LANGUAGES'),
                                   SizedBox(height: 10.h),
-                                  SizedBox(
-                                    height: 36.h,
-                                    child: ListView.separated(
-                                      scrollDirection: Axis.horizontal,
-                                      physics:
-                                          const BouncingScrollPhysics(),
-                                      itemCount: _languages.length,
-                                      itemBuilder: (_, i) =>
-                                          GestureDetector(
-                                        onTap: () => cubit
-                                            .selectLanguage(_languages[i]),
-                                        child: _SelectChip(
-                                          label: _languages[i],
-                                          selected: state.selectedLanguage ==
-                                              _languages[i],
-                                        ),
+                                  Builder(builder: (context) {
+                                    final extra = state.selectedLanguages
+                                        .where((l) => !_languages.contains(l))
+                                        .toList();
+                                    return SizedBox(
+                                      height: 36.h,
+                                      child: ListView.separated(
+                                        scrollDirection: Axis.horizontal,
+                                        physics: const BouncingScrollPhysics(),
+                                        itemCount: _languages.length +
+                                            extra.length +
+                                            1,
+                                        itemBuilder: (_, i) {
+                                          // [primary chips][extra selected
+                                          // chips][Others button] — Others
+                                          // always sits last.
+                                          if (i < _languages.length) {
+                                            final lang = _languages[i];
+                                            return GestureDetector(
+                                              onTap: () =>
+                                                  cubit.toggleLanguage(lang),
+                                              child: _SelectChip(
+                                                label: lang,
+                                                selected: state
+                                                    .selectedLanguages
+                                                    .contains(lang),
+                                              ),
+                                            );
+                                          }
+                                          if (i <
+                                              _languages.length +
+                                                  extra.length) {
+                                            final lang =
+                                                extra[i - _languages.length];
+                                            return GestureDetector(
+                                              onTap: () =>
+                                                  cubit.toggleLanguage(lang),
+                                              child: _SelectChip(
+                                                label: lang,
+                                                selected: true,
+                                              ),
+                                            );
+                                          }
+                                          return GestureDetector(
+                                            onTap: () =>
+                                                _openMoreLanguagesSheet(
+                                                    context),
+                                            child: _OthersChip(
+                                                active: extra.isNotEmpty),
+                                          );
+                                        },
+                                        separatorBuilder: (_, __) =>
+                                            SizedBox(width: 8.w),
                                       ),
-                                      separatorBuilder: (_, __) =>
-                                          SizedBox(width: 8.w),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 12.h),
-                              _FormCard(
-                                children: [
-                                  const _FieldLabel(label: 'FAVORITE ERA'),
-                                  SizedBox(height: 10.h),
-                                  SizedBox(
-                                    height: 36.h,
-                                    child: ListView.separated(
-                                      scrollDirection: Axis.horizontal,
-                                      physics:
-                                          const BouncingScrollPhysics(),
-                                      itemCount: _eras.length,
-                                      itemBuilder: (_, i) =>
-                                          GestureDetector(
-                                        onTap: () =>
-                                            cubit.selectEra(_eras[i]),
-                                        child: _SelectChip(
-                                          label: _eras[i],
-                                          selected:
-                                              state.selectedEra == _eras[i],
-                                        ),
-                                      ),
-                                      separatorBuilder: (_, __) =>
-                                          SizedBox(width: 8.w),
-                                    ),
-                                  ),
+                                    );
+                                  }),
                                 ],
                               ),
                               SizedBox(height: 24.h),
@@ -308,8 +363,7 @@ class _EditProfileContentState extends State<_EditProfileContent> {
                                       builder: (_, __, ___) =>
                                           _ProfilePreviewCard(
                                         name: _nameController.text,
-                                        username:
-                                            _usernameController.text,
+                                        username: _usernameController.text,
                                         bio: _bioController.text,
                                         profileImage: _profileImage,
                                       ),
@@ -388,12 +442,14 @@ class _TopBar extends StatelessWidget {
           GestureDetector(
             onTap: onSave,
             child: Container(
-              padding:
-                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               decoration: BoxDecoration(
                 gradient: onSave != null
                     ? LinearGradient(
-                        colors: [context.colors.accentRed, context.colors.accentRedAlt],
+                        colors: [
+                          context.colors.accentRed,
+                          context.colors.accentRedAlt
+                        ],
                       )
                     : null,
                 color: onSave == null
@@ -443,9 +499,8 @@ class _CoverAvatarSection extends StatelessWidget {
   Widget build(BuildContext context) {
     // Read live avatar from auth state so it reflects the real photo.
     final authState = context.read<AppAuthCubit>().state;
-    final avatarUrl = authState is AppAuthAuthenticated
-        ? authState.user.avatar
-        : null;
+    final avatarUrl =
+        authState is AppAuthAuthenticated ? authState.user.avatar : null;
 
     return SizedBox(
       height: 200.h,
@@ -553,7 +608,8 @@ class _EditOverlay extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.edit_rounded, size: 13.sp, color: context.colors.foreground),
+          Icon(Icons.edit_rounded,
+              size: 13.sp, color: context.colors.foreground),
           SizedBox(width: 4.w),
           Text(
             'Edit $label',
@@ -582,6 +638,7 @@ class _FormCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(16.w),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: context.colors.surfaceRaised.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20.r),
@@ -722,8 +779,9 @@ class _GenreChip extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color:
-              selected ? context.colors.accentRed : context.colors.mutedSecondarySoft,
+          color: selected
+              ? context.colors.accentRed
+              : context.colors.mutedSecondarySoft,
           fontSize: 12.sp,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
         ),
@@ -756,10 +814,167 @@ class _SelectChip extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color:
-              selected ? context.colors.accentRed : context.colors.mutedSecondarySoft,
+          color: selected
+              ? context.colors.accentRed
+              : context.colors.mutedSecondarySoft,
           fontSize: 13.sp,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+        ),
+      ),
+    );
+  }
+}
+
+class _OthersChip extends StatelessWidget {
+  final bool active;
+
+  const _OthersChip({required this.active});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: active
+            ? context.colors.accentRed.withValues(alpha: 0.12)
+            : context.colors.surfaceRaised2,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: active
+              ? context.colors.accentRed.withValues(alpha: 0.4)
+              : context.colors.borderStrong,
+          style: BorderStyle.solid,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.add_rounded,
+            size: 14.sp,
+            color: active
+                ? context.colors.accentRed
+                : context.colors.mutedSecondarySoft,
+          ),
+          SizedBox(width: 3.w),
+          Text(
+            'Others',
+            style: TextStyle(
+              color: active
+                  ? context.colors.accentRed
+                  : context.colors.mutedSecondarySoft,
+              fontSize: 13.sp,
+              fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Others languages sheet
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _MoreLanguagesSheet extends StatelessWidget {
+  final List<String> options;
+
+  const _MoreLanguagesSheet({required this.options});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.75,
+        ),
+        padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+        decoration: BoxDecoration(
+          color: context.colors.surfaceRaised,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+          border: Border.all(color: context.colors.borderStrong),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: context.colors.borderStrong,
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Other Languages',
+              style: TextStyle(
+                color: context.colors.foreground,
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              'Select as many as you like',
+              style: TextStyle(
+                color: context.colors.mutedSecondary,
+                fontSize: 12.sp,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Flexible(
+              child: BlocBuilder<EditProfileCubit, EditProfileState>(
+                builder: (context, state) {
+                  final cubit = context.read<EditProfileCubit>();
+                  return SingleChildScrollView(
+                    child: Wrap(
+                      spacing: 8.w,
+                      runSpacing: 8.h,
+                      children: options.map((lang) {
+                        final selected = state.selectedLanguages.contains(lang);
+                        return GestureDetector(
+                          onTap: () => cubit.toggleLanguage(lang),
+                          child: _SelectChip(label: lang, selected: selected),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 16.h),
+            GestureDetector(
+              onTap: () => Navigator.maybePop(context),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 14.h),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      context.colors.accentRed,
+                      context.colors.accentRedAlt,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                child: Text(
+                  'Done',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: context.colors.primaryForeground,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -786,9 +1001,8 @@ class _ProfilePreviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authState = context.read<AppAuthCubit>().state;
-    final avatarUrl = authState is AppAuthAuthenticated
-        ? authState.user.avatar
-        : null;
+    final avatarUrl =
+        authState is AppAuthAuthenticated ? authState.user.avatar : null;
 
     return Container(
       padding: EdgeInsets.all(16.w),
@@ -800,8 +1014,7 @@ class _ProfilePreviewCard extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding:
-                EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
             decoration: BoxDecoration(
               color: context.colors.accentPurple.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8.r),
@@ -904,7 +1117,10 @@ class _SaveButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: onSave != null
               ? LinearGradient(
-                  colors: [context.colors.accentRed, context.colors.accentRedAlt],
+                  colors: [
+                    context.colors.accentRed,
+                    context.colors.accentRedAlt
+                  ],
                 )
               : null,
           color: onSave == null

@@ -108,7 +108,7 @@ class _DetailRecommendationsSectionState
             ),
             SizedBox(height: 6.h),
             Text(
-              'Because You Loved This',
+              'More Like This',
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.bold,

@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/models/user_model.dart';
+import 'package:cinemora/core/utils/era_insight.dart';
 
 /// Genre tags, derived viewing personality and era/language tiles.
 class ProfileTasteSection extends StatelessWidget {
   final UserModel? user;
 
-  const ProfileTasteSection({super.key, required this.user});
+  /// Derived from the library, not hand-picked. Null while the user has too
+  /// few dated titles to call it.
+  final EraInsight? era;
+
+  const ProfileTasteSection({super.key, required this.user, required this.era});
 
   static final _genreColors = {
     'Drama': const Color(0xFFE74D5B), // accentRedAlt
@@ -66,7 +71,6 @@ class ProfileTasteSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final genres = user?.preferences.genres ?? [];
-    final era = user?.preferences.era ?? '2010s';
     final language = user?.preferences.languages.isNotEmpty == true
         ? user!.preferences.languages.first
         : 'English';
@@ -180,22 +184,28 @@ class ProfileTasteSection extends StatelessWidget {
           ),
         ),
         SizedBox(height: 16.h),
-        Row(
-          children: [
-            Expanded(
-              child: _InfoTile(
-                title: 'FAVORITE ERA',
-                value: era,
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _InfoTile(
+                  title: 'FAVORITE ERA',
+                  value: era?.label ?? 'Building…',
+                  subtitle: era != null
+                      ? '${era!.sharePercent.round()}% of your watches'
+                      : 'Track 8+ titles to unlock',
+                ),
               ),
-            ),
-            SizedBox(width: 10.w),
-            Expanded(
-              child: _InfoTile(
-                title: 'LANGUAGE',
-                value: language,
+              SizedBox(width: 10.w),
+              Expanded(
+                child: _InfoTile(
+                  title: 'LANGUAGE',
+                  value: language,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -232,8 +242,9 @@ class _TagChip extends StatelessWidget {
 class _InfoTile extends StatelessWidget {
   final String title;
   final String value;
+  final String? subtitle;
 
-  const _InfoTile({required this.title, required this.value});
+  const _InfoTile({required this.title, required this.value, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -265,6 +276,17 @@ class _InfoTile extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
+          if (subtitle != null) ...[
+            SizedBox(height: 4.h),
+            Text(
+              subtitle!,
+              style: TextStyle(
+                color: context.colors.mutedSecondaryDeep,
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
         ],
       ),
     );

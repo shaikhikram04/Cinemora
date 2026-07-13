@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/models/library_stats_model.dart';
 import 'package:cinemora/core/models/watch_status.dart';
+import 'package:cinemora/core/utils/era_insight.dart';
 
 enum ProfileStatus { initial, loading, loaded, error }
 
@@ -42,6 +43,9 @@ class ProfileState extends Equatable {
 
   int get watchedCount =>
       entries.where((e) => e.status == WatchStatus.watched).length;
+
+  /// Null until the library carries enough dated titles to make a claim.
+  EraInsight? get favoriteEra => deriveFavoriteEra(entries);
 
   List<LibraryEntryModel> get recentActivity {
     final sorted = [...entries]

@@ -34,13 +34,11 @@ class UserRepository {
     List<String>? contentTypes,
     List<String>? genres,
     List<String>? languages,
-    String? era,
   }) async {
     await _apiClient.dio.put('/users/preferences', data: {
       if (contentTypes != null) 'contentTypes': contentTypes,
       if (genres != null) 'genres': genres,
       if (languages != null) 'languages': languages,
-      if (era != null) 'era': era,
     });
     return getMe();
   }
@@ -52,8 +50,7 @@ class UserRepository {
     String? username,
     String? bio,
     required List<String> genres,
-    required String language,
-    required String era,
+    required List<String> languages,
     List<String>? contentTypes,
   }) async {
     await Future.wait([
@@ -64,8 +61,7 @@ class UserRepository {
       }),
       _apiClient.dio.put('/users/preferences', data: {
         'genres': genres,
-        'languages': [language],
-        'era': era,
+        'languages': languages,
         if (contentTypes != null) 'contentTypes': contentTypes,
       }),
     ]);

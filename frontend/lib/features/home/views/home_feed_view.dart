@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/models/watch_status.dart';
 import 'package:flutter/material.dart';
@@ -113,23 +115,28 @@ class _HomeFeedContent extends StatelessWidget {
                 SizedBox(height: 24.h),
 
                 // Trending Now — scoped to the selected tab's type.
-                WSectionHeader(
-                  icon: Icons.local_fire_department_rounded,
-                  iconColor: context.colors.accentRed,
-                  title: 'Trending Now',
-                ),
-                SizedBox(height: 10.h),
-                loading
-                    ? _SkeletonCarousel()
-                    : _PosterCarousel(
-                        items: state.trending,
-                        type: state.trendingType,
-                        onBookmark: (item) =>
-                            cubit.bookmarkFromPoster(item, state.trendingType),
-                        onTap: (item) =>
-                            _navigateToTyped(context, item, state.trendingType),
-                      ),
-                SizedBox(height: 24.h),
+                // Hidden entirely (not just the carousel) when the fetch
+                // failed and left the list empty, so no orphaned header
+                // floats over blank space.
+                if (loading || state.trending.isNotEmpty) ...[
+                  WSectionHeader(
+                    icon: Icons.local_fire_department_rounded,
+                    iconColor: context.colors.accentRed,
+                    title: 'Trending Now',
+                  ),
+                  SizedBox(height: 10.h),
+                  loading
+                      ? _SkeletonCarousel()
+                      : _PosterCarousel(
+                          items: state.trending,
+                          type: state.trendingType,
+                          onBookmark: (item) => cubit.bookmarkFromPoster(
+                              item, state.trendingType),
+                          onTap: (item) => _navigateToTyped(
+                              context, item, state.trendingType),
+                        ),
+                  SizedBox(height: 24.h),
+                ],
 
                 if (state.becauseYouRanked.isNotEmpty) ...[
                   // Because You Ranked <anchor>
@@ -153,25 +160,29 @@ class _HomeFeedContent extends StatelessWidget {
                   SizedBox(height: 24.h),
                 ],
 
-                // Critically Acclaimed
-                WSectionHeader(
-                  icon: Icons.star_rounded,
-                  iconColor: context.colors.tertiary,
-                  title: 'Critically Acclaimed',
-                ),
-                SizedBox(height: 10.h),
-                loading
-                    ? _SkeletonCarousel()
-                    : _PosterCarousel(
-                        items: state.criticallyAcclaimed,
-                        type: CinemaType.movie,
-                        onBookmark: (item) => cubit.bookmarkFromPoster(
-                          item,
-                          CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                // Critically Acclaimed — hidden entirely when empty (see
+                // Trending Now above for why).
+                if (loading || state.criticallyAcclaimed.isNotEmpty) ...[
+                  WSectionHeader(
+                    icon: Icons.star_rounded,
+                    iconColor: context.colors.tertiary,
+                    title: 'Critically Acclaimed',
+                  ),
+                  SizedBox(height: 10.h),
+                  loading
+                      ? _SkeletonCarousel()
+                      : _PosterCarousel(
+                          items: state.criticallyAcclaimed,
+                          type: CinemaType.movie,
+                          onBookmark: (item) => cubit.bookmarkFromPoster(
+                            item,
+                            CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                          ),
+                          onTap: (item) =>
+                              _navigateToMixedPoster(context, item),
                         ),
-                        onTap: (item) => _navigateToMixedPoster(context, item),
-                      ),
-                SizedBox(height: 24.h),
+                  SizedBox(height: 24.h),
+                ],
 
                 _MoodPickerCard(
                   onOpen: ([String? starter]) => context.push(
@@ -369,8 +380,7 @@ class _PosterCarousel extends StatelessWidget {
           // Scoped to this item's bookmark status only, so toggling one
           // card's bookmark doesn't rebuild the rest of the carousel.
           return BlocSelector<HomeFeedCubit, HomeFeedState, WatchStatus?>(
-            selector: (s) =>
-                item.id != null ? s.libraryStatus[item.id] : null,
+            selector: (s) => item.id != null ? s.libraryStatus[item.id] : null,
             builder: (context, watchStatus) => VerticalPosterBookmarkCard(
               image: item.image,
               width: WSizes.posterImageWidth.w,
@@ -557,9 +567,39 @@ class _PickOfWeekHero extends StatefulWidget {
 class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
   final _controller = PageController();
   int _page = 0;
+  Timer? _autoScrollTimer;
+
+  static const _autoScrollInterval = Duration(seconds: 5);
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoScroll();
+  }
+
+  void _startAutoScroll() {
+    _autoScrollTimer?.cancel();
+    if (widget.picks.length <= 1) return;
+    _autoScrollTimer = Timer.periodic(_autoScrollInterval, (_) {
+      if (!_controller.hasClients) return;
+      final next = (_page + 1) % widget.picks.length;
+      _controller.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _PickOfWeekHero oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.picks.length != widget.picks.length) _startAutoScroll();
+  }
 
   @override
   void dispose() {
+    _autoScrollTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -570,31 +610,42 @@ class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
       children: [
         SizedBox(
           height: 284.h,
-          child: PageView.builder(
-            controller: _controller,
-            itemCount: widget.picks.length,
-            onPageChanged: (i) => setState(() => _page = i),
-            itemBuilder: (context, i) {
-              final item = widget.picks[i];
-              return BlocSelector<HomeFeedCubit, HomeFeedState, bool>(
-                selector: (s) =>
-                    item.id != null &&
-                    s.libraryStatus[item.id] == WatchStatus.watchlist,
-                builder: (context, isBookmarked) => _HeroCardShell(
-                  imageUrl: item.image,
-                  badgeLabel: 'PICK OF THE WEEK',
-                  badgeIcon: Icons.auto_awesome_rounded,
-                  rating: item.rating,
-                  typeLabel: CinemaType.fromJson(item.cinemaType ?? 'movie')
-                      .displayName,
-                  year: item.year,
-                  title: item.title,
-                  isBookmarked: isBookmarked,
-                  onDetailsPressed: () => widget.onDetails(item),
-                  onWatchlistPressed: () => widget.onBookmark(item),
-                ),
-              );
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is ScrollStartNotification &&
+                  notification.dragDetails != null) {
+                _autoScrollTimer?.cancel();
+              } else if (notification is ScrollEndNotification) {
+                _startAutoScroll();
+              }
+              return false;
             },
+            child: PageView.builder(
+              controller: _controller,
+              itemCount: widget.picks.length,
+              onPageChanged: (i) => setState(() => _page = i),
+              itemBuilder: (context, i) {
+                final item = widget.picks[i];
+                return BlocSelector<HomeFeedCubit, HomeFeedState, bool>(
+                  selector: (s) =>
+                      item.id != null &&
+                      s.libraryStatus[item.id] == WatchStatus.watchlist,
+                  builder: (context, isBookmarked) => _HeroCardShell(
+                    imageUrl: item.image,
+                    badgeLabel: 'PICK OF THE WEEK',
+                    badgeIcon: Icons.auto_awesome_rounded,
+                    rating: item.rating,
+                    typeLabel: CinemaType.fromJson(item.cinemaType ?? 'movie')
+                        .displayName,
+                    year: item.year,
+                    title: item.title,
+                    isBookmarked: isBookmarked,
+                    onDetailsPressed: () => widget.onDetails(item),
+                    onWatchlistPressed: () => widget.onBookmark(item),
+                  ),
+                );
+              },
+            ),
           ),
         ),
         if (widget.picks.length > 1) ...[

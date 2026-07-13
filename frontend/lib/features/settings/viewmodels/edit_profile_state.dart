@@ -6,8 +6,7 @@ enum EditProfileStatus { idle, saving, success, error }
 class EditProfileState extends Equatable {
   final EditProfileStatus status;
   final List<String> selectedGenres;
-  final String selectedLanguage;
-  final String selectedEra;
+  final List<String> selectedLanguages;
   final bool showPreview;
   final UserModel? savedUser;
   final String? error;
@@ -15,8 +14,7 @@ class EditProfileState extends Equatable {
   const EditProfileState({
     this.status = EditProfileStatus.idle,
     this.selectedGenres = const ['Drama', 'Thriller', 'Psychological'],
-    this.selectedLanguage = 'English',
-    this.selectedEra = '2010s',
+    this.selectedLanguages = const ['English'],
     this.showPreview = false,
     this.savedUser,
     this.error,
@@ -27,18 +25,16 @@ class EditProfileState extends Equatable {
       selectedGenres: user.preferences.genres.isNotEmpty
           ? List<String>.from(user.preferences.genres)
           : const ['Drama', 'Thriller', 'Psychological'],
-      selectedLanguage: user.preferences.languages.isNotEmpty
-          ? user.preferences.languages.first
-          : 'English',
-      selectedEra: user.preferences.era ?? '2010s',
+      selectedLanguages: user.preferences.languages.isNotEmpty
+          ? List<String>.from(user.preferences.languages)
+          : const ['English'],
     );
   }
 
   EditProfileState copyWith({
     EditProfileStatus? status,
     List<String>? selectedGenres,
-    String? selectedLanguage,
-    String? selectedEra,
+    List<String>? selectedLanguages,
     bool? showPreview,
     UserModel? savedUser,
     String? error,
@@ -46,8 +42,7 @@ class EditProfileState extends Equatable {
     return EditProfileState(
       status: status ?? this.status,
       selectedGenres: selectedGenres ?? this.selectedGenres,
-      selectedLanguage: selectedLanguage ?? this.selectedLanguage,
-      selectedEra: selectedEra ?? this.selectedEra,
+      selectedLanguages: selectedLanguages ?? this.selectedLanguages,
       showPreview: showPreview ?? this.showPreview,
       savedUser: savedUser ?? this.savedUser,
       error: error ?? this.error,
@@ -58,8 +53,7 @@ class EditProfileState extends Equatable {
   List<Object?> get props => [
         status,
         selectedGenres,
-        selectedLanguage,
-        selectedEra,
+        selectedLanguages,
         showPreview,
         savedUser,
         error,
