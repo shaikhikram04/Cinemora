@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/models/user_model.dart';
 import 'package:cinemora/core/utils/era_insight.dart';
+import 'package:cinemora/core/utils/genre_insight.dart';
 import 'package:cinemora/core/utils/language_insight.dart';
 
 /// Genre tags, derived viewing personality and era/language tiles.
@@ -18,11 +19,18 @@ class ProfileTasteSection extends StatelessWidget {
   /// what they actually watch. Those still drive the recommender.
   final LanguageInsight? language;
 
+  /// Likewise derived from the library. The chips above it are still the
+  /// onboarding picks — those are the user's own claim about their taste, and
+  /// they're editable, so they stay as stated. The personality is a claim the
+  /// app makes, so it has to be earned from what they actually watched.
+  final GenreInsight? personality;
+
   const ProfileTasteSection({
     super.key,
     required this.user,
     required this.era,
     required this.language,
+    required this.personality,
   });
 
   static final _genreColors = {
@@ -42,47 +50,18 @@ class ProfileTasteSection extends StatelessWidget {
 
   static final Color _defaultColor = const Color(0xFF8F96A3); // mutedSecondary
 
-  String _computePersonality(List<String> genres) {
-    if (genres.contains('Psychological') || genres.contains('Drama')) {
-      return 'The Story Seeker';
-    }
-    if (genres.contains('Sci-Fi') || genres.contains('Fantasy')) {
-      return 'The World Builder';
-    }
-    if (genres.contains('Action') || genres.contains('Thriller')) {
-      return 'The Thrill Seeker';
-    }
-    if (genres.contains('Crime') || genres.contains('Mystery')) {
-      return 'The Detective';
-    }
-    if (genres.contains('Horror')) return 'The Brave Soul';
-    if (genres.contains('Romance')) return 'The Romantic';
-    return 'The Explorer';
-  }
-
-  String _personalityDesc(String personality) {
-    switch (personality) {
-      case 'The Story Seeker':
-        return 'You enjoy emotionally driven stories, psychological mysteries and character-focused narratives.';
-      case 'The World Builder':
-        return 'You love expansive universes, speculative fiction and stories that challenge imagination.';
-      case 'The Thrill Seeker':
-        return 'You crave high-stakes action, suspense and edge-of-your-seat storytelling.';
-      case 'The Detective':
-        return 'You\'re drawn to puzzles, moral ambiguity and stories where secrets slowly unravel.';
-      case 'The Brave Soul':
-        return 'You embrace tension, atmosphere and the art of facing the unknown.';
-      case 'The Romantic':
-        return 'You appreciate human connection, heartfelt stories and emotional depth.';
-      default:
-        return 'Your taste spans genres and styles — you watch everything.';
-    }
+  /// Deliberately counts titles rather than reusing `sharePercent` the way the
+  /// era and language tiles do. Their share is a share of watches; this one is a
+  /// share of genre *tags*, and an entry carries up to three of them — so "42% of
+  /// your watches" would be a different, wrong claim.
+  String _evidence(GenreInsight insight) {
+    final titles = insight.titleCount == 1 ? 'title' : 'titles';
+    return 'Read from ${insight.titleCount} ${insight.genre} $titles in your library.';
   }
 
   @override
   Widget build(BuildContext context) {
     final genres = user?.preferences.genres ?? [];
-    final personality = _computePersonality(genres);
 
     final tiles = <Widget>[
       if (era != null)
@@ -118,94 +97,112 @@ class ProfileTasteSection extends StatelessWidget {
                         ))
                     .toList(growable: false),
               ),
-        SizedBox(height: 16.h),
-        Container(
-          clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-            color: context.colors.surfaceRaised.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(18.r),
-            border: Border.all(color: context.colors.borderStrong),
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                bottom: -40,
-                left: -10,
-                child: Container(
-                  width: 80.w,
-                  height: 80.h,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            context.colors.accentPurple.withValues(alpha: 0.3),
-                        blurRadius: 80,
-                        offset: const Offset(0, 10),
-                        spreadRadius: 40,
+        // Hidden outright until the library can support it, on the same reasoning
+        // as the tiles below: a personality is the one thing on this page the app
+        // asserts about the user, so a guess it can't back would undercut every
+        // number around it.
+        if (personality != null) ...[
+          SizedBox(height: 16.h),
+          Container(
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              color: context.colors.surfaceRaised.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(18.r),
+              border: Border.all(color: context.colors.borderStrong),
+            ),
+            child: Stack(
+              children: [
+                Positioned(
+                  bottom: -40,
+                  left: -10,
+                  child: Container(
+                    width: 80.w,
+                    height: 80.h,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color:
+                              context.colors.accentPurple.withValues(alpha: 0.3),
+                          blurRadius: 80,
+                          offset: const Offset(0, 10),
+                          spreadRadius: 40,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: -60,
+                  right: -40,
+                  child: Container(
+                    width: 150.w,
+                    height: 150.h,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: context.colors.accentRed.withValues(alpha: 0.3),
+                          blurRadius: 150,
+                          offset: const Offset(0, 10),
+                          spreadRadius: 50,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'VIEWING PERSONALITY',
+                        style: TextStyle(
+                          color: context.colors.mutedSecondaryDeep,
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        personality!.archetype,
+                        style: TextStyle(
+                          color: context.colors.accentRedAlt,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        personality!.description,
+                        style: TextStyle(
+                          color: context.colors.mutedSecondarySoft,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
+                      ),
+                      SizedBox(height: 10.h),
+                      // Shows its working. The old label was a horoscope off a
+                      // signup checkbox; naming the titles it was read from is
+                      // what separates this from that.
+                      Text(
+                        _evidence(personality!),
+                        style: TextStyle(
+                          color: context.colors.mutedSecondaryDeep,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              Positioned(
-                top: -60,
-                right: -40,
-                child: Container(
-                  width: 150.w,
-                  height: 150.h,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: context.colors.accentRed.withValues(alpha: 0.3),
-                        blurRadius: 150,
-                        offset: const Offset(0, 10),
-                        spreadRadius: 50,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'VIEWING PERSONALITY',
-                      style: TextStyle(
-                        color: context.colors.mutedSecondaryDeep,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    SizedBox(height: 6.h),
-                    Text(
-                      personality,
-                      style: TextStyle(
-                        color: context.colors.accentRedAlt,
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: 6.h),
-                    Text(
-                      _personalityDesc(personality),
-                      style: TextStyle(
-                        color: context.colors.mutedSecondarySoft,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
         // An insight the library can't support yet shows nothing at all, rather
         // than a placeholder tile — a shelf of "Building…" reads as a broken
         // profile. Whichever tiles are ready take the full width between them.

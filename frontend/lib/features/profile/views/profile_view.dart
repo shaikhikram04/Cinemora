@@ -108,6 +108,7 @@ class _ProfileContent extends StatelessWidget {
                             user: user,
                             era: profileState.favoriteEra,
                             language: profileState.favoriteLanguage,
+                            personality: profileState.viewingPersonality,
                           ),
                           SizedBox(height: 32.h),
                           const ProfileSectionHeader(

@@ -3,6 +3,7 @@ import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/models/library_stats_model.dart';
 import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/core/utils/era_insight.dart';
+import 'package:cinemora/core/utils/genre_insight.dart';
 import 'package:cinemora/core/utils/language_insight.dart';
 
 enum ProfileStatus { initial, loading, loaded, error }
@@ -36,6 +37,11 @@ class ProfileState extends Equatable {
   /// touched again.
   final LanguageInsight? favoriteLanguage;
 
+  /// Null until the library carries enough genre-tagged titles to make a claim.
+  /// Derived from what the user actually watches, not the genres they ticked at
+  /// onboarding — those are frozen at signup and say what a user wants to be.
+  final GenreInsight? viewingPersonality;
+
   ProfileState({
     this.status = ProfileStatus.initial,
     this.stats,
@@ -46,7 +52,8 @@ class ProfileState extends Equatable {
         watchedCount =
             entries.where((e) => e.status == WatchStatus.watched).length,
         favoriteEra = deriveFavoriteEra(entries),
-        favoriteLanguage = deriveFavoriteLanguage(entries);
+        favoriteLanguage = deriveFavoriteLanguage(entries),
+        viewingPersonality = deriveViewingPersonality(entries);
 
   ProfileState copyWith({
     ProfileStatus? status,
