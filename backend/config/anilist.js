@@ -38,6 +38,7 @@ const ANIME_DETAIL_QUERY = `
       averageScore
       episodes
       status
+      countryOfOrigin
       startDate { year }
       endDate { year }
       coverImage { extraLarge large }

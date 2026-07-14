@@ -1,4 +1,5 @@
 const LibraryEntry = require("../models/LibraryEntry");
+const { resolveOriginalLanguage } = require("../utils/originalLanguage");
 const AppError = require("../utils/AppError");
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -108,6 +109,7 @@ const addToLibrary = async (req, res, next) => {
     genres,
     tmdbRating,
     runtimeMinutes,
+    originalLanguage,
     status,
   } = req.body;
 
@@ -141,6 +143,11 @@ const addToLibrary = async (req, res, next) => {
     genres: genres || [],
     tmdbRating,
     runtimeMinutes,
+    originalLanguage: await resolveOriginalLanguage(
+      originalLanguage,
+      cinemaType,
+      tmdbId,
+    ),
     status: status || "watchlist",
   });
 
@@ -160,6 +167,7 @@ const upsertEntry = async (req, res, next) => {
     genres,
     tmdbRating,
     runtimeMinutes,
+    originalLanguage,
     status,
     userRating,
     progress,
@@ -178,6 +186,11 @@ const upsertEntry = async (req, res, next) => {
   const userId = req.user.userId;
   const numericTmdbId = Number(tmdbId);
   const resolvedStatus = status || "watchlist";
+  const resolvedLanguage = await resolveOriginalLanguage(
+    originalLanguage,
+    cinemaType,
+    numericTmdbId,
+  );
 
   let entry = await LibraryEntry.findOne({
     userId,
@@ -196,6 +209,7 @@ const upsertEntry = async (req, res, next) => {
       genres: genres || [],
       tmdbRating,
       runtimeMinutes,
+      originalLanguage: resolvedLanguage,
       status: resolvedStatus,
       // Stamp watchedAt immediately when creating directly as watched.
       watchedAt: resolvedStatus === "watched" ? [new Date()] : [],
@@ -214,6 +228,10 @@ const upsertEntry = async (req, res, next) => {
     if (progress !== undefined)
       entry.progress = { ...entry.progress?.toObject(), ...progress };
     if (runtimeMinutes !== undefined) entry.runtimeMinutes = runtimeMinutes;
+    // Backfill only. Entries predating originalLanguage fill in the first time
+    // the user touches them; we never overwrite a language already on record.
+    if (!entry.originalLanguage && resolvedLanguage)
+      entry.originalLanguage = resolvedLanguage;
 
     await entry.save();
   }
@@ -300,6 +318,7 @@ const upsertSeason = async (req, res, next) => {
     releaseYear,
     genres,
     tmdbRating,
+    originalLanguage,
   } = req.body;
 
   if (!status) {
@@ -334,6 +353,11 @@ const upsertSeason = async (req, res, next) => {
       releaseYear,
       genres: genres || [],
       tmdbRating,
+      originalLanguage: await resolveOriginalLanguage(
+        originalLanguage,
+        cinemaType,
+        tmdbId,
+      ),
       status: "watchlist", // show-level defaults to watchlist until explicitly set
       seasons: [],
     });

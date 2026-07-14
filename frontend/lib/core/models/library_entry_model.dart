@@ -99,6 +99,11 @@ class LibraryEntryModel extends Equatable {
   final List<String> genres;
   final double? tmdbRating;
   final int? runtimeMinutes;
+
+  /// ISO 639-1 original language. Null on entries created before the field
+  /// existed — `deriveFavoriteLanguage` skips those rather than guessing.
+  final String? originalLanguage;
+
   final LibraryProgress? progress;
   final List<LibrarySeasonEntry> seasons;
   final List<DateTime> watchedAt;
@@ -118,6 +123,7 @@ class LibraryEntryModel extends Equatable {
     this.genres = const [],
     this.tmdbRating,
     this.runtimeMinutes,
+    this.originalLanguage,
     this.progress,
     this.seasons = const [],
     this.watchedAt = const [],
@@ -138,6 +144,7 @@ class LibraryEntryModel extends Equatable {
     List<String>? genres,
     double? tmdbRating,
     int? runtimeMinutes,
+    String? originalLanguage,
     LibraryProgress? progress,
     List<LibrarySeasonEntry>? seasons,
     List<DateTime>? watchedAt,
@@ -157,6 +164,7 @@ class LibraryEntryModel extends Equatable {
       genres: genres ?? this.genres,
       tmdbRating: tmdbRating ?? this.tmdbRating,
       runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
+      originalLanguage: originalLanguage ?? this.originalLanguage,
       progress: progress ?? this.progress,
       seasons: seasons ?? this.seasons,
       watchedAt: watchedAt ?? this.watchedAt,
@@ -188,6 +196,7 @@ class LibraryEntryModel extends Equatable {
       genres: List<String>.from(json['genres'] as List? ?? []),
       tmdbRating: (json['tmdbRating'] as num?)?.toDouble(),
       runtimeMinutes: json['runtimeMinutes'] as int?,
+      originalLanguage: json['originalLanguage'] as String?,
       progress: progressJson != null && progressJson.isNotEmpty
           ? LibraryProgress.fromJson(progressJson)
           : null,
@@ -225,6 +234,7 @@ class LibraryEntryModel extends Equatable {
         genres,
         tmdbRating,
         runtimeMinutes,
+        originalLanguage,
         progress,
         seasons,
         watchedAt,

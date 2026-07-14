@@ -86,6 +86,7 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
           runtimeMinutes: state.detail?.runtimeMinutes,
+          originalLanguage: state.detail?.originalLanguage,
           status: WatchStatus.watchlist,
         );
         _libraryCubit.syncEntry(entry);
@@ -120,6 +121,7 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
           runtimeMinutes: state.detail?.runtimeMinutes,
+          originalLanguage: state.detail?.originalLanguage,
           status: WatchStatus.watched,
         );
         _libraryCubit.syncEntry(entry);
@@ -151,6 +153,7 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
         genres: state.detail?.genres ?? [],
         tmdbRating: _tmdbRating,
         runtimeMinutes: state.detail?.runtimeMinutes,
+        originalLanguage: state.detail?.originalLanguage,
         status: WatchStatus.watched,
         userRating: value,
       );

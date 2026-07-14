@@ -173,7 +173,7 @@ class AppColors {
   // cold sterile whites. Shadows are lighter since light surfaces already
   // carry natural depth contrast.
   static const AppColors light = AppColors(
-    background: Color(0xFFF5F5F8),
+    background: Color(0xFFECECF0),
     backgroundAlt: Color(0xFFEEEFF3),
     foreground: Color(0xFF111118),
     card: Color(0xFFFFFFFF),

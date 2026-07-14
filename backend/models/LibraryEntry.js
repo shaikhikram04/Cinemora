@@ -34,6 +34,12 @@ const libraryEntrySchema = new mongoose.Schema(
     tmdbRating: { type: Number },
     runtimeMinutes: { type: Number },
 
+    // ISO 639-1 (TMDB `original_language`; for anime, derived from AniList
+    // `countryOfOrigin`). Feeds the derived "Language" tile on the profile.
+    // Absent on entries created before this field existed — the tile treats
+    // those as unknown rather than guessing.
+    originalLanguage: { type: String },
+
     // Show-level status (set via show-level buttons)
     status: {
       type: String,

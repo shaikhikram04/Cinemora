@@ -44,6 +44,7 @@ class LibraryRepository {
     List<String> genres = const [],
     double? tmdbRating,
     int? runtimeMinutes,
+    String? originalLanguage,
     WatchStatus status = WatchStatus.watchlist,
   }) async {
     try {
@@ -56,6 +57,7 @@ class LibraryRepository {
         'genres': genres,
         if (tmdbRating != null) 'tmdbRating': tmdbRating,
         if (runtimeMinutes != null) 'runtimeMinutes': runtimeMinutes,
+        if (originalLanguage != null) 'originalLanguage': originalLanguage,
         'status': status.apiValue,
       });
       return LibraryEntryModel.fromJson(res.data as Map<String, dynamic>);
@@ -131,6 +133,7 @@ class LibraryRepository {
     List<String> genres = const [],
     double? tmdbRating,
     int? runtimeMinutes,
+    String? originalLanguage,
     WatchStatus status = WatchStatus.watchlist,
     double? userRating,
     LibraryProgress? progress,
@@ -145,6 +148,7 @@ class LibraryRepository {
         'genres': genres,
         if (tmdbRating != null) 'tmdbRating': tmdbRating,
         if (runtimeMinutes != null) 'runtimeMinutes': runtimeMinutes,
+        if (originalLanguage != null) 'originalLanguage': originalLanguage,
         'status': status.apiValue,
         if (userRating != null) 'userRating': userRating,
         if (progress != null) 'progress': progress.toJson(),
@@ -172,6 +176,7 @@ class LibraryRepository {
     String? releaseYear,
     List<String> genres = const [],
     double? tmdbRating,
+    String? originalLanguage,
   }) async {
     try {
       final res = await _apiClient.dio.put(
@@ -188,6 +193,7 @@ class LibraryRepository {
           if (releaseYear != null) 'releaseYear': releaseYear,
           'genres': genres,
           if (tmdbRating != null) 'tmdbRating': tmdbRating,
+          if (originalLanguage != null) 'originalLanguage': originalLanguage,
         },
       );
       return LibraryEntryModel.fromJson(res.data as Map<String, dynamic>);

@@ -1,7 +1,5 @@
-import 'dart:math' as math;
-
 import 'package:cinemora/core/models/library_entry_model.dart';
-import 'package:cinemora/core/models/watch_status.dart';
+import 'package:cinemora/core/utils/library_signal.dart';
 
 /// The decade a user's taste over-indexes on, derived from their library.
 class EraInsight {
@@ -16,19 +14,9 @@ class EraInsight {
   });
 }
 
-// Weights mirror the recommender's taste vector (recommender/engine/taste_vector.py)
-// so the app keeps one mental model of "how much does a library entry count".
-const _statusBase = {
-  WatchStatus.watched: 3.0,
-  WatchStatus.watching: 1.5,
-  WatchStatus.watchlist: 0.5,
-  WatchStatus.dropped: -2.0,
-};
-
-// Share of a typical modern library per decade. The whole point of the lift
-// step below: without it almost every user is labelled 2010s/2020s, because
-// that's simply where most content lives — a correct answer that says nothing
-// about them. Tune by feel; these are not load-bearing constants.
+// Share of a typical modern library per decade. Without the lift these feed,
+// almost every user is labelled 2010s/2020s, because that's simply where most
+// content lives. Tune by feel; these are not load-bearing constants.
 const _baselineShare = {
   'Pre-1970s': 0.02,
   '1970s': 0.03,
@@ -55,22 +43,6 @@ String? _decadeOf(String? releaseYear) {
   return '${(year ~/ 10) * 10}s';
 }
 
-double _weightOf(LibraryEntryModel entry) {
-  final base = _statusBase[entry.status] ?? 0.0;
-  final rewatchMultiplier =
-      1 + 0.5 * math.min(math.max(entry.watchedAt.length - 1, 0), 3);
-
-  // Only a finished title carries a verdict: a 5★ rewatch lifts its decade, a
-  // 1★ one drags it down. Anything unwatched is neutral on quality.
-  final rating = entry.userRating;
-  final ratingMultiplier =
-      entry.status == WatchStatus.watched && rating != null
-          ? ((rating - 2.5) / 2.5).clamp(-1.0, 1.0)
-          : 1.0;
-
-  return base * rewatchMultiplier * ratingMultiplier;
-}
-
 /// Picks the decade the user most over-indexes on relative to a typical
 /// library, rather than the one they've simply watched most of.
 ///
@@ -85,52 +57,25 @@ EraInsight? deriveFavoriteEra(List<LibraryEntryModel> entries) {
     final decade = _decadeOf(entry.releaseYear);
     if (decade == null) continue;
     datedTitles++;
-    weights[decade] = (weights[decade] ?? 0) + _weightOf(entry);
+    weights[decade] = (weights[decade] ?? 0) + libraryEntryWeight(entry);
     counts[decade] = (counts[decade] ?? 0) + 1;
   }
 
-  if (datedTitles < _minDatedTitles) return null;
-
-  // A decade the user mostly dropped or panned nets out negative; floor it at
-  // zero so it can't invert the share ratio below.
-  final positive = {
-    for (final e in weights.entries) e.key: math.max(e.value, 0.0),
-  };
-  final total = positive.values.fold(0.0, (sum, w) => sum + w);
-  if (total <= 0) return null;
-
-  final shares = {for (final e in positive.entries) e.key: e.value / total};
-
-  // Tie-break on share, then on recency, so the pick is stable.
-  int compare(String a, String b, double Function(String) score) {
-    final byScore = score(b).compareTo(score(a));
-    if (byScore != 0) return byScore;
-    final byShare = shares[b]!.compareTo(shares[a]!);
-    if (byShare != 0) return byShare;
-    return b.compareTo(a);
-  }
-
-  final eligible = shares.keys
-      .where((d) =>
-          counts[d]! >= _minDecadeTitles && shares[d]! >= _minDecadeShare)
-      .toList();
-
-  final String winner;
-  if (eligible.isNotEmpty) {
-    double lift(String d) =>
-        shares[d]! / (_baselineShare[d] ?? _fallbackBaseline);
-    winner = (eligible..sort((a, b) => compare(a, b, lift))).first;
-  } else {
-    // Signal spread too thin for the lift guards — fall back to plain weighted
-    // mode rather than saying nothing.
-    winner =
-        (shares.keys.toList()..sort((a, b) => compare(a, b, (d) => shares[d]!)))
-            .first;
-  }
+  final top = deriveTopBucket(
+    weights: weights,
+    counts: counts,
+    totalTitles: datedTitles,
+    baselineShare: _baselineShare,
+    fallbackBaseline: _fallbackBaseline,
+    minTotalTitles: _minDatedTitles,
+    minBucketTitles: _minDecadeTitles,
+    minBucketShare: _minDecadeShare,
+  );
+  if (top == null) return null;
 
   return EraInsight(
-    label: winner,
-    sharePercent: shares[winner]! * 100,
-    titleCount: counts[winner]!,
+    label: top.key,
+    sharePercent: top.sharePercent,
+    titleCount: top.titleCount,
   );
 }

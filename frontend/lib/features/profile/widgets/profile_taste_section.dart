@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/models/user_model.dart';
 import 'package:cinemora/core/utils/era_insight.dart';
+import 'package:cinemora/core/utils/language_insight.dart';
 
 /// Genre tags, derived viewing personality and era/language tiles.
 class ProfileTasteSection extends StatelessWidget {
@@ -12,7 +13,17 @@ class ProfileTasteSection extends StatelessWidget {
   /// few dated titles to call it.
   final EraInsight? era;
 
-  const ProfileTasteSection({super.key, required this.user, required this.era});
+  /// Also derived from the library — deliberately not the languages picked
+  /// during onboarding, which record what a user says they want rather than
+  /// what they actually watch. Those still drive the recommender.
+  final LanguageInsight? language;
+
+  const ProfileTasteSection({
+    super.key,
+    required this.user,
+    required this.era,
+    required this.language,
+  });
 
   static final _genreColors = {
     'Drama': const Color(0xFFE74D5B), // accentRedAlt
@@ -71,10 +82,22 @@ class ProfileTasteSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final genres = user?.preferences.genres ?? [];
-    final language = user?.preferences.languages.isNotEmpty == true
-        ? user!.preferences.languages.first
-        : 'English';
     final personality = _computePersonality(genres);
+
+    final tiles = <Widget>[
+      if (era != null)
+        _InfoTile(
+          title: 'FAVORITE ERA',
+          value: era!.label,
+          subtitle: '${era!.sharePercent.round()}% of your watches',
+        ),
+      if (language != null)
+        _InfoTile(
+          title: 'LANGUAGE',
+          value: language!.label,
+          subtitle: '${language!.sharePercent.round()}% of your watches',
+        ),
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,30 +206,23 @@ class ProfileTasteSection extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 16.h),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _InfoTile(
-                  title: 'FAVORITE ERA',
-                  value: era?.label ?? 'Building…',
-                  subtitle: era != null
-                      ? '${era!.sharePercent.round()}% of your watches'
-                      : 'Track 8+ titles to unlock',
-                ),
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: _InfoTile(
-                  title: 'LANGUAGE',
-                  value: language,
-                ),
-              ),
-            ],
+        // An insight the library can't support yet shows nothing at all, rather
+        // than a placeholder tile — a shelf of "Building…" reads as a broken
+        // profile. Whichever tiles are ready take the full width between them.
+        if (tiles.isNotEmpty) ...[
+          SizedBox(height: 16.h),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < tiles.length; i++) ...[
+                  if (i > 0) SizedBox(width: 10.w),
+                  Expanded(child: tiles[i]),
+                ],
+              ],
+            ),
           ),
-        ),
+        ],
       ],
     );
   }

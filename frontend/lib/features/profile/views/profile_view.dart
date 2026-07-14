@@ -7,6 +7,7 @@ import 'package:cinemora/core/models/user_model.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_state.dart';
+import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/profile/viewmodels/profile_cubit.dart';
 import 'package:cinemora/features/profile/viewmodels/profile_state.dart';
 import 'package:cinemora/features/profile/widgets/profile_activity_card.dart';
@@ -31,7 +32,9 @@ class ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (ctx) => ProfileCubit(ctx.read<UserRepository>())..loadProfile(),
+      create: (ctx) =>
+          ProfileCubit(ctx.read<UserRepository>(), ctx.read<LibraryCubit>())
+            ..loadProfile(),
       child: const _ProfileContent(),
     );
   }
@@ -65,8 +68,7 @@ class _ProfileContent extends StatelessWidget {
                     child: RefreshIndicator(
                       color: context.colors.accentRed,
                       backgroundColor: context.colors.surfaceRaised,
-                      onRefresh: () =>
-                          context.read<ProfileCubit>().loadProfile(),
+                      onRefresh: () => context.read<ProfileCubit>().refresh(),
                       child: ListView(
                         padding: EdgeInsets.fromLTRB(
                           WSizes.screenPadding.w,
@@ -105,6 +107,7 @@ class _ProfileContent extends StatelessWidget {
                           ProfileTasteSection(
                             user: user,
                             era: profileState.favoriteEra,
+                            language: profileState.favoriteLanguage,
                           ),
                           SizedBox(height: 32.h),
                           const ProfileSectionHeader(

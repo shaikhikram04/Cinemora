@@ -77,6 +77,7 @@ class TmdbMovieDetail {
   final List<StreamingProvider> providers;
   final String? trailerKey; // YouTube video ID
   final FranchiseSummary? collection;
+  final String? originalLanguage; // ISO 639-1, stored on the library entry
 
   const TmdbMovieDetail({
     required this.overview,
@@ -90,6 +91,7 @@ class TmdbMovieDetail {
     required this.providers,
     this.trailerKey,
     this.collection,
+    this.originalLanguage,
   });
 
   factory TmdbMovieDetail.fromJson(
@@ -155,6 +157,7 @@ class TmdbMovieDetail {
           ? FranchiseSummary.fromTmdbJson(
               detail['belongs_to_collection'] as Map<String, dynamic>)
           : null,
+      originalLanguage: detail['original_language'] as String?,
     );
   }
 }
@@ -229,6 +232,7 @@ class TmdbTvDetail {
   final List<SeriesSeason> seasons;
   final String? trailerKey; // YouTube video ID
   final int? runtimeMinutes; // per-episode runtime
+  final String? originalLanguage; // ISO 639-1, stored on the library entry
 
   const TmdbTvDetail({
     required this.overview,
@@ -241,6 +245,7 @@ class TmdbTvDetail {
     required this.seasons,
     this.trailerKey,
     this.runtimeMinutes,
+    this.originalLanguage,
   });
 
   TmdbTvDetail copyWithSeasonEpisodes(SeriesSeason updated) {
@@ -256,6 +261,7 @@ class TmdbTvDetail {
           seasons.map((s) => s.number == updated.number ? updated : s).toList(),
       trailerKey: trailerKey,
       runtimeMinutes: runtimeMinutes,
+      originalLanguage: originalLanguage,
     );
   }
 
@@ -360,6 +366,7 @@ class TmdbTvDetail {
       seasons: seasons,
       trailerKey: _parseTrailerKey(detail),
       runtimeMinutes: episodeRuntime,
+      originalLanguage: detail['original_language'] as String?,
     );
   }
 
@@ -496,6 +503,10 @@ class TmdbTvDetail {
       seasons: seasons,
       trailerKey: jikanTrailerId,
       runtimeMinutes: jikanRuntime,
+      // Jikan exposes no country field. Anime is overwhelmingly Japanese, and
+      // this legacy path is only a fallback for the AniList one below, which
+      // reads the real country of origin.
+      originalLanguage: 'ja',
     );
   }
 
@@ -635,7 +646,28 @@ class TmdbTvDetail {
       seasons: seasons,
       trailerKey: trailerKey,
       runtimeMinutes: media['duration'] as int?,
+      originalLanguage:
+          _languageOfCountry(media['countryOfOrigin'] as String?) ?? 'ja',
     );
+  }
+}
+
+// ─── AniList country → language ───────────────────────────────────────────────
+
+/// AniList reports a country of origin, not a language. Most "anime" is
+/// Japanese, but the catalog also carries Chinese donghua and Korean titles —
+/// labelling those Japanese would put a wrong language in the profile tile.
+String? _languageOfCountry(String? countryCode) {
+  switch (countryCode) {
+    case 'JP':
+      return 'ja';
+    case 'CN':
+    case 'TW':
+      return 'zh';
+    case 'KR':
+      return 'ko';
+    default:
+      return null;
   }
 }
 

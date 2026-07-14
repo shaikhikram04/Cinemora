@@ -163,6 +163,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
           runtimeMinutes: _episodeRuntime,
+          originalLanguage: state.detail?.originalLanguage,
           status: WatchStatus.watchlist,
         );
         _libraryCubit.syncEntry(entry);
@@ -197,6 +198,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
           runtimeMinutes: _episodeRuntime,
+          originalLanguage: state.detail?.originalLanguage,
           status: WatchStatus.watched,
           progress: LibraryProgress(totalEpisodes: _totalEpisodes),
         );
@@ -248,6 +250,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
               season?.year.isNotEmpty == true ? season!.year : _firstAirYear,
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
+          originalLanguage: state.detail?.originalLanguage,
         );
         _libraryCubit.syncEntry(entry);
       } catch (_) {
@@ -302,6 +305,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
               season?.year.isNotEmpty == true ? season!.year : _firstAirYear,
           genres: state.detail?.genres ?? [],
           tmdbRating: _tmdbRating,
+          originalLanguage: state.detail?.originalLanguage,
         );
         _libraryCubit.syncEntry(entry);
       } catch (_) {
@@ -351,6 +355,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
             season?.year.isNotEmpty == true ? season!.year : _firstAirYear,
         genres: state.detail?.genres ?? [],
         tmdbRating: _tmdbRating,
+        originalLanguage: state.detail?.originalLanguage,
       );
       _libraryCubit.syncEntry(entry);
     } catch (e) {
@@ -385,6 +390,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
         genres: state.detail?.genres ?? [],
         tmdbRating: _tmdbRating,
         runtimeMinutes: _episodeRuntime,
+        originalLanguage: state.detail?.originalLanguage,
         status: WatchStatus.watched,
         userRating: rating,
         progress: LibraryProgress(totalEpisodes: _totalEpisodes),
