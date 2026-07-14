@@ -344,7 +344,7 @@ void _navigateToMixedPoster(BuildContext context, MoviePoster item) {
         backdropImage: item.backdropImage,
         rating: item.rating,
         id: item.id,
-        source: item.source ?? 'tmdb',
+        source: item.cinemaType == 'anime' ? 'jikan' : 'tmdb',
       ),
     );
   }

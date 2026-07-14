@@ -53,13 +53,16 @@ async def _post(query: str, variables: dict) -> dict:
     return resp.json()
 
 
+# coverImage.large is AniList's *medium* file (~230px wide) despite the name —
+# too soft for the Pick-of-the-Week hero. extraLarge (~460px+) is the largest
+# cover AniList serves; large stays as the fallback.
 _TOP_QUERY = """
 query ($page: Int, $perPage: Int, $sort: [MediaSort]) {
   Page(page: $page, perPage: $perPage) {
     media(type: ANIME, sort: $sort) {
       idMal
       title { english romaji }
-      coverImage { large }
+      coverImage { extraLarge large }
       genres
       averageScore
       popularity
@@ -82,7 +85,9 @@ query ($malId: Int) {
         mediaRecommendation {
           idMal
           title { english romaji }
-          coverImage { large }
+          coverImage { extraLarge large }
+          averageScore
+          startDate { year }
         }
       }
     }

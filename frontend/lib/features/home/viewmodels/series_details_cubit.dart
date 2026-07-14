@@ -57,7 +57,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     required List<SeriesSeason> initialSeasons,
   }) {
     if (id == null) return SeriesDetailsState(seasons: initialSeasons);
-    final cinemaType = source == 'jikan' ? CinemaType.anime : CinemaType.tv;
+    final cinemaType = source == 'tmdb' ? CinemaType.tv : CinemaType.anime;
     final entry = libraryCubit.state.entries
         .where((e) => e.tmdbId == id && e.cinemaType == cinemaType)
         .firstOrNull;
@@ -86,8 +86,12 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     );
   }
 
+  // Anything that isn't TMDB is an anime source — the label has been both
+  // "jikan" and "anilist" as the upstream moved, so only "tmdb" is tested.
+  bool get _isAnime => _source != 'tmdb';
+
   CinemaType get _cinemaType =>
-      _source == 'jikan' ? CinemaType.anime : CinemaType.tv;
+      _isAnime ? CinemaType.anime : CinemaType.tv;
 
   String? get _firstAirYear {
     final range = state.detail?.yearRange ?? '';
@@ -129,9 +133,9 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     final season = state.seasons[index];
     if (state.loadedSeasonNumbers.contains(season.number)) return;
 
-    if (_source == 'tmdb') {
+    if (!_isAnime) {
       _loadTmdbSeasonEpisodes(season.number);
-    } else if (_source == 'jikan' && season.malId != null) {
+    } else if (season.malId != null) {
       _loadJikanSeasonEpisodes(season.malId!, season.number);
     }
   }
@@ -426,12 +430,12 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     if (id == null) return;
     emit(state.copyWith(detailStatus: DetailStatus.loading));
     try {
-      final detail = _source == 'jikan'
+      final detail = _isAnime
           ? await _repo.fetchAnimeDetail(id)
           : await _repo.fetchTvDetail(id);
 
       int startIndex = 0;
-      if (_source == 'jikan') {
+      if (_isAnime) {
         final idx = detail.seasons.indexWhere((s) => s.malId == id);
         if (idx >= 0) startIndex = idx;
       }
@@ -447,9 +451,9 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
         detailStatus: DetailStatus.loaded,
       ));
 
-      if (_source == 'tmdb' && detail.seasons.isNotEmpty) {
+      if (!_isAnime && detail.seasons.isNotEmpty) {
         _loadTmdbSeasonEpisodes(detail.seasons[startIndex].number);
-      } else if (_source == 'jikan' && detail.seasons.isNotEmpty) {
+      } else if (_isAnime && detail.seasons.isNotEmpty) {
         final currentSeason = detail.seasons[startIndex];
         final malId = currentSeason.malId;
         if (malId != null) {

@@ -78,7 +78,7 @@ class _DetailRecommendationsSectionState
           image: item.posterUrl,
           rating: item.ratingDisplay,
           id: item.sourceId,
-          source: item.source,
+          source: item.cinemaType == 'anime' ? 'jikan' : 'tmdb',
         ),
       );
     }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:cinemora/common/widgets/buttons/pill_chip.dart';
 import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
 import 'package:cinemora/common/widgets/buttons/trailer_button.dart';
 import 'package:cinemora/common/widgets/detail/cast_section.dart';
@@ -9,6 +8,7 @@ import 'package:cinemora/common/widgets/detail/crew_section.dart';
 import 'package:cinemora/common/widgets/detail/detail_hero_shell.dart';
 import 'package:cinemora/common/widgets/detail/detail_rating_section.dart';
 import 'package:cinemora/common/widgets/detail/detail_recommendations_section.dart';
+import 'package:cinemora/common/widgets/detail/genres_section.dart';
 import 'package:cinemora/common/widgets/detail/overview_section.dart';
 import 'package:cinemora/common/widgets/detail/where_to_watch_section.dart';
 import 'package:cinemora/common/widgets/dialogs/unmark_watched_dialog.dart';
@@ -108,12 +108,10 @@ class SeriesDetailsContent extends StatelessWidget {
             bottomContent: _SeriesHeroMeta(
               seriesTitle: seriesTitle,
               rating: rating,
-              isAnime: source == 'jikan',
+              isAnime: source != 'tmdb',
               seasonCount: seasons.length,
-              genres: detail?.genres ?? const [],
               yearRange: detail?.yearRange,
               creator: detail?.creator,
-              isLoading: isDetailLoading,
             ),
           ),
           SizedBox(height: 20.h),
@@ -149,6 +147,16 @@ class SeriesDetailsContent extends StatelessWidget {
                 SizedBox(height: 20.h),
                 Divider(color: context.colors.border),
                 SizedBox(height: 16.h),
+                if (isDetailLoading ||
+                    (detail?.genres.isNotEmpty ?? false)) ...[
+                  GenresSection(
+                    genres: detail?.genres ?? const [],
+                    isLoading: isDetailLoading,
+                  ),
+                  SizedBox(height: 20.h),
+                  Divider(color: context.colors.border),
+                  SizedBox(height: 16.h),
+                ],
                 if (seasons.isEmpty && isDetailLoading)
                   _SeasonsSkeleton()
                 else if (_currentSeason != null)
@@ -202,7 +210,7 @@ class SeriesDetailsContent extends StatelessWidget {
                 SizedBox(height: 16.h),
                 DetailRecommendationsSection(
                   cinemaType:
-                      source == 'jikan' ? CinemaType.anime : CinemaType.tv,
+                      source == 'tmdb' ? CinemaType.tv : CinemaType.anime,
                   sourceId: seriesId,
                 ),
                 SizedBox(height: 32.h),
@@ -222,20 +230,16 @@ class _SeriesHeroMeta extends StatelessWidget {
   final String rating;
   final bool isAnime;
   final int seasonCount;
-  final List<String> genres;
   final String? yearRange;
   final String? creator;
-  final bool isLoading;
 
   const _SeriesHeroMeta({
     required this.seriesTitle,
     required this.rating,
     this.isAnime = false,
     required this.seasonCount,
-    required this.genres,
     this.yearRange,
     this.creator,
-    required this.isLoading,
   });
 
   @override
@@ -288,30 +292,6 @@ class _SeriesHeroMeta extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Row(
-                children: genres.isNotEmpty
-                    ? genres
-                        .take(2)
-                        .map((g) => Padding(
-                              padding: EdgeInsets.only(right: 6.w),
-                              child: WPillChip(text: g),
-                            ))
-                        .toList()
-                    : [
-                        if (isLoading)
-                          Container(
-                            width: 50.w,
-                            height: 20.h,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                      ],
-              ),
-            ),
           ],
         ),
         SizedBox(height: 10.h),
@@ -358,17 +338,6 @@ class _SeriesHeroMeta extends StatelessWidget {
               ),
           ],
         ),
-        if (creator != null && creator!.isNotEmpty) ...[
-          SizedBox(height: 2.h),
-          Text(
-            'Created by $creator',
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: context.colors.mutedSecondaryDeep,
-              fontFamily: 'Inter',
-            ),
-          ),
-        ],
         SizedBox(height: WSizes.sectionSpaceLg.h),
       ],
     );

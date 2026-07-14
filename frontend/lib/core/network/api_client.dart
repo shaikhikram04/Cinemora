@@ -13,6 +13,8 @@ class ApiClient {
   ApiClient(SecureStorageService storage) {
     _plainDio = Dio(BaseOptions(
       baseUrl: ApiConstants.baseUrl,
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
       headers: {'ngrok-skip-browser-warning': 'true'},
     ));
 
@@ -132,6 +134,8 @@ class _AuthInterceptor extends Interceptor {
         handler.resolve(
           await _plainDio.fetch(_replayable(err.requestOptions, newToken)),
         );
+      } on DioException catch (replayError) {
+        handler.next(replayError);
       } catch (_) {
         handler.next(err);
       }
@@ -139,33 +143,63 @@ class _AuthInterceptor extends Interceptor {
     }
 
     _isRefreshing = true;
+    final String newToken;
     try {
-      final refreshToken = await _storage.getRefreshToken();
-      if (refreshToken == null) throw Exception('no refresh token');
-
-      final res = await _plainDio.post(
-        '/auth/refresh',
-        data: {'refreshToken': refreshToken},
-      );
-      final newToken = res.data['accessToken'] as String;
-      await _storage.saveAccessToken(newToken);
-
-      for (final c in _queue) {
-        c.complete(newToken);
-      }
-
-      handler.resolve(
-        await _plainDio.fetch(_replayable(err.requestOptions, newToken)),
-      );
-    } catch (_) {
-      await _storage.clearAll();
+      newToken = await _refreshAccessToken();
+    } catch (refreshError) {
+      // Only a refresh the server actually turned down means the session is
+      // dead. A timeout or a connection error says nothing about the session,
+      // and dropping the tokens there would sign the user out over a slow
+      // network.
+      if (_isSessionRejected(refreshError)) await _storage.clearSession();
       for (final c in _queue) {
         c.completeError('refresh failed');
       }
-      handler.next(err);
-    } finally {
       _queue.clear();
       _isRefreshing = false;
+      handler.next(err);
+      return;
+    }
+
+    for (final c in _queue) {
+      c.complete(newToken);
+    }
+    _queue.clear();
+    _isRefreshing = false;
+
+    // Replayed outside the block above on purpose: if the original request
+    // fails again — a slow endpoint blowing its receiveTimeout, say — that is a
+    // failure of that request, not of the session we just refreshed.
+    try {
+      handler.resolve(
+        await _plainDio.fetch(_replayable(err.requestOptions, newToken)),
+      );
+    } on DioException catch (replayError) {
+      handler.next(replayError);
     }
   }
+
+  Future<String> _refreshAccessToken() async {
+    final refreshToken = await _storage.getRefreshToken();
+    if (refreshToken == null) throw const _NoRefreshToken();
+
+    final res = await _plainDio.post(
+      '/auth/refresh',
+      data: {'refreshToken': refreshToken},
+    );
+    final newToken = res.data['accessToken'] as String;
+    await _storage.saveAccessToken(newToken);
+    return newToken;
+  }
+
+  bool _isSessionRejected(Object error) {
+    if (error is _NoRefreshToken) return true;
+    final status = error is DioException ? error.response?.statusCode : null;
+    return status == 401 || status == 403;
+  }
+}
+
+/// There is no stored refresh token, so there is no session left to renew.
+class _NoRefreshToken implements Exception {
+  const _NoRefreshToken();
 }

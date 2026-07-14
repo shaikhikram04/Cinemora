@@ -101,12 +101,13 @@ def _accumulate_anilist_item(items: dict[int, dict], r: dict) -> None:
     title_obj = r.get("title") or {}
     title = title_obj.get("english") or title_obj.get("romaji") or "Untitled"
     year = (r.get("startDate") or {}).get("year")
+    cover = r.get("coverImage") or {}
     items[source_id] = {
         "source": "anilist",
         "sourceId": source_id,
         "cinemaType": "anime",
         "title": title,
-        "posterPath": (r.get("coverImage") or {}).get("large"),
+        "posterPath": cover.get("extraLarge") or cover.get("large"),
         "year": str(year) if year else None,
         "genres": canonicalize_genres(r.get("genres") or []),
         # averageScore is 0-100 on AniList; normalize to the 0-10 scale used

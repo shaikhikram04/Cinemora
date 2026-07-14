@@ -43,14 +43,19 @@ def _public_tmdb(r: dict, media_type: str) -> dict:
 def _public_anilist(node: dict) -> dict:
     anime = node.get("mediaRecommendation") or {}
     title_obj = anime.get("title") or {}
+    cover = anime.get("coverImage") or {}
+    year = (anime.get("startDate") or {}).get("year")
+    # averageScore is 0-100 on AniList; the client renders `rating` on TMDB's
+    # 0-10 scale, so divide to keep both sources comparable in one carousel.
+    score = anime.get("averageScore")
     return {
         "source": "anilist",
         "sourceId": anime.get("idMal"),
         "cinemaType": "anime",
         "title": title_obj.get("english") or title_obj.get("romaji") or "Untitled",
-        "posterPath": (anime.get("coverImage") or {}).get("large"),
-        "year": None,
-        "rating": None,
+        "posterPath": cover.get("extraLarge") or cover.get("large"),
+        "year": str(year) if year else None,
+        "rating": round(float(score) / 10, 1) if score else None,
         "genres": [],
     }
 

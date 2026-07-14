@@ -15,7 +15,6 @@ import 'package:cinemora/features/profile/widgets/profile_collection_card.dart';
 import 'package:cinemora/features/profile/widgets/profile_header_card.dart';
 import 'package:cinemora/features/profile/widgets/profile_ranking_grid.dart';
 import 'package:cinemora/features/profile/widgets/profile_section_header.dart';
-import 'package:cinemora/features/profile/widgets/profile_stat_grid.dart';
 import 'package:cinemora/features/profile/widgets/profile_taste_section.dart';
 import 'package:cinemora/features/profile/widgets/profile_top_bar.dart';
 import 'package:cinemora/features/profile/widgets/profile_top_favorites_row.dart';
@@ -83,11 +82,6 @@ class _ProfileContent extends StatelessWidget {
                           const ProfileTopBar(),
                           SizedBox(height: 14.h),
                           ProfileHeaderCard(user: user),
-                          SizedBox(height: 14.h),
-                          ProfileStatGrid(
-                            stats: profileState.stats,
-                            isLoading: isLoading,
-                          ),
                           SizedBox(height: 32.h),
                           const ProfileSectionHeader(
                             title: 'Collection',

@@ -24,6 +24,13 @@ class SecureStorageService {
 
   Future<void> clearAll() => _storage.deleteAll();
 
+  /// Drops the session but keeps [_welcomeSeenKey] — a user whose session ended
+  /// belongs on the login screen, not back at the first-run welcome carousel.
+  Future<void> clearSession() => Future.wait([
+        _storage.delete(key: _accessKey),
+        _storage.delete(key: _refreshKey),
+      ]);
+
   Future<bool> getHasSeenWelcome() async {
     final value = await _storage.read(key: _welcomeSeenKey);
     return value == 'true';

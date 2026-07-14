@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:cinemora/common/widgets/buttons/pill_chip.dart';
 import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
 import 'package:cinemora/common/widgets/buttons/trailer_button.dart';
 import 'package:cinemora/common/widgets/detail/cast_section.dart';
@@ -11,6 +10,7 @@ import 'package:cinemora/common/widgets/detail/detail_hero_shell.dart';
 import 'package:cinemora/common/widgets/detail/detail_rating_section.dart';
 import 'package:cinemora/common/widgets/detail/detail_recommendations_section.dart';
 import 'package:cinemora/common/widgets/detail/franchise_banner_section.dart';
+import 'package:cinemora/common/widgets/detail/genres_section.dart';
 import 'package:cinemora/common/widgets/detail/overview_section.dart';
 import 'package:cinemora/common/widgets/detail/where_to_watch_section.dart';
 import 'package:cinemora/common/widgets/dialogs/unmark_watched_dialog.dart';
@@ -77,11 +77,9 @@ class MovieDetailsContent extends StatelessWidget {
             bottomContent: _MovieHeroMeta(
               movieTitle: movieTitle,
               rating: rating,
-              genres: detail?.genres ?? const [],
               runtime: detail?.runtime,
               year: detail?.year,
               director: detail?.director,
-              isLoading: isDetailLoading,
             ),
           ),
           SizedBox(height: 20.h),
@@ -117,6 +115,15 @@ class MovieDetailsContent extends StatelessWidget {
                 SizedBox(height: 20.h),
                 Divider(color: context.colors.border),
                 SizedBox(height: 16.h),
+                if (isDetailLoading || (detail?.genres.isNotEmpty ?? false)) ...[
+                  GenresSection(
+                    genres: detail?.genres ?? const [],
+                    isLoading: isDetailLoading,
+                  ),
+                  SizedBox(height: 20.h),
+                  Divider(color: context.colors.border),
+                  SizedBox(height: 16.h),
+                ],
                 if (isDetailLoading || (detail?.cast.isNotEmpty ?? false)) ...[
                   CastSection(
                     cast: detail?.cast,
@@ -194,20 +201,16 @@ class _FranchiseBanner extends StatelessWidget {
 class _MovieHeroMeta extends StatelessWidget {
   final String movieTitle;
   final String rating;
-  final List<String> genres;
   final String? runtime;
   final String? year;
   final String? director;
-  final bool isLoading;
 
   const _MovieHeroMeta({
     required this.movieTitle,
     required this.rating,
-    required this.genres,
     this.runtime,
     this.year,
     this.director,
-    required this.isLoading,
   });
 
   @override
@@ -260,30 +263,6 @@ class _MovieHeroMeta extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Row(
-                children: genres.isNotEmpty
-                    ? genres
-                        .take(2)
-                        .map((g) => Padding(
-                              padding: EdgeInsets.only(right: 6.w),
-                              child: WPillChip(text: g),
-                            ))
-                        .toList()
-                    : [
-                        if (isLoading)
-                          Container(
-                            width: 50.w,
-                            height: 20.h,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                      ],
-              ),
-            ),
           ],
         ),
         SizedBox(height: 10.h),
@@ -306,17 +285,6 @@ class _MovieHeroMeta extends StatelessWidget {
             fontFamily: 'Inter',
           ),
         ),
-        if (director != null || isLoading) ...[
-          SizedBox(height: 2.h),
-          Text(
-            director != null ? 'Dir. $director' : '',
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: context.colors.mutedSecondaryDeep,
-              fontFamily: 'Inter',
-            ),
-          ),
-        ],
         SizedBox(height: WSizes.sectionSpaceLg.h),
       ],
     );
