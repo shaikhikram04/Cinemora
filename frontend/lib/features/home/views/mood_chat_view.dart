@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -209,13 +211,19 @@ class _Bubble extends StatelessWidget {
                 bottomRight: Radius.circular(isUser ? 4.r : 16.r),
               ),
             ),
-            child: Text(
-              message.text,
-              style: TextStyle(
-                color: isUser ? Colors.white : context.colors.foreground,
-                fontSize: 14.sp,
-                height: 1.35,
-              ),
+            child: Builder(
+              builder: (context) {
+                final style = TextStyle(
+                  color: isUser ? Colors.white : context.colors.foreground,
+                  fontSize: 14.sp,
+                  height: 1.35,
+                );
+                // Only the model's replies carry markdown; a user's literal
+                // asterisks should stay literal.
+                return isUser
+                    ? Text(message.text, style: style)
+                    : _FormattedReply(text: message.text, style: style);
+              },
             ),
           ),
         if (message.recommendations.isNotEmpty)
@@ -324,8 +332,38 @@ class _RecCard extends StatelessWidget {
   }
 }
 
-class _TypingBubble extends StatelessWidget {
+/// Three dots rippling in sequence. A Gemini turn can take several seconds
+/// (tool round-trips, and a retry/fallback hop when the model is shedding
+/// load), so a static indicator reads as a frozen app — this has to keep
+/// visibly moving for the whole wait.
+class _TypingBubble extends StatefulWidget {
   const _TypingBubble();
+
+  @override
+  State<_TypingBubble> createState() => _TypingBubbleState();
+}
+
+class _TypingBubbleState extends State<_TypingBubble>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  /// 0 → resting, 1 → top of the bounce. Each dot is offset a little further
+  /// through the cycle, which is what makes the ripple read left-to-right, and
+  /// the idle tail (t > 0.6) is the pause between ripples.
+  double _bounce(int index) {
+    final t = (_controller.value - index * 0.16) % 1.0;
+    if (t > 0.6) return 0;
+    return math.sin((t / 0.6) * math.pi);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -336,26 +374,160 @@ class _TypingBubble extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: context.colors.surfaceMuted,
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16.r),
+            topRight: Radius.circular(16.r),
+            bottomLeft: Radius.circular(4.r),
+            bottomRight: Radius.circular(16.r),
+          ),
         ),
-        child: SizedBox(
-          width: 34.w,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(
-              3,
-              (_) => Container(
-                width: 7.w,
-                height: 7.w,
-                decoration: BoxDecoration(
-                  color: context.colors.mutedForeground,
-                  shape: BoxShape.circle,
-                ),
-              ),
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) => SizedBox(
+            width: 34.w,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(3, (i) {
+                final t = _bounce(i);
+                return Transform.translate(
+                  offset: Offset(0, -3.h * t),
+                  child: Container(
+                    width: 7.w,
+                    height: 7.w,
+                    decoration: BoxDecoration(
+                      color: Color.lerp(
+                        context.colors.mutedForeground,
+                        context.colors.accentPurple,
+                        t,
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                );
+              }),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+// Gemini structures its picks with light markdown — bold titles, italicised
+// names, the occasional bullet list. Rendering it as real formatting reads far
+// better than either flattening it or leaking raw "* **Title**:" into the
+// bubble. Deliberately a small hand-rolled subset (bold / italic / bullets /
+// numbered lines) rather than a markdown package: that's all the model emits
+// here, and a chat bubble has no business rendering tables or code fences.
+final _kBulletLine = RegExp(r'^\s*[*\-•]\s+(.*)$');
+final _kNumberedLine = RegExp(r'^\s*(\d+)[.)]\s+(.*)$');
+final _kHeadingLine = RegExp(r'^\s*#{1,6}\s+(.*)$');
+// **bold** / __bold__ / *italic* / _italic_
+final _kEmphasis = RegExp(r'\*\*(.+?)\*\*|__(.+?)__|\*(.+?)\*|_(.+?)_');
+
+class _ReplyLine {
+  final String text;
+  final String? marker; // "•" or "2." — null for a plain paragraph
+  final bool heading;
+  const _ReplyLine(this.text, {this.marker, this.heading = false});
+}
+
+List<_ReplyLine> _parseReply(String src) {
+  final lines = <_ReplyLine>[];
+  for (final raw in src.split('\n')) {
+    final line = raw.trim();
+    if (line.isEmpty) continue;
+
+    final heading = _kHeadingLine.firstMatch(line);
+    if (heading != null) {
+      lines.add(_ReplyLine(heading.group(1)!, heading: true));
+      continue;
+    }
+    // Requires whitespace after the marker, so an italicised title at the start
+    // of a line ("*A Silent Voice* is…") isn't mistaken for a bullet.
+    final bullet = _kBulletLine.firstMatch(line);
+    if (bullet != null) {
+      lines.add(_ReplyLine(bullet.group(1)!, marker: '•'));
+      continue;
+    }
+    final numbered = _kNumberedLine.firstMatch(line);
+    if (numbered != null) {
+      lines
+          .add(_ReplyLine(numbered.group(2)!, marker: '${numbered.group(1)}.'));
+      continue;
+    }
+    lines.add(_ReplyLine(line));
+  }
+  return lines;
+}
+
+List<InlineSpan> _emphasisSpans(String src) {
+  final spans = <InlineSpan>[];
+  var cursor = 0;
+  for (final m in _kEmphasis.allMatches(src)) {
+    if (m.start > cursor) {
+      spans.add(TextSpan(text: src.substring(cursor, m.start)));
+    }
+    final bold = m.group(1) ?? m.group(2);
+    final italic = m.group(3) ?? m.group(4);
+    spans.add(
+      bold != null
+          ? TextSpan(
+              text: bold,
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            )
+          : TextSpan(
+              text: italic!,
+              style: const TextStyle(fontStyle: FontStyle.italic),
+            ),
+    );
+    cursor = m.end;
+  }
+  if (cursor < src.length) spans.add(TextSpan(text: src.substring(cursor)));
+  return spans;
+}
+
+class _FormattedReply extends StatelessWidget {
+  final String text;
+  final TextStyle style;
+  const _FormattedReply({required this.text, required this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    final lines = _parseReply(text);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < lines.length; i++)
+          Padding(
+            padding: EdgeInsets.only(top: i == 0 ? 0 : 6.h),
+            child: _line(lines[i]),
+          ),
+      ],
+    );
+  }
+
+  Widget _line(_ReplyLine line) {
+    final lineStyle =
+        line.heading ? style.copyWith(fontWeight: FontWeight.w800) : style;
+    final body = RichText(
+      text: TextSpan(
+        style: lineStyle,
+        children: _emphasisSpans(line.text),
+      ),
+    );
+
+    if (line.marker == null) return body;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 16.w,
+          child: Text(line.marker!, style: lineStyle),
+        ),
+        Expanded(child: body),
+      ],
     );
   }
 }

@@ -16,6 +16,7 @@ _LIMIT_STATUS = {
     "turns": (status.HTTP_429_TOO_MANY_REQUESTS, "This mood chat has reached its message limit. Start a new one."),
     "sessions": (status.HTTP_429_TOO_MANY_REQUESTS, "You've used all your mood chats for today. Try again tomorrow."),
     "not_configured": (status.HTTP_503_SERVICE_UNAVAILABLE, "Mood chat isn't available right now."),
+    "busy": (status.HTTP_429_TOO_MANY_REQUESTS, "Mood chat is busy right now. Try again in a moment."),
 }
 
 

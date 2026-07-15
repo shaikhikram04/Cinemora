@@ -154,7 +154,7 @@ async def compute_genre_affinity(user_id: str) -> dict[str, float]:
     return {g: (v - lo) / (hi - lo) for g, v in scores.items()}
 
 
-async def _excluded_catalog_keys(user_id: str) -> set[tuple[str, int, str]]:
+async def excluded_catalog_keys(user_id: str) -> set[tuple[str, int, str]]:
     """Every library status (including watchlist) is excluded from
     personalized candidate pools — resurfacing something the user already
     watchlisted reads as the algorithm not knowing the user, and watchlist
@@ -191,7 +191,7 @@ async def score_candidates(user_id: str, cinema_type: str | None, limit: int | N
     language_codes = to_iso_codes(((user or {}).get("preferences") or {}).get("languages") or [])
 
     affinity = await compute_genre_affinity(user_id)
-    excluded = await _excluded_catalog_keys(user_id)
+    excluded = await excluded_catalog_keys(user_id)
 
     query: dict = {"cinemaType": cinema_type} if cinema_type else {}
     candidates = [doc async for doc in content_catalog_collection().find(query)]

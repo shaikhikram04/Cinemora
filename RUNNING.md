@@ -8,7 +8,7 @@ MongoDB + Redis  →  recommender (Python)  →  backend (Node)  →  frontend (
 
 | Service | Stack | Default port | Talks to |
 |---|---|---|---|
-| **recommender** | Python 3.14 · FastAPI · Uvicorn | `8000` (internal only) | Mongo, Redis, TMDB, Jikan, Claude |
+| **recommender** | Python 3.14 · FastAPI · Uvicorn | `8000` (internal only) | Mongo, Redis, TMDB, Jikan, Gemini |
 | **backend** | Node · Express 5 · Mongoose 8 | `3000` (public API) | Mongo, TMDB, Jikan, AniList, Firebase, recommender |
 | **frontend** | Flutter 3.41 (Dart 3.11) via FVM | — | backend |
 
@@ -21,7 +21,7 @@ The Flutter app only ever calls the **backend**. The backend proxies recommendat
 - **MongoDB** and **Redis** running locally (both services default to `localhost`).
 - **Flutter via FVM** — the pinned toolchain lives at `~/fvm/versions/stable/bin/flutter` (Flutter 3.41.4 / Dart 3.11.1).
 - **Node** 18+ and **Python** 3.14 (a `.venv` already exists in `recommender/`).
-- API keys: a **TMDB** key (shared by both services) and, for mood chat, an **Anthropic** key.
+- API keys: a **TMDB** key (shared by both services) and, for mood chat, a **Gemini** key (free from [AI Studio](https://aistudio.google.com/apikey)).
 - **Firebase** service account JSON for the backend (auth), plus `google-services.json` already in `frontend/android/app/`.
 
 Start Mongo + Redis first, e.g.:
@@ -53,7 +53,7 @@ Fill in `recommender/.env`:
 | `REDIS_URL` | `redis://localhost:6379/0` |
 | `TMDB_API_KEY` | Same key as `backend/.env`. |
 | `INTERNAL_SERVICE_SECRET` | **Must match** the backend's value — the shared handshake. |
-| `ANTHROPIC_API_KEY` | Required for mood chat; without it the mood endpoint returns `503` (rest of the app still works). |
+| `GEMINI_API_KEY` | Required for mood chat; without it the mood endpoint returns `503` (rest of the app still works). Free tier: ~10 req/min, 1500 req/day. |
 | `INGESTION_HOUR_UTC` / `CATALOG_PAGE_LIMIT` | Daily sweep hour and pages pulled per list. |
 
 **Health check:**
@@ -182,7 +182,8 @@ Then, on first run only, seed the catalog (step 1's ingest curl).
 ## Troubleshooting
 
 - **Home recommendations are empty / no "Critically Acclaimed"** → the catalog hasn't been ingested. Run the `/internal/ingest/run` curl (step 1).
-- **Mood chat returns 503** → `ANTHROPIC_API_KEY` is blank in `recommender/.env`. Add a key and restart the recommender.
+- **Mood chat returns 503** → `GEMINI_API_KEY` is blank in `recommender/.env`. Add a key and restart the recommender.
+- **Mood chat returns 429 "busy"** → either the Gemini free tier's ~10 req/min ceiling, or *both* `GEMINI_MODEL` and `GEMINI_FALLBACK_MODEL` are shedding load (free-tier traffic is dropped first when a model is saturated — a `503 high demand` can persist for minutes). Wait and retry.
 - **Backend `502`/`connection refused` on `/api/recommendations/*`** → the recommender isn't running, or `RECOMMENDER_URL` / `INTERNAL_SERVICE_SECRET` don't match between the two `.env` files.
 - **`/internal/*` returns 401/403** → the `X-Internal-Secret` doesn't match the recommender's `INTERNAL_SERVICE_SECRET`.
 - **App can't reach the backend from a device/emulator** (`No route to host` / `connectionError`) → the `baseUrl` doesn't match how you're running. See [Configuring the API base URL](#configuring-the-api-base-url) — use `10.0.2.2` on the emulator, the laptop LAN IP on Wi-Fi, or `adb reverse` over USB (works on any network). A bare `:` with no port (e.g. `http://192.168.1.108:/api`) also causes this — make sure the port is present.
@@ -198,7 +199,7 @@ Flutter app
    ▼
 Node backend  ──────────────►  Python recommender   (X-Internal-Secret + X-User-Id)
    │  TMDB / Jikan / AniList        │  TMDB / Jikan (ingestion + similar)
-   │  Firebase auth                 │  Claude API (mood chat)
+   │  Firebase auth                 │  Gemini API (mood chat)
    ▼                                ▼
 MongoDB  ◄──────────────────────  MongoDB (own collections) + Redis (caches)
 ```

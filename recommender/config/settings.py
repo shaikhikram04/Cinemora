@@ -18,9 +18,13 @@ class Settings(BaseSettings):
     ingestion_hour_utc: int = 3  # daily sweep time
     catalog_page_limit: int = 5  # ~20 items/page from TMDB -> up to ~100-500 items per list
 
-    # Mood chat (Claude-powered, rate-limited)
-    anthropic_api_key: str = ""
-    anthropic_model: str = "claude-opus-4-8"
+    # Mood chat (Gemini-powered, rate-limited)
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-3.5-flash"
+    # Used when the primary is shedding free-tier load (503). Keep this a
+    # smaller/less contended model — it's the one that's still up when the
+    # headline model isn't.
+    gemini_fallback_model: str = "gemini-3.1-flash-lite"
     mood_max_turns_per_session: int = 8
     mood_max_sessions_per_day: int = 2
 
