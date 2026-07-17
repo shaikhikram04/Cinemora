@@ -1,7 +1,5 @@
 const axios = require("axios");
-const NodeCache = require("node-cache");
-
-const cache = new NodeCache();
+const { cacheGet, cacheSet } = require("./redis");
 
 // AniList GraphQL — no API key; rate limit: 90 req/min per IP
 const anilist = axios.create({
@@ -12,6 +10,10 @@ const anilist = axios.create({
 
 const TTL = {
   details: 60 * 60 * 24, // 24 hours
+  // Short — search was the only uncached path against the 90 req/min budget we
+  // share with the recommender. Dedupes popular/repeated queries; a typing burst
+  // still costs one call per prefix, so debounce on the client too.
+  search: 60 * 5,
 };
 
 // Shared fields for every relation node — includes format so we can filter out OVAs/Movies
@@ -78,8 +80,8 @@ const RELATIONS_ONLY_QUERY = `
 `;
 
 const getAnimeByMalId = async (malId) => {
-  const key = `anilist_detail_${malId}`;
-  const cached = cache.get(key);
+  const key = `anilist:detail:${malId}`;
+  const cached = await cacheGet(key);
   if (cached) return cached;
 
   const { data } = await anilist.post("", {
@@ -87,14 +89,14 @@ const getAnimeByMalId = async (malId) => {
     variables: { malId: parseInt(malId, 10) },
   });
 
-  cache.set(key, data, TTL.details);
+  await cacheSet(key, data, TTL.details);
   return data;
 };
 
 // Fetches only the relations for a given AniList ID — cached independently
 const getRelationsById = async (anilistId) => {
-  const key = `anilist_rel_${anilistId}`;
-  const cached = cache.get(key);
+  const key = `anilist:rel:${anilistId}`;
+  const cached = await cacheGet(key);
   if (cached) return cached;
 
   const { data } = await anilist.post("", {
@@ -103,7 +105,7 @@ const getRelationsById = async (anilistId) => {
   });
 
   const edges = data?.data?.Media?.relations?.edges ?? [];
-  cache.set(key, edges, TTL.details);
+  await cacheSet(key, edges, TTL.details);
   return edges;
 };
 
@@ -169,13 +171,21 @@ const SEARCH_QUERY = `
 `;
 
 const searchAnime = async (query, perPage = 20) => {
+  // Normalized so "Naruto", "naruto" and "naruto " share one entry
+  const key = `anilist:search:${query.trim().toLowerCase()}:${perPage}`;
+  const cached = await cacheGet(key);
+  if (cached) return cached;
+
   const { data } = await anilist.post("", {
     query: SEARCH_QUERY,
     variables: { search: query, perPage },
   });
   const media = data?.data?.Page?.media ?? [];
   // Drop entries with no MAL ID — they can't be opened in the detail screen
-  return media.filter((m) => m.idMal != null);
+  const results = media.filter((m) => m.idMal != null);
+
+  await cacheSet(key, results, TTL.search);
+  return results;
 };
 
 module.exports = {

@@ -1,7 +1,5 @@
 const axios = require("axios");
-const NodeCache = require("node-cache");
-
-const cache = new NodeCache();
+const { cacheGet, cacheSet } = require("./redis");
 
 const tmdb = axios.create({
   baseURL: "https://api.themoviedb.org/3",
@@ -17,12 +15,12 @@ const TTL = {
 };
 
 const get = async (path, params = {}, ttl = TTL.details) => {
-  const key = path + JSON.stringify(params);
-  const cached = cache.get(key);
+  const key = `tmdb:${path}${JSON.stringify(params)}`;
+  const cached = await cacheGet(key);
   if (cached) return cached;
 
   const { data } = await tmdb.get(path, { params });
-  cache.set(key, data, ttl);
+  await cacheSet(key, data, ttl);
   return data;
 };
 
