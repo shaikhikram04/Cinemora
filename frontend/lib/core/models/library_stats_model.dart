@@ -21,7 +21,6 @@ class LibraryStatsModel extends Equatable {
   final int totalEntries;
   final int watched;
   final int watchlist;
-  final int watching;
   final int dropped;
   final int movies;
   final int tvShows;
@@ -33,7 +32,6 @@ class LibraryStatsModel extends Equatable {
     this.totalEntries = 0,
     this.watched = 0,
     this.watchlist = 0,
-    this.watching = 0,
     this.dropped = 0,
     this.movies = 0,
     this.tvShows = 0,
@@ -54,7 +52,6 @@ class LibraryStatsModel extends Equatable {
       totalEntries: json['totalEntries'] as int? ?? 0,
       watched: byStatus['watched'] as int? ?? 0,
       watchlist: byStatus['watchlist'] as int? ?? 0,
-      watching: byStatus['watching'] as int? ?? 0,
       dropped: byStatus['dropped'] as int? ?? 0,
       movies: byCinemaType['movie'] as int? ?? 0,
       tvShows: byCinemaType['tv'] as int? ?? 0,
@@ -69,7 +66,7 @@ class LibraryStatsModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        totalEntries, watched, watchlist, watching, dropped,
+        totalEntries, watched, watchlist, dropped,
         movies, tvShows, anime, rewatchCount, topGenres,
       ];
 }

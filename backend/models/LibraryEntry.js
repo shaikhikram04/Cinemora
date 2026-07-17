@@ -41,9 +41,13 @@ const libraryEntrySchema = new mongoose.Schema(
     originalLanguage: { type: String },
 
     // Show-level status (set via show-level buttons)
+    //
+    // MIGRATION NOTE: "watching" was removed from this enum. Existing docs
+    // still carrying it will fail validation on their next save — migrate with:
+    //   db.libraryentries.updateMany({ status: "watching" }, { $set: { status: "watchlist" } })
     status: {
       type: String,
-      enum: ["watchlist", "watching", "watched", "dropped"],
+      enum: ["watchlist", "watched", "dropped"],
       default: "watchlist",
     },
     userRating: { type: Number, min: 0, max: 5 },

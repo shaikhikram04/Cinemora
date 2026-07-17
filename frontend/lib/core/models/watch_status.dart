@@ -1,14 +1,12 @@
 enum WatchStatus {
   watchlist,
-  watching,
   watched,
   dropped;
 
-  String get apiValue => name; // 'watchlist', 'watching', 'watched', 'dropped'
+  String get apiValue => name; // 'watchlist', 'watched', 'dropped'
 
   static WatchStatus fromJson(String value) => switch (value) {
         'watchlist' => WatchStatus.watchlist,
-        'watching' => WatchStatus.watching,
         'watched' => WatchStatus.watched,
         'dropped' => WatchStatus.dropped,
         _ => WatchStatus.watchlist,
@@ -18,7 +16,6 @@ enum WatchStatus {
   static WatchStatus fromDisplayName(String display) =>
       switch (display.toLowerCase()) {
         'watchlist' => WatchStatus.watchlist,
-        'watching' => WatchStatus.watching,
         'watched' => WatchStatus.watched,
         'dropped' => WatchStatus.dropped,
         _ => WatchStatus.watchlist,
@@ -26,7 +23,6 @@ enum WatchStatus {
 
   String get displayName => switch (this) {
         WatchStatus.watchlist => 'Watchlist',
-        WatchStatus.watching => 'Watching',
         WatchStatus.watched => 'Watched',
         WatchStatus.dropped => 'Dropped',
       };

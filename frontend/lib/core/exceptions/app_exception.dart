@@ -35,11 +35,6 @@ class BackendException extends AppException {
         'RANKING_ENTRY_NOT_FOUND' => 'Entry not found in this list.',
         'RANKING_TITLE_REQUIRED' => 'Please enter a list title.',
         'RANKING_MISSING_FIELDS' => 'Missing required fields.',
-        // Watch Together
-        'SESSION_NOT_FOUND' => 'Watch session not found or has expired.',
-        'SESSION_ENDED' => 'This watch session has already ended.',
-        'SESSION_FORBIDDEN' => 'Only the host can end the session.',
-        'SESSION_MISSING_FIELDS' => 'Missing required session fields.',
         // Users
         'USER_NOT_FOUND' => 'Account not found.',
         // Profile images

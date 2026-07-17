@@ -7,7 +7,6 @@ import 'package:cinemora/core/models/watch_status.dart';
 // so the app keeps one mental model of "how much does a library entry count".
 const _statusBase = {
   WatchStatus.watched: 3.0,
-  WatchStatus.watching: 1.5,
   WatchStatus.watchlist: 0.5,
   WatchStatus.dropped: -2.0,
 };

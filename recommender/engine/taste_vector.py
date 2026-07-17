@@ -20,7 +20,6 @@ from engine.similar import get_similar
 _ONBOARDING_GENRE_WEIGHT = 2.0
 _LIBRARY_STATUS_BASE = {
     "watched": 3.0,
-    "watching": 1.5,
     "watchlist": 0.5,
     "dropped": -2.0,
 }

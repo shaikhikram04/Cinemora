@@ -31,11 +31,6 @@ abstract class AppRoutes {
   // ── Mood chat ─────────────────────────────────────────────────────────────
   static const moodChat = '/mood-chat';
 
-  // ── Watch Together ────────────────────────────────────────────────────────
-  static const watchTogether = '/watch-together';
-  static const watchTogetherCreate = '/watch-together/create';
-  static const watchTogetherJoin = '/watch-together/join';
-
   // ── Settings ──────────────────────────────────────────────────────────────
   static const settings = '/settings';
   static const editProfile = '/settings/edit-profile';

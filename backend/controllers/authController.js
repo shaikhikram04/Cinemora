@@ -113,7 +113,6 @@ const deleteAccount = async (req, res, next) => {
     User.deleteOne({ _id: userId }),
     require("../models/LibraryEntry").deleteMany({ userId }),
     require("../models/RankingList").deleteMany({ userId }),
-    require("../models/WatchSession").deleteMany({ hostId: userId }),
     require("../models/Notification").deleteMany({ userId }),
   ]);
 

@@ -43,13 +43,6 @@ class ProfileActivityCard extends StatelessWidget {
         subtitle: time,
       );
     }
-    if (e.status == WatchStatus.watching) {
-      return _ActivityData(
-        icon: Icons.play_circle_outline_rounded,
-        title: 'Watching ${e.title}',
-        subtitle: time,
-      );
-    }
     if (e.status == WatchStatus.dropped) {
       return _ActivityData(
         icon: Icons.cancel_outlined,

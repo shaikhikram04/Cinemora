@@ -14,7 +14,7 @@ const compoundFilter = (req) => ({
 // ── Collection ────────────────────────────────────────────────────────────────
 
 const VALID_CINEMA_TYPES = new Set(["movie", "tv", "anime"]);
-const VALID_STATUSES = new Set(["watchlist", "watching", "watched", "dropped"]);
+const VALID_STATUSES = new Set(["watchlist", "watched", "dropped"]);
 
 // GET /api/library?status=&cinemaType=&sort=
 const getLibrary = async (req, res, next) => {
@@ -65,7 +65,7 @@ const getStats = async (req, res) => {
     "status cinemaType genres watchedAt",
   );
 
-  const byStatus = { watchlist: 0, watching: 0, watched: 0, dropped: 0 };
+  const byStatus = { watchlist: 0, watched: 0, dropped: 0 };
   const byCinemaType = { movie: 0, tv: 0, anime: 0 };
   const genreFreq = {};
   let rewatchCount = 0;
