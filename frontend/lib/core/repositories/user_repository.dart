@@ -111,4 +111,52 @@ class UserRepository {
         .map((e) => LibraryEntryModel.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  // ── Push notifications ────────────────────────────────────────────────────
+
+  Future<void> updateFcmToken(String token) async {
+    await _apiClient.dio.put('/users/fcm-token', data: {'fcmToken': token});
+  }
+
+  /// Reads the push opt-outs off the full profile — prefs live on the user
+  /// document, and /auth/me is the only place the backend serves them.
+  Future<NotificationPrefs> getNotificationPrefs() async {
+    final res = await _apiClient.dio.get('/auth/me');
+    return NotificationPrefs.fromJson(
+        (res.data as Map<String, dynamic>)['notificationPrefs']
+                as Map<String, dynamic>? ??
+            const {});
+  }
+
+  Future<NotificationPrefs> updateNotificationPrefs({
+    bool? pushNewRelease,
+    bool? pushNewSeason,
+  }) async {
+    final res = await _apiClient.dio.put('/users/notification-prefs', data: {
+      if (pushNewRelease != null) 'pushNewRelease': pushNewRelease,
+      if (pushNewSeason != null) 'pushNewSeason': pushNewSeason,
+    });
+    return NotificationPrefs.fromJson(
+        (res.data as Map<String, dynamic>)['notificationPrefs']
+                as Map<String, dynamic>? ??
+            const {});
+  }
+}
+
+/// Push-channel opt-outs. The in-app inbox always fills regardless — these
+/// only decide whether the backend's daily sweep sends an FCM push.
+class NotificationPrefs {
+  final bool pushNewRelease;
+  final bool pushNewSeason;
+
+  const NotificationPrefs({
+    this.pushNewRelease = true,
+    this.pushNewSeason = true,
+  });
+
+  factory NotificationPrefs.fromJson(Map<String, dynamic> json) =>
+      NotificationPrefs(
+        pushNewRelease: json['pushNewRelease'] as bool? ?? true,
+        pushNewSeason: json['pushNewSeason'] as bool? ?? true,
+      );
 }

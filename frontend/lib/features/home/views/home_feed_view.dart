@@ -20,6 +20,8 @@ import 'package:cinemora/features/home/views/mood_chat_view.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
+import 'package:cinemora/features/notifications/viewmodels/notifications_cubit.dart';
+import 'package:cinemora/features/notifications/viewmodels/notifications_state.dart';
 
 final _kTabs = homeTabs.map((t) => t.label).toList();
 
@@ -460,17 +462,24 @@ class _Header extends StatelessWidget {
                   size: 21.sp,
                 ),
               ),
-              Positioned(
-                right: 11.w,
-                top: 11.w,
-                child: Container(
-                  width: 7.w,
-                  height: 7.w,
-                  decoration: BoxDecoration(
-                    color: context.colors.accentRed,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+              // Unread dot — driven by the app-level NotificationsCubit so it
+              // clears live as items are read in the inbox.
+              BlocSelector<NotificationsCubit, NotificationsState, bool>(
+                selector: (state) => state.unreadCount > 0,
+                builder: (context, hasUnread) => hasUnread
+                    ? Positioned(
+                        right: 11.w,
+                        top: 11.w,
+                        child: Container(
+                          width: 7.w,
+                          height: 7.w,
+                          decoration: BoxDecoration(
+                            color: context.colors.accentRed,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
               ),
             ],
           ),

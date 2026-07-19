@@ -1,57 +1,50 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/core/repositories/user_repository.dart';
 import 'notification_settings_state.dart';
 
 class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
-  NotificationSettingsCubit() : super(const NotificationSettingsState());
+  final UserRepository _userRepository;
 
-  void setReleaseAlerts(bool v) => emit(state.copyWith(
-        releaseAlertsEnabled: v,
-        newSeasonAvailable: v ? state.newSeasonAvailable : false,
-        newEpisodeAvailable: v ? state.newEpisodeAvailable : false,
-        upcomingMovieRelease: v ? state.upcomingMovieRelease : false,
-        streamingChanges: v ? state.streamingChanges : false,
+  NotificationSettingsCubit(this._userRepository)
+      : super(const NotificationSettingsState()) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final prefs = await _userRepository.getNotificationPrefs();
+      emit(NotificationSettingsState(
+        status: NotificationSettingsStatus.ready,
+        pushNewRelease: prefs.pushNewRelease,
+        pushNewSeason: prefs.pushNewSeason,
       ));
+    } catch (_) {
+      // Show the defaults rather than a dead screen; the first toggle the
+      // user flips will persist the real state.
+      emit(state.copyWith(status: NotificationSettingsStatus.ready));
+    }
+  }
 
-  void setWatchlistAlerts(bool v) => emit(state.copyWith(
-        watchlistAlertsEnabled: v,
-        watchlistItemReleased: v ? state.watchlistItemReleased : false,
-        watchlistItemTrending: v ? state.watchlistItemTrending : false,
-      ));
+  void setMaster(bool v) => _save(pushNewRelease: v, pushNewSeason: v);
+  void setNewRelease(bool v) => _save(pushNewRelease: v);
+  void setNewSeason(bool v) => _save(pushNewSeason: v);
 
-  void setSocial(bool v) => emit(state.copyWith(
-        socialEnabled: v,
-        likesOnRankings: v ? state.likesOnRankings : false,
-        comments: v ? state.comments : false,
-        newFollowers: v ? state.newFollowers : false,
-        friendActivity: v ? state.friendActivity : false,
-      ));
-
-  void setAchievements(bool v) => emit(state.copyWith(
-        achievementsEnabled: v,
-        badgeUnlocks: v ? state.badgeUnlocks : false,
-        milestones: v ? state.milestones : false,
-        collectionProgress: v ? state.collectionProgress : false,
-      ));
-
-  void setSystem(bool v) => emit(state.copyWith(
-        systemEnabled: v,
-        appUpdates: v ? state.appUpdates : false,
-        productAnnouncements: v ? state.productAnnouncements : false,
-      ));
-
-  void setNewSeasonAvailable(bool v) => emit(state.copyWith(newSeasonAvailable: v));
-  void setNewEpisodeAvailable(bool v) => emit(state.copyWith(newEpisodeAvailable: v));
-  void setUpcomingMovieRelease(bool v) => emit(state.copyWith(upcomingMovieRelease: v));
-  void setStreamingChanges(bool v) => emit(state.copyWith(streamingChanges: v));
-  void setWatchlistItemReleased(bool v) => emit(state.copyWith(watchlistItemReleased: v));
-  void setWatchlistItemTrending(bool v) => emit(state.copyWith(watchlistItemTrending: v));
-  void setLikesOnRankings(bool v) => emit(state.copyWith(likesOnRankings: v));
-  void setComments(bool v) => emit(state.copyWith(comments: v));
-  void setNewFollowers(bool v) => emit(state.copyWith(newFollowers: v));
-  void setFriendActivity(bool v) => emit(state.copyWith(friendActivity: v));
-  void setBadgeUnlocks(bool v) => emit(state.copyWith(badgeUnlocks: v));
-  void setMilestones(bool v) => emit(state.copyWith(milestones: v));
-  void setCollectionProgress(bool v) => emit(state.copyWith(collectionProgress: v));
-  void setAppUpdates(bool v) => emit(state.copyWith(appUpdates: v));
-  void setProductAnnouncements(bool v) => emit(state.copyWith(productAnnouncements: v));
+  /// Optimistic: the switch flips immediately, and a failed save flips it
+  /// back — a settings screen that lies about what's persisted is worse than
+  /// a switch that visibly bounces.
+  Future<void> _save({bool? pushNewRelease, bool? pushNewSeason}) async {
+    final previous = state;
+    emit(state.copyWith(
+      pushNewRelease: pushNewRelease,
+      pushNewSeason: pushNewSeason,
+    ));
+    try {
+      await _userRepository.updateNotificationPrefs(
+        pushNewRelease: pushNewRelease,
+        pushNewSeason: pushNewSeason,
+      );
+    } catch (_) {
+      emit(previous);
+    }
+  }
 }

@@ -10,7 +10,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["new_release", "watch_invite", "system"],
+      enum: ["new_release", "new_season", "system"],
       required: true,
     },
     title: { type: String, required: true },

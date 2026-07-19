@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/core/router/app_router.dart';
+import 'package:cinemora/core/router/app_routes.dart';
+import 'package:cinemora/core/services/push_notifications_service.dart';
 import 'package:cinemora/core/themes/theme.dart';
 import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
@@ -15,6 +17,8 @@ import 'package:cinemora/features/franchise/repositories/franchise_repository.da
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
+import 'package:cinemora/features/notifications/repositories/notifications_repository.dart';
+import 'package:cinemora/features/notifications/viewmodels/notifications_cubit.dart';
 import 'package:cinemora/features/rankings/repositories/rankings_repository.dart';
 import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
 
@@ -26,6 +30,7 @@ class CinemoraApp extends StatefulWidget {
   final DiscoverRepository discoverRepository;
   final FranchiseRepository franchiseRepository;
   final RankingsRepository rankingsRepository;
+  final NotificationsRepository notificationsRepository;
   final ThemeModeCubit themeModeCubit;
   final SharedPreferences prefs;
 
@@ -38,6 +43,7 @@ class CinemoraApp extends StatefulWidget {
     required this.discoverRepository,
     required this.franchiseRepository,
     required this.rankingsRepository,
+    required this.notificationsRepository,
     required this.themeModeCubit,
     required this.prefs,
   });
@@ -51,6 +57,8 @@ class _CinemoraAppState extends State<CinemoraApp> {
   late final _RouterNotifier _notifier;
   late final LibraryCubit _libraryCubit;
   late final RankingsCubit _rankingsCubit;
+  late final NotificationsCubit _notificationsCubit;
+  late final PushNotificationsService _pushService;
   late final StreamSubscription<AppAuthState> _authSub;
 
   @override
@@ -58,6 +66,8 @@ class _CinemoraAppState extends State<CinemoraApp> {
     super.initState();
     _libraryCubit = LibraryCubit(widget.libraryRepository);
     _rankingsCubit = RankingsCubit(widget.rankingsRepository);
+    _notificationsCubit = NotificationsCubit(widget.notificationsRepository);
+    _pushService = PushNotificationsService(widget.userRepository);
     _notifier = _RouterNotifier(widget.authCubit);
     _router = buildAppRouter(widget.authCubit, _notifier);
 
@@ -65,8 +75,19 @@ class _CinemoraAppState extends State<CinemoraApp> {
       if (state is AppAuthAuthenticated) {
         _libraryCubit.loadData();
         _rankingsCubit.loadLists();
+        // Lights up the home-screen bell badge; also triggers the backend's
+        // release-check pass so fresh notifications exist by the time the
+        // inbox is opened.
+        _notificationsCubit.refreshUnreadCount();
+        // Permission prompt + token sync; a push arriving in the foreground
+        // just refreshes the badge, and tapping one opens the inbox.
+        _pushService.start(
+          onForegroundMessage: _notificationsCubit.refreshUnreadCount,
+          onNotificationTap: () => _router.push(AppRoutes.notifications),
+        );
       } else if (state is AppAuthUnauthenticated) {
         _rankingsCubit.clear();
+        _notificationsCubit.clear();
       }
     });
 
@@ -79,6 +100,8 @@ class _CinemoraAppState extends State<CinemoraApp> {
     _notifier.dispose();
     _libraryCubit.close();
     _rankingsCubit.close();
+    _notificationsCubit.close();
+    _pushService.dispose();
     super.dispose();
   }
 
@@ -90,6 +113,7 @@ class _CinemoraAppState extends State<CinemoraApp> {
         BlocProvider.value(value: widget.themeModeCubit),
         BlocProvider.value(value: _libraryCubit),
         BlocProvider.value(value: _rankingsCubit),
+        BlocProvider.value(value: _notificationsCubit),
         RepositoryProvider.value(value: widget.userRepository),
         RepositoryProvider.value(value: widget.homeRepository),
         RepositoryProvider.value(value: widget.libraryRepository),

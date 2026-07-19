@@ -41,7 +41,7 @@ const ANIME_DETAIL_QUERY = `
       episodes
       status
       countryOfOrigin
-      startDate { year }
+      startDate { year month day }
       endDate { year }
       coverImage { extraLarge large }
       trailer { id site }
@@ -190,6 +190,7 @@ const searchAnime = async (query, perPage = 20) => {
 
 module.exports = {
   getAnimeByMalId,
+  getRelationsById,
   searchAnime,
   isSeasonNode,
   traverseSeasonChain,

@@ -1,23 +1,38 @@
 import 'package:equatable/equatable.dart';
 import 'package:cinemora/features/notifications/models/notification.dart';
 
+enum NotificationsStatus { initial, loading, success, failure }
+
 class NotificationsState extends Equatable {
-  final List<WNotif> notifications;
+  final NotificationsStatus status;
+  final List<AppNotification> notifications;
 
-  const NotificationsState({this.notifications = kInitialNotifications});
+  /// Server-reported on fetch, adjusted locally by optimistic mark-reads.
+  /// Lives here (not derived from [notifications]) so the home-screen badge
+  /// can be refreshed cheaply without loading the inbox.
+  final int unreadCount;
+  final String? errorMessage;
 
-  int get unreadCount => notifications.where((n) => !n.isRead).length;
+  const NotificationsState({
+    this.status = NotificationsStatus.initial,
+    this.notifications = const [],
+    this.unreadCount = 0,
+    this.errorMessage,
+  });
 
-  Map<String, List<WNotif>> get grouped {
-    final today = <WNotif>[];
-    final thisWeek = <WNotif>[];
-    final earlier = <WNotif>[];
+  Map<String, List<AppNotification>> get grouped {
+    final now = DateTime.now();
+    final today = <AppNotification>[];
+    final thisWeek = <AppNotification>[];
+    final earlier = <AppNotification>[];
 
     for (final n in notifications) {
-      final t = n.timeLabel;
-      if (t.contains('m ago') || t.contains('h ago')) {
+      final t = n.createdAt.toLocal();
+      final sameDay =
+          t.year == now.year && t.month == now.month && t.day == now.day;
+      if (sameDay) {
         today.add(n);
-      } else if (t.contains('d ago')) {
+      } else if (now.difference(t).inDays < 7) {
         thisWeek.add(n);
       } else {
         earlier.add(n);
@@ -31,9 +46,19 @@ class NotificationsState extends Equatable {
     };
   }
 
-  NotificationsState copyWith({List<WNotif>? notifications}) =>
-      NotificationsState(notifications: notifications ?? this.notifications);
+  NotificationsState copyWith({
+    NotificationsStatus? status,
+    List<AppNotification>? notifications,
+    int? unreadCount,
+    String? errorMessage,
+  }) =>
+      NotificationsState(
+        status: status ?? this.status,
+        notifications: notifications ?? this.notifications,
+        unreadCount: unreadCount ?? this.unreadCount,
+        errorMessage: errorMessage ?? this.errorMessage,
+      );
 
   @override
-  List<Object> get props => [notifications];
+  List<Object?> get props => [status, notifications, unreadCount, errorMessage];
 }

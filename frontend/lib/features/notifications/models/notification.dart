@@ -1,122 +1,87 @@
-import 'package:flutter/material.dart';
+enum NotificationType { newRelease, newSeason, system }
 
-enum NotifCardVariant { media, recommendation, compact }
-
-class WNotif {
+class AppNotification {
   final String id;
-  final NotifCardVariant variant;
+  final NotificationType type;
   final String title;
-  final String? seriesTitle;
   final String body;
-  final String timeLabel;
+  final int? tmdbId;
+  final String? cinemaType; // "movie" | "tv" | "anime"
+  final String? posterPath;
+  final int? season;
   final bool isRead;
-  final String? ctaLabel;
-  final Color posterColor;
-  final Color? posterColorAlt;
-  final String? tag;
-  final String? becauseOf;
-  final IconData? compactIcon;
-  final Color? compactIconColor;
+  final DateTime createdAt;
 
-  const WNotif({
+  const AppNotification({
     required this.id,
-    required this.variant,
+    required this.type,
     required this.title,
     required this.body,
-    required this.timeLabel,
-    this.seriesTitle,
+    this.tmdbId,
+    this.cinemaType,
+    this.posterPath,
+    this.season,
     this.isRead = false,
-    this.ctaLabel,
-    this.posterColor = const Color(0xFF3A3A4A),
-    this.posterColorAlt,
-    this.tag,
-    this.becauseOf,
-    this.compactIcon,
-    this.compactIconColor,
+    required this.createdAt,
   });
 
-  WNotif copyWith({bool? isRead}) => WNotif(
+  factory AppNotification.fromJson(Map<String, dynamic> json) {
+    final data = json['data'] as Map<String, dynamic>? ?? const {};
+    return AppNotification(
+      id: json['_id'] as String,
+      type: switch (json['type'] as String?) {
+        'new_release' => NotificationType.newRelease,
+        'new_season' => NotificationType.newSeason,
+        _ => NotificationType.system,
+      },
+      title: json['title'] as String? ?? '',
+      body: json['body'] as String? ?? '',
+      tmdbId: (data['tmdbId'] as num?)?.toInt(),
+      cinemaType: data['cinemaType'] as String?,
+      posterPath: data['posterPath'] as String?,
+      season: (data['season'] as num?)?.toInt(),
+      isRead: json['isRead'] as bool? ?? false,
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
+    );
+  }
+
+  /// Anime entries carry a full image URL; TMDB entries a relative path.
+  /// w185 is plenty for the 48px inbox thumbnail.
+  String? get posterUrl => _posterUrl('w185');
+
+  /// Full-size variant for the detail screen's hero — same w500 the library
+  /// rows pass, so a poster opened from a notification isn't blurry.
+  String? get posterUrlLarge => _posterUrl('w500');
+
+  String? _posterUrl(String size) {
+    final path = posterPath;
+    if (path == null || path.isEmpty) return null;
+    return path.startsWith('http')
+        ? path
+        : 'https://image.tmdb.org/t/p/$size$path';
+  }
+
+  String get timeLabel {
+    final diff = DateTime.now().difference(createdAt.toLocal());
+    if (diff.inMinutes < 1) return 'now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    if (diff.inDays < 30) return '${(diff.inDays / 7).floor()}w ago';
+    return '${(diff.inDays / 30).floor()}mo ago';
+  }
+
+  AppNotification copyWith({bool? isRead}) => AppNotification(
         id: id,
-        variant: variant,
+        type: type,
         title: title,
-        seriesTitle: seriesTitle,
         body: body,
-        timeLabel: timeLabel,
+        tmdbId: tmdbId,
+        cinemaType: cinemaType,
+        posterPath: posterPath,
+        season: season,
         isRead: isRead ?? this.isRead,
-        ctaLabel: ctaLabel,
-        posterColor: posterColor,
-        posterColorAlt: posterColorAlt,
-        tag: tag,
-        becauseOf: becauseOf,
-        compactIcon: compactIcon,
-        compactIconColor: compactIconColor,
+        createdAt: createdAt,
       );
 }
-
-const kInitialNotifications = [
-  WNotif(
-    id: '1',
-    variant: NotifCardVariant.media,
-    title: 'Season 3 Available',
-    seriesTitle: 'The Bear',
-    body: 'New episodes are waiting. Chef Carmen is back.',
-    timeLabel: '2m ago',
-    ctaLabel: 'Continue Watching',
-    tag: 'NEW SEASON',
-    posterColor: Color(0xFF1E3A5F),
-    posterColorAlt: Color(0xFF0D2137),
-  ),
-  WNotif(
-    id: '2',
-    variant: NotifCardVariant.media,
-    title: 'Episode 7 Dropped',
-    seriesTitle: 'House of the Dragon',
-    body: 'The latest episode is now available to stream.',
-    timeLabel: '1h ago',
-    ctaLabel: 'Watch Now',
-    tag: 'NEW EPISODE',
-    posterColor: Color(0xFF4A1515),
-    posterColorAlt: Color(0xFF2A0A0A),
-  ),
-  WNotif(
-    id: '4',
-    variant: NotifCardVariant.compact,
-    title: 'Update your Sci-Fi rankings',
-    body: 'You watched something new in this genre.',
-    timeLabel: '5h ago',
-    isRead: true,
-    compactIcon: Icons.bar_chart_rounded,
-    compactIconColor: Color(0xFF8F83FF),
-  ),
-  WNotif(
-    id: '5',
-    variant: NotifCardVariant.recommendation,
-    title: 'Arrival',
-    body: '1h 56m  ·  Sci-Fi  ·  Denis Villeneuve',
-    timeLabel: '2d ago',
-    isRead: true,
-    becauseOf: 'Because you liked Interstellar',
-    posterColor: Color(0xFF162540),
-    posterColorAlt: Color(0xFF0A1520),
-  ),
-  WNotif(
-    id: '6',
-    variant: NotifCardVariant.compact,
-    title: 'Long time, no watch',
-    body: '2 weeks since your last film. Your library misses you.',
-    timeLabel: '3d ago',
-    isRead: true,
-    compactIcon: Icons.local_movies_outlined,
-    compactIconColor: Color(0xFF6E6E7D),
-  ),
-  WNotif(
-    id: '7',
-    variant: NotifCardVariant.recommendation,
-    title: '3 Comedies Picked for You',
-    body: 'Curated from your taste profile.',
-    timeLabel: '1w ago',
-    becauseOf: 'Feeling light today?',
-    posterColor: Color(0xFF2A1540),
-    posterColorAlt: Color(0xFF180D28),
-  ),
-];

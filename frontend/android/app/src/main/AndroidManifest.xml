@@ -28,6 +28,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- Push notifications: monochrome status-bar icon. Without it, FCM
+             falls back to the colored launcher icon, which Android draws as a
+             blank white rectangle in the status bar. No accent color is set —
+             the system's default tint follows the phone theme. (The colored
+             app icon shown in the COLLAPSED row is placed there by the OS
+             itself and is not configurable.) -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

@@ -30,6 +30,26 @@ const libraryEntrySchema = new mongoose.Schema(
     title: { type: String, required: true },
     posterPath: { type: String },
     releaseYear: { type: String },
+
+    // ── Release-notification tracking (written by services/releaseNotifications)
+    //
+    // Full release/premiere date, resolved server-side from TMDB/AniList when
+    // the notification generator first checks this title.
+    releaseDate: { type: Date },
+
+    // Terminal marker: set once the "now available" decision has been made for
+    // this entry — either a notification was created, or the title was already
+    // released when the user added it (sealed silently, nothing to announce).
+    // Null = release still pending, keep checking.
+    releaseNotifiedAt: { type: Date, default: null },
+
+    // Season marker, seeded silently on the generator's first pass (so seasons
+    // that already existed when tracking began are never announced); a later
+    // higher value is news → notify and advance. Null = not yet seeded.
+    // TV: highest aired season number. Anime: count of premiered sequels in
+    // the AniList SEQUEL chain (seasons there are separate media entries).
+    seasonNotifiedCount: { type: Number, default: null },
+
     genres: { type: [String], default: [] },
     tmdbRating: { type: Number },
     runtimeMinutes: { type: Number },

@@ -48,6 +48,32 @@ const updateFcmToken = async (req, res, next) => {
   res.json({ message: "FCM token updated" });
 };
 
+// PUT /api/users/notification-prefs
+const updateNotificationPrefs = async (req, res, next) => {
+  const { pushNewRelease, pushNewSeason } = req.body;
+
+  const updates = {};
+  if (typeof pushNewRelease === "boolean")
+    updates["notificationPrefs.pushNewRelease"] = pushNewRelease;
+  if (typeof pushNewSeason === "boolean")
+    updates["notificationPrefs.pushNewSeason"] = pushNewSeason;
+
+  if (Object.keys(updates).length === 0) {
+    return next(
+      new AppError(400, "USER_PREFS_EMPTY", "No valid preference fields"),
+    );
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user.userId,
+    { $set: updates },
+    { new: true },
+  ).select("notificationPrefs");
+
+  if (!user) return next(new AppError(404, "USER_NOT_FOUND", "User not found"));
+  res.json({ notificationPrefs: user.notificationPrefs });
+};
+
 // Avatars are square and face-aware; covers are a wide banner. Both are capped
 // server-side so a 5 MB phone photo isn't what we serve back to every client.
 const IMAGE_KINDS = {
@@ -107,6 +133,7 @@ module.exports = {
   updateProfile,
   updatePreferences,
   updateFcmToken,
+  updateNotificationPrefs,
   uploadAvatar,
   uploadCover,
 };

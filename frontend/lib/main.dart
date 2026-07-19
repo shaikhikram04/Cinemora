@@ -10,6 +10,7 @@ import 'package:cinemora/features/discover/repositories/discover_repository.dart
 import 'package:cinemora/features/franchise/repositories/franchise_repository.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
+import 'package:cinemora/features/notifications/repositories/notifications_repository.dart';
 import 'package:cinemora/features/rankings/repositories/rankings_repository.dart';
 import 'package:cinemora/core/services/secure_storage_service.dart';
 import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
@@ -31,6 +32,7 @@ void main() async {
   final rankingsRepository = RankingsRepository(apiClient);
   final discoverRepository = DiscoverRepository(apiClient);
   final franchiseRepository = FranchiseRepository(apiClient);
+  final notificationsRepository = NotificationsRepository(apiClient);
   final prefs = await SharedPreferences.getInstance();
   final themeModeCubit = ThemeModeCubit(prefs);
 
@@ -43,6 +45,7 @@ void main() async {
     rankingsRepository: rankingsRepository,
     discoverRepository: discoverRepository,
     franchiseRepository: franchiseRepository,
+    notificationsRepository: notificationsRepository,
     themeModeCubit: themeModeCubit,
     prefs: prefs,
   ));

@@ -52,4 +52,15 @@ const PORT = process.env.PORT || 3000;
 
 connectDB().then(() => {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+  // Daily push sweep. The inbox is compute-on-read and needs no schedule; this
+  // exists only so push notifications reach phones that haven't opened the
+  // app. Default 13:30 UTC = 7pm IST — an evening push, never a 3am one.
+  const cron = require("node-cron");
+  const { sweepAllUsers } = require("./services/releaseNotifications");
+  cron.schedule(process.env.PUSH_SWEEP_CRON || "30 13 * * *", () =>
+    sweepAllUsers().catch((err) =>
+      console.error(`[sweep] failed: ${err.message}`),
+    ),
+  );
 });
