@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 
 class HomeBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -42,7 +44,7 @@ class HomeBottomNavBar extends StatelessWidget {
           ),
           _NavItem(
             label: 'Rankings',
-            icon: Icons.view_list,
+            iconAsset: AppIcons.ranking,
             selected: currentIndex == 3,
             onTap: () => onChanged(3),
           ),
@@ -60,16 +62,19 @@ class HomeBottomNavBar extends StatelessWidget {
 
 class _NavItem extends StatelessWidget {
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? iconAsset;
   final bool selected;
   final VoidCallback onTap;
 
   const _NavItem({
     required this.label,
-    required this.icon,
     required this.selected,
     required this.onTap,
-  });
+    this.icon,
+    this.iconAsset,
+  }) : assert((icon == null) != (iconAsset == null),
+            'Provide either icon or iconAsset, not both');
 
   @override
   Widget build(BuildContext context) {
@@ -94,11 +99,18 @@ class _NavItem extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    icon,
-                    size: 22.sp,
-                    color: selected ? activeColor : inactiveColor,
-                  ),
+                  if (iconAsset != null)
+                    AppIcon(
+                      iconAsset!,
+                      size: 23.sp,
+                      color: selected ? activeColor : inactiveColor,
+                    )
+                  else
+                    Icon(
+                      icon,
+                      size: 22.sp,
+                      color: selected ? activeColor : inactiveColor,
+                    ),
                 ],
               ),
             ),

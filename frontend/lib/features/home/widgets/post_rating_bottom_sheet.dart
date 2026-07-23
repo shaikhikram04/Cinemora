@@ -7,6 +7,8 @@ import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/rankings/models/ranking_item.dart';
 import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
 import 'package:cinemora/features/rankings/views/ranking_placement_view.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 
 // ─── Public entry point ───────────────────────────────────────────────────────
 
@@ -537,7 +539,7 @@ class _SheetHeader extends StatelessWidget {
                 width: 52.w,
                 height: 66.h,
                 color: context.colors.surfaceMuted,
-                child: Icon(Icons.movie,
+                child: AppIcon(AppIcons.movie,
                     color: context.colors.mutedForeground, size: 24.sp),
               ),
             ),
@@ -549,8 +551,8 @@ class _SheetHeader extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.movie_creation_outlined,
-                        size: 11.sp, color: context.colors.mutedSecondary),
+                    AppIcon(AppIcons.movie,
+                        size: 16.sp, color: context.colors.mutedSecondary),
                     SizedBox(width: 4.w),
                     Text(
                       type.toUpperCase(),

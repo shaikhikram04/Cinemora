@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     preferences: {
       contentTypes: {
         type: [String],
-        enum: ["movies", "series", "anime", "documentaries"],
+        enum: ["movies", "series", "anime"],
         default: [],
       },
       genres: { type: [String], default: [] },

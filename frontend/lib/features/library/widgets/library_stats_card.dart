@@ -2,6 +2,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 
 class LibraryStatsCard extends StatelessWidget {
   final int watchedCount;
@@ -179,21 +181,21 @@ class LibraryStatsCard extends StatelessWidget {
               Row(
                 children: [
                   _CategoryChip(
-                    icon: Icons.movie_outlined,
+                    icon: AppIcons.movie,
                     iconColor: context.colors.accentRed,
                     label: 'MOVIES',
                     value: '$moviesWatched watched',
                   ),
                   SizedBox(width: 8.w),
                   _CategoryChip(
-                    icon: Icons.tv_outlined,
+                    icon: AppIcons.tvShow,
                     iconColor: context.colors.accentPurple,
                     label: 'SERIES',
                     value: '$seriesWatched watched',
                   ),
                   SizedBox(width: 8.w),
                   _CategoryChip(
-                    icon: Icons.auto_awesome_outlined,
+                    icon: AppIcons.anime,
                     iconColor: context.colors.warning,
                     label: 'ANIME',
                     value: '$animeWatched watched',
@@ -209,7 +211,7 @@ class LibraryStatsCard extends StatelessWidget {
 }
 
 class _CategoryChip extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final Color iconColor;
   final String label;
   final String value;
@@ -236,7 +238,7 @@ class _CategoryChip extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, size: 12.sp, color: iconColor),
+                AppIcon(icon, size: 18.sp, color: iconColor),
                 SizedBox(width: 4.w),
                 Text(
                   label,

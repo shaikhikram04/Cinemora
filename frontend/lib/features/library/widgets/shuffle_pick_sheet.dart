@@ -8,6 +8,8 @@ import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 
 void showShufflePick(BuildContext context, List<LibraryEntryModel> watchlist) {
   showModalBottomSheet(
@@ -249,8 +251,8 @@ class _SpinView extends StatelessWidget {
         children: [
           RotationTransition(
             turns: diceCtrl,
-            child: Icon(
-              Icons.casino_outlined,
+            child: AppIcon(
+              AppIcons.randomPick,
               size: 76.sp,
               color: context.colors.accentRed,
             ),
@@ -318,8 +320,8 @@ class _ResultView extends StatelessWidget {
           // Label
           Row(
             children: [
-              Icon(Icons.local_movies_outlined,
-                  size: 11.sp, color: context.colors.mutedSecondary),
+              AppIcon(AppIcons.movie,
+                  size: 16.sp, color: context.colors.mutedSecondary),
               SizedBox(width: 5.w),
               Text(
                 "TONIGHT'S PICK",
@@ -454,8 +456,8 @@ class _ResultView extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.casino_outlined,
-                      size: 15.sp, color: context.colors.mutedSecondary),
+                  AppIcon(AppIcons.randomPick,
+                      size: 22.sp, color: context.colors.mutedSecondary),
                   SizedBox(width: 8.w),
                   Text(
                     'Shuffle Again',
@@ -522,7 +524,7 @@ class _Fallback extends StatelessWidget {
         color: Colors.white.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12.r),
       ),
-      child: Icon(Icons.movie_outlined,
+      child: AppIcon(AppIcons.movie,
           size: 28.sp, color: context.colors.mutedSecondary),
     );
   }

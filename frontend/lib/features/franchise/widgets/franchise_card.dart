@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/franchise/models/franchise_summary.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 
 class FranchiseCard extends StatelessWidget {
   final FranchiseSummary franchise;
@@ -98,8 +100,8 @@ class _PosterThumbnail extends StatelessWidget {
 
   Widget _placeholder(BuildContext context) {
     return Center(
-      child: Icon(
-        Icons.local_movies_outlined,
+      child: AppIcon(
+        AppIcons.movie,
         color: context.colors.mutedForeground,
         size: 22.sp,
       ),

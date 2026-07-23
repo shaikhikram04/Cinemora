@@ -1,4 +1,3 @@
-from collections import defaultdict
 from datetime import date, datetime, timezone
 
 from bson import ObjectId
@@ -12,35 +11,30 @@ from engine.taste_vector import score_candidates
 # "here's what to watch this week" pick rather than an endless feed.
 _PICK_SIZE = 6
 
-# The mixed "For You" hero (cinema_type=None) is capped so it doesn't read as
-# an anime or tv binge list just because those scored highest — movies fill
-# whatever the cap leaves open. Type-scoped tabs skip this since the catalog
-# query already constrains them to one type.
-_MIX_TYPE_CAPS = {"anime": 2, "tv": 2}
+# The mixed "For You" hero (cinema_type=None) follows a fixed type layout so
+# it doesn't read as an anime or tv binge list just because those scored
+# highest, and so the row always opens on movies. Type-scoped tabs skip this
+# since the catalog query already constrains them to one type.
+_PICK_SEQUENCE = ["movie", "movie", "tv", "anime", "movie", "tv"]
 
 
-def _apply_type_caps(ranked_items: list[dict], limit: int, caps: dict[str, int]) -> list[dict]:
-    """Walk the score-ranked list and take items in order, skipping (not
-    dropping) any that would push a capped type over its limit. Skipped items
-    are kept as a fallback so, if the pool runs dry before `limit` is filled
-    (e.g. too few movies), they still get used rather than under-filling."""
-    counts: dict[str, int] = defaultdict(int)
-    selected: list[dict] = []
-    skipped: list[dict] = []
-    for item in ranked_items:
-        if len(selected) >= limit:
-            break
-        cap = caps.get(item["cinemaType"])
-        if cap is not None and counts[item["cinemaType"]] >= cap:
-            skipped.append(item)
-            continue
-        selected.append(item)
-        counts[item["cinemaType"]] += 1
-    for item in skipped:
-        if len(selected) >= limit:
-            break
-        selected.append(item)
-    return selected
+def _fill_pick_sequence(ranked_items: list[dict], sequence: list[str]) -> list[dict]:
+    """Fill each slot in `sequence` with the highest-scored unused item of
+    that slot's type. Slots whose type ran dry (e.g. too few anime in the
+    pool) are backfilled in place with the best remaining items of any type,
+    so the row under-fills only when the whole pool is exhausted."""
+    used: set[int] = set()
+
+    def take(cinema_type: str | None) -> dict | None:
+        for i, item in enumerate(ranked_items):
+            if i not in used and (cinema_type is None or item["cinemaType"] == cinema_type):
+                used.add(i)
+                return item
+        return None
+
+    slots = [take(cinema_type) for cinema_type in sequence]
+    slots = [slot if slot is not None else take(None) for slot in slots]
+    return [slot for slot in slots if slot is not None]
 
 
 def current_week_key(today: date | None = None) -> str:
@@ -83,7 +77,7 @@ async def get_pick_of_week(user_id: str, cinema_type: str | None = None) -> list
 
     if cinema_type is None:
         ranked = await score_candidates(user_id, None, limit=None)
-        items = _apply_type_caps(ranked, _PICK_SIZE, _MIX_TYPE_CAPS)
+        items = _fill_pick_sequence(ranked, _PICK_SEQUENCE)
     else:
         items = await score_candidates(user_id, cinema_type, limit=_PICK_SIZE)
 

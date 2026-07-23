@@ -9,6 +9,8 @@ import 'package:cinemora/features/library/widgets/library_list_item.dart';
 import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/features/library/widgets/library_stats_card.dart';
 import 'package:cinemora/features/library/widgets/shuffle_pick_sheet.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 
 class LibraryView extends StatefulWidget {
   const LibraryView({super.key});
@@ -30,7 +32,8 @@ class _LibraryViewState extends State<LibraryView> {
   Widget build(BuildContext context) {
     return BlocConsumer<LibraryCubit, LibraryState>(
       listenWhen: (prev, curr) =>
-          curr.mutationError != null && curr.mutationError != prev.mutationError,
+          curr.mutationError != null &&
+          curr.mutationError != prev.mutationError,
       listener: (context, state) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(state.mutationError!)),
@@ -329,8 +332,8 @@ class _LibraryHeader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14.r),
                 border: Border.all(color: context.colors.borderStrong),
               ),
-              child: Icon(
-                Icons.casino_outlined,
+              child: AppIcon(
+                AppIcons.randomPick,
                 size: 22.sp,
                 color: context.colors.accentRed,
               ),
@@ -406,11 +409,11 @@ class _TypeFilterRow extends StatelessWidget {
     required this.onSelected,
   });
 
-  static const _typeIcons = {
+  static const _typeIcons = <String, String?>{
     'All': null,
-    'Movies': Icons.movie_outlined,
-    'Series': Icons.tv_outlined,
-    'Anime': Icons.auto_awesome_outlined,
+    'Movies': AppIcons.movie,
+    'Series': AppIcons.tvShow,
+    'Anime': AppIcons.anime,
   };
 
   @override
@@ -457,9 +460,9 @@ class _TypeFilterRow extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (icon != null) ...[
-                    Icon(
+                    AppIcon(
                       icon,
-                      size: 12.sp,
+                      size: 18.sp,
                       color: isSelected
                           ? Colors.white
                           : context.colors.mutedForeground,

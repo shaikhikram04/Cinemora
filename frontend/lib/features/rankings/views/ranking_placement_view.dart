@@ -8,6 +8,8 @@ import 'package:cinemora/features/rankings/viewmodels/ranking_placement_cubit.da
 import 'package:cinemora/features/rankings/viewmodels/ranking_placement_state.dart';
 import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
 import 'package:cinemora/features/rankings/views/rankings_view.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 
 // ─── Public entry point ───────────────────────────────────────────────────────
 
@@ -707,8 +709,8 @@ class _BattleCardState extends State<_BattleCard> {
                     errorBuilder: (_, __, ___) => Container(
                       height: 176.h,
                       color: context.colors.surfaceMuted,
-                      child: Icon(
-                        Icons.movie_outlined,
+                      child: AppIcon(
+                        AppIcons.movie,
                         color: context.colors.mutedForeground,
                         size: 32.sp,
                       ),

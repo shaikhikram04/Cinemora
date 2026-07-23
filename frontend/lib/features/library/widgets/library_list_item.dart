@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/models/watch_status.dart';
@@ -437,16 +439,16 @@ class _PosterPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icon = type == CinemaType.anime
-        ? Icons.auto_awesome_outlined
+    final asset = type == CinemaType.anime
+        ? AppIcons.anime
         : type == CinemaType.tv
-            ? Icons.tv_outlined
-            : Icons.movie_outlined;
+            ? AppIcons.tvShow
+            : AppIcons.movie;
 
     return Container(
       color: context.colors.surfaceMuted,
       child: Center(
-        child: Icon(icon, color: context.colors.mutedSecondary, size: 28.sp),
+        child: AppIcon(asset, color: context.colors.mutedSecondary, size: 28.sp),
       ),
     );
   }

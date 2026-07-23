@@ -6,6 +6,8 @@ import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/discover/models/search_result_item.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 
 class DiscoverResultCard extends StatelessWidget {
   final SearchResultItem item;
@@ -161,8 +163,8 @@ class _PosterThumbnail extends StatelessWidget {
 
   Widget _placeholder(BuildContext context) {
     return Center(
-      child: Icon(
-        Icons.movie_outlined,
+      child: AppIcon(
+        AppIcons.movie,
         color: context.colors.mutedForeground,
         size: 22.sp,
       ),

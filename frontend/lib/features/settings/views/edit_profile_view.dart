@@ -486,9 +486,8 @@ class _CoverAvatarSection extends StatelessWidget {
                         ],
                       ),
                     ),
-                    child: state.isUploadingCover
-                        ? const _UploadingScrim()
-                        : null,
+                    child:
+                        state.isUploadingCover ? const _UploadingScrim() : null,
                   ),
                 ),
               ),

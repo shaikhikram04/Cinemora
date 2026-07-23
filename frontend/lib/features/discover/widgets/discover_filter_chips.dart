@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/common/widgets/chips/tappable_icon_text_chip.dart';
 import 'package:cinemora/common/widgets/chips/tappable_text_chip.dart';
 import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 
 // ── Top-level filter chips (All / Movies / Anime / Series) ─────────────────
 class DiscoverFilterChips extends StatelessWidget {
@@ -17,9 +18,9 @@ class DiscoverFilterChips extends StatelessWidget {
 
   static const _options = [
     _FilterOption(label: 'All', icon: Icons.apps_rounded, isGlobe: true),
-    _FilterOption(label: 'Movies', icon: Icons.movie_filter_outlined),
-    _FilterOption(label: 'Anime', icon: Icons.animation_outlined),
-    _FilterOption(label: 'Series', icon: Icons.live_tv_outlined),
+    _FilterOption(label: 'Movies', iconAsset: AppIcons.movie),
+    _FilterOption(label: 'Anime', iconAsset: AppIcons.anime),
+    _FilterOption(label: 'Series', iconAsset: AppIcons.tvShow),
   ];
 
   @override
@@ -37,6 +38,7 @@ class DiscoverFilterChips extends StatelessWidget {
             child: _TopFilterChip(
               label: opt.label,
               icon: opt.icon,
+              iconAsset: opt.iconAsset,
               isGlobe: opt.isGlobe,
               selected: isSelected,
               onTap: () => onSelect(i),
@@ -50,27 +52,31 @@ class DiscoverFilterChips extends StatelessWidget {
 
 class _FilterOption {
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? iconAsset;
   final bool isGlobe;
   const _FilterOption({
     required this.label,
-    required this.icon,
+    this.icon,
+    this.iconAsset,
     this.isGlobe = false,
   });
 }
 
 class _TopFilterChip extends StatelessWidget {
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? iconAsset;
   final bool isGlobe;
   final bool selected;
   final VoidCallback onTap;
 
   const _TopFilterChip({
     required this.label,
-    required this.icon,
     required this.selected,
     required this.onTap,
+    this.icon,
+    this.iconAsset,
     this.isGlobe = false,
   });
 
@@ -80,6 +86,8 @@ class _TopFilterChip extends StatelessWidget {
       onTap: onTap,
       selected: selected,
       icon: icon,
+      iconAsset: iconAsset,
+      iconSize: iconAsset != null ? 20 : 15,
       label: label,
     );
   }

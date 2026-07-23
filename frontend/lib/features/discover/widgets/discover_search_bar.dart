@@ -86,7 +86,7 @@ class DiscoverSearchBar extends StatelessWidget {
                   child: Icon(
                     hasText
                         ? Icons.close_rounded
-                        : Icons.keyboard_control_key_sharp,
+                        : Icons.keyboard_arrow_up_rounded,
                     color: context.colors.mutedForeground,
                     size: 18.sp,
                   ),

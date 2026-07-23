@@ -85,43 +85,6 @@ class AboutView extends StatelessWidget {
                   ),
                   SizedBox(height: 24.h),
 
-                  // Social links
-                  _SectionLabel(label: 'FOLLOW US'),
-                  SizedBox(height: 10.h),
-                  Container(
-                    decoration: BoxDecoration(
-                      color:
-                          context.colors.surfaceRaised.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: context.colors.borderStrong),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20.r),
-                      child: Column(
-                        children: [
-                          _DividerLine(),
-                          _LinkRow(
-                            icon: Icons.alternate_email_rounded,
-                            iconColor: const Color(0xFF1DA1F2),
-                            title: 'Twitter / X',
-                            subtitle: '@cinemoraapp',
-                            onTap: () {},
-                          ),
-                          _DividerLine(),
-                          _LinkRow(
-                            icon: Icons.camera_alt_outlined,
-                            iconColor: const Color(0xFFE1306C),
-                            title: 'Instagram',
-                            subtitle: '@cinemoraapp',
-                            isLast: true,
-                            onTap: () {},
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 32.h),
-
                   // Footer
                   Center(
                     child: Text(
@@ -163,19 +126,6 @@ class _SectionLabel extends StatelessWidget {
           letterSpacing: 1.2,
         ),
       ),
-    );
-  }
-}
-
-class _DividerLine extends StatelessWidget {
-  const _DividerLine();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(left: 64.w),
-      height: 0.5,
-      color: context.colors.borderStrong,
     );
   }
 }
@@ -348,80 +298,6 @@ class _CreditItem extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// ── Link row ─────────────────────────────────────────────────────────────────
-
-class _LinkRow extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String? subtitle;
-  final VoidCallback? onTap;
-  final bool isLast;
-
-  const _LinkRow({
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    this.subtitle,
-    this.onTap,
-    this.isLast = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 13.h),
-          child: Row(
-            children: [
-              Container(
-                width: 38.w,
-                height: 38.w,
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Icon(icon, size: 19.sp, color: iconColor),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: context.colors.foreground,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      SizedBox(height: 1.h),
-                      Text(
-                        subtitle!,
-                        style: TextStyle(
-                          color: context.colors.mutedSecondary,
-                          fontSize: 11.sp,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Icon(Icons.arrow_outward_rounded,
-                  size: 16.sp, color: context.colors.mutedSecondaryHeader),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

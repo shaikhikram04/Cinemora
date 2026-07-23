@@ -14,6 +14,8 @@ import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
+import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
+import 'package:cinemora/features/authentication/viewmodels/app_auth_state.dart';
 import 'package:cinemora/features/home/models/movie_poster.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/views/mood_chat_view.dart';
@@ -411,37 +413,55 @@ class _Header extends StatelessWidget {
 
   const _Header({this.onNotificationTap});
 
+  String get _greeting {
+    final hour = DateTime.now().hour;
+    if (hour < 5) return 'Late-night screening?';
+    if (hour < 12) return 'The early show awaits';
+    if (hour < 17) return 'Perfect day for a matinée';
+    return "It's prime time";
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authState = context.watch<AppAuthCubit>().state;
+    final firstName = authState is AppAuthAuthenticated
+        ? authState.user.name.trim().split(RegExp(r'\s+')).first
+        : '';
     return Row(
       children: [
         SizedBox(width: 10.w),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Good evening',
-              style: TextStyle(
-                color: context.colors.mutedForeground,
-                fontSize: 12.sp,
-                height: 1.1,
-                fontWeight: FontWeight.w500,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _greeting,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: context.colors.mutedForeground,
+                  fontSize: 12.sp,
+                  height: 1.1,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-            SizedBox(height: 2.h),
-            Text(
-              'Hey, Ikram 👋',
-              style: TextStyle(
-                color: context.colors.foreground,
-                fontSize: 18.sp,
-                height: 1.05,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.4,
+              SizedBox(height: 2.h),
+              Text(
+                firstName.isEmpty ? 'Hey there 👋' : 'Hey, $firstName 👋',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: context.colors.foreground,
+                  fontSize: 18.sp,
+                  height: 1.05,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.4,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        const Spacer(),
+        SizedBox(width: 12.w),
         GestureDetector(
           onTap: onNotificationTap,
           child: Stack(

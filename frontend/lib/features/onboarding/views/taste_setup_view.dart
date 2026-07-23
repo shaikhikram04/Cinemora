@@ -13,6 +13,7 @@ import 'package:cinemora/features/onboarding/viewmodels/onboarding_cubit.dart';
 import 'package:cinemora/features/onboarding/viewmodels/onboarding_state.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
 import 'package:cinemora/features/onboarding/widgets/content_type_card.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
 
 // ── Static configuration data (not business state) ────────────────────────────
 
@@ -37,13 +38,6 @@ const _kContentTypes = [
     'subtitle': 'Japanese animation &\nmanga adaptations',
     'imageUrl':
         'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=450&q=80',
-  },
-  {
-    'key': 'documentaries',
-    'title': 'Documentaries',
-    'subtitle': 'Real stories from\nthe real world',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1470115636492-6d2b56f9146d?auto=format&fit=crop&w=450&q=80',
   },
 ];
 
@@ -121,10 +115,22 @@ const _kLanguages = [
 
 const _kPlatforms = [
   {'key': 'Netflix', 'image': AppImages.netflix, 'color': Color(0xFFE50914)},
-  {'key': 'Prime Video', 'image': AppImages.amazonPrimeVideo, 'color': Color(0xFF00A8E1)},
+  {
+    'key': 'Prime Video',
+    'image': AppImages.amazonPrimeVideo,
+    'color': Color(0xFF00A8E1)
+  },
   {'key': 'Disney+', 'image': AppImages.disneyPlus, 'color': Color(0xFF1F318C)},
-  {'key': 'Crunchyroll', 'image': AppImages.crunchyroll, 'color': Color(0xFFF47521)},
-  {'key': 'JioHotstar', 'image': AppImages.jioHotstar, 'color': Color(0xFF1A3CB5)},
+  {
+    'key': 'Crunchyroll',
+    'image': AppImages.crunchyroll,
+    'color': Color(0xFFF47521)
+  },
+  {
+    'key': 'JioHotstar',
+    'image': AppImages.jioHotstar,
+    'color': Color(0xFF1A3CB5)
+  },
   {'key': 'SonyLIV', 'image': AppImages.sonyLiv, 'color': Color(0xFF0070C0)},
   {'key': 'ZEE5', 'image': AppImages.zee5, 'color': Color(0xFF8B5CF6)},
   {'key': 'Apple TV+', 'image': AppImages.appleTv, 'color': Color(0xFF555555)},
@@ -191,7 +197,8 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
         if (state.submitError != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.submitError!, style: TextStyle(fontSize: 14.sp)),
+              content:
+                  Text(state.submitError!, style: TextStyle(fontSize: 14.sp)),
               backgroundColor: context.colors.accentRed,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -292,7 +299,8 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
           SizedBox(height: 4.h),
           Text(
             subtitle,
-            style: TextStyle(color: context.colors.mutedForeground, fontSize: 13.sp),
+            style: TextStyle(
+                color: context.colors.mutedForeground, fontSize: 13.sp),
           ),
         ],
       ),
@@ -368,15 +376,13 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
   Widget _contentTypeIcon(String key) {
     switch (key) {
       case 'movies':
-        return Icon(Icons.movie_creation_outlined, size: 22.sp);
+        return AppIcon(AppIcons.movie, size: 24.sp);
       case 'series':
-        return Icon(Icons.tv_outlined, size: 22.sp);
+        return AppIcon(AppIcons.tvShow, size: 24.sp);
       case 'anime':
-        return Text('⛩️', style: TextStyle(fontSize: 20.sp));
-      case 'documentaries':
-        return Icon(Icons.video_camera_back_outlined, size: 22.sp);
+        return AppIcon(AppIcons.anime, size: 24.sp);
       default:
-        return Icon(Icons.movie_outlined, size: 22.sp);
+        return AppIcon(AppIcons.movie, size: 24.sp);
     }
   }
 
@@ -630,8 +636,9 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                         height: 22.w,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color:
-                              isSelected ? context.colors.primary : Colors.transparent,
+                          color: isSelected
+                              ? context.colors.primary
+                              : Colors.transparent,
                           border: Border.all(
                             color: isSelected
                                 ? context.colors.primary
@@ -665,7 +672,8 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
   // ── Step 5: Review ────────────────────────────────────────────────────────────
 
   Widget _buildStep5(OnboardingState state) {
-    final divider = Divider(color: context.colors.border, height: 1, thickness: 1);
+    final divider =
+        Divider(color: context.colors.border, height: 1, thickness: 1);
 
     return SingleChildScrollView(
       child: Column(
@@ -733,7 +741,8 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
               Container(
                 width: 6.w,
                 height: 6.w,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: dotColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: dotColor),
               ),
               SizedBox(width: 8.w),
               Text(
@@ -777,7 +786,8 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                         vertical: 5.h,
                       ),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                        borderRadius:
+                            BorderRadius.circular(WSizes.radiusFull.r),
                         color: dotColor.withAlpha(18),
                         border: Border.all(color: dotColor.withAlpha(55)),
                       ),
@@ -839,7 +849,8 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                         colors: [Color(0xFFE63946), Color(0xFFCF2F3B)],
                       ),
                 color: disabled ? context.colors.surfaceRaised : null,
-                border: disabled ? Border.all(color: context.colors.border) : null,
+                border:
+                    disabled ? Border.all(color: context.colors.border) : null,
               ),
               child: Center(
                 child: state.isSubmitting
@@ -891,7 +902,8 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                 child: Text(
                   'Skip this step',
                   style: TextStyle(
-                    color: context.colors.mutedForeground.withValues(alpha: 0.6),
+                    color:
+                        context.colors.mutedForeground.withValues(alpha: 0.6),
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w500,
                   ),

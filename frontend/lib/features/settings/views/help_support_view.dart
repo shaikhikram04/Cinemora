@@ -109,23 +109,6 @@ class HelpSupportView extends StatelessWidget {
                             subtitle: 'Avg response time: 24 hours',
                             onTap: () {},
                           ),
-                          _DividerLine(),
-                          _ContactRow(
-                            icon: Icons.email_outlined,
-                            iconColor: context.colors.chartBlue,
-                            title: 'Email Us',
-                            subtitle: 'support@cinemora.app',
-                            onTap: () {},
-                          ),
-                          _DividerLine(),
-                          _ContactRow(
-                            icon: Icons.discord,
-                            iconColor: const Color(0xFF7289DA),
-                            title: 'Join Discord Community',
-                            subtitle: '2.4k members • Live chat',
-                            isLast: true,
-                            onTap: () {},
-                          ),
                         ],
                       ),
                     ),
@@ -165,19 +148,6 @@ class _SectionLabel extends StatelessWidget {
           letterSpacing: 1.2,
         ),
       ),
-    );
-  }
-}
-
-class _DividerLine extends StatelessWidget {
-  const _DividerLine();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(left: 64.w),
-      height: 0.5,
-      color: context.colors.borderStrong,
     );
   }
 }
@@ -236,7 +206,6 @@ class _ContactRow extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
-  final bool isLast;
 
   const _ContactRow({
     required this.icon,
@@ -244,7 +213,6 @@ class _ContactRow extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.onTap,
-    this.isLast = false,
   });
 
   @override

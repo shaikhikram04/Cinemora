@@ -10,6 +10,8 @@ import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/notifications/models/notification.dart';
 import 'package:cinemora/features/notifications/viewmodels/notifications_cubit.dart';
 import 'package:cinemora/features/notifications/viewmodels/notifications_state.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 
 class NotificationsView extends StatefulWidget {
   const NotificationsView({super.key});
@@ -391,8 +393,8 @@ class _NotificationsContent extends StatelessWidget {
     final placeholder = Container(
       color: context.colors.surfaceMuted,
       child: Center(
-        child: Icon(
-          Icons.local_movies_outlined,
+        child: AppIcon(
+          AppIcons.movie,
           color: context.colors.mutedSecondary,
           size: 20.sp,
         ),
