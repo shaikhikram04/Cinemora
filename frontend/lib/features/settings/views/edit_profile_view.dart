@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/core/constants/network_images_path.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/models/user_model.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
@@ -101,8 +102,7 @@ class _EditProfileContentState extends State<_EditProfileContent> {
 
   // Placeholder cover, shown only until the user picks one of their own. There's
   // no avatar equivalent — an unset avatar falls back to a person icon.
-  static const _coverImage =
-      'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80';
+  static const _coverImage = NetworkImagesPath.defaultProfileCover;
 
   @override
   void initState() {

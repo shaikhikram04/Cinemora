@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/core/constants/network_images_path.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 class DiscoverGenreGrid extends StatelessWidget {
@@ -13,57 +14,49 @@ class DiscoverGenreGrid extends StatelessWidget {
       label: 'Action',
       tmdbId: 28,
       gradient: [Color(0xFFB71C1C), Color(0xFFE53935)],
-      imagePath:
-          "https://plus.unsplash.com/premium_photo-1750699176491-e48fe2739384?q=80&w=2077&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      imagePath: NetworkImagesPath.johnWickPoster,
     ),
     _GenreData(
       label: 'Drama',
       tmdbId: 18,
       gradient: [Color(0xFF1565C0), Color(0xFF42A5F5)],
-      imagePath:
-          "https://images.unsplash.com/photo-1777612914411-0151f5fca99f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDF8aG1lbnZRaFVteE18fGVufDB8fHx8fA%3D%3D",
+      imagePath: NetworkImagesPath.theGodFatherPoster,
     ),
     _GenreData(
       label: 'Thriller',
       tmdbId: 53,
       gradient: [Color(0xFF4A148C), Color(0xFF9C27B0)],
-      imagePath:
-          "https://plus.unsplash.com/premium_photo-1777373545350-0ccddbd76fc5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDJ8aG1lbnZRaFVteE18fGVufDB8fHx8fA%3D%3D",
+      imagePath: NetworkImagesPath.moneyHeistPoster,
     ),
     _GenreData(
       label: 'Sci-Fi',
       tmdbId: 878,
       gradient: [Color(0xFF827717), Color(0xFFFBC02D)],
-      imagePath:
-          "https://images.unsplash.com/photo-1778599726901-22698cf83040?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDh8aG1lbnZRaFVteE18fGVufDB8fHx8fA%3D%3D",
+      imagePath: NetworkImagesPath.dunePoster,
     ),
     _GenreData(
       label: 'Horror',
       tmdbId: 27,
       gradient: [Color(0xFF1B5E20), Color(0xFF388E3C)],
-      imagePath:
-          "https://images.unsplash.com/photo-1777465492791-189ae33b8c73?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDR8aG1lbnZRaFVteE18fGVufDB8fHx8fA%3D%3D",
+      imagePath: NetworkImagesPath.alienPoster,
     ),
     _GenreData(
       label: 'Romance',
       tmdbId: 10749,
       gradient: [Color(0xFF880E4F), Color(0xFFEC407A)],
-      imagePath:
-          "https://images.unsplash.com/photo-1777784679152-08bc40c70834?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDExfGhtZW52UWhVbXhNfHxlbnwwfHx8fHw%3D",
+      imagePath: NetworkImagesPath.everythingEverywhereAllATOncePoster,
     ),
     _GenreData(
       label: 'Comedy',
       tmdbId: 35,
       gradient: [Color(0xFF006064), Color(0xFF26C6DA)],
-      imagePath:
-          "https://images.unsplash.com/photo-1777915519441-abdffe1849df?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDE0fGhtZW52UWhVbXhNfHxlbnwwfHx8fHw%3D",
+      imagePath: NetworkImagesPath.spidermanAcrossTheSpiderVersePoster,
     ),
     _GenreData(
       label: 'Mystery',
       tmdbId: 9648,
       gradient: [Color(0xFF6D4C41), Color(0xFFD4A050)],
-      imagePath:
-          "https://images.unsplash.com/photo-1778655726656-299707575200?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDEwfGhtZW52UWhVbXhNfHxlbnwwfHx8fHw%3D",
+      imagePath: NetworkImagesPath.deadNotePoster,
     ),
   ];
 

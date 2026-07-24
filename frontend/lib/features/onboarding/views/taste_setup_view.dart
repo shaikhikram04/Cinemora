@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cinemora/common/widgets/progress_bars/page_view_progress_bar.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/core/constants/network_images_path.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/core/router/app_routes.dart';
@@ -22,22 +23,19 @@ const _kContentTypes = [
     'key': 'movies',
     'title': 'Movies',
     'subtitle': 'Feature films from\naround the world',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=450&q=80',
+    'imageUrl': NetworkImagesPath.inceptionPoster,
   },
   {
     'key': 'series',
     'title': 'Web Series',
     'subtitle': 'Binge-worthy episodic\nstorytelling',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=450&q=80',
+    'imageUrl': NetworkImagesPath.gameOfThronePoster,
   },
   {
     'key': 'anime',
     'title': 'Anime',
     'subtitle': 'Japanese animation &\nmanga adaptations',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=450&q=80',
+    'imageUrl': NetworkImagesPath.onePunchManPoster,
   },
 ];
 
@@ -60,56 +58,47 @@ const _kLanguages = [
   {
     'key': 'English',
     'emoji': '🇺🇸',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=300&q=80',
+    'imageUrl': NetworkImagesPath.inceptionPoster,
   },
   {
     'key': 'Hindi',
     'emoji': '🇮🇳',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=300&q=80',
+    'imageUrl': NetworkImagesPath.theFamiliManPoster,
   },
   {
     'key': 'Japanese',
     'emoji': '🇯🇵',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=300&q=80',
+    'imageUrl': NetworkImagesPath.myHeroAcedemiaPoster,
   },
   {
     'key': 'Korean',
     'emoji': '🇰🇷',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=300&q=80',
+    'imageUrl': NetworkImagesPath.oldboyPoster,
   },
   {
     'key': 'Tamil',
     'emoji': '🏳️',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=300&q=80',
+    'imageUrl': NetworkImagesPath.jailerPoster,
   },
   {
     'key': 'Telugu',
     'emoji': '🏳️',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1577114995803-d8ce0e2b4aa9?auto=format&fit=crop&w=300&q=80',
+    'imageUrl': NetworkImagesPath.bahubaliPoster,
   },
   {
     'key': 'Malayalam',
     'emoji': '🏳️',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&w=300&q=80',
+    'imageUrl': NetworkImagesPath.bramayugamPoster,
   },
   {
     'key': 'Marathi',
     'emoji': '🏳️',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1529528570282-4c0a8c15556c?auto=format&fit=crop&w=300&q=80',
+    'imageUrl': NetworkImagesPath.sairatPoster,
   },
   {
     'key': 'Other',
     'emoji': '🌐',
-    'imageUrl':
-        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=300&q=80',
+    'imageUrl': NetworkImagesPath.globePoster,
   },
 ];
 

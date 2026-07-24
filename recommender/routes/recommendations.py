@@ -14,7 +14,7 @@ _VALID_TYPES = {"all", "movie", "tv", "anime"}
 @router.get("/internal/recommendations/home")
 async def home(type: str = Query("all"), user_id: str | None = Depends(get_user_id)) -> dict:
     cinema_type = type if type in _VALID_TYPES and type != "all" else None
-    acclaimed = await get_critically_acclaimed(cinema_type)
+    acclaimed = await get_critically_acclaimed(cinema_type, user_id)
     because_you_ranked = (
         await get_because_you_ranked(user_id, cinema_type)
         if user_id

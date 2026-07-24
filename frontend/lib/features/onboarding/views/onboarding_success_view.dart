@@ -5,14 +5,15 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/core/constants/network_images_path.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 
 const _kPosterUrls = [
-  'https://images.unsplash.com/photo-1612036781124-847f8939b154?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1505685296765-3a2736de412f?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=200&q=80',
+  NetworkImagesPath.dunePoster,
+  NetworkImagesPath.spidermanAcrossTheSpiderVersePoster,
+  NetworkImagesPath.breakingBadPoster,
+  NetworkImagesPath.inceptionPoster,
 ];
 
 /// Pure UI — all state is animation controllers; no business logic → no Cubit.

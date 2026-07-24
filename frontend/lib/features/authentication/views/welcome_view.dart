@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/common/widgets/containers/top_gradient_background_container.dart';
 import 'package:cinemora/common/widgets/cards/poster_image.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/core/constants/network_images_path.dart';
 import 'package:cinemora/core/constants/shadows.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/utils/device_utils.dart';
@@ -17,12 +18,12 @@ import 'package:cinemora/common/widgets/progress_bars/page_view_progress_bar.dar
 
 // Poster images are static visual content — not business state.
 const _kPosterImages = [
-  'https://images.unsplash.com/photo-1612036781124-847f8939b154?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1505685296765-3a2736de412f?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1502139214982-d0ad755818d8?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1451187863213-d1bcbaae3fa3?auto=format&fit=crop&w=600&q=80',
+  NetworkImagesPath.dunePoster,
+  NetworkImagesPath.oppenheimerPoster,
+  NetworkImagesPath.spidermanAcrossTheSpiderVersePoster,
+  NetworkImagesPath.theGodFatherPoster,
+  NetworkImagesPath.inceptionPoster,
+  NetworkImagesPath.everythingEverywhereAllATOncePoster,
 ];
 
 /// Entry point — provides [WelcomeCubit] and delegates to [_WelcomeContent].
