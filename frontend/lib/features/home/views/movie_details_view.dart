@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/common/widgets/states/on_reconnect.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
@@ -84,33 +85,49 @@ class _MovieDetailsContent extends StatelessWidget {
     return BlocConsumer<MovieDetailsCubit, MovieDetailsState>(
       listenWhen: (prev, curr) =>
           (prev.userRating != curr.userRating && curr.userRating > 0) ||
-          (!prev.isWatched && curr.isWatched),
+          (!prev.isWatched && curr.isWatched) ||
+          (curr.mutationError != null &&
+              curr.mutationError != prev.mutationError),
       listener: (context, state) {
+        if (state.mutationError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.mutationError!)),
+          );
+          context.read<MovieDetailsCubit>().clearMutationError();
+          return;
+        }
         WidgetsBinding.instance.addPostFrameCallback(
           (_) => _showRankingsSheet(context, state),
         );
       },
       builder: (context, state) {
         final cubit = context.read<MovieDetailsCubit>();
-        return Scaffold(
-          backgroundColor: context.colors.background,
-          body: MovieDetailsContent(
-            movieTitle: movieTitle,
-            movieImage: movieImage,
-            backdropImage: backdropImage,
-            rating: rating,
-            movieId: tmdbId,
-            detail: state.detail,
-            isDetailLoading: state.isDetailLoading,
-            isInWatchlist: state.isInWatchlist,
-            isWatched: state.isWatched,
-            userRating: state.userRating,
-            showAllTags: state.showAllTags,
-            showRatingSuccess: state.showRatingSuccess,
-            onToggleWatchlist: cubit.toggleWatchlist,
-            onToggleWatched: cubit.toggleWatched,
-            onRate: cubit.updateRating,
-            onToggleTags: cubit.toggleTags,
+        return OnReconnect(
+          onReconnect: () {
+            if (state.hasDetailFailed) cubit.retryDetail();
+          },
+          child: Scaffold(
+            backgroundColor: context.colors.background,
+            body: MovieDetailsContent(
+              movieTitle: movieTitle,
+              movieImage: movieImage,
+              backdropImage: backdropImage,
+              rating: rating,
+              movieId: tmdbId,
+              detail: state.detail,
+              isDetailLoading: state.isDetailLoading,
+              hasDetailFailed: state.hasDetailFailed,
+              onRetryDetail: cubit.retryDetail,
+              isInWatchlist: state.isInWatchlist,
+              isWatched: state.isWatched,
+              userRating: state.userRating,
+              showAllTags: state.showAllTags,
+              showRatingSuccess: state.showRatingSuccess,
+              onToggleWatchlist: cubit.toggleWatchlist,
+              onToggleWatched: cubit.toggleWatched,
+              onRate: cubit.updateRating,
+              onToggleTags: cubit.toggleTags,
+            ),
           ),
         );
       },

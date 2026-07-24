@@ -9,6 +9,8 @@ import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/core/services/push_notifications_service.dart';
 import 'package:cinemora/core/themes/theme.dart';
+import 'package:cinemora/common/widgets/states/w_offline_banner.dart';
+import 'package:cinemora/core/viewmodels/network_status_cubit.dart';
 import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_state.dart';
@@ -17,13 +19,16 @@ import 'package:cinemora/features/franchise/repositories/franchise_repository.da
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
+import 'package:cinemora/features/library/viewmodels/library_state.dart';
 import 'package:cinemora/features/notifications/repositories/notifications_repository.dart';
 import 'package:cinemora/features/notifications/viewmodels/notifications_cubit.dart';
 import 'package:cinemora/features/rankings/repositories/rankings_repository.dart';
 import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
+import 'package:cinemora/features/rankings/viewmodels/rankings_state.dart';
 
 class CinemoraApp extends StatefulWidget {
   final AppAuthCubit authCubit;
+  final NetworkStatusCubit networkStatusCubit;
   final UserRepository userRepository;
   final HomeRepository homeRepository;
   final LibraryRepository libraryRepository;
@@ -37,6 +42,7 @@ class CinemoraApp extends StatefulWidget {
   const CinemoraApp({
     super.key,
     required this.authCubit,
+    required this.networkStatusCubit,
     required this.userRepository,
     required this.homeRepository,
     required this.libraryRepository,
@@ -60,6 +66,13 @@ class _CinemoraAppState extends State<CinemoraApp> {
   late final NotificationsCubit _notificationsCubit;
   late final PushNotificationsService _pushService;
   late final StreamSubscription<AppAuthState> _authSub;
+  late final StreamSubscription<void> _reconnectSub;
+  late final StreamSubscription<RankingsState> _rankingsErrorSub;
+
+  /// Rankings are mutated from the placement flow, the rankings tab and the
+  /// profile tab, so a failed write has no single screen to report on. This
+  /// lets the cubit surface one wherever the user happens to be.
+  final _messengerKey = GlobalKey<ScaffoldMessengerState>();
 
   @override
   void initState() {
@@ -91,12 +104,38 @@ class _CinemoraAppState extends State<CinemoraApp> {
       }
     });
 
+    _rankingsErrorSub = _rankingsCubit.stream.listen((state) {
+      final error = state.mutationError;
+      if (error == null) return;
+      _messengerKey.currentState
+        ?..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(error)));
+      _rankingsCubit.clearMutationError();
+    });
+
+    // App-wide recovery. The screen-scoped cubits handle themselves via
+    // BlocListener; these three are long-lived and have no screen to hang a
+    // listener off, so they're refreshed from here.
+    _reconnectSub = widget.networkStatusCubit.onReconnect.listen((_) {
+      if (widget.authCubit.state is! AppAuthAuthenticated) return;
+      // A cache-restored identity may be stale — check it before anything
+      // downstream reads isOnboarded or the avatar.
+      widget.authCubit.revalidateIfStale();
+      if (_libraryCubit.state.status == LibraryStatus.error) {
+        _libraryCubit.loadData();
+      }
+      if (_rankingsCubit.state.lists.isEmpty) _rankingsCubit.loadLists();
+      _notificationsCubit.refreshUnreadCount();
+    });
+
     widget.authCubit.checkAuthStatus();
   }
 
   @override
   void dispose() {
     _authSub.cancel();
+    _reconnectSub.cancel();
+    _rankingsErrorSub.cancel();
     _notifier.dispose();
     _libraryCubit.close();
     _rankingsCubit.close();
@@ -110,6 +149,7 @@ class _CinemoraAppState extends State<CinemoraApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: widget.authCubit),
+        BlocProvider.value(value: widget.networkStatusCubit),
         BlocProvider.value(value: widget.themeModeCubit),
         BlocProvider.value(value: _libraryCubit),
         BlocProvider.value(value: _rankingsCubit),
@@ -128,11 +168,16 @@ class _CinemoraAppState extends State<CinemoraApp> {
         builder: (_, __) => BlocBuilder<ThemeModeCubit, ThemeMode>(
           builder: (context, themeMode) => MaterialApp.router(
             title: 'Cinemora',
+            scaffoldMessengerKey: _messengerKey,
             debugShowCheckedModeBanner: false,
             themeMode: themeMode,
             theme: WTheme.lightTheme,
             darkTheme: WTheme.darkTheme,
             routerConfig: _router,
+            // Wrapped here rather than per-screen so the offline banner covers
+            // every route, including ones added later.
+            builder: (context, child) => OfflineBanner.offlineBanner(
+                child: child ?? const SizedBox.shrink()),
           ),
         ),
       ),

@@ -26,6 +26,14 @@ class AppAuthUnauthenticated extends AppAuthState {
   const AppAuthUnauthenticated();
 }
 
+/// A session exists but cannot be verified and there is nothing cached to fall
+/// back to — the only case where being offline genuinely blocks the app. Kept
+/// separate from [AppAuthUnauthenticated] so the router never mistakes an
+/// unreachable server for a signed-out user.
+class AppAuthOffline extends AppAuthState {
+  const AppAuthOffline();
+}
+
 class AppAuthError extends AppAuthState {
   final String message;
   const AppAuthError(this.message);

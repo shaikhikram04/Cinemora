@@ -4,6 +4,7 @@ import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_state.dart';
 import 'package:cinemora/features/authentication/views/login_view.dart';
+import 'package:cinemora/features/authentication/views/offline_view.dart';
 import 'package:cinemora/features/authentication/views/welcome_view.dart';
 import 'package:cinemora/features/splash/views/splash_screen.dart';
 import 'package:cinemora/features/discover/views/discover_view.dart';
@@ -89,6 +90,14 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
 
       if (authState is AppAuthLoading) return null;
 
+      // Must be checked before the unauthenticated branch below. Falling
+      // through to it is exactly the bug this state exists to prevent: an
+      // unreachable server is not a signed-out user.
+      if (authState is AppAuthOffline) {
+        if (location != AppRoutes.offline) return AppRoutes.offline;
+        return null;
+      }
+
       if (authState is AppAuthUnauthenticated || authState is AppAuthError) {
         if (authCubit.hasSeenWelcome) {
           if (location != AppRoutes.login) return AppRoutes.login;
@@ -113,6 +122,7 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
         if (location == AppRoutes.welcome ||
             location == AppRoutes.login ||
             location == AppRoutes.onboarding ||
+            location == AppRoutes.offline ||
             location == AppRoutes.splash) {
           return AppRoutes.home;
         }
@@ -136,6 +146,10 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginView(),
+      ),
+      GoRoute(
+        path: AppRoutes.offline,
+        builder: (context, state) => const OfflineView(),
       ),
 
       // ── Onboarding ────────────────────────────────────────────────────────

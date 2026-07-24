@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cinemora/common/widgets/states/on_reconnect.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_routes.dart';
@@ -83,65 +84,76 @@ class _DiscoverContentState extends State<_DiscoverContent> {
           prev.copyWith(searchQuery: '') != curr.copyWith(searchQuery: ''),
       builder: (context, state) {
         final cubit = context.read<DiscoverCubit>();
-        return GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: SafeArea(
-            child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                // ── Header ──────────────────────────────────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
-                      16.h,
-                      WSizes.screenPadding.w,
-                      0,
-                    ),
-                    child: _buildHeader(context, state, cubit),
-                  ),
-                ),
-
-                // ── Search bar ───────────────────────────────────────────
-                if (!state.isGenreBrowse)
+        return OnReconnect(
+          onReconnect: () {
+            if (state.searchStatus != DiscoverSearchStatus.failure) return;
+            if (state.isGenreBrowse) {
+              cubit.selectFilter(state.selectedFilterIndex);
+            } else {
+              cubit.onSearchSubmitted(state.searchQuery);
+            }
+          },
+          child: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: SafeArea(
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // ── Header ──────────────────────────────────────────────
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
                         WSizes.screenPadding.w,
-                        14.h,
+                        16.h,
                         WSizes.screenPadding.w,
                         0,
                       ),
-                      child: DiscoverSearchBar(
-                        controller: _searchController,
-                        focusNode: _focusNode,
-                        onChanged: cubit.onSearchChanged,
-                        onSubmitted: cubit.onSearchSubmitted,
-                        onClear: () => _clearSearch(cubit),
-                        onFocusGained: cubit.onSearchFocused,
-                        isActive: state.isSearching,
-                        onDismiss: () => _clearSearch(cubit),
-                      ),
+                      child: _buildHeader(context, state, cubit),
                     ),
                   ),
 
-                // ── Filter chips ─────────────────────────────────────────
-                if (!state.isGenreBrowse)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 16.h),
-                      child: DiscoverFilterChips(
-                        selectedIndex: state.selectedFilterIndex,
-                        onSelect: cubit.selectFilter,
+                  // ── Search bar ───────────────────────────────────────────
+                  if (!state.isGenreBrowse)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          WSizes.screenPadding.w,
+                          14.h,
+                          WSizes.screenPadding.w,
+                          0,
+                        ),
+                        child: DiscoverSearchBar(
+                          controller: _searchController,
+                          focusNode: _focusNode,
+                          onChanged: cubit.onSearchChanged,
+                          onSubmitted: cubit.onSearchSubmitted,
+                          onClear: () => _clearSearch(cubit),
+                          onFocusGained: cubit.onSearchFocused,
+                          isActive: state.isSearching,
+                          onDismiss: () => _clearSearch(cubit),
+                        ),
                       ),
                     ),
-                  ),
 
-                // ── Mode-specific body ───────────────────────────────────
-                if (state.isBrowsing) ..._browseSlivers(context, state, cubit),
-                if (state.isSearching || state.isGenreBrowse)
-                  ..._resultSlivers(context, state, cubit),
-              ],
+                  // ── Filter chips ─────────────────────────────────────────
+                  if (!state.isGenreBrowse)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 16.h),
+                        child: DiscoverFilterChips(
+                          selectedIndex: state.selectedFilterIndex,
+                          onSelect: cubit.selectFilter,
+                        ),
+                      ),
+                    ),
+
+                  // ── Mode-specific body ───────────────────────────────────
+                  if (state.isBrowsing)
+                    ..._browseSlivers(context, state, cubit),
+                  if (state.isSearching || state.isGenreBrowse)
+                    ..._resultSlivers(context, state, cubit),
+                ],
+              ),
             ),
           ),
         );

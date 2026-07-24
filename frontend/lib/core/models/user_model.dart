@@ -21,6 +21,12 @@ class UserPreferences extends Equatable {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+        'contentTypes': contentTypes,
+        'genres': genres,
+        'languages': languages,
+      };
+
   UserPreferences copyWith({
     List<String>? contentTypes,
     List<String>? genres,
@@ -77,6 +83,20 @@ class UserModel extends Equatable {
     );
   }
 
+  /// Round-trips through [UserModel.fromJson] — used to cache the signed-in
+  /// user so a launch with no network can still restore an identity.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'username': username,
+        'bio': bio,
+        'email': email,
+        'avatar': avatar,
+        'framePoster': framePoster,
+        'isOnboarded': isOnboarded,
+        'preferences': preferences.toJson(),
+      };
+
   UserModel copyWith({
     String? id,
     String? name,
@@ -105,6 +125,15 @@ class UserModel extends Equatable {
       username ?? name.toLowerCase().replaceAll(' ', '_');
 
   @override
-  List<Object?> get props =>
-      [id, name, username, bio, email, avatar, framePoster, isOnboarded, preferences];
+  List<Object?> get props => [
+        id,
+        name,
+        username,
+        bio,
+        email,
+        avatar,
+        framePoster,
+        isOnboarded,
+        preferences
+      ];
 }

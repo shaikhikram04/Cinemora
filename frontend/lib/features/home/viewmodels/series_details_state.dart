@@ -40,6 +40,7 @@ class SeriesDetailsState extends Equatable {
   });
 
   bool get isDetailLoading => detailStatus == DetailStatus.loading;
+  bool get hasDetailFailed => detailStatus == DetailStatus.failed;
 
   SeriesDetailsState copyWith({
     int? selectedSeasonIndex,
@@ -74,7 +75,8 @@ class SeriesDetailsState extends Equatable {
       detailStatus: detailStatus ?? this.detailStatus,
       seasons: seasons ?? this.seasons,
       loadedSeasonNumbers: loadedSeasonNumbers ?? this.loadedSeasonNumbers,
-      mutationError: clearMutationError ? null : (mutationError ?? this.mutationError),
+      mutationError:
+          clearMutationError ? null : (mutationError ?? this.mutationError),
     );
   }
 

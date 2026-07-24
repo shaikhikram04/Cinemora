@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
+import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/core/utils/tmdb_url_utils.dart';
 import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
@@ -61,6 +62,11 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
     }
   }
 
+  /// Retry hook for the failed-detail state and for the reconnect listener.
+  Future<void> retryDetail() => _loadDetail();
+
+  void clearMutationError() => emit(state.copyWith(clearMutationError: true));
+
   Future<void> toggleWatchlist() async {
     final id = _tmdbId;
     if (state.isInWatchlist) {
@@ -69,8 +75,11 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
       try {
         await _library.deleteEntry(id, CinemaType.movie);
         _libraryCubit.removeEntryLocal(id, CinemaType.movie);
-      } catch (_) {
-        emit(state.copyWith(isInWatchlist: true));
+      } catch (e) {
+        emit(state.copyWith(
+          isInWatchlist: true,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     } else {
       final wasWatched = state.isWatched;
@@ -90,8 +99,12 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
           status: WatchStatus.watchlist,
         );
         _libraryCubit.syncEntry(entry);
-      } catch (_) {
-        emit(state.copyWith(isInWatchlist: false, isWatched: wasWatched));
+      } catch (e) {
+        emit(state.copyWith(
+          isInWatchlist: false,
+          isWatched: wasWatched,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     }
   }
@@ -104,8 +117,12 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
       try {
         await _library.deleteEntry(id, CinemaType.movie);
         _libraryCubit.removeEntryLocal(id, CinemaType.movie);
-      } catch (_) {
-        emit(state.copyWith(isWatched: true, userRating: state.userRating));
+      } catch (e) {
+        emit(state.copyWith(
+          isWatched: true,
+          userRating: state.userRating,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     } else {
       final wasInWatchlist = state.isInWatchlist;
@@ -125,8 +142,12 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
           status: WatchStatus.watched,
         );
         _libraryCubit.syncEntry(entry);
-      } catch (_) {
-        emit(state.copyWith(isWatched: false, isInWatchlist: wasInWatchlist));
+      } catch (e) {
+        emit(state.copyWith(
+          isWatched: false,
+          isInWatchlist: wasInWatchlist,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     }
   }
@@ -158,11 +179,13 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
         userRating: value,
       );
       _libraryCubit.syncEntry(entry);
-    } catch (_) {
+    } catch (e) {
       emit(state.copyWith(
         userRating: prevRating,
         isWatched: wasWatched,
         isInWatchlist: wasInWatchlist,
+        showRatingSuccess: false,
+        mutationError: ApiClient.parseError(e).userMessage,
       ));
     }
   }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/library/viewmodels/library_state.dart';
@@ -40,7 +41,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       if (!isClosed) {
         emit(state.copyWith(
           status: ProfileStatus.error,
-          error: e.toString(),
+          error: ApiClient.parseError(e).userMessage,
         ));
       }
     }

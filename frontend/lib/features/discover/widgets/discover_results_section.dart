@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
+import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/discover/models/search_result_item.dart';
@@ -34,9 +35,12 @@ class DiscoverResultsSection extends StatelessWidget {
             query: query,
           ),
         DiscoverSearchStatus.empty => _EmptyState(query: query),
-        DiscoverSearchStatus.failure => _ErrorState(
-            message: errorMessage,
-            onRetry: onRetry,
+        DiscoverSearchStatus.failure => Padding(
+            padding: EdgeInsets.only(top: 60.h),
+            child: WErrorState.fullScreen(
+              message: errorMessage,
+              onRetry: onRetry,
+            ),
           ),
         _ => const SizedBox.shrink(),
       },
@@ -96,7 +100,8 @@ class _ResultsList extends StatelessWidget {
                 ),
                 children: [
                   TextSpan(
-                    text: '${results.length} result${results.length == 1 ? '' : 's'} for ',
+                    text:
+                        '${results.length} result${results.length == 1 ? '' : 's'} for ',
                   ),
                   TextSpan(
                     text: '"$query"',
@@ -163,65 +168,6 @@ class _EmptyState extends StatelessWidget {
                 fontSize: 13.sp,
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Error state ───────────────────────────────────────────────────────────────
-
-class _ErrorState extends StatelessWidget {
-  final String? message;
-  final VoidCallback? onRetry;
-
-  const _ErrorState({this.message, this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 60.h),
-      child: Center(
-        child: Column(
-          children: [
-            Icon(
-              Icons.wifi_off_rounded,
-              size: 48.sp,
-              color: context.colors.mutedForeground,
-            ),
-            SizedBox(height: 16.h),
-            Text(
-              message ?? 'Something went wrong',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: context.colors.foreground,
-                fontSize: 15.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            if (onRetry != null) ...[
-              SizedBox(height: 20.h),
-              GestureDetector(
-                onTap: onRetry,
-                child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
-                  decoration: BoxDecoration(
-                    color: context.colors.primary,
-                    borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
-                  ),
-                  child: Text(
-                    'Retry',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ],
         ),
       ),

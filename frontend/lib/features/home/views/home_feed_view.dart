@@ -7,6 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
+import 'package:cinemora/common/widgets/states/on_reconnect.dart';
+import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/common/widgets/buttons/action_button.dart';
 import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:cinemora/common/widgets/headers/section_header.dart';
@@ -68,188 +70,147 @@ class _HomeFeedContent extends StatelessWidget {
         final cubit = context.read<HomeFeedCubit>();
         final loading = state.isLoading;
 
-        return Container(
-          decoration: BoxDecoration(color: context.colors.background),
-          child: SafeArea(
-            bottom: false,
-            child: ListView(
-              padding: EdgeInsets.fromLTRB(
-                WSizes.screenPadding.w,
-                6.h,
-                WSizes.screenPadding.w,
-                42.h,
-              ),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                _Header(
-                  onNotificationTap: () =>
-                      context.push(AppRoutes.notifications),
+        return OnReconnect(
+          onReconnect: () {
+            if (state.status == FeedStatus.failure) cubit.loadFeed();
+          },
+          child: Container(
+            decoration: BoxDecoration(color: context.colors.background),
+            child: SafeArea(
+              bottom: false,
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(
+                  WSizes.screenPadding.w,
+                  6.h,
+                  WSizes.screenPadding.w,
+                  42.h,
                 ),
-                SizedBox(height: 12.h),
-                _CategoryTabs(
-                    selectedTab: state.selectedTab,
-                    onSelected: cubit.selectTab),
-                SizedBox(height: 14.h),
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  _Header(
+                    onNotificationTap: () =>
+                        context.push(AppRoutes.notifications),
+                  ),
+                  SizedBox(height: 12.h),
+                  _CategoryTabs(
+                      selectedTab: state.selectedTab,
+                      onSelected: cubit.selectTab),
+                  SizedBox(height: 14.h),
 
-                // Hero — Pick of the Week (falls back to the top trending item
-                // when the user has no personalized picks yet, e.g. cold start).
-                if (loading)
-                  _HeroCardSkeleton()
-                else if (state.status == FeedStatus.failure)
-                  _ErrorBanner(
-                      message: state.errorMessage, onRetry: cubit.loadFeed)
-                else if (state.pickOfWeek.isNotEmpty)
-                  _PickOfWeekHero(
-                    picks: state.pickOfWeek,
-                    onBookmark: (item) => cubit.bookmarkFromPoster(
-                      item,
-                      CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                  // Hero — Pick of the Week (falls back to the top trending item
+                  // when the user has no personalized picks yet, e.g. cold start).
+                  if (loading)
+                    _HeroCardSkeleton()
+                  else if (state.status == FeedStatus.failure)
+                    WErrorState.card(
+                      height: 284.h,
+                      message: state.errorMessage,
+                      onRetry: cubit.loadFeed,
+                    )
+                  else if (state.pickOfWeek.isNotEmpty)
+                    _PickOfWeekHero(
+                      picks: state.pickOfWeek,
+                      onBookmark: (item) => cubit.bookmarkFromPoster(
+                        item,
+                        CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                      ),
+                      onDetails: (item) =>
+                          _navigateToMixedPoster(context, item),
+                    )
+                  else if (state.trending.isNotEmpty)
+                    _FallbackHero(
+                      item: state.trending.first,
+                      type: state.trendingType,
+                      onDetails: () => _navigateToTyped(
+                          context, state.trending.first, state.trendingType),
+                      onBookmark: () => cubit.bookmarkFromPoster(
+                          state.trending.first, state.trendingType),
                     ),
-                    onDetails: (item) => _navigateToMixedPoster(context, item),
-                  )
-                else if (state.trending.isNotEmpty)
-                  _FallbackHero(
-                    item: state.trending.first,
-                    type: state.trendingType,
-                    onDetails: () => _navigateToTyped(
-                        context, state.trending.first, state.trendingType),
-                    onBookmark: () => cubit.bookmarkFromPoster(
-                        state.trending.first, state.trendingType),
-                  ),
-                SizedBox(height: 24.h),
-
-                // Trending Now — scoped to the selected tab's type.
-                // Hidden entirely (not just the carousel) when the fetch
-                // failed and left the list empty, so no orphaned header
-                // floats over blank space.
-                if (loading || state.trending.isNotEmpty) ...[
-                  WSectionHeader(
-                    icon: Icons.local_fire_department_rounded,
-                    iconColor: context.colors.accentRed,
-                    title: 'Trending Now',
-                  ),
-                  SizedBox(height: 10.h),
-                  loading
-                      ? _SkeletonCarousel()
-                      : _PosterCarousel(
-                          items: state.trending,
-                          type: state.trendingType,
-                          onBookmark: (item) => cubit.bookmarkFromPoster(
-                              item, state.trendingType),
-                          onTap: (item) => _navigateToTyped(
-                              context, item, state.trendingType),
-                        ),
                   SizedBox(height: 24.h),
-                ],
 
-                if (state.becauseYouRanked.isNotEmpty) ...[
-                  // Because You Ranked <anchor>
-                  WSectionHeader(
-                    icon: Icons.favorite_rounded,
-                    iconColor: context.colors.accentRed,
-                    title: state.becauseYouRankedAnchorTitle != null
-                        ? 'Because You Ranked ${state.becauseYouRankedAnchorTitle}'
-                        : 'Because You Ranked This',
-                  ),
-                  SizedBox(height: 10.h),
-                  _PosterCarousel(
-                    items: state.becauseYouRanked,
-                    type: CinemaType.movie,
-                    onBookmark: (item) => cubit.bookmarkFromPoster(
-                      item,
-                      CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                  // Trending Now — scoped to the selected tab's type.
+                  // Hidden entirely (not just the carousel) when the fetch
+                  // failed and left the list empty, so no orphaned header
+                  // floats over blank space.
+                  if (loading || state.trending.isNotEmpty) ...[
+                    WSectionHeader(
+                      icon: Icons.local_fire_department_rounded,
+                      iconColor: context.colors.accentRed,
+                      title: 'Trending Now',
                     ),
-                    onTap: (item) => _navigateToMixedPoster(context, item),
-                  ),
-                  SizedBox(height: 24.h),
-                ],
-
-                // Critically Acclaimed — hidden entirely when empty (see
-                // Trending Now above for why).
-                if (loading || state.criticallyAcclaimed.isNotEmpty) ...[
-                  WSectionHeader(
-                    icon: Icons.star_rounded,
-                    iconColor: context.colors.tertiary,
-                    title: 'Critically Acclaimed',
-                  ),
-                  SizedBox(height: 10.h),
-                  loading
-                      ? _SkeletonCarousel()
-                      : _PosterCarousel(
-                          items: state.criticallyAcclaimed,
-                          type: CinemaType.movie,
-                          onBookmark: (item) => cubit.bookmarkFromPoster(
-                            item,
-                            CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                    SizedBox(height: 10.h),
+                    loading
+                        ? _SkeletonCarousel()
+                        : _PosterCarousel(
+                            items: state.trending,
+                            type: state.trendingType,
+                            onBookmark: (item) => cubit.bookmarkFromPoster(
+                                item, state.trendingType),
+                            onTap: (item) => _navigateToTyped(
+                                context, item, state.trendingType),
                           ),
-                          onTap: (item) =>
-                              _navigateToMixedPoster(context, item),
-                        ),
-                  SizedBox(height: 24.h),
-                ],
+                    SizedBox(height: 24.h),
+                  ],
 
-                _MoodPickerCard(
-                  onOpen: ([String? starter]) => context.push(
-                    AppRoutes.moodChat,
-                    extra: MoodChatArgs(starter: starter),
+                  if (state.becauseYouRanked.isNotEmpty) ...[
+                    // Because You Ranked <anchor>
+                    WSectionHeader(
+                      icon: Icons.favorite_rounded,
+                      iconColor: context.colors.accentRed,
+                      title: state.becauseYouRankedAnchorTitle != null
+                          ? 'Because You Ranked ${state.becauseYouRankedAnchorTitle}'
+                          : 'Because You Ranked This',
+                    ),
+                    SizedBox(height: 10.h),
+                    _PosterCarousel(
+                      items: state.becauseYouRanked,
+                      type: CinemaType.movie,
+                      onBookmark: (item) => cubit.bookmarkFromPoster(
+                        item,
+                        CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                      ),
+                      onTap: (item) => _navigateToMixedPoster(context, item),
+                    ),
+                    SizedBox(height: 24.h),
+                  ],
+
+                  // Critically Acclaimed — hidden entirely when empty (see
+                  // Trending Now above for why).
+                  if (loading || state.criticallyAcclaimed.isNotEmpty) ...[
+                    WSectionHeader(
+                      icon: Icons.star_rounded,
+                      iconColor: context.colors.tertiary,
+                      title: 'Critically Acclaimed',
+                    ),
+                    SizedBox(height: 10.h),
+                    loading
+                        ? _SkeletonCarousel()
+                        : _PosterCarousel(
+                            items: state.criticallyAcclaimed,
+                            type: CinemaType.movie,
+                            onBookmark: (item) => cubit.bookmarkFromPoster(
+                              item,
+                              CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                            ),
+                            onTap: (item) =>
+                                _navigateToMixedPoster(context, item),
+                          ),
+                    SizedBox(height: 24.h),
+                  ],
+
+                  _MoodPickerCard(
+                    onOpen: ([String? starter]) => context.push(
+                      AppRoutes.moodChat,
+                      extra: MoodChatArgs(starter: starter),
+                    ),
                   ),
-                ),
-                SizedBox(height: 18.h),
-              ],
+                  SizedBox(height: 18.h),
+                ],
+              ),
             ),
           ),
         );
       },
-    );
-  }
-}
-
-// ── Error banner ──────────────────────────────────────────────────────────────
-
-class _ErrorBanner extends StatelessWidget {
-  final String? message;
-  final VoidCallback onRetry;
-
-  const _ErrorBanner({this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onRetry,
-      child: Container(
-        height: 284.h,
-        decoration: BoxDecoration(
-          color: context.colors.surfaceMuted,
-          borderRadius: BorderRadius.circular(28.r),
-          border: Border.all(color: context.colors.surfaceBorder),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.wifi_off_rounded,
-                color: context.colors.mutedForeground, size: 36.sp),
-            SizedBox(height: 12.h),
-            Text(
-              message ?? 'Could not load feed.',
-              style: TextStyle(
-                color: context.colors.mutedForeground,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 6.h),
-            Text(
-              'Tap to retry',
-              style: TextStyle(
-                color: context.colors.accentRed,
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

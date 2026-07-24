@@ -6,6 +6,9 @@ abstract class AppRoutes {
   static const welcome = '/';
   static const login = '/login';
 
+  /// Signed in, but the session can't be verified and nothing is cached.
+  static const offline = '/offline';
+
   // ── Onboarding ────────────────────────────────────────────────────────────
   static const onboarding = '/onboarding';
   static const onboardingSuccess = '/onboarding/success';

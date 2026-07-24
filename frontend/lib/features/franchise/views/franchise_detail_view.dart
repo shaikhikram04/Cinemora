@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:cinemora/common/widgets/detail/detail_hero_shell.dart';
+import 'package:cinemora/common/widgets/states/on_reconnect.dart';
+import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
@@ -80,10 +82,14 @@ class _FranchiseDetailContent extends StatelessWidget {
         final libraryEntries = context.watch<LibraryCubit>().state.entries;
 
         if (state.status == FranchiseDetailStatus.failure) {
-          return Scaffold(
-            backgroundColor: context.colors.background,
-            body: _ErrorBody(
-              onRetry: () => context.read<FranchiseDetailCubit>().retry(),
+          return OnReconnect(
+            onReconnect: () => context.read<FranchiseDetailCubit>().retry(),
+            child: Scaffold(
+              backgroundColor: context.colors.background,
+              body: WErrorState.fullScreen(
+                message: 'Could not load this franchise.',
+                onRetry: () => context.read<FranchiseDetailCubit>().retry(),
+              ),
             ),
           );
         }
@@ -122,7 +128,9 @@ class _FranchiseDetailContent extends StatelessWidget {
                           statusFor: (id) => _statusFor(libraryEntries, id),
                           onTap: (movie) => _openMovie(context, movie),
                           onBookmark: (movie, {required isWatchlisted}) =>
-                              context.read<FranchiseDetailCubit>().toggleWatchlist(
+                              context
+                                  .read<FranchiseDetailCubit>()
+                                  .toggleWatchlist(
                                     movie,
                                     isWatchlisted: isWatchlisted,
                                   ),
@@ -264,7 +272,8 @@ class _AddAllButton extends StatelessWidget {
                 ),
               )
             else
-              Icon(Icons.bookmark_add_rounded, color: Colors.white, size: 14.sp),
+              Icon(Icons.bookmark_add_rounded,
+                  color: Colors.white, size: 14.sp),
             SizedBox(width: 6.w),
             Text(
               isLoading ? 'Adding…' : 'Add All to Watchlist',
@@ -290,56 +299,6 @@ class _LoadingBody extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(top: 60.h),
         child: CircularProgressIndicator(color: context.colors.primary),
-      ),
-    );
-  }
-}
-
-class _ErrorBody extends StatelessWidget {
-  final VoidCallback onRetry;
-
-  const _ErrorBody({required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.wifi_off_rounded,
-            size: 48.sp,
-            color: context.colors.mutedForeground,
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            'Could not load this franchise',
-            style: TextStyle(
-              color: context.colors.foreground,
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 20.h),
-          GestureDetector(
-            onTap: onRetry,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
-              decoration: BoxDecoration(
-                color: context.colors.primary,
-                borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
-              ),
-              child: Text(
-                'Retry',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

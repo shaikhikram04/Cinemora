@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cinemora/core/exceptions/app_exception.dart';
+import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/features/discover/models/search_result_item.dart';
 import 'package:cinemora/features/discover/repositories/discover_repository.dart';
 import 'discover_state.dart';
@@ -181,7 +183,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
       if (isClosed || gen != _searchGen) return;
       emit(state.copyWith(
         searchStatus: DiscoverSearchStatus.failure,
-        errorMessage: 'Something went wrong. Tap to retry.',
+        errorMessage: ApiClient.parseError(e).userMessage,
       ));
     }
   }
@@ -220,7 +222,12 @@ class DiscoverCubit extends Cubit<DiscoverState> {
       if (isClosed || gen != _genreGen) return;
       emit(state.copyWith(
         searchStatus: DiscoverSearchStatus.failure,
-        errorMessage: 'Could not load $label content.',
+        // Being offline outranks the genre-specific wording — the user needs to
+        // know the problem is the connection, not this particular genre.
+        errorMessage: switch (ApiClient.parseError(e)) {
+          NetworkException(:final userMessage) => userMessage,
+          _ => 'Could not load $label content.',
+        },
       ));
     }
   }

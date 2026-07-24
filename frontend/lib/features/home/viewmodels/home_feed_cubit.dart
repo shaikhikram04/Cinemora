@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/models/watch_status.dart';
+import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/core/utils/tmdb_url_utils.dart';
 import 'package:cinemora/features/home/models/home_recommendations.dart';
 import 'package:cinemora/features/home/models/jikan_anime_item.dart';
@@ -62,12 +63,19 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
     final type = _selectedType;
 
     // Recommendations (Pick of Week, Because You Ranked, Critically Acclaimed)
-    // and the type-scoped Trending Now row fail independently.
+    // and the type-scoped Trending Now row fail independently. The first error
+    // is kept so a total failure can say *why* — "No internet connection."
+    // reads very differently from a generic "could not load".
+    Object? failure;
     final results = await Future.wait([
-      _repository
-          .fetchHomeRecommendations(type: type)
-          .catchError((_) => const HomeRecommendations()),
-      _fetchTrending(type).catchError((_) => <MoviePoster>[]),
+      _repository.fetchHomeRecommendations(type: type).catchError((Object e) {
+        failure ??= e;
+        return const HomeRecommendations();
+      }),
+      _fetchTrending(type).catchError((Object e) {
+        failure ??= e;
+        return <MoviePoster>[];
+      }),
     ]);
 
     final recommendations = results[0] as HomeRecommendations;
@@ -81,7 +89,9 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
     if (everythingEmpty) {
       emit(state.copyWith(
         status: FeedStatus.failure,
-        errorMessage: 'Could not load feed. Tap to retry.',
+        errorMessage: failure != null
+            ? ApiClient.parseError(failure!).userMessage
+            : 'Could not load feed.',
       ));
       return;
     }

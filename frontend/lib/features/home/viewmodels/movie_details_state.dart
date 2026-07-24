@@ -12,6 +12,10 @@ class MovieDetailsState extends Equatable {
   final TmdbMovieDetail? detail;
   final DetailStatus detailStatus;
 
+  /// A failed watchlist/watched/rating write, surfaced as a SnackBar. Mirrors
+  /// SeriesDetailsState — without it these failures were silent.
+  final String? mutationError;
+
   const MovieDetailsState({
     this.isInWatchlist = false,
     this.isWatched = false,
@@ -20,9 +24,11 @@ class MovieDetailsState extends Equatable {
     this.showRatingSuccess = false,
     this.detail,
     this.detailStatus = DetailStatus.initial,
+    this.mutationError,
   });
 
   bool get isDetailLoading => detailStatus == DetailStatus.loading;
+  bool get hasDetailFailed => detailStatus == DetailStatus.failed;
 
   MovieDetailsState copyWith({
     bool? isInWatchlist,
@@ -32,6 +38,8 @@ class MovieDetailsState extends Equatable {
     bool? showRatingSuccess,
     TmdbMovieDetail? detail,
     DetailStatus? detailStatus,
+    String? mutationError,
+    bool clearMutationError = false,
   }) {
     return MovieDetailsState(
       isInWatchlist: isInWatchlist ?? this.isInWatchlist,
@@ -41,6 +49,8 @@ class MovieDetailsState extends Equatable {
       showRatingSuccess: showRatingSuccess ?? this.showRatingSuccess,
       detail: detail ?? this.detail,
       detailStatus: detailStatus ?? this.detailStatus,
+      mutationError:
+          clearMutationError ? null : (mutationError ?? this.mutationError),
     );
   }
 
@@ -53,5 +63,6 @@ class MovieDetailsState extends Equatable {
         showRatingSuccess,
         detail,
         detailStatus,
+        mutationError,
       ];
 }

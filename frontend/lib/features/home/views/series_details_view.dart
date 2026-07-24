@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/common/widgets/states/on_reconnect.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
@@ -129,40 +130,47 @@ class _SeriesDetailsContent extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<SeriesDetailsCubit>();
         final seasons = state.seasons;
-        return Scaffold(
-          backgroundColor: context.colors.background,
-          body: SeriesDetailsContent(
-            seriesTitle: seriesTitle,
-            seriesImage: seriesImage,
-            backdropImage: backdropImage,
-            rating: rating,
-            source: source,
-            seriesId: tmdbId,
-            detail: state.detail,
-            isDetailLoading: state.isDetailLoading,
-            seasons: seasons,
-            selectedSeasonIndex: state.selectedSeasonIndex,
-            showInWatchlist: state.showInWatchlist,
-            isShowWatched: state.isShowWatched,
-            seasonsInWatchlist: state.seasonsInWatchlist,
-            seasonsWatched: state.seasonsWatched,
-            episodesWatched: state.episodesWatched,
-            seasonRatings: state.seasonRatings,
-            showRating: state.showRating,
-            expandedSeasons: state.expandedSeasons,
-            showRatingSuccess: state.showRatingSuccess,
-            onSeasonSelected: cubit.selectSeason,
-            onToggleShowWatchlist: cubit.toggleShowWatchlist,
-            onToggleShowWatched: cubit.toggleShowWatched,
-            onToggleSeasonWatchlist: cubit.toggleSeasonWatchlist,
-            onToggleSeasonWatched: cubit.toggleSeasonWatched,
-            onToggleEpisodeWatched: cubit.toggleEpisodeWatched,
-            onRateSeason: (seasonNumber, r) {
-              cubit.rateSeason(seasonNumber, r);
-              _showSeasonRatingSheet(context, seasonNumber, r);
-            },
-            onRateShow: cubit.rateShow,
-            onToggleSeasonExpanded: cubit.toggleSeasonExpanded,
+        return OnReconnect(
+          onReconnect: () {
+            if (state.hasDetailFailed) cubit.retryDetail();
+          },
+          child: Scaffold(
+            backgroundColor: context.colors.background,
+            body: SeriesDetailsContent(
+              seriesTitle: seriesTitle,
+              seriesImage: seriesImage,
+              backdropImage: backdropImage,
+              rating: rating,
+              source: source,
+              seriesId: tmdbId,
+              detail: state.detail,
+              isDetailLoading: state.isDetailLoading,
+              hasDetailFailed: state.hasDetailFailed,
+              onRetryDetail: cubit.retryDetail,
+              seasons: seasons,
+              selectedSeasonIndex: state.selectedSeasonIndex,
+              showInWatchlist: state.showInWatchlist,
+              isShowWatched: state.isShowWatched,
+              seasonsInWatchlist: state.seasonsInWatchlist,
+              seasonsWatched: state.seasonsWatched,
+              episodesWatched: state.episodesWatched,
+              seasonRatings: state.seasonRatings,
+              showRating: state.showRating,
+              expandedSeasons: state.expandedSeasons,
+              showRatingSuccess: state.showRatingSuccess,
+              onSeasonSelected: cubit.selectSeason,
+              onToggleShowWatchlist: cubit.toggleShowWatchlist,
+              onToggleShowWatched: cubit.toggleShowWatched,
+              onToggleSeasonWatchlist: cubit.toggleSeasonWatchlist,
+              onToggleSeasonWatched: cubit.toggleSeasonWatched,
+              onToggleEpisodeWatched: cubit.toggleEpisodeWatched,
+              onRateSeason: (seasonNumber, r) {
+                cubit.rateSeason(seasonNumber, r);
+                _showSeasonRatingSheet(context, seasonNumber, r);
+              },
+              onRateShow: cubit.rateShow,
+              onToggleSeasonExpanded: cubit.toggleSeasonExpanded,
+            ),
           ),
         );
       },

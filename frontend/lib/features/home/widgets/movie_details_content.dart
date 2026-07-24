@@ -14,6 +14,7 @@ import 'package:cinemora/common/widgets/detail/genres_section.dart';
 import 'package:cinemora/common/widgets/detail/overview_section.dart';
 import 'package:cinemora/common/widgets/detail/where_to_watch_section.dart';
 import 'package:cinemora/common/widgets/dialogs/unmark_watched_dialog.dart';
+import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
@@ -31,6 +32,8 @@ class MovieDetailsContent extends StatelessWidget {
   final int? movieId;
   final TmdbMovieDetail? detail;
   final bool isDetailLoading;
+  final bool hasDetailFailed;
+  final VoidCallback? onRetryDetail;
   final bool isInWatchlist;
   final bool isWatched;
   final double userRating;
@@ -50,6 +53,8 @@ class MovieDetailsContent extends StatelessWidget {
     this.movieId,
     this.detail,
     this.isDetailLoading = false,
+    this.hasDetailFailed = false,
+    this.onRetryDetail,
     required this.isInWatchlist,
     required this.isWatched,
     required this.userRating,
@@ -98,72 +103,89 @@ class MovieDetailsContent extends StatelessWidget {
                   trailerKey: detail?.trailerKey,
                 ),
                 SizedBox(height: 16.h),
-                if (isDetailLoading ||
-                    (detail?.providers.isNotEmpty ?? false)) ...[
-                  WhereToWatchSection(
-                    providers: detail?.providers,
+                // Everything below is driven by the TMDB detail fetch. Without
+                // it there is nothing to lay out, so say so instead of
+                // rendering a page that looks like the movie simply has no
+                // cast, no overview and no genres. The hero and the action
+                // buttons stay — that data came from the previous screen and
+                // from the local library, and both still work.
+                if (hasDetailFailed) ...[
+                  WErrorState.card(
+                    message: "Couldn't load the details for this title.",
+                    onRetry: onRetryDetail,
+                  ),
+                  SizedBox(height: 24.h),
+                ] else ...[
+                  if (isDetailLoading ||
+                      (detail?.providers.isNotEmpty ?? false)) ...[
+                    WhereToWatchSection(
+                      providers: detail?.providers,
+                      isLoading: isDetailLoading,
+                    ),
+                    SizedBox(height: 20.h),
+                    Divider(color: context.colors.border),
+                    SizedBox(height: 16.h),
+                  ],
+                  OverviewSection(
+                    overview: detail?.overview,
                     isLoading: isDetailLoading,
                   ),
                   SizedBox(height: 20.h),
                   Divider(color: context.colors.border),
                   SizedBox(height: 16.h),
-                ],
-                OverviewSection(
-                  overview: detail?.overview,
-                  isLoading: isDetailLoading,
-                ),
-                SizedBox(height: 20.h),
-                Divider(color: context.colors.border),
-                SizedBox(height: 16.h),
-                if (isDetailLoading || (detail?.genres.isNotEmpty ?? false)) ...[
-                  GenresSection(
-                    genres: detail?.genres ?? const [],
-                    isLoading: isDetailLoading,
+                  if (isDetailLoading ||
+                      (detail?.genres.isNotEmpty ?? false)) ...[
+                    GenresSection(
+                      genres: detail?.genres ?? const [],
+                      isLoading: isDetailLoading,
+                    ),
+                    SizedBox(height: 20.h),
+                    Divider(color: context.colors.border),
+                    SizedBox(height: 16.h),
+                  ],
+                  if (isDetailLoading ||
+                      (detail?.cast.isNotEmpty ?? false)) ...[
+                    CastSection(
+                      cast: detail?.cast,
+                      isLoading: isDetailLoading,
+                    ),
+                    SizedBox(height: 16.h),
+                    Divider(color: context.colors.border),
+                    SizedBox(height: 16.h),
+                  ],
+                  if (isDetailLoading ||
+                      (detail?.crew.isNotEmpty ?? false)) ...[
+                    CrewSection(
+                      crew: detail?.crew,
+                      isLoading: isDetailLoading,
+                    ),
+                    SizedBox(height: 16.h),
+                    Divider(color: context.colors.border),
+                    SizedBox(height: 16.h),
+                  ],
+                  if (detail?.collection != null) ...[
+                    _FranchiseBanner(collection: detail!.collection!),
+                    SizedBox(height: 16.h),
+                    Divider(color: context.colors.border),
+                    SizedBox(height: 16.h),
+                  ],
+                  DetailRatingSection(
+                    title: 'Your Rating',
+                    subtitle: 'Tap star halves to rate',
+                    rating: userRating,
+                    showRatingSuccess: showRatingSuccess,
+                    rankingLabel: 'All-Time Favorites',
+                    onRate: onRate,
                   ),
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 28.h),
                   Divider(color: context.colors.border),
                   SizedBox(height: 16.h),
-                ],
-                if (isDetailLoading || (detail?.cast.isNotEmpty ?? false)) ...[
-                  CastSection(
-                    cast: detail?.cast,
-                    isLoading: isDetailLoading,
+                  DetailRecommendationsSection(
+                    cinemaType: CinemaType.movie,
+                    sourceId: movieId,
                   ),
-                  SizedBox(height: 16.h),
-                  Divider(color: context.colors.border),
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 24.h),
                 ],
-                if (isDetailLoading || (detail?.crew.isNotEmpty ?? false)) ...[
-                  CrewSection(
-                    crew: detail?.crew,
-                    isLoading: isDetailLoading,
-                  ),
-                  SizedBox(height: 16.h),
-                  Divider(color: context.colors.border),
-                  SizedBox(height: 16.h),
-                ],
-                if (detail?.collection != null) ...[
-                  _FranchiseBanner(collection: detail!.collection!),
-                  SizedBox(height: 16.h),
-                  Divider(color: context.colors.border),
-                  SizedBox(height: 16.h),
-                ],
-                DetailRatingSection(
-                  title: 'Your Rating',
-                  subtitle: 'Tap star halves to rate',
-                  rating: userRating,
-                  showRatingSuccess: showRatingSuccess,
-                  rankingLabel: 'All-Time Favorites',
-                  onRate: onRate,
-                ),
-                SizedBox(height: 28.h),
-                Divider(color: context.colors.border),
-                SizedBox(height: 16.h),
-                DetailRecommendationsSection(
-                  cinemaType: CinemaType.movie,
-                  sourceId: movieId,
-                ),
-                SizedBox(height: 24.h),
               ],
             ),
           ),

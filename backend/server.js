@@ -11,6 +11,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Reachability probe for the app's offline detection. Deliberately mounted
+// above the logger and the rate limiter: the client polls this while it thinks
+// it's offline, and those probes should neither flood the log nor eat the
+// per-IP budget. Touches nothing — answering at all is the whole signal.
+app.get("/api/health", (req, res) => res.json({ ok: true }));
+
 // Request logger — prints method, path, status, and latency for every request
 app.use((req, res, next) => {
   const start = Date.now();

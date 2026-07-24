@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
@@ -56,47 +57,9 @@ class _LibraryViewState extends State<LibraryView> {
         if (state.status == LibraryStatus.error) {
           return Container(
             color: context.colors.background,
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32.w),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.wifi_off_rounded,
-                        size: 48.sp, color: context.colors.mutedSecondary),
-                    SizedBox(height: 16.h),
-                    Text(
-                      state.errorMessage ?? 'Failed to load library.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: context.colors.mutedSecondary,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(height: 20.h),
-                    GestureDetector(
-                      onTap: cubit.loadData,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 24.w, vertical: 12.h),
-                        decoration: BoxDecoration(
-                          color: context.colors.accentRed,
-                          borderRadius: BorderRadius.circular(14.r),
-                        ),
-                        child: Text(
-                          'Retry',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            child: WErrorState.fullScreen(
+              message: state.errorMessage ?? 'Failed to load library.',
+              onRetry: cubit.loadData,
             ),
           );
         }

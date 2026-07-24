@@ -3,6 +3,7 @@ import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/utils/tmdb_url_utils.dart';
 import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/models/watch_status.dart';
+import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/movie_details_state.dart';
@@ -90,8 +91,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
   // "jikan" and "anilist" as the upstream moved, so only "tmdb" is tested.
   bool get _isAnime => _source != 'tmdb';
 
-  CinemaType get _cinemaType =>
-      _isAnime ? CinemaType.anime : CinemaType.tv;
+  CinemaType get _cinemaType => _isAnime ? CinemaType.anime : CinemaType.tv;
 
   String? get _firstAirYear {
     final range = state.detail?.yearRange ?? '';
@@ -150,8 +150,11 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
       try {
         await _library.deleteEntry(id, _cinemaType);
         _libraryCubit.removeEntryLocal(id, _cinemaType);
-      } catch (_) {
-        emit(state.copyWith(showInWatchlist: true));
+      } catch (e) {
+        emit(state.copyWith(
+          showInWatchlist: true,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     } else {
       final wasWatched = state.isShowWatched;
@@ -171,8 +174,12 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           status: WatchStatus.watchlist,
         );
         _libraryCubit.syncEntry(entry);
-      } catch (_) {
-        emit(state.copyWith(showInWatchlist: false, isShowWatched: wasWatched));
+      } catch (e) {
+        emit(state.copyWith(
+          showInWatchlist: false,
+          isShowWatched: wasWatched,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     }
   }
@@ -185,8 +192,12 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
       try {
         await _library.deleteEntry(id, _cinemaType);
         _libraryCubit.removeEntryLocal(id, _cinemaType);
-      } catch (_) {
-        emit(state.copyWith(isShowWatched: true, showRating: state.showRating));
+      } catch (e) {
+        emit(state.copyWith(
+          isShowWatched: true,
+          showRating: state.showRating,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     } else {
       final wasInWatchlist = state.showInWatchlist;
@@ -207,9 +218,12 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           progress: LibraryProgress(totalEpisodes: _totalEpisodes),
         );
         _libraryCubit.syncEntry(entry);
-      } catch (_) {
+      } catch (e) {
         emit(state.copyWith(
-            isShowWatched: false, showInWatchlist: wasInWatchlist));
+          isShowWatched: false,
+          showInWatchlist: wasInWatchlist,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     }
   }
@@ -233,9 +247,12 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           seasonNumber: seasonNumber,
         );
         _libraryCubit.syncEntry(entry);
-      } catch (_) {
+      } catch (e) {
         list.add(seasonNumber);
-        emit(state.copyWith(seasonsInWatchlist: list));
+        emit(state.copyWith(
+          seasonsInWatchlist: list,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     } else {
       list.add(seasonNumber);
@@ -257,9 +274,12 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           originalLanguage: state.detail?.originalLanguage,
         );
         _libraryCubit.syncEntry(entry);
-      } catch (_) {
+      } catch (e) {
         list.remove(seasonNumber);
-        emit(state.copyWith(seasonsInWatchlist: list));
+        emit(state.copyWith(
+          seasonsInWatchlist: list,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     }
   }
@@ -282,11 +302,17 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           seasonNumber: seasonNumber,
         );
         _libraryCubit.syncEntry(entry);
-      } catch (_) {
+      } catch (e) {
         watched.add(seasonNumber);
-        emit(state.copyWith(seasonsWatched: watched));
+        emit(state.copyWith(
+          seasonsWatched: watched,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     } else {
+      // Snapshot before the optimistic tick — marking a season watched also
+      // ticks every episode in it, and a failed write has to undo both.
+      final previousEpisodes = List<String>.from(episodes);
       watched.add(seasonNumber);
       if (season != null) {
         for (final ep in season.episodes) {
@@ -312,9 +338,13 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
           originalLanguage: state.detail?.originalLanguage,
         );
         _libraryCubit.syncEntry(entry);
-      } catch (_) {
+      } catch (e) {
         watched.remove(seasonNumber);
-        emit(state.copyWith(seasonsWatched: watched));
+        emit(state.copyWith(
+          seasonsWatched: watched,
+          episodesWatched: previousEpisodes,
+          mutationError: ApiClient.parseError(e).userMessage,
+        ));
       }
     }
   }
@@ -412,6 +442,9 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
   }
 
   void clearMutationError() => emit(state.copyWith(clearMutationError: true));
+
+  /// Retry hook for the failed-detail state and for the reconnect listener.
+  Future<void> retryDetail() => _loadDetail();
 
   void toggleSeasonExpanded(int seasonNumber) {
     final list = List<int>.from(state.expandedSeasons);

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
 import 'package:cinemora/common/widgets/buttons/trailer_button.dart';
+import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/common/widgets/detail/cast_section.dart';
 import 'package:cinemora/common/widgets/detail/crew_section.dart';
 import 'package:cinemora/common/widgets/detail/detail_hero_shell.dart';
@@ -33,6 +34,8 @@ class SeriesDetailsContent extends StatelessWidget {
   final int? seriesId;
   final TmdbTvDetail? detail;
   final bool isDetailLoading;
+  final bool hasDetailFailed;
+  final VoidCallback? onRetryDetail;
 
   final List<SeriesSeason> seasons;
   final int selectedSeasonIndex;
@@ -66,6 +69,8 @@ class SeriesDetailsContent extends StatelessWidget {
     this.seriesId,
     this.detail,
     this.isDetailLoading = false,
+    this.hasDetailFailed = false,
+    this.onRetryDetail,
     required this.seasons,
     required this.selectedSeasonIndex,
     required this.showInWatchlist,
@@ -130,90 +135,106 @@ class SeriesDetailsContent extends StatelessWidget {
                   trailerKey: detail?.trailerKey,
                 ),
                 SizedBox(height: 16.h),
-                if (isDetailLoading ||
-                    (detail?.providers.isNotEmpty ?? false)) ...[
-                  WhereToWatchSection(
-                    providers: detail?.providers,
+                // Everything below is driven by the detail fetch. Without it
+                // there is nothing to lay out, so say so instead of rendering
+                // a page that looks like the show simply has no seasons, no
+                // cast and no overview. The hero and the action buttons stay —
+                // that data came from the previous screen and from the local
+                // library, and both still work.
+                if (hasDetailFailed) ...[
+                  WErrorState.card(
+                    message: "Couldn't load the details for this title.",
+                    onRetry: onRetryDetail,
+                  ),
+                  SizedBox(height: 32.h),
+                ] else ...[
+                  if (isDetailLoading ||
+                      (detail?.providers.isNotEmpty ?? false)) ...[
+                    WhereToWatchSection(
+                      providers: detail?.providers,
+                      isLoading: isDetailLoading,
+                    ),
+                    SizedBox(height: 20.h),
+                    Divider(color: context.colors.border),
+                    SizedBox(height: 16.h),
+                  ],
+                  OverviewSection(
+                    overview: detail?.overview,
                     isLoading: isDetailLoading,
                   ),
                   SizedBox(height: 20.h),
                   Divider(color: context.colors.border),
                   SizedBox(height: 16.h),
-                ],
-                OverviewSection(
-                  overview: detail?.overview,
-                  isLoading: isDetailLoading,
-                ),
-                SizedBox(height: 20.h),
-                Divider(color: context.colors.border),
-                SizedBox(height: 16.h),
-                if (isDetailLoading ||
-                    (detail?.genres.isNotEmpty ?? false)) ...[
-                  GenresSection(
-                    genres: detail?.genres ?? const [],
-                    isLoading: isDetailLoading,
+                  if (isDetailLoading ||
+                      (detail?.genres.isNotEmpty ?? false)) ...[
+                    GenresSection(
+                      genres: detail?.genres ?? const [],
+                      isLoading: isDetailLoading,
+                    ),
+                    SizedBox(height: 20.h),
+                    Divider(color: context.colors.border),
+                    SizedBox(height: 16.h),
+                  ],
+                  if (seasons.isEmpty && isDetailLoading)
+                    _SeasonsSkeleton()
+                  else if (_currentSeason != null)
+                    _SeasonsSection(
+                      seasons: seasons,
+                      selectedSeasonIndex: selectedSeasonIndex,
+                      currentSeason: _currentSeason!,
+                      seasonsInWatchlist: seasonsInWatchlist,
+                      seasonsWatched: seasonsWatched,
+                      episodesWatched: episodesWatched,
+                      seasonRatings: seasonRatings,
+                      expandedSeasons: expandedSeasons,
+                      onSeasonSelected: onSeasonSelected,
+                      onToggleSeasonWatchlist: onToggleSeasonWatchlist,
+                      onToggleSeasonWatched: onToggleSeasonWatched,
+                      onToggleEpisodeWatched: onToggleEpisodeWatched,
+                      onRateSeason: onRateSeason,
+                      onToggleSeasonExpanded: onToggleSeasonExpanded,
+                    ),
+                  if (isDetailLoading ||
+                      (detail?.cast.isNotEmpty ?? false)) ...[
+                    SizedBox(height: 24.h),
+                    Divider(color: context.colors.border),
+                    SizedBox(height: 16.h),
+                    CastSection(
+                      cast: detail?.cast,
+                      isLoading: isDetailLoading,
+                    ),
+                    SizedBox(height: 16.h),
+                    Divider(color: context.colors.border),
+                    SizedBox(height: 16.h),
+                  ],
+                  if (isDetailLoading ||
+                      (detail?.crew.isNotEmpty ?? false)) ...[
+                    CrewSection(
+                      crew: detail?.crew,
+                      isLoading: isDetailLoading,
+                    ),
+                    SizedBox(height: 16.h),
+                    Divider(color: context.colors.border),
+                    SizedBox(height: 16.h),
+                  ],
+                  DetailRatingSection(
+                    title: 'Your Overall Rating',
+                    subtitle: 'Rate the whole show',
+                    rating: showRating,
+                    showRatingSuccess: showRatingSuccess,
+                    rankingLabel: 'Best TV Shows',
+                    onRate: onRateShow,
                   ),
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 28.h),
                   Divider(color: context.colors.border),
                   SizedBox(height: 16.h),
-                ],
-                if (seasons.isEmpty && isDetailLoading)
-                  _SeasonsSkeleton()
-                else if (_currentSeason != null)
-                  _SeasonsSection(
-                    seasons: seasons,
-                    selectedSeasonIndex: selectedSeasonIndex,
-                    currentSeason: _currentSeason!,
-                    seasonsInWatchlist: seasonsInWatchlist,
-                    seasonsWatched: seasonsWatched,
-                    episodesWatched: episodesWatched,
-                    seasonRatings: seasonRatings,
-                    expandedSeasons: expandedSeasons,
-                    onSeasonSelected: onSeasonSelected,
-                    onToggleSeasonWatchlist: onToggleSeasonWatchlist,
-                    onToggleSeasonWatched: onToggleSeasonWatched,
-                    onToggleEpisodeWatched: onToggleEpisodeWatched,
-                    onRateSeason: onRateSeason,
-                    onToggleSeasonExpanded: onToggleSeasonExpanded,
+                  DetailRecommendationsSection(
+                    cinemaType:
+                        source == 'tmdb' ? CinemaType.tv : CinemaType.anime,
+                    sourceId: seriesId,
                   ),
-                if (isDetailLoading || (detail?.cast.isNotEmpty ?? false)) ...[
-                  SizedBox(height: 24.h),
-                  Divider(color: context.colors.border),
-                  SizedBox(height: 16.h),
-                  CastSection(
-                    cast: detail?.cast,
-                    isLoading: isDetailLoading,
-                  ),
-                  SizedBox(height: 16.h),
-                  Divider(color: context.colors.border),
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 32.h),
                 ],
-                if (isDetailLoading || (detail?.crew.isNotEmpty ?? false)) ...[
-                  CrewSection(
-                    crew: detail?.crew,
-                    isLoading: isDetailLoading,
-                  ),
-                  SizedBox(height: 16.h),
-                  Divider(color: context.colors.border),
-                  SizedBox(height: 16.h),
-                ],
-                DetailRatingSection(
-                  title: 'Your Overall Rating',
-                  subtitle: 'Rate the whole show',
-                  rating: showRating,
-                  showRatingSuccess: showRatingSuccess,
-                  rankingLabel: 'Best TV Shows',
-                  onRate: onRateShow,
-                ),
-                SizedBox(height: 28.h),
-                Divider(color: context.colors.border),
-                SizedBox(height: 16.h),
-                DetailRecommendationsSection(
-                  cinemaType:
-                      source == 'tmdb' ? CinemaType.tv : CinemaType.anime,
-                  sourceId: seriesId,
-                ),
-                SizedBox(height: 32.h),
               ],
             ),
           ),

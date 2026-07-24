@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/features/rankings/models/ranking_item.dart';
 import 'package:cinemora/features/rankings/repositories/rankings_repository.dart';
 import 'rankings_state.dart';
@@ -28,11 +29,24 @@ class RankingsCubit extends Cubit<RankingsState> {
       final lists = await _repo.fetchLists();
       emit(state.copyWith(lists: lists));
     } catch (_) {
-      // keep whatever is already in state
+      // A failed read leaves whatever is already on screen — no message, since
+      // the list the user is looking at is still the last good one.
     }
   }
 
   void clear() => emit(const RankingsState(lists: []));
+
+  void clearMutationError() => emit(state.copyWith(clearMutationError: true));
+
+  /// Undoes an optimistic change the server never accepted and says why.
+  /// Without this the UI kept showing a reorder or deletion that only ever
+  /// existed on the device.
+  void _revert(List<RankingList> previous, Object error) {
+    emit(state.copyWith(
+      lists: previous,
+      mutationError: ApiClient.parseError(error).userMessage,
+    ));
+  }
 
   /// Creates a list on the backend and returns it (with its id).
   Future<RankingList?> createList({
@@ -53,7 +67,10 @@ class RankingsCubit extends Cubit<RankingsState> {
       );
       emit(state.copyWith(lists: [...state.lists, created]));
       return created;
-    } catch (_) {
+    } catch (e) {
+      emit(state.copyWith(
+        mutationError: ApiClient.parseError(e).userMessage,
+      ));
       return null;
     }
   }
@@ -61,46 +78,55 @@ class RankingsCubit extends Cubit<RankingsState> {
   /// Called after placement battle — replaces the list's entries via API.
   Future<void> updateListEntries(
       String listId, List<RankingEntry> entries) async {
+    final previous = state.lists;
     // Optimistic update
     _replaceEntries(listId, entries);
     try {
       final updated = await _repo.reorderEntries(listId, entries);
       _replaceListInState(updated);
-    } catch (_) {
-      // keep optimistic state on failure
+    } catch (e) {
+      _revert(previous, e);
     }
   }
 
   /// Called by drag-to-reorder in the detail view.
   void reorderEntries(String listId, int oldIndex, int newIndex) {
     if (newIndex > oldIndex) newIndex--;
-    final list = state.lists.firstWhere((l) => l.id == listId,
-        orElse: () => state.lists.first);
+    final previous = state.lists;
+    final list = state.lists
+        .firstWhere((l) => l.id == listId, orElse: () => state.lists.first);
     final entries = List<RankingEntry>.of(list.entries);
     final item = entries.removeAt(oldIndex);
     entries.insert(newIndex, item);
     _replaceEntries(listId, entries);
-    // fire-and-forget sync
-    _repo.reorderEntries(listId, entries).then(_replaceListInState).catchError((_) {});
+    _repo
+        .reorderEntries(listId, entries)
+        .then(_replaceListInState)
+        .catchError((Object e) => _revert(previous, e));
   }
 
   Future<void> deleteList(String listId) async {
+    final previous = state.lists;
     emit(state.copyWith(
       lists: state.lists.where((l) => l.id != listId).toList(),
     ));
     try {
       await _repo.deleteList(listId);
-    } catch (_) {
-      // optimistic — ignore failure
+    } catch (e) {
+      _revert(previous, e);
     }
   }
 
   void removeEntry(String listId, int index) {
-    final list = state.lists.firstWhere((l) => l.id == listId,
-        orElse: () => state.lists.first);
+    final previous = state.lists;
+    final list = state.lists
+        .firstWhere((l) => l.id == listId, orElse: () => state.lists.first);
     final entries = List<RankingEntry>.of(list.entries)..removeAt(index);
     _replaceEntries(listId, entries);
-    _repo.reorderEntries(listId, entries).then(_replaceListInState).catchError((_) {});
+    _repo
+        .reorderEntries(listId, entries)
+        .then(_replaceListInState)
+        .catchError((Object e) => _revert(previous, e));
   }
 
   // ── helpers ─────────────────────────────────────────────────────────────────
@@ -115,8 +141,11 @@ class RankingsCubit extends Cubit<RankingsState> {
         subtitle: list.subtitle,
         count: entries.length,
         accent: list.accent,
-        images:
-            entries.take(3).map((e) => e.image).where((i) => i.isNotEmpty).toList(),
+        images: entries
+            .take(3)
+            .map((e) => e.image)
+            .where((i) => i.isNotEmpty)
+            .toList(),
         entries: entries,
       );
     }).toList();
@@ -124,7 +153,8 @@ class RankingsCubit extends Cubit<RankingsState> {
   }
 
   void _replaceListInState(RankingList updated) {
-    final lists = state.lists.map((l) => l.id == updated.id ? updated : l).toList();
+    final lists =
+        state.lists.map((l) => l.id == updated.id ? updated : l).toList();
     emit(state.copyWith(lists: lists));
   }
 }

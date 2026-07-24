@@ -13,6 +13,7 @@ import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/notifications/repositories/notifications_repository.dart';
 import 'package:cinemora/features/rankings/repositories/rankings_repository.dart';
 import 'package:cinemora/core/services/secure_storage_service.dart';
+import 'package:cinemora/core/viewmodels/network_status_cubit.dart';
 import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
 import 'package:cinemora/firebase_options.dart';
@@ -35,10 +36,12 @@ void main() async {
   final notificationsRepository = NotificationsRepository(apiClient);
   final prefs = await SharedPreferences.getInstance();
   final themeModeCubit = ThemeModeCubit(prefs);
+  final networkStatusCubit = NetworkStatusCubit(apiClient);
 
   FlutterNativeSplash.remove();
   runApp(CinemoraApp(
     authCubit: authCubit,
+    networkStatusCubit: networkStatusCubit,
     userRepository: userRepository,
     homeRepository: homeRepository,
     libraryRepository: libraryRepository,

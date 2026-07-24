@@ -9,12 +9,30 @@ import '../services/secure_storage_service.dart';
 class ApiClient {
   late final Dio dio;
   late final Dio _plainDio; // no interceptors — used only for token refresh
+  late final Dio _probeDio; // no interceptors, short timeout — health checks
+
+  /// Emits `true` whenever the server is demonstrably reachable and `false`
+  /// whenever a request dies before reaching it. Fed by every request the app
+  /// already makes, so reachability is inferred for free — see
+  /// [_ConnectivityInterceptor]. [NetworkStatusCubit] is the consumer.
+  final _connectivity = StreamController<bool>.broadcast();
+
+  Stream<bool> get connectivityEvents => _connectivity.stream;
 
   ApiClient(SecureStorageService storage) {
     _plainDio = Dio(BaseOptions(
       baseUrl: ApiConstants.baseUrl,
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
+      headers: {'ngrok-skip-browser-warning': 'true'},
+    ));
+
+    // Short timeouts on purpose: a probe that takes 15s to fail would stretch
+    // the reconnect backoff far past its scheduled interval.
+    _probeDio = Dio(BaseOptions(
+      baseUrl: ApiConstants.baseUrl,
+      connectTimeout: const Duration(seconds: 4),
+      receiveTimeout: const Duration(seconds: 4),
       headers: {'ngrok-skip-browser-warning': 'true'},
     ));
 
@@ -26,8 +44,24 @@ class ApiClient {
     ));
 
     if (kDebugMode) dio.interceptors.add(_LogInterceptor());
+    dio.interceptors.add(_ConnectivityInterceptor(_connectivity));
     dio.interceptors.add(_AuthInterceptor(storage, _plainDio));
   }
+
+  /// Asks the server directly whether it can be reached. Used only while the
+  /// app already believes it is offline — nothing polls while healthy.
+  Future<bool> probe() async {
+    try {
+      await _probeDio.get('/health');
+      _connectivity.add(true);
+      return true;
+    } catch (_) {
+      _connectivity.add(false);
+      return false;
+    }
+  }
+
+  void dispose() => _connectivity.close();
 
   /// Converts any caught error into a typed [AppException].
   /// Call this in catch blocks in services and repositories.
@@ -81,6 +115,37 @@ class _LogInterceptor extends Interceptor {
         'msg: ${err.message}');
     handler.next(err);
   }
+}
+
+/// Turns ordinary request traffic into a reachability signal, so the app learns
+/// it is offline from work it was doing anyway rather than from polling.
+class _ConnectivityInterceptor extends Interceptor {
+  final StreamController<bool> _sink;
+
+  _ConnectivityInterceptor(this._sink);
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    _sink.add(true);
+    handler.next(response);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    // A 4xx/5xx means the server answered — that's proof of reachability, and
+    // must not be mistaken for being offline.
+    _sink.add(!_isTransportFailure(err));
+    handler.next(err);
+  }
+
+  bool _isTransportFailure(DioException err) => switch (err.type) {
+        DioExceptionType.connectionTimeout ||
+        DioExceptionType.sendTimeout ||
+        DioExceptionType.receiveTimeout ||
+        DioExceptionType.connectionError =>
+          true,
+        _ => false,
+      };
 }
 
 class _AuthInterceptor extends Interceptor {

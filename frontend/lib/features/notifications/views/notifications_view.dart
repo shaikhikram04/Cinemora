@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_router.dart';
@@ -161,8 +162,7 @@ class _NotificationsContent extends StatelessWidget {
                         EdgeInsets.symmetric(horizontal: 7.w, vertical: 2.h),
                     decoration: BoxDecoration(
                       color: context.colors.primary,
-                      borderRadius:
-                          BorderRadius.circular(WSizes.radiusFull.r),
+                      borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
                     ),
                     child: Text(
                       '${state.unreadCount}',
@@ -473,52 +473,11 @@ class _NotificationsContent extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorState(
-      BuildContext context, NotificationsState state, NotificationsCubit cubit) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(WSizes.xl.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.cloud_off_rounded,
-              color: context.colors.mutedSecondary,
-              size: 40.sp,
-            ),
-            SizedBox(height: 16.h),
-            Text(
-              state.errorMessage ?? "Couldn't load notifications",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: context.colors.mutedForeground,
-                fontSize: 13.sp,
-                height: 1.5,
-              ),
-            ),
-            SizedBox(height: 16.h),
-            GestureDetector(
-              onTap: cubit.load,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 9.h),
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
-                  border: Border.all(color: context.colors.borderStrong),
-                ),
-                child: Text(
-                  'Try again',
-                  style: TextStyle(
-                    color: context.colors.foreground,
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+  Widget _buildErrorState(BuildContext context, NotificationsState state,
+      NotificationsCubit cubit) {
+    return WErrorState.fullScreen(
+      message: state.errorMessage ?? "Couldn't load notifications",
+      onRetry: cubit.load,
     );
   }
 }
