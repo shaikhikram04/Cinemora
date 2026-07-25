@@ -9,6 +9,12 @@ class AppAuthCubit extends Cubit<AppAuthState> {
 
   bool hasSeenWelcome = false;
 
+  /// Runs at the start of [signOut], while the session is still valid, for
+  /// teardown that needs an authenticated call. Set by the app shell rather
+  /// than injected, because the services that use it outlive this cubit's
+  /// construction. Failures here never block sign-out.
+  Future<void> Function()? onBeforeSignOut;
+
   AppAuthCubit(this._authService) : super(const AppAuthInitial());
 
   /// True when the current user was restored from the offline cache and still
@@ -112,6 +118,14 @@ class AppAuthCubit extends Cubit<AppAuthState> {
   }
 
   Future<void> signOut() async {
+    // Before the session goes: anything that needs an authenticated request to
+    // detach this device from the account (currently the push token).
+    try {
+      await onBeforeSignOut?.call();
+    } catch (_) {
+      // Signing out must always succeed, even if the cleanup call doesn't.
+    }
+
     await _authService.signOut();
     hasSeenWelcome = true;
     await _authService.setHasSeenWelcome();

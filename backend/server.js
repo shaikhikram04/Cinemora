@@ -62,11 +62,23 @@ connectDB().then(() => {
   // Daily push sweep. The inbox is compute-on-read and needs no schedule; this
   // exists only so push notifications reach phones that haven't opened the
   // app. Default 13:30 UTC = 7pm IST — an evening push, never a 3am one.
-  const cron = require("node-cron");
-  const { sweepAllUsers } = require("./services/releaseNotifications");
-  cron.schedule(process.env.PUSH_SWEEP_CRON || "30 13 * * *", () =>
-    sweepAllUsers().catch((err) =>
-      console.error(`[sweep] failed: ${err.message}`),
-    ),
-  );
+  //
+  // The schedule is in-process, so every instance that runs it repeats the
+  // whole pass. The atomic claim in sealRelease stops that from double-sending,
+  // but it is still duplicated work against Mongo and the release APIs — so
+  // when running more than one instance, set PUSH_SWEEP_ENABLED=false on all
+  // but one.
+  if (process.env.PUSH_SWEEP_ENABLED === "false") {
+    console.log("[sweep] not scheduled on this instance");
+  } else {
+    const cron = require("node-cron");
+    const { sweepAllUsers } = require("./services/releaseNotifications");
+    const schedule = process.env.PUSH_SWEEP_CRON || "30 13 * * *";
+    cron.schedule(schedule, () =>
+      sweepAllUsers().catch((err) =>
+        console.error(`[sweep] failed: ${err.message}`),
+      ),
+    );
+    console.log(`[sweep] scheduled (${schedule})`);
+  }
 });

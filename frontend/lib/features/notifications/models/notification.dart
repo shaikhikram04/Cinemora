@@ -46,6 +46,43 @@ class AppNotification {
     );
   }
 
+  /// Rebuilds a notification from an FCM data payload so a tapped push routes
+  /// through exactly the same code as a tapped inbox row.
+  ///
+  /// Every value arrives as a string — FCM data carries nothing else — and any
+  /// of them can be missing if the push predates a payload change, so this
+  /// returns null rather than half a notification.
+  static AppNotification? fromPushData(Map<String, dynamic> data) {
+    final type = switch (data['type'] as String?) {
+      'new_release' => NotificationType.newRelease,
+      'new_season' => NotificationType.newSeason,
+      'system' => NotificationType.system,
+      _ => null,
+    };
+    if (type == null) return null;
+
+    return AppNotification(
+      id: data['notifId'] as String? ?? '',
+      type: type,
+      title: data['title'] as String? ?? '',
+      body: '',
+      tmdbId: int.tryParse(data['tmdbId'] as String? ?? ''),
+      // The payload uses '' for absent values, since FCM data can't carry null.
+      cinemaType: _emptyToNull(data['cinemaType']),
+      posterPath: _emptyToNull(data['posterPath']),
+      season: int.tryParse(data['season'] as String? ?? ''),
+      createdAt: DateTime.now(),
+    );
+  }
+
+  static String? _emptyToNull(Object? value) {
+    final text = value as String?;
+    return (text == null || text.isEmpty) ? null : text;
+  }
+
+  /// Whether this notification points at a title that can be opened.
+  bool get canOpen => tmdbId != null && type != NotificationType.system;
+
   /// Anime entries carry a full image URL; TMDB entries a relative path.
   /// w185 is plenty for the 48px inbox thumbnail.
   String? get posterUrl => _posterUrl('w185');

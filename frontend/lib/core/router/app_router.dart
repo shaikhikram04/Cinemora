@@ -21,13 +21,10 @@ import 'package:cinemora/features/onboarding/views/onboarding_success_view.dart'
 import 'package:cinemora/features/onboarding/views/taste_setup_view.dart';
 import 'package:cinemora/features/profile/views/profile_view.dart';
 import 'package:cinemora/features/rankings/views/rankings_view.dart';
-import 'package:cinemora/features/settings/views/about_view.dart';
 import 'package:cinemora/features/settings/views/appearance_view.dart';
-import 'package:cinemora/features/settings/views/data_library_view.dart';
 import 'package:cinemora/features/settings/views/edit_profile_view.dart';
 import 'package:cinemora/features/settings/views/help_support_view.dart';
 import 'package:cinemora/features/settings/views/notification_settings_view.dart';
-import 'package:cinemora/features/settings/views/privacy_security_view.dart';
 import 'package:cinemora/features/settings/views/settings_view.dart';
 
 class MovieRouteArgs {
@@ -275,17 +272,8 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
           path: AppRoutes.notificationSettings,
           builder: (context, state) => const NotificationSettingsView()),
       GoRoute(
-          path: AppRoutes.privacySecurity,
-          builder: (context, state) => const PrivacySecurityView()),
-      GoRoute(
           path: AppRoutes.helpSupport,
           builder: (context, state) => const HelpSupportView()),
-      GoRoute(
-          path: AppRoutes.about,
-          builder: (context, state) => const AboutView()),
-      GoRoute(
-          path: AppRoutes.dataLibrary,
-          builder: (context, state) => const DataLibraryView()),
     ],
   );
 }

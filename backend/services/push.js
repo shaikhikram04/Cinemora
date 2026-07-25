@@ -43,11 +43,17 @@ const sendPushForNotification = async (notif) => {
     await admin.messaging().send({
       token: user.fcmToken,
       notification: { title: notif.title, body: notif.body },
-      // Data values must be strings; the app uses these to route the tap.
+      // Data values must be strings; the app uses these to route the tap
+      // straight to the title. It carries the same material the inbox row has
+      // — id to mark read, title and poster for the detail screen's hero — so
+      // a tap from a push and a tap from the inbox land identically.
       data: {
+        notifId: String(notif._id),
         type: notif.type,
+        title: notif.title ?? "",
         tmdbId: String(notif.data?.tmdbId ?? ""),
         cinemaType: notif.data?.cinemaType ?? "",
+        posterPath: notif.data?.posterPath ?? "",
         season: notif.data?.season != null ? String(notif.data.season) : "",
       },
       android: {

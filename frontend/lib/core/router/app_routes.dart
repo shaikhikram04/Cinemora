@@ -39,8 +39,5 @@ abstract class AppRoutes {
   static const editProfile = '/settings/edit-profile';
   static const appearance = '/settings/appearance';
   static const notificationSettings = '/settings/notification-settings';
-  static const privacySecurity = '/settings/privacy-security';
   static const helpSupport = '/settings/help-support';
-  static const about = '/settings/about';
-  static const dataLibrary = '/settings/data-library';
 }

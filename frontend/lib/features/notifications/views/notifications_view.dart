@@ -6,9 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
-import 'package:cinemora/core/router/app_router.dart';
-import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/notifications/models/notification.dart';
+import 'package:cinemora/features/notifications/notification_navigation.dart';
 import 'package:cinemora/features/notifications/viewmodels/notifications_cubit.dart';
 import 'package:cinemora/features/notifications/viewmodels/notifications_state.dart';
 import 'package:cinemora/common/widgets/icons/app_icon.dart';
@@ -230,41 +229,6 @@ class _NotificationsContent extends StatelessWidget {
         NotificationType.system => null,
       };
 
-  static bool _canOpen(AppNotification notif) =>
-      notif.tmdbId != null && notif.type != NotificationType.system;
-
-  /// Same route args the library rows use; the detail screen fetches the real
-  /// data by id — for anime sequels that id is the *new* season's MAL id.
-  void _openTarget(BuildContext context, AppNotification notif) {
-    final id = notif.tmdbId;
-    if (id == null) return;
-    final image = notif.posterUrlLarge ?? '';
-
-    if (notif.cinemaType == 'movie') {
-      context.push(
-        AppRoutes.movieDetails,
-        extra: MovieRouteArgs(
-          title: notif.title,
-          image: image,
-          rating: '—',
-          id: id,
-        ),
-      );
-    } else {
-      context.push(
-        AppRoutes.seriesDetails,
-        extra: SeriesRouteArgs(
-          title: notif.title,
-          image: image,
-          rating: '—',
-          id: id,
-          source: notif.cinemaType == 'anime' ? 'jikan' : 'tmdb',
-          focusSeason: notif.season,
-        ),
-      );
-    }
-  }
-
   Widget _buildNotifCard(
       BuildContext context, AppNotification notif, NotificationsCubit cubit) {
     final isUnread = !notif.isRead;
@@ -273,7 +237,7 @@ class _NotificationsContent extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         cubit.markRead(notif.id);
-        if (_canOpen(notif)) _openTarget(context, notif);
+        openNotificationTarget(GoRouter.of(context), notif);
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
@@ -332,7 +296,7 @@ class _NotificationsContent extends StatelessWidget {
                       height: 1.4,
                     ),
                   ),
-                  if (_canOpen(notif)) ...[
+                  if (notif.canOpen) ...[
                     SizedBox(height: 6.h),
                     Row(
                       mainAxisSize: MainAxisSize.min,

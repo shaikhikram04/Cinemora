@@ -50,6 +50,22 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     _repo.markRead(id).catchError((_) {});
   }
 
+  /// Marks a notification read when the inbox may not be loaded — a push tapped
+  /// from a cold start has no local row to flip, so [markRead] would no-op.
+  /// The badge is re-read from the server rather than guessed at.
+  Future<void> markReadFromPush(String id) async {
+    if (state.notifications.any((n) => n.id == id)) {
+      markRead(id);
+      return;
+    }
+    try {
+      await _repo.markRead(id);
+    } catch (_) {
+      // The row still shows unread on the next load; not worth surfacing.
+    }
+    await refreshUnreadCount();
+  }
+
   void markAllRead() {
     if (state.unreadCount == 0 && state.notifications.every((n) => n.isRead)) {
       return;

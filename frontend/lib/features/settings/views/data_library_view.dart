@@ -28,101 +28,94 @@ class _DataLibraryContent extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<DataLibraryCubit>();
         return Scaffold(
-      backgroundColor: context.colors.background,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SettingsTopBar(title: 'Data & Library'),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                  WSizes.screenPadding.w,
-                  16.h,
-                  WSizes.screenPadding.w,
-                  100.h,
-                ),
-                physics: const BouncingScrollPhysics(),
-                children: [
-                  // Collection Stats
-                  _CollectionStatsCard(),
-                  SizedBox(height: 24.h),
-
-                  // Export
-                  _SectionLabel(label: 'EXPORT DATA'),
-                  SizedBox(height: 10.h),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: context.colors.surfaceRaised.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: context.colors.borderStrong),
+          backgroundColor: context.colors.background,
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SettingsTopBar(title: 'Data & Library'),
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      WSizes.screenPadding.w,
+                      16.h,
+                      WSizes.screenPadding.w,
+                      100.h,
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20.r),
-                      child: Column(
-                        children: [
-                          _ExportRow(
-                            icon: Icons.movie_filter_rounded,
-                            iconColor: context.colors.accentRed,
-                            title: 'Export Collection',
-                            subtitle: '523 titles • CSV or JSON',
-                            onTap: () =>
-                                _showExportDialog(context, 'Collection'),
-                          ),
-                          _Divider(),
-                          _ExportRow(
-                            icon: Icons.format_list_numbered_rounded,
-                            iconColor: context.colors.chartBlue,
-                            title: 'Export Rankings',
-                            subtitle: '4 lists • 55 total titles',
-                            onTap: () => _showExportDialog(context, 'Rankings'),
-                          ),
-                          _Divider(),
-                          _ExportRow(
-                            icon: Icons.history_rounded,
-                            iconColor: context.colors.chartGreen,
-                            title: 'Export Watch History',
-                            subtitle: 'Activity log • CSV format',
-                            isLast: true,
-                            onTap: () =>
-                                _showExportDialog(context, 'Watch History'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      // Collection Stats
+                      _CollectionStatsCard(),
+                      SizedBox(height: 24.h),
 
-                  // Storage
-                  _SectionLabel(label: 'STORAGE'),
-                  SizedBox(height: 10.h),
-                  _StorageCard(
-                    cacheCleared: state.cacheCleared,
-                    onClearCache: () {
-                      cubit.clearCache();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Cache cleared',
-                              style: TextStyle(fontSize: 14.sp)),
-                          backgroundColor: context.colors.chartGreen,
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r)),
-                          margin: EdgeInsets.symmetric(
-                              horizontal: 16.w, vertical: 16.h),
+                      // Export
+                      _SectionLabel(label: 'EXPORT DATA'),
+                      SizedBox(height: 10.h),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: context.colors.surfaceRaised
+                              .withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(20.r),
+                          border:
+                              Border.all(color: context.colors.borderStrong),
                         ),
-                      );
-                    },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20.r),
+                          child: Column(
+                            children: [
+                              _ExportRow(
+                                icon: Icons.movie_filter_rounded,
+                                iconColor: context.colors.accentRed,
+                                title: 'Export Collection',
+                                subtitle: '523 titles • CSV or JSON',
+                                onTap: () =>
+                                    _showExportDialog(context, 'Collection'),
+                              ),
+                              _Divider(),
+                              _ExportRow(
+                                icon: Icons.format_list_numbered_rounded,
+                                iconColor: context.colors.chartBlue,
+                                title: 'Export Rankings',
+                                subtitle: '4 lists • 55 total titles',
+                                onTap: () =>
+                                    _showExportDialog(context, 'Rankings'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 24.h),
+
+                      // Storage
+                      _SectionLabel(label: 'STORAGE'),
+                      SizedBox(height: 10.h),
+                      _StorageCard(
+                        cacheCleared: state.cacheCleared,
+                        onClearCache: () {
+                          cubit.clearCache();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Cache cleared',
+                                  style: TextStyle(fontSize: 14.sp)),
+                              backgroundColor: context.colors.chartGreen,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.r)),
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 16.w, vertical: 16.h),
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 24.h),
+                    ],
                   ),
-                  SizedBox(height: 24.h),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
       },
     );
   }
@@ -190,7 +183,8 @@ class _FormatButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: context.colors.chartGreen.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: context.colors.chartGreen.withValues(alpha: 0.3)),
+          border: Border.all(
+              color: context.colors.chartGreen.withValues(alpha: 0.3)),
         ),
         child: Text(
           label,
@@ -204,7 +198,6 @@ class _FormatButton extends StatelessWidget {
     );
   }
 }
-
 
 class _SectionLabel extends StatelessWidget {
   final String label;
@@ -297,16 +290,24 @@ class _CollectionStatsCard extends StatelessWidget {
           Row(
             children: [
               _StatPill(
-                  value: '523', label: 'Total', color: context.colors.foreground),
+                  value: '523',
+                  label: 'Total',
+                  color: context.colors.foreground),
               SizedBox(width: 10.w),
               _StatPill(
-                  value: '325', label: 'Movies', color: context.colors.accentRed),
+                  value: '325',
+                  label: 'Movies',
+                  color: context.colors.accentRed),
               SizedBox(width: 10.w),
               _StatPill(
-                  value: '132', label: 'Series', color: context.colors.chartPurple),
+                  value: '132',
+                  label: 'Series',
+                  color: context.colors.chartPurple),
               SizedBox(width: 10.w),
               _StatPill(
-                  value: '66', label: 'Anime', color: context.colors.chartYellow),
+                  value: '66',
+                  label: 'Anime',
+                  color: context.colors.chartYellow),
             ],
           ),
           SizedBox(height: 14.h),
@@ -315,9 +316,9 @@ class _CollectionStatsCard extends StatelessWidget {
           Row(
             children: [
               _StatPill(
-                  value: '4', label: 'Rankings', color: context.colors.chartBlue),
-              SizedBox(width: 10.w),
-              _StatPill(value: '6', label: 'Badges', color: context.colors.warning),
+                  value: '4',
+                  label: 'Rankings',
+                  color: context.colors.chartBlue),
               SizedBox(width: 10.w),
               _StatPill(
                   value: '4.3★',
@@ -387,7 +388,6 @@ class _ExportRow extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
-  final bool isLast;
 
   const _ExportRow({
     required this.icon,
@@ -395,7 +395,6 @@ class _ExportRow extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.onTap,
-    this.isLast = false,
   });
 
   @override
@@ -511,9 +510,12 @@ class _StorageCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: fraction,
               minHeight: 6.h,
-              backgroundColor: context.colors.surfaceTint.withValues(alpha: 0.5),
+              backgroundColor:
+                  context.colors.surfaceTint.withValues(alpha: 0.5),
               valueColor: AlwaysStoppedAnimation(
-                cacheCleared ? context.colors.chartGreen : context.colors.warning,
+                cacheCleared
+                    ? context.colors.chartGreen
+                    : context.colors.warning,
               ),
             ),
           ),

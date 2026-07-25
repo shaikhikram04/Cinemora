@@ -118,6 +118,12 @@ class UserRepository {
     await _apiClient.dio.put('/users/fcm-token', data: {'fcmToken': token});
   }
 
+  /// Detaches this device from the account. Must run while the session is still
+  /// valid — after sign-out there's no token to authenticate the call with.
+  Future<void> clearFcmToken() async {
+    await _apiClient.dio.delete('/users/fcm-token');
+  }
+
   /// Reads the push opt-outs off the full profile — prefs live on the user
   /// document, and /auth/me is the only place the backend serves them.
   Future<NotificationPrefs> getNotificationPrefs() async {

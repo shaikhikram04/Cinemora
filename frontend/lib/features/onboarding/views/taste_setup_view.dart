@@ -7,6 +7,7 @@ import 'package:cinemora/common/widgets/progress_bars/page_view_progress_bar.dar
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/network_images_path.dart';
 import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/constants/taste_options.dart';
 import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
@@ -39,20 +40,9 @@ const _kContentTypes = [
   },
 ];
 
-const _kGenres = [
-  {'key': 'Action', 'emoji': '💥'},
-  {'key': 'Thriller', 'emoji': '🔪'},
-  {'key': 'Sci-Fi', 'emoji': '🚀'},
-  {'key': 'Comedy', 'emoji': '😂'},
-  {'key': 'Romance', 'emoji': '❤️'},
-  {'key': 'Horror', 'emoji': '👻'},
-  {'key': 'Drama', 'emoji': '🎭'},
-  {'key': 'Mystery', 'emoji': '🔍'},
-  {'key': 'Fantasy', 'emoji': '🧙'},
-  {'key': 'Crime', 'emoji': '🦹'},
-  {'key': 'Adventure', 'emoji': '🌍'},
-  {'key': 'Animation', 'emoji': '✨'},
-];
+// Genres come from TasteOptions so this screen and Edit Profile can never
+// offer different sets — see the note in taste_options.dart.
+const _kGenres = TasteOptions.genres;
 
 const _kLanguages = [
   {
@@ -393,8 +383,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
             child: Wrap(
               spacing: WSizes.sm.w,
               runSpacing: WSizes.sm.h,
-              children: _kGenres.map((g) {
-                final key = g['key'] as String;
+              children: _kGenres.map((key) {
                 final isSelected = state.isGenreSelected(key);
                 return GestureDetector(
                   onTap: () => cubit.toggleGenre(key),
@@ -420,7 +409,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          g['emoji'] as String,
+                          TasteOptions.genreEmoji[key] ?? '',
                           style: TextStyle(fontSize: 14.sp),
                         ),
                         SizedBox(width: 6.w),

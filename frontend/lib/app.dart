@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,6 +21,8 @@ import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/library/viewmodels/library_state.dart';
+import 'package:cinemora/features/notifications/models/notification.dart';
+import 'package:cinemora/features/notifications/notification_navigation.dart';
 import 'package:cinemora/features/notifications/repositories/notifications_repository.dart';
 import 'package:cinemora/features/notifications/viewmodels/notifications_cubit.dart';
 import 'package:cinemora/features/rankings/repositories/rankings_repository.dart';
@@ -81,6 +84,9 @@ class _CinemoraAppState extends State<CinemoraApp> {
     _rankingsCubit = RankingsCubit(widget.rankingsRepository);
     _notificationsCubit = NotificationsCubit(widget.notificationsRepository);
     _pushService = PushNotificationsService(widget.userRepository);
+    // Detaches this device from the account while the session can still
+    // authenticate the call — see AppAuthCubit.onBeforeSignOut.
+    widget.authCubit.onBeforeSignOut = _pushService.stop;
     _notifier = _RouterNotifier(widget.authCubit);
     _router = buildAppRouter(widget.authCubit, _notifier);
 
@@ -93,10 +99,10 @@ class _CinemoraAppState extends State<CinemoraApp> {
         // inbox is opened.
         _notificationsCubit.refreshUnreadCount();
         // Permission prompt + token sync; a push arriving in the foreground
-        // just refreshes the badge, and tapping one opens the inbox.
+        // just refreshes the badge, and tapping one opens the title it's about.
         _pushService.start(
           onForegroundMessage: _notificationsCubit.refreshUnreadCount,
-          onNotificationTap: () => _router.push(AppRoutes.notifications),
+          onNotificationTap: _openPushTarget,
         );
       } else if (state is AppAuthUnauthenticated) {
         _rankingsCubit.clear();
@@ -131,6 +137,26 @@ class _CinemoraAppState extends State<CinemoraApp> {
     widget.authCubit.checkAuthStatus();
   }
 
+  /// Routes a tapped push. The payload carries everything the inbox row would
+  /// have, so the tap lands on the title itself; the inbox is the fallback for
+  /// a notification that points at nothing openable (or a payload shape this
+  /// build predates).
+  void _openPushTarget(RemoteMessage message) {
+    final notif = AppNotification.fromPushData(message.data);
+    if (notif == null) {
+      _router.push(AppRoutes.notifications);
+      return;
+    }
+
+    // A tapped push is a read notification — otherwise the badge keeps
+    // counting something the user has already acted on.
+    if (notif.id.isNotEmpty) _notificationsCubit.markReadFromPush(notif.id);
+
+    if (!openNotificationTarget(_router, notif)) {
+      _router.push(AppRoutes.notifications);
+    }
+  }
+
   @override
   void dispose() {
     _authSub.cancel();
@@ -155,6 +181,9 @@ class _CinemoraAppState extends State<CinemoraApp> {
         BlocProvider.value(value: _rankingsCubit),
         BlocProvider.value(value: _notificationsCubit),
         RepositoryProvider.value(value: widget.userRepository),
+        // Notification settings reads OS permission through this, so it can
+        // stop presenting toggles as live when the OS is dropping everything.
+        RepositoryProvider.value(value: _pushService),
         RepositoryProvider.value(value: widget.homeRepository),
         RepositoryProvider.value(value: widget.libraryRepository),
         RepositoryProvider.value(value: widget.discoverRepository),

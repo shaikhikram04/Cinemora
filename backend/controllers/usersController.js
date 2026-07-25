@@ -48,6 +48,15 @@ const updateFcmToken = async (req, res, next) => {
   res.json({ message: "FCM token updated" });
 };
 
+// DELETE /api/users/fcm-token
+// Called on sign-out. Without it the token stays on the document and the daily
+// sweep keeps pushing this user's releases to a phone they've signed out of —
+// and if someone else signs in on that device, both users hold the same token.
+const clearFcmToken = async (req, res) => {
+  await User.updateOne({ _id: req.user.userId }, { $unset: { fcmToken: 1 } });
+  res.json({ message: "FCM token cleared" });
+};
+
 // PUT /api/users/notification-prefs
 const updateNotificationPrefs = async (req, res, next) => {
   const { pushNewRelease, pushNewSeason } = req.body;
@@ -133,6 +142,7 @@ module.exports = {
   updateProfile,
   updatePreferences,
   updateFcmToken,
+  clearFcmToken,
   updateNotificationPrefs,
   uploadAvatar,
   uploadCover,
