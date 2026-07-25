@@ -12,6 +12,7 @@ import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/common/widgets/buttons/action_button.dart';
 import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
 import 'package:cinemora/common/widgets/headers/section_header.dart';
+import 'package:cinemora/common/widgets/icons/app_icon.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_router.dart';
@@ -27,7 +28,10 @@ import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/notifications/viewmodels/notifications_cubit.dart';
 import 'package:cinemora/features/notifications/viewmodels/notifications_state.dart';
 
-final _kTabs = homeTabs.map((t) => t.label).toList();
+// Generative glyph for the "For You" tab — picked once per session so it
+// varies across launches (feels personalised/AI-generated) without flickering
+// on every rebuild.
+final _forYouEmoji = '✨';
 
 const _kMoods = [
   (label: 'Emotional', emoji: '🥲'),
@@ -485,11 +489,13 @@ class _CategoryTabs extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        itemCount: _kTabs.length,
+        itemCount: homeTabs.length,
         separatorBuilder: (_, __) => SizedBox(width: 8.w),
         itemBuilder: (_, index) {
-          final tab = _kTabs[index];
-          final selected = tab == selectedTab;
+          final tab = homeTabs[index];
+          final selected = tab.label == selectedTab;
+          final foreground =
+              selected ? Colors.white : context.colors.mutedForeground;
           return Material(
             color: selected
                 ? context.colors.accentRed
@@ -497,7 +503,7 @@ class _CategoryTabs extends StatelessWidget {
             borderRadius: BorderRadius.circular(999.r),
             child: InkWell(
               borderRadius: BorderRadius.circular(999.r),
-              onTap: () => onSelected(tab),
+              onTap: () => onSelected(tab.label),
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                 decoration: BoxDecoration(
@@ -518,15 +524,26 @@ class _CategoryTabs extends StatelessWidget {
                         ]
                       : const [],
                 ),
-                child: Text(
-                  tab,
-                  style: TextStyle(
-                    color: selected
-                        ? Colors.white
-                        : context.colors.mutedForeground,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w700,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (tab.icon != null)
+                      AppIcon(tab.icon!, size: 20.w, color: foreground)
+                    else
+                      Text(
+                        '$_forYouEmoji ',
+                        style: TextStyle(fontSize: 13.sp),
+                      ),
+                    SizedBox(width: 2.w),
+                    Text(
+                      tab.label,
+                      style: TextStyle(
+                        color: foreground,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

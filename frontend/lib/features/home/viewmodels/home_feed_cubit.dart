@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cinemora/core/constants/assets_path.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/core/network/api_client.dart';
@@ -14,11 +15,13 @@ import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 
 // Home tabs. `type` null = "For You" (mixed / all types).
-const homeTabs = <({String label, CinemaType? type})>[
-  (label: '✨   For You', type: null),
-  (label: '🎬   Movies', type: CinemaType.movie),
-  (label: '⛩️   Anime', type: CinemaType.anime),
-  (label: '📺   Series', type: CinemaType.tv),
+// A null `icon` means the tab has no custom glyph and falls back to a
+// generative emoji (see `_forYouEmoji` in the view).
+const homeTabs = <({String label, String? icon, CinemaType? type})>[
+  (label: 'For You', icon: null, type: null),
+  (label: 'Movies', icon: AppIcons.movie, type: CinemaType.movie),
+  (label: 'Anime', icon: AppIcons.anime, type: CinemaType.anime),
+  (label: 'Series', icon: AppIcons.tvShow, type: CinemaType.tv),
 ];
 
 class HomeFeedCubit extends Cubit<HomeFeedState> {

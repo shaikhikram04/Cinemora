@@ -1,4 +1,8 @@
+import hashlib
+import math
+import random
 from collections import defaultdict
+from datetime import datetime, timezone
 
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -222,19 +226,62 @@ def _matches_type(entry: dict, cinema_type: str | None) -> bool:
     return cinema_type is None or entry.get("cinemaType") == cinema_type
 
 
+def _anchor_pool_size(list_len: int) -> int:
+    """How deep into a ranking list the daily anchor pick may reach — a longer,
+    more deliberate list earns a wider pool so the row rotates instead of being
+    pinned to a stale #1. Grows ~logarithmically with length (roughly +1 slot
+    per 2.5x growth): ~10 items opens the top 2, ~100 the top 5, capped at 5."""
+    if list_len < 1:
+        return 1
+    return max(1, min(5, int(math.log10(list_len) * 2.5)))
+
+
+def _daily_seed(*parts: str | None) -> int:
+    """A seed stable within a UTC day and fresh across days. Uses hashlib rather
+    than the builtin hash() — hash() is PYTHONHASHSEED-salted per process, so
+    separate workers would otherwise disagree on the day's pick."""
+    today = datetime.now(timezone.utc).date().isoformat()
+    raw = ":".join([today, *(p or "" for p in parts)])
+    return int.from_bytes(hashlib.sha256(raw.encode()).digest()[:8], "big")
+
+
 async def _top_ranking_anchor(user_id: str, cinema_type: str | None) -> dict | None:
-    """Rank #1 (or the highest-ranked matching-type entry) from the user's
-    largest ranking list — a bigger list is a stronger signal that it's a
-    real curated list rather than a one-off."""
+    """Pick a concrete anchor from the user's ranking lists, rotated daily so the
+    row doesn't stay pinned to a #1 the user set months ago. Every matching list
+    contributes its top entries — pool depth scaled by list length via
+    _anchor_pool_size — and each candidate is weighted by its list's length, so
+    bigger, more deliberately curated lists dominate while smaller ones still
+    surface now and then. The final pick is deterministic per user/day/type:
+    stable within a day, fresh across days."""
     lists = await _ranking_lists(user_id)
     if not lists:
         return None
-    lists.sort(key=lambda rl: len(rl.get("entries", [])), reverse=True)
+
+    candidates: list[dict] = []
+    weights: list[float] = []
+    seen: dict[tuple, int] = {}  # (cinemaType, tmdbId) -> index in `candidates`
     for rl in lists:
-        matching = [e for e in rl.get("entries", []) if _matches_type(e, cinema_type)]
-        if matching:
-            return min(matching, key=lambda e: e.get("rank", 999))
-    return None
+        entries = rl.get("entries", [])
+        matching = [e for e in entries if _matches_type(e, cinema_type)]
+        if not matching:
+            continue
+        matching.sort(key=lambda e: e.get("rank", 999))
+        pool_size = min(_anchor_pool_size(len(entries)), len(matching))
+        list_weight = float(len(entries))
+        for entry in matching[:pool_size]:
+            key = (entry.get("cinemaType"), entry.get("tmdbId"))
+            if key in seen:
+                weights[seen[key]] += list_weight  # on multiple lists → stronger
+                continue
+            seen[key] = len(candidates)
+            candidates.append(entry)
+            weights.append(list_weight)
+
+    if not candidates:
+        return None
+
+    rng = random.Random(_daily_seed(user_id, cinema_type))
+    return rng.choices(candidates, weights=weights, k=1)[0]
 
 
 async def _top_watched_anchor(user_id: str, cinema_type: str | None) -> dict | None:

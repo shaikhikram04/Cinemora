@@ -127,6 +127,7 @@ class DiscoverResultCard extends StatelessWidget {
           rating: rating,
           id: item.id,
           source: item.source,
+          isAnime: item.mediaType == 'anime',
         ),
       );
     }

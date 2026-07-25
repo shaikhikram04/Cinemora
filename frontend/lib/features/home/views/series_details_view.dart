@@ -19,6 +19,7 @@ class SeriesDetailsView extends StatelessWidget {
   final int? id;
   final String source;
   final int? focusSeason;
+  final bool isAnime;
 
   const SeriesDetailsView({
     super.key,
@@ -29,6 +30,7 @@ class SeriesDetailsView extends StatelessWidget {
     this.id,
     this.source = 'tmdb',
     this.focusSeason,
+    this.isAnime = false,
   });
 
   @override
@@ -52,6 +54,7 @@ class SeriesDetailsView extends StatelessWidget {
         rating: rating,
         source: source,
         tmdbId: id,
+        isAnime: isAnime,
       ),
     );
   }
@@ -64,6 +67,7 @@ class _SeriesDetailsContent extends StatelessWidget {
   final String rating;
   final String source;
   final int? tmdbId;
+  final bool isAnime;
 
   const _SeriesDetailsContent({
     required this.seriesTitle,
@@ -72,6 +76,7 @@ class _SeriesDetailsContent extends StatelessWidget {
     required this.rating,
     required this.source,
     this.tmdbId,
+    this.isAnime = false,
   });
 
   void _showSeasonRatingSheet(
@@ -142,6 +147,7 @@ class _SeriesDetailsContent extends StatelessWidget {
               backdropImage: backdropImage,
               rating: rating,
               source: source,
+              isAnime: isAnime,
               seriesId: tmdbId,
               detail: state.detail,
               isDetailLoading: state.isDetailLoading,

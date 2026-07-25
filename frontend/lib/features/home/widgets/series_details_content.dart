@@ -31,6 +31,9 @@ class SeriesDetailsContent extends StatelessWidget {
   final String? backdropImage;
   final String rating;
   final String source;
+  // UI-only: force the ANIME badge for TMDB-sourced Japanese animated series.
+  // Detail fetch and recommendations still key off [source].
+  final bool isAnime;
   final int? seriesId;
   final TmdbTvDetail? detail;
   final bool isDetailLoading;
@@ -66,6 +69,7 @@ class SeriesDetailsContent extends StatelessWidget {
     this.backdropImage,
     required this.rating,
     this.source = 'tmdb',
+    this.isAnime = false,
     this.seriesId,
     this.detail,
     this.isDetailLoading = false,
@@ -113,7 +117,7 @@ class SeriesDetailsContent extends StatelessWidget {
             bottomContent: _SeriesHeroMeta(
               seriesTitle: seriesTitle,
               rating: rating,
-              isAnime: source != 'tmdb',
+              isAnime: source != 'tmdb' || isAnime,
               seasonCount: seasons.length,
               yearRange: detail?.yearRange,
               creator: detail?.creator,

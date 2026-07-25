@@ -22,7 +22,7 @@ class HomeFeedState extends Equatable {
   final Map<int, WatchStatus> libraryStatus;
 
   const HomeFeedState({
-    this.selectedTab = '✨   For You',
+    this.selectedTab = 'For You',
     this.status = FeedStatus.initial,
     this.errorMessage,
     this.pickOfWeek = const [],

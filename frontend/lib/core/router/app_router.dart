@@ -53,6 +53,10 @@ class SeriesRouteArgs {
   final int? id;
   final String source; // "tmdb" | "jikan"
   final int? focusSeason; // auto-select this season tab on open
+  // UI-only: label the title as anime even when it comes from TMDB (a
+  // Japanese animated series). Fetch/recommendation logic still keys off
+  // [source], so this only affects the displayed badge.
+  final bool isAnime;
   const SeriesRouteArgs({
     required this.title,
     required this.image,
@@ -61,6 +65,7 @@ class SeriesRouteArgs {
     this.id,
     this.source = 'tmdb',
     this.focusSeason,
+    this.isAnime = false,
   });
 }
 
@@ -221,6 +226,7 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
             id: args.id,
             source: args.source,
             focusSeason: args.focusSeason,
+            isAnime: args.isAnime,
           );
         },
       ),

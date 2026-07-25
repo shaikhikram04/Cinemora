@@ -6,8 +6,8 @@ import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
 /// Shared backdrop shell for movie and series detail hero headers.
-/// Renders the full-bleed image, the gradient overlay, and the top nav row
-/// (back + share). Caller provides [bottomContent] for the title/meta area.
+/// Renders the full-bleed image, the gradient overlay, and the back button.
+/// Caller provides [bottomContent] for the title/meta area.
 class DetailHeroShell extends StatelessWidget {
   final String imageUrl;
   final Widget bottomContent;
@@ -68,22 +68,12 @@ class DetailHeroShell extends StatelessWidget {
                 vertical: 12.h,
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   WCircleIconButton(
                     icon: Icons.arrow_back,
                     onTap: () => Navigator.pop(context),
                     backgroundColor: Colors.black.withValues(alpha: 0.8),
                     iconColor: Colors.white,
-                  ),
-                  WCircleIconButton(
-                    icon: Icons.share_outlined,
-                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Shared!')),
-                    ),
-                    backgroundColor: Colors.black.withValues(alpha: 0.8),
-                    iconColor: Colors.white,
-                    iconSize: 18,
                   ),
                 ],
               ),
