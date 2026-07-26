@@ -6,6 +6,7 @@ import 'package:cinemora/core/repositories/user_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/profile/viewmodels/profile_cubit.dart';
+import 'package:cinemora/features/tour/tour_mode.dart';
 
 // Neither cubit touches its repository on the paths under test — the profile
 // mirrors the library in memory — so a noSuchMethod stub is enough.
@@ -18,6 +19,12 @@ class _FakeUserRepository implements UserRepository {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
+
+// An inactive TourMode is the production default, and none of the methods
+// exercised below consult it — these paths mutate cubit state in memory and
+// never reach the repository, which is the only thing the flag diverts.
+LibraryCubit _libraryCubit() =>
+    LibraryCubit(_FakeLibraryRepository(), TourMode());
 
 LibraryEntryModel _watched(int id, String language) {
   final now = DateTime(2026, 1, 1);
@@ -37,7 +44,7 @@ LibraryEntryModel _watched(int id, String language) {
 void main() {
   group('ProfileCubit mirrors the library', () {
     test('seeds its entries from the library it was handed', () {
-      final library = LibraryCubit(_FakeLibraryRepository());
+      final library = _libraryCubit();
       for (var i = 1; i <= 3; i++) {
         library.syncEntry(_watched(i, 'ja'));
       }
@@ -52,7 +59,7 @@ void main() {
       // The bug this replaces: the profile fetched its own snapshot once, so a
       // title added from a detail page never reached it. Seven watched titles
       // is one short of the bar both insights need.
-      final library = LibraryCubit(_FakeLibraryRepository());
+      final library = _libraryCubit();
       for (var i = 1; i <= 7; i++) {
         library.syncEntry(_watched(i, 'ja'));
       }
@@ -73,7 +80,7 @@ void main() {
     });
 
     test('a removed title flows through and can re-lock an insight', () async {
-      final library = LibraryCubit(_FakeLibraryRepository());
+      final library = _libraryCubit();
       for (var i = 1; i <= 8; i++) {
         library.syncEntry(_watched(i, 'ja'));
       }
@@ -90,7 +97,7 @@ void main() {
 
     test('filter and sort changes do not re-derive the insights', () async {
       // LibraryCubit emits on these too, but `entries` is untouched by identity.
-      final library = LibraryCubit(_FakeLibraryRepository());
+      final library = _libraryCubit();
       for (var i = 1; i <= 8; i++) {
         library.syncEntry(_watched(i, 'ja'));
       }
