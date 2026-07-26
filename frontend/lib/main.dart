@@ -12,6 +12,7 @@ import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/notifications/repositories/notifications_repository.dart';
 import 'package:cinemora/features/rankings/repositories/rankings_repository.dart';
+import 'package:cinemora/features/tour/tour_mode.dart';
 import 'package:cinemora/core/services/secure_storage_service.dart';
 import 'package:cinemora/core/viewmodels/network_status_cubit.dart';
 import 'package:cinemora/core/viewmodels/theme_mode_cubit.dart';
@@ -29,8 +30,11 @@ void main() async {
   final authCubit = AppAuthCubit(authService);
   final userRepository = UserRepository(apiClient);
   final homeRepository = HomeRepository(apiClient);
-  final libraryRepository = LibraryRepository(apiClient);
-  final rankingsRepository = RankingsRepository(apiClient);
+  // Shared by the two repositories the first-run tour writes through, so those
+  // writes stay in memory for its duration rather than landing on the account.
+  final tourMode = TourMode();
+  final libraryRepository = LibraryRepository(apiClient, tourMode);
+  final rankingsRepository = RankingsRepository(apiClient, tourMode);
   final discoverRepository = DiscoverRepository(apiClient);
   final franchiseRepository = FranchiseRepository(apiClient);
   final notificationsRepository = NotificationsRepository(apiClient);
@@ -51,5 +55,6 @@ void main() async {
     notificationsRepository: notificationsRepository,
     themeModeCubit: themeModeCubit,
     prefs: prefs,
+    tourMode: tourMode,
   ));
 }

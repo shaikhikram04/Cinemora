@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/common/widgets/icons/app_icon.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/features/tour/models/tour_step.dart';
+import 'package:cinemora/features/tour/widgets/tour_anchor.dart';
 
 class HomeBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -24,11 +26,14 @@ class HomeBottomNavBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _NavItem(
-            label: 'Home',
-            icon: Icons.home_rounded,
-            selected: currentIndex == 0,
-            onTap: () => onChanged(0),
+          TourAnchor(
+            step: TourStep.backHome,
+            child: _NavItem(
+              label: 'Home',
+              icon: Icons.home_rounded,
+              selected: currentIndex == 0,
+              onTap: () => onChanged(0),
+            ),
           ),
           _NavItem(
             label: 'Discover',
@@ -36,11 +41,14 @@ class HomeBottomNavBar extends StatelessWidget {
             selected: currentIndex == 1,
             onTap: () => onChanged(1),
           ),
-          _NavItem(
-            label: 'Library',
-            icon: Icons.bookmark_border_rounded,
-            selected: currentIndex == 2,
-            onTap: () => onChanged(2),
+          TourAnchor(
+            step: TourStep.openLibraryTab,
+            child: _NavItem(
+              label: 'Library',
+              icon: Icons.bookmark_border_rounded,
+              selected: currentIndex == 2,
+              onTap: () => onChanged(2),
+            ),
           ),
           _NavItem(
             label: 'Rankings',

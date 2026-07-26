@@ -9,6 +9,7 @@ import 'package:cinemora/core/constants/network_images_path.dart';
 import 'package:cinemora/core/constants/shadows.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/utils/device_utils.dart';
+import 'package:cinemora/core/utils/image_preloader.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_state.dart';
 import 'package:cinemora/features/authentication/viewmodels/welcome_cubit.dart';
@@ -18,12 +19,12 @@ import 'package:cinemora/common/widgets/progress_bars/page_view_progress_bar.dar
 
 // Poster images are static visual content — not business state.
 const _kPosterImages = [
-  NetworkImagesPath.dunePoster,
-  NetworkImagesPath.oppenheimerPoster,
-  NetworkImagesPath.spidermanAcrossTheSpiderVersePoster,
-  NetworkImagesPath.theGodFatherPoster,
+  NetworkImagesPath.harryPotterPoster,
   NetworkImagesPath.inceptionPoster,
-  NetworkImagesPath.everythingEverywhereAllATOncePoster,
+  NetworkImagesPath.bahubaliPoster,
+  NetworkImagesPath.theGodFatherPoster,
+  NetworkImagesPath.theFamiliManPoster,
+  NetworkImagesPath.myHeroAcedemiaPoster,
 ];
 
 /// Entry point — provides [WelcomeCubit] and delegates to [_WelcomeContent].
@@ -49,12 +50,50 @@ class _WelcomeContent extends StatefulWidget {
 
 class _WelcomeContentState extends State<_WelcomeContent> {
   late final PageController _pageController;
+  bool _hasPreloaded = false;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
     context.read<AppAuthCubit>().markWelcomeSeen();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_hasPreloaded) return;
+    _hasPreloaded = true;
+    _preloadLaterPages();
+  }
+
+  /// Warms the artwork on the pages the user hasn't swiped to yet, while they
+  /// read page 0. Without this each page's posters visibly fade in a beat
+  /// after the swipe lands — worst on the sign-in page, which shows all six at
+  /// once.
+  ///
+  /// Page 0's own posters are left out on purpose: they're already mounting as
+  /// this runs, so warming them would only duplicate a request in flight.
+  /// Sizes here mirror the render sites exactly — the cache is keyed on the
+  /// resized provider, so a mismatch would fetch twice rather than once.
+  void _preloadLaterPages() {
+    precacheImages(context, [
+      // Page 2 — the recommendation card.
+      PosterImage.providerFor(
+        context,
+        image: NetworkImagesPath.dunePoster,
+        width: 74.w,
+        height: 116.h,
+      ),
+      // Page 3 — the sign-in grid, every poster at one uniform size.
+      for (final image in _kPosterImages)
+        PosterImage.providerFor(
+          context,
+          image: image,
+          width: 90.w,
+          height: 158.h,
+        ),
+    ]);
   }
 
   @override
@@ -70,7 +109,8 @@ class _WelcomeContentState extends State<_WelcomeContent> {
         if (authState is AppAuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(authState.message, style: TextStyle(fontSize: 14.sp)),
+              content:
+                  Text(authState.message, style: TextStyle(fontSize: 14.sp)),
               backgroundColor: context.colors.accentRed,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -198,7 +238,8 @@ class _WelcomeContentState extends State<_WelcomeContent> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(99.r),
                 color: context.colors.chartGreen.withAlpha(40),
-                border: Border.all(color: context.colors.chartGreen.withAlpha(120)),
+                border:
+                    Border.all(color: context.colors.chartGreen.withAlpha(120)),
               ),
               child: const Text(
                 '✓ Added',
@@ -218,7 +259,8 @@ class _WelcomeContentState extends State<_WelcomeContent> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(99.r),
                 color: context.colors.chartYellow.withAlpha(40),
-                border: Border.all(color: context.colors.chartYellow.withAlpha(100)),
+                border: Border.all(
+                    color: context.colors.chartYellow.withAlpha(100)),
               ),
               child: Text(
                 '★ 9.0',
@@ -344,7 +386,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       PosterImage(
-                        image: _kPosterImages[2],
+                        image: NetworkImagesPath.dunePoster,
                         width: 74.w,
                         height: 116.h,
                         radius: 14.r,

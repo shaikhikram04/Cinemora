@@ -3,12 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/features/rankings/models/ranking_item.dart';
 import 'package:cinemora/features/rankings/repositories/rankings_repository.dart';
+import 'package:cinemora/features/tour/tour_mode.dart';
 import 'rankings_state.dart';
 
 class RankingsCubit extends Cubit<RankingsState> {
   final RankingsRepository _repo;
 
-  RankingsCubit(this._repo) : super(const RankingsState(lists: []));
+  /// In tour mode the repository answers entry writes locally and can't
+  /// rebuild a list's metadata from a bare id, so this cubit's optimistic copy
+  /// is the accurate one — the "confirmed" replacement is skipped.
+  final TourMode _tourMode;
+
+  RankingsCubit(this._repo, this._tourMode)
+      : super(const RankingsState(lists: []));
 
   static const _accentPalette = [
     Color(0xFFE84B57),
@@ -83,6 +90,7 @@ class RankingsCubit extends Cubit<RankingsState> {
     _replaceEntries(listId, entries);
     try {
       final updated = await _repo.reorderEntries(listId, entries);
+      if (_tourMode.isActive) return;
       _replaceListInState(updated);
     } catch (e) {
       _revert(previous, e);
@@ -99,10 +107,12 @@ class RankingsCubit extends Cubit<RankingsState> {
     final item = entries.removeAt(oldIndex);
     entries.insert(newIndex, item);
     _replaceEntries(listId, entries);
-    _repo
-        .reorderEntries(listId, entries)
-        .then(_replaceListInState)
-        .catchError((Object e) => _revert(previous, e));
+    _repo.reorderEntries(listId, entries).then((updated) {
+      if (_tourMode.isActive) return;
+      _replaceListInState(updated);
+    }).catchError((Object e) {
+      _revert(previous, e);
+    });
   }
 
   Future<void> deleteList(String listId) async {
@@ -123,10 +133,12 @@ class RankingsCubit extends Cubit<RankingsState> {
         .firstWhere((l) => l.id == listId, orElse: () => state.lists.first);
     final entries = List<RankingEntry>.of(list.entries)..removeAt(index);
     _replaceEntries(listId, entries);
-    _repo
-        .reorderEntries(listId, entries)
-        .then(_replaceListInState)
-        .catchError((Object e) => _revert(previous, e));
+    _repo.reorderEntries(listId, entries).then((updated) {
+      if (_tourMode.isActive) return;
+      _replaceListInState(updated);
+    }).catchError((Object e) {
+      _revert(previous, e);
+    });
   }
 
   // ── helpers ─────────────────────────────────────────────────────────────────

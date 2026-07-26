@@ -12,6 +12,10 @@ import 'package:cinemora/features/library/widgets/library_stats_card.dart';
 import 'package:cinemora/features/library/widgets/shuffle_pick_sheet.dart';
 import 'package:cinemora/common/widgets/icons/app_icon.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/core/models/library_entry_model.dart';
+import 'package:cinemora/features/tour/models/tour_step.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
+import 'package:cinemora/features/tour/widgets/tour_anchor.dart';
 
 class LibraryView extends StatefulWidget {
   const LibraryView({super.key});
@@ -27,6 +31,16 @@ class _LibraryViewState extends State<LibraryView> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  /// The first-run tour points at the one row it just had the user save.
+  /// Scoped by cinema type as well as id — anime entries carry AniList ids in
+  /// the same field, so the id alone can collide with a TMDB one.
+  bool _isTourTarget(BuildContext context, LibraryEntryModel entry) {
+    final target = context.read<TourCubit>().state.target;
+    return target != null &&
+        target.tmdbId == entry.tmdbId &&
+        target.cinemaType == entry.cinemaType;
   }
 
   @override
@@ -202,13 +216,20 @@ class _LibraryViewState extends State<LibraryView> {
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final entry = items[index];
+                          final item = LibraryListItem(
+                            entry: entry,
+                            showWatchCount: state.selectedStatus == 'Watched',
+                            fromWatchedTab: state.selectedStatus == 'Watched',
+                          );
                           return Padding(
                             padding: EdgeInsets.only(bottom: 10.h),
-                            child: LibraryListItem(
-                              entry: entry,
-                              showWatchCount: state.selectedStatus == 'Watched',
-                              fromWatchedTab: state.selectedStatus == 'Watched',
-                            ),
+                            child: _isTourTarget(context, entry)
+                                ? TourAnchor(
+                                    step: TourStep.openLibraryEntry,
+                                    autoScroll: true,
+                                    child: item,
+                                  )
+                                : item,
                           );
                         },
                         childCount: items.length,

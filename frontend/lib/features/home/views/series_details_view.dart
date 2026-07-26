@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/common/widgets/states/on_reconnect.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/series_details_cubit.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
@@ -114,6 +116,22 @@ class _SeriesDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tour = context.read<TourCubit>();
+    // Deferred: this can advance the tour, and the overlay listening for that
+    // sits above the router — emitting mid-build would mark an already-built
+    // ancestor dirty.
+    //
+    // Keyed off [source] rather than [isAnime]: isAnime is a display-only flag
+    // for TMDB-sourced Japanese animation, which the library still stores as
+    // a series, so using it here would look for the wrong compound key.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (tmdbId == null) return;
+      tour.onDetailOpened(
+        tmdbId!,
+        source == 'jikan' ? CinemaType.anime : CinemaType.tv,
+      );
+    });
+
     return BlocConsumer<SeriesDetailsCubit, SeriesDetailsState>(
       listenWhen: (prev, curr) =>
           (curr.mutationError != null &&
@@ -128,6 +146,7 @@ class _SeriesDetailsContent extends StatelessWidget {
           context.read<SeriesDetailsCubit>().clearMutationError();
           return;
         }
+        if (state.showRating > 0) tour.onRated();
         WidgetsBinding.instance.addPostFrameCallback(
           (_) => _showRankingsSheet(context, state),
         );

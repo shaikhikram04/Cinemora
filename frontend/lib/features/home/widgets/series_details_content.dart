@@ -228,6 +228,7 @@ class SeriesDetailsContent extends StatelessWidget {
                     showRatingSuccess: showRatingSuccess,
                     rankingLabel: 'Best TV Shows',
                     onRate: onRateShow,
+                    isReadyForTour: !isDetailLoading,
                   ),
                   SizedBox(height: 28.h),
                   Divider(color: context.colors.border),

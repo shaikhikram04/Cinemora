@@ -13,6 +13,9 @@ import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
 import 'package:cinemora/features/onboarding/viewmodels/onboarding_cubit.dart';
 import 'package:cinemora/features/onboarding/viewmodels/onboarding_state.dart';
+import 'package:cinemora/features/onboarding/views/onboarding_success_view.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
+import 'package:cinemora/core/utils/image_preloader.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
 import 'package:cinemora/features/onboarding/widgets/content_type_card.dart';
 import 'package:cinemora/common/widgets/icons/app_icon.dart';
@@ -141,11 +144,43 @@ class _TasteSetupContent extends StatefulWidget {
 
 class _TasteSetupContentState extends State<_TasteSetupContent> {
   late final PageController _pageController;
+  bool _hasPreloaded = false;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_hasPreloaded) return;
+    _hasPreloaded = true;
+    _preloadLaterSteps();
+  }
+
+  /// Warms the artwork for the steps ahead while the user works through step 1.
+  ///
+  /// Step 3's language grid is the reason this exists: nine posters mount at
+  /// once, and without a warm cache they arrive as a visible cascade. Step 1's
+  /// own three content-type posters are excluded — they're already loading as
+  /// this runs.
+  ///
+  /// All of these render through a plain `Image.network` / `Image.asset` with
+  /// no resize, so bare providers are the matching cache keys here. Posters
+  /// drawn by PosterImage are not — those need `PosterImage.providerFor`.
+  void _preloadLaterSteps() {
+    precacheImages(context, [
+      for (final language in _kLanguages)
+        NetworkImage(language['imageUrl'] as String),
+      // Bundled assets rather than network, but still worth a warm decode —
+      // the platform grid is a wall of logos that all appear together.
+      for (final platform in _kPlatforms)
+        AssetImage(platform['image'] as String),
+      // The success screen is always the next route after this one.
+      for (final poster in kOnboardingSuccessPosters) NetworkImage(poster),
+    ]);
   }
 
   @override
@@ -171,6 +206,10 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
         }
         if (state.submitSuccess) {
           context.read<AppAuthCubit>().markOnboarded();
+          // Only a freshly created account reaches this line, which is what
+          // makes it the right place to unlock the first-run tour — a returning
+          // user signing in on a new phone skips onboarding entirely.
+          context.read<TourCubit>().arm();
           context.go(AppRoutes.onboardingSuccess);
         }
         if (state.submitError != null) {

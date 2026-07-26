@@ -10,6 +10,9 @@ import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
 import 'package:cinemora/features/rankings/views/rankings_view.dart';
 import 'package:cinemora/common/widgets/icons/app_icon.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/features/tour/models/tour_step.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
+import 'package:cinemora/features/tour/widgets/tour_anchor.dart';
 
 // ─── Public entry point ───────────────────────────────────────────────────────
 
@@ -362,41 +365,45 @@ class _PlacedView extends StatelessWidget {
           ),
           child: Column(
             children: [
-              GestureDetector(
-                onTap: () {
-                  final cubit = context.read<RankingsCubit>();
-                  cubit.updateListEntries(list.id, state.entries);
-                  final updatedList =
-                      cubit.state.lists.firstWhere((l) => l.id == list.id);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: cubit,
-                        child: RankingDetailView(list: updatedList),
+              TourAnchor(
+                step: TourStep.viewFullRanking,
+                child: GestureDetector(
+                  onTap: () {
+                    final cubit = context.read<RankingsCubit>();
+                    context.read<TourCubit>().onRankingDetailOpened();
+                    cubit.updateListEntries(list.id, state.entries);
+                    final updatedList =
+                        cubit.state.lists.firstWhere((l) => l.id == list.id);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BlocProvider.value(
+                          value: cubit,
+                          child: RankingDetailView(list: updatedList),
+                        ),
                       ),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          list.accent,
+                          list.accent.withValues(alpha: 0.75),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(14.r),
                     ),
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 14.h),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        list.accent,
-                        list.accent.withValues(alpha: 0.75),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(14.r),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'View Full Ranking',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w700,
+                    child: Center(
+                      child: Text(
+                        'View Full Ranking',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),

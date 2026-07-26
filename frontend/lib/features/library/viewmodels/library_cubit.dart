@@ -5,13 +5,20 @@ import 'package:cinemora/core/models/library_entry_model.dart';
 import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
+import 'package:cinemora/features/tour/tour_mode.dart';
 import 'library_state.dart';
 
 class LibraryCubit extends Cubit<LibraryState> {
   final LibraryRepository _repo;
+
+  /// In tour mode the repository answers writes locally and can't reconstruct
+  /// a full row from an update's parameters, so the optimistic state this cubit
+  /// already holds is the accurate one — the "confirmed" replacement is skipped.
+  final TourMode _tourMode;
+
   Timer? _searchDebounce;
 
-  LibraryCubit(this._repo) : super(LibraryState());
+  LibraryCubit(this._repo, this._tourMode) : super(LibraryState());
 
   static const types = ['All', 'Movies', 'Series', 'Anime'];
   static const statuses = ['Watchlist', 'Watched', 'Dropped'];
@@ -139,6 +146,7 @@ class LibraryCubit extends Cubit<LibraryState> {
     try {
       final confirmed =
           await _repo.updateEntry(tmdbId, cinemaType, status: newStatus);
+      if (_tourMode.isActive) return;
       final refreshed = List<LibraryEntryModel>.from(state.entries);
       final i = refreshed.indexWhere(
           (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
@@ -179,8 +187,9 @@ class LibraryCubit extends Cubit<LibraryState> {
     emit(state.copyWith(entries: entries));
 
     try {
-      final confirmed =
-          await _repo.updateEntry(tmdbId, cinemaType, status: WatchStatus.watchlist);
+      final confirmed = await _repo
+          .updateEntry(tmdbId, cinemaType, status: WatchStatus.watchlist);
+      if (_tourMode.isActive) return;
       final refreshed = List<LibraryEntryModel>.from(state.entries);
       final i = refreshed.indexWhere(
           (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);

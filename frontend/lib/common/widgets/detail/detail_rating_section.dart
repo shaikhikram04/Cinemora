@@ -5,6 +5,8 @@ import 'package:cinemora/common/widgets/rating/star_rating_bar.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/home/widgets/rating_meter.dart';
+import 'package:cinemora/features/tour/models/tour_step.dart';
+import 'package:cinemora/features/tour/widgets/tour_anchor.dart';
 
 class DetailRatingSection extends StatelessWidget {
   final String title;
@@ -14,6 +16,12 @@ class DetailRatingSection extends StatelessWidget {
   final String rankingLabel;
   final ValueChanged<double> onRate;
 
+  /// True once the detail fetch has settled. The first-run tour scrolls this
+  /// section into view, and the sections above it (providers, genres, cast,
+  /// crew) all change height when TMDB responds — scrolling before that lands
+  /// on an offset that immediately moves.
+  final bool isReadyForTour;
+
   const DetailRatingSection({
     super.key,
     required this.title,
@@ -22,6 +30,7 @@ class DetailRatingSection extends StatelessWidget {
     required this.showRatingSuccess,
     required this.rankingLabel,
     required this.onRate,
+    this.isReadyForTour = false,
   });
 
   @override
@@ -143,11 +152,15 @@ class DetailRatingSection extends StatelessWidget {
                 ),
                 SizedBox(height: 14.h),
               ],
-              StarRatingBar(
-                rating: hasRated ? rating : 0.0,
-                onRate: onRate,
-                starColor: ratingColor,
-                size: starSize.sp,
+              TourAnchor(
+                step: TourStep.rateTitle,
+                autoScroll: isReadyForTour,
+                child: StarRatingBar(
+                  rating: hasRated ? rating : 0.0,
+                  onRate: onRate,
+                  starColor: ratingColor,
+                  size: starSize.sp,
+                ),
               ),
               if (hasRated) ...[
                 SizedBox(height: 16.h),

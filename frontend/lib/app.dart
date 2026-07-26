@@ -28,6 +28,14 @@ import 'package:cinemora/features/notifications/viewmodels/notifications_cubit.d
 import 'package:cinemora/features/rankings/repositories/rankings_repository.dart';
 import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
 import 'package:cinemora/features/rankings/viewmodels/rankings_state.dart';
+import 'package:cinemora/features/tour/tour_mode.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_state.dart';
+import 'package:cinemora/features/tour/widgets/tour_overlay.dart';
+
+/// Set the first time the app reaches an authenticated state on this device.
+/// Gates the notification permission prompt away from that first run.
+const _kFirstRunDoneKey = 'first_authenticated_run_done';
 
 class CinemoraApp extends StatefulWidget {
   final AppAuthCubit authCubit;
@@ -42,6 +50,9 @@ class CinemoraApp extends StatefulWidget {
   final ThemeModeCubit themeModeCubit;
   final SharedPreferences prefs;
 
+  /// Shared with both repositories at construction — see [TourMode].
+  final TourMode tourMode;
+
   const CinemoraApp({
     super.key,
     required this.authCubit,
@@ -55,6 +66,7 @@ class CinemoraApp extends StatefulWidget {
     required this.notificationsRepository,
     required this.themeModeCubit,
     required this.prefs,
+    required this.tourMode,
   });
 
   @override
@@ -67,10 +79,14 @@ class _CinemoraAppState extends State<CinemoraApp> {
   late final LibraryCubit _libraryCubit;
   late final RankingsCubit _rankingsCubit;
   late final NotificationsCubit _notificationsCubit;
+  late final TourCubit _tourCubit;
   late final PushNotificationsService _pushService;
   late final StreamSubscription<AppAuthState> _authSub;
   late final StreamSubscription<void> _reconnectSub;
   late final StreamSubscription<RankingsState> _rankingsErrorSub;
+  late final StreamSubscription<LibraryState> _tourLibrarySub;
+  late final StreamSubscription<TourState> _tourEndSub;
+  bool _tourWasRunning = false;
 
   /// Rankings are mutated from the placement flow, the rankings tab and the
   /// profile tab, so a failed write has no single screen to report on. This
@@ -80,9 +96,27 @@ class _CinemoraAppState extends State<CinemoraApp> {
   @override
   void initState() {
     super.initState();
-    _libraryCubit = LibraryCubit(widget.libraryRepository);
-    _rankingsCubit = RankingsCubit(widget.rankingsRepository);
+    _libraryCubit = LibraryCubit(widget.libraryRepository, widget.tourMode);
+    _rankingsCubit = RankingsCubit(widget.rankingsRepository, widget.tourMode);
     _notificationsCubit = NotificationsCubit(widget.notificationsRepository);
+    _tourCubit = TourCubit(widget.prefs, widget.tourMode);
+    // The first-run tour's opening step clears only once the watchlist write
+    // has actually landed, so it watches the library rather than the tap.
+    _tourLibrarySub = _libraryCubit.stream
+        .listen((state) => _tourCubit.onLibraryChanged(state.entries));
+
+    // Everything the tour did was answered from memory rather than written to
+    // the server (see TourMode), so refetching both collections is all it takes
+    // to clear the demo watchlist entry and the demo ranking list — and it
+    // guarantees what's on screen afterwards matches what's actually stored,
+    // rather than trying to unpick the changes by hand.
+    _tourEndSub = _tourCubit.stream.listen((state) {
+      final wasRunning = _tourWasRunning;
+      _tourWasRunning = state.step.isRunning;
+      if (!wasRunning || state.step.isRunning) return;
+      _libraryCubit.loadData();
+      _rankingsCubit.loadLists();
+    });
     _pushService = PushNotificationsService(widget.userRepository);
     // Detaches this device from the account while the session can still
     // authenticate the call — see AppAuthCubit.onBeforeSignOut.
@@ -100,9 +134,19 @@ class _CinemoraAppState extends State<CinemoraApp> {
         _notificationsCubit.refreshUnreadCount();
         // Permission prompt + token sync; a push arriving in the foreground
         // just refreshes the badge, and tapping one opens the title it's about.
+        //
+        // The prompt is held back on the very first authenticated run. Landing
+        // an OS permission dialog on someone who has been signed in for a few
+        // seconds asks them to decide about notifications before they've seen
+        // what the app sends — and on a new account it lands on top of the
+        // first-run tour. From the next launch it prompts as normal, and the
+        // notification settings screen can request it explicitly at any point.
+        final isFirstRun = !(widget.prefs.getBool(_kFirstRunDoneKey) ?? false);
+        widget.prefs.setBool(_kFirstRunDoneKey, true);
         _pushService.start(
           onForegroundMessage: _notificationsCubit.refreshUnreadCount,
           onNotificationTap: _openPushTarget,
+          canPrompt: !isFirstRun,
         );
       } else if (state is AppAuthUnauthenticated) {
         _rankingsCubit.clear();
@@ -162,10 +206,13 @@ class _CinemoraAppState extends State<CinemoraApp> {
     _authSub.cancel();
     _reconnectSub.cancel();
     _rankingsErrorSub.cancel();
+    _tourLibrarySub.cancel();
+    _tourEndSub.cancel();
     _notifier.dispose();
     _libraryCubit.close();
     _rankingsCubit.close();
     _notificationsCubit.close();
+    _tourCubit.close();
     _pushService.dispose();
     super.dispose();
   }
@@ -180,6 +227,7 @@ class _CinemoraAppState extends State<CinemoraApp> {
         BlocProvider.value(value: _libraryCubit),
         BlocProvider.value(value: _rankingsCubit),
         BlocProvider.value(value: _notificationsCubit),
+        BlocProvider.value(value: _tourCubit),
         RepositoryProvider.value(value: widget.userRepository),
         // Notification settings reads OS permission through this, so it can
         // stop presenting toggles as live when the OS is dropping everything.
@@ -204,9 +252,14 @@ class _CinemoraAppState extends State<CinemoraApp> {
             darkTheme: WTheme.darkTheme,
             routerConfig: _router,
             // Wrapped here rather than per-screen so the offline banner covers
-            // every route, including ones added later.
+            // every route, including ones added later. The coach-mark overlay
+            // goes inside it for the same reason, and because this is the only
+            // subtree containing the Navigator — the one place a single
+            // overlay can sit above pushed routes *and* modal sheets, both of
+            // which the first-run tour has to reach.
             builder: (context, child) => OfflineBanner.offlineBanner(
-                child: child ?? const SizedBox.shrink()),
+              child: TourOverlay(child: child ?? const SizedBox.shrink()),
+            ),
           ),
         ),
       ),

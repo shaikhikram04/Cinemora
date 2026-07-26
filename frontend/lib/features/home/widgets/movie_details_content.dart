@@ -176,6 +176,7 @@ class MovieDetailsContent extends StatelessWidget {
                     showRatingSuccess: showRatingSuccess,
                     rankingLabel: 'All-Time Favorites',
                     onRate: onRate,
+                    isReadyForTour: !isDetailLoading,
                   ),
                   SizedBox(height: 28.h),
                   Divider(color: context.colors.border),

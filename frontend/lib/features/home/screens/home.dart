@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/home/widgets/home_bottom_nav_bar.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
 
 class CinemoraHomeShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -13,6 +15,14 @@ class CinemoraHomeShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The first-run tour reads the branch index directly rather than the tap,
+    // so it re-points correctly however the user got here — including a back
+    // gesture out of a pushed route.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+      context.read<TourCubit>().onTabChanged(navigationShell.currentIndex);
+    });
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,

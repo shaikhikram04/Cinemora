@@ -27,6 +27,10 @@ import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/notifications/viewmodels/notifications_cubit.dart';
 import 'package:cinemora/features/notifications/viewmodels/notifications_state.dart';
+import 'package:cinemora/features/tour/models/tour_step.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_state.dart';
+import 'package:cinemora/features/tour/widgets/tour_anchor.dart';
 
 // Generative glyph for the "For You" tab — picked once per session so it
 // varies across launches (feels personalised/AI-generated) without flickering
@@ -59,6 +63,37 @@ class HomeFeedView extends StatelessWidget {
 class _HomeFeedContent extends StatelessWidget {
   const _HomeFeedContent();
 
+  /// Kicks off the first-run tour on whatever title is currently in the hero
+  /// slot. Deliberately keyed to the hero rather than a hardcoded title: the
+  /// tour then teaches the loop on something the user is already looking at,
+  /// and every step afterwards works on real data with nothing to clean up.
+  ///
+  /// No-ops once the tour has run, so calling it on every feed rebuild is fine.
+  /// If the feed hasn't loaded — offline, or a failed fetch — nothing starts
+  /// and the next launch tries again.
+  void _maybeStartTour(BuildContext context, HomeFeedState state) {
+    final hero = state.pickOfWeek.isNotEmpty
+        ? (state.pickOfWeek.first, null)
+        : (state.trending.isNotEmpty ? state.trending.first : null,
+            state.trendingType);
+    final item = hero.$1;
+    if (item == null || item.id == null) return;
+
+    final cinemaType =
+        hero.$2 ?? CinemaType.fromJson(item.cinemaType ?? 'movie');
+
+    // Deferred a frame so the hero has laid out before the spotlight goes
+    // looking for its rect.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+      context.read<TourCubit>().maybeStart(TourTarget(
+            tmdbId: item.id!,
+            cinemaType: cinemaType,
+            title: item.title,
+          ));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeFeedCubit, HomeFeedState>(
@@ -73,6 +108,8 @@ class _HomeFeedContent extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<HomeFeedCubit>();
         final loading = state.isLoading;
+
+        _maybeStartTour(context, state);
 
         return OnReconnect(
           onReconnect: () {
@@ -587,6 +624,11 @@ class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
   void _startAutoScroll() {
     _autoScrollTimer?.cancel();
     if (widget.picks.length <= 1) return;
+    // The first-run tour spotlights this card's Watchlist button. Letting the
+    // carousel advance under the spotlight would swap the title out from under
+    // the user mid-step — and the step tracks a specific title, so the tap
+    // would then never satisfy it.
+    if (context.read<TourCubit>().state.step.isRunning) return;
     _autoScrollTimer = Timer.periodic(_autoScrollInterval, (_) {
       if (!_controller.hasClients) return;
       final next = (_page + 1) % widget.picks.length;
@@ -613,6 +655,17 @@ class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocListener<TourCubit, TourState>(
+      // The tour usually starts a beat after this carousel has already begun
+      // ticking, so the guard in _startAutoScroll isn't enough on its own.
+      listenWhen: (prev, curr) => prev.step.isRunning != curr.step.isRunning,
+      listener: (context, state) =>
+          state.step.isRunning ? _autoScrollTimer?.cancel() : _startAutoScroll(),
+      child: _buildCarousel(context),
+    );
+  }
+
+  Widget _buildCarousel(BuildContext context) {
     return Column(
       children: [
         SizedBox(
@@ -639,6 +692,7 @@ class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
                       s.libraryStatus[item.id] == WatchStatus.watchlist,
                   builder: (context, isBookmarked) => _HeroCardShell(
                     imageUrl: item.image,
+                    isTourTarget: i == 0,
                     badgeLabel: 'PICK OF THE WEEK',
                     badgeIcon: Icons.auto_awesome_rounded,
                     rating: item.rating,
@@ -705,6 +759,7 @@ class _FallbackHero extends StatelessWidget {
           item.id != null && s.libraryStatus[item.id] == WatchStatus.watchlist,
       builder: (context, isBookmarked) => _HeroCardShell(
         imageUrl: item.image,
+        isTourTarget: true,
         badgeLabel: 'TRENDING #1',
         badgeIcon: Icons.local_fire_department_rounded,
         rating: item.rating,
@@ -730,6 +785,12 @@ class _HeroCardShell extends StatelessWidget {
   final String year;
   final String title;
   final bool isBookmarked;
+
+  /// Only the card the tour actually targets registers a spotlight anchor —
+  /// the hero is a PageView and several pages are alive at once, so anchoring
+  /// every one of them would leave the registry pointing at whichever built
+  /// last rather than at the title the tour is about.
+  final bool isTourTarget;
   final VoidCallback onDetailsPressed;
   final VoidCallback onWatchlistPressed;
 
@@ -742,9 +803,21 @@ class _HeroCardShell extends StatelessWidget {
     required this.year,
     required this.title,
     required this.isBookmarked,
+    required this.isTourTarget,
     required this.onDetailsPressed,
     required this.onWatchlistPressed,
   });
+
+  Widget _watchlistButton(bool isBookmarked) {
+    final button = WActionButton(
+      label: isBookmarked ? 'In Watchlist' : 'Watchlist',
+      icon: isBookmarked ? Icons.bookmark_rounded : Icons.add_rounded,
+      filled: false,
+      onTap: onWatchlistPressed,
+    );
+    if (!isTourTarget) return button;
+    return TourAnchor(step: TourStep.bookmarkHero, child: button);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -891,16 +964,7 @@ class _HeroCardShell extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: 10.w),
-                      Expanded(
-                        child: WActionButton(
-                          label: isBookmarked ? 'In Watchlist' : 'Watchlist',
-                          icon: isBookmarked
-                              ? Icons.bookmark_rounded
-                              : Icons.add_rounded,
-                          filled: false,
-                          onTap: onWatchlistPressed,
-                        ),
-                      ),
+                      Expanded(child: _watchlistButton(isBookmarked)),
                     ],
                   ),
                 ],

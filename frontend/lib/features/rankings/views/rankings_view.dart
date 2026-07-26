@@ -2,9 +2,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/rankings/models/ranking_item.dart';
+import 'package:cinemora/features/tour/models/tour_step.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
+import 'package:cinemora/features/tour/widgets/tour_anchor.dart';
 import 'package:cinemora/features/rankings/viewmodels/ranking_detail_cubit.dart';
 import 'package:cinemora/features/rankings/viewmodels/ranking_detail_state.dart';
 import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
@@ -384,6 +389,30 @@ class _RankingDetailContent extends StatefulWidget {
 class _RankingDetailContentState extends State<_RankingDetailContent> {
   bool _isEditMode = false;
 
+  /// Back out of the list.
+  ///
+  /// During the first-run tour this screen is the last stop, and it was
+  /// reached by `pushReplacement` from the placement flow — so the stack
+  /// underneath is shell → detail → here, and a plain pop would land back on
+  /// the details page rather than the home tab the coach mark is pointing at.
+  ///
+  /// `go` alone isn't enough either: it only rewrites go_router's own page
+  /// stack, and this screen (like the placement flow that led to it) was put
+  /// up with `Navigator.push`, so it would survive the switch and stay on top
+  /// of the home tab. Everything above the shell has to be popped first.
+  ///
+  /// Both handles are resolved up front — after the pop this widget's context
+  /// is defunct.
+  void _leave(BuildContext context) {
+    if (context.read<TourCubit>().state.step != TourStep.backHome) {
+      Navigator.pop(context);
+      return;
+    }
+    final router = GoRouter.of(context);
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    router.go(AppRoutes.home);
+  }
+
   void _showDeleteSheet(BuildContext ctx) {
     final rankingsCubit = ctx.read<RankingsCubit>();
     showModalBottomSheet<void>(
@@ -423,19 +452,22 @@ class _RankingDetailContentState extends State<_RankingDetailContent> {
                   ),
                   child: Row(
                     children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: 36.w,
-                          height: 36.w,
-                          decoration: BoxDecoration(
-                            color: context.colors.surfaceChip,
-                            borderRadius: BorderRadius.circular(14.r),
-                          ),
-                          child: Icon(
-                            Icons.arrow_back_rounded,
-                            size: 18.sp,
-                            color: context.colors.foreground,
+                      TourAnchor(
+                        step: TourStep.backHome,
+                        child: GestureDetector(
+                          onTap: () => _leave(context),
+                          child: Container(
+                            width: 36.w,
+                            height: 36.w,
+                            decoration: BoxDecoration(
+                              color: context.colors.surfaceChip,
+                              borderRadius: BorderRadius.circular(14.r),
+                            ),
+                            child: Icon(
+                              Icons.arrow_back_rounded,
+                              size: 18.sp,
+                              color: context.colors.foreground,
+                            ),
                           ),
                         ),
                       ),

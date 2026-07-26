@@ -9,7 +9,9 @@ import 'package:cinemora/core/constants/network_images_path.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 
-const _kPosterUrls = [
+/// Also preloaded from taste setup, which is always the screen before this
+/// one — see [precacheImages].
+const kOnboardingSuccessPosters = [
   NetworkImagesPath.dunePoster,
   NetworkImagesPath.spidermanAcrossTheSpiderVersePoster,
   NetworkImagesPath.breakingBadPoster,
@@ -223,7 +225,7 @@ class _OnboardingSuccessViewState extends State<OnboardingSuccessView>
       height: 100.h,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: _kPosterUrls.asMap().entries.map((entry) {
+        children: kOnboardingSuccessPosters.asMap().entries.map((entry) {
           final angle = (entry.key - 2) * 0.07;
           return Transform.rotate(
             angle: angle,

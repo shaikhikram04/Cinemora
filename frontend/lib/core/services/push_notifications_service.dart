@@ -22,9 +22,16 @@ class PushNotificationsService {
   /// Call after sign-in. Safe to call again on later auth events — it only
   /// runs once per app session. Best-effort by design: any failure here
   /// (permission denied, no Play Services, offline) must never break sign-in.
+  ///
+  /// [canPrompt] gates the OS permission dialog only. When false this still
+  /// registers the token and wires up the callbacks if permission was granted
+  /// on an earlier run — it just won't put a system dialog in front of someone
+  /// who has been in the app for thirty seconds and has no idea yet what the
+  /// notifications would be about.
   Future<void> start({
     required VoidCallback onForegroundMessage,
     required void Function(RemoteMessage message) onNotificationTap,
+    bool canPrompt = true,
   }) async {
     if (_started) return;
     _started = true;
@@ -32,12 +39,21 @@ class PushNotificationsService {
     try {
       final messaging = FirebaseMessaging.instance;
 
-      // Also covers Android 13+'s POST_NOTIFICATIONS runtime permission.
-      final settings = await messaging.requestPermission();
-      if (settings.authorizationStatus == AuthorizationStatus.denied) {
-        // Unlatch: without this, a user who grants permission later in OS
-        // settings gets no push until the app is restarted, because every
-        // later call to start() short-circuits.
+      // requestPermission also covers Android 13+'s POST_NOTIFICATIONS runtime
+      // permission; getNotificationSettings reads the same state without
+      // surfacing anything.
+      final settings = canPrompt
+          ? await messaging.requestPermission()
+          : await messaging.getNotificationSettings();
+      final status = settings.authorizationStatus;
+      // notDetermined only comes back on the no-prompt path, and means exactly
+      // what denied means here: no token to register yet.
+      if (status == AuthorizationStatus.denied ||
+          status == AuthorizationStatus.notDetermined) {
+        // Unlatch: without this, a user who grants permission later — in OS
+        // settings, from the in-app notification settings screen, or simply on
+        // the next launch once prompting is allowed — gets no push until the
+        // app is restarted, because every later call to start() short-circuits.
         _started = false;
         return;
       }

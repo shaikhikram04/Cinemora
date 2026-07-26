@@ -44,9 +44,31 @@ class PosterImage extends StatelessWidget {
     this.title,
   });
 
+  /// The exact provider this widget renders with.
+  ///
+  /// Exposed so callers can warm the cache under the same key — `ImageCache`
+  /// is keyed on the provider, and the resize below means a bare
+  /// [NetworkImage] would land somewhere nothing reads. Anything preloading a
+  /// poster must go through here rather than duplicating the arithmetic, or
+  /// the two drift the moment a width changes and the preload silently starts
+  /// costing an extra download instead of saving one.
+  static ImageProvider providerFor(
+    BuildContext context, {
+    required String image,
+    required double height,
+    double? width,
+  }) {
+    final dpr = MediaQuery.of(context).devicePixelRatio;
+    return ResizeImage(
+      NetworkImage(image),
+      width: width != null ? (width * dpr).round() : null,
+      height: width == null ? (height.h * dpr).round() : null,
+      allowUpscaling: false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final dpr = MediaQuery.of(context).devicePixelRatio;
     final renderedHeight = height.h;
     return Container(
       height: renderedHeight,
@@ -66,20 +88,24 @@ class PosterImage extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
-              image,
+            // Decode at the rendered size instead of the source resolution —
+            // TMDB posters come in far larger than the ~100-140dp we display
+            // them at, and decoding full-res per card is a major scroll-jank
+            // source in image-heavy carousels. Only ONE of the resize
+            // dimensions is ever set: passing both stretches the decode to
+            // that exact box, distorting the image if its real aspect ratio
+            // doesn't match — specifying just one lets the decoder scale the
+            // other to preserve the source's true proportions. See
+            // [providerFor], which owns that decision for renderer and
+            // preloader alike.
+            Image(
+              image: providerFor(
+                context,
+                image: image,
+                height: height,
+                width: width,
+              ),
               fit: BoxFit.cover,
-              // Decode at the rendered size instead of the source resolution —
-              // TMDB posters come in far larger than the ~100-140dp we display
-              // them at, and decoding full-res per card is a major scroll-jank
-              // source in image-heavy carousels. Only ONE of cacheWidth/
-              // cacheHeight is ever set: passing both stretches the decode to
-              // that exact box, distorting the image if its real aspect ratio
-              // doesn't match — specifying just one lets the decoder scale
-              // the other dimension to preserve the source's true proportions.
-              cacheWidth: width != null ? (width! * dpr).round() : null,
-              cacheHeight:
-                  width == null ? (renderedHeight * dpr).round() : null,
               errorBuilder: (context, error, stackTrace) => Container(
                 color: context.colors.surfaceMuted,
                 alignment: Alignment.center,

@@ -9,6 +9,9 @@ import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
 import 'package:cinemora/features/rankings/views/ranking_placement_view.dart';
 import 'package:cinemora/common/widgets/icons/app_icon.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/features/tour/models/tour_step.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
+import 'package:cinemora/features/tour/widgets/tour_anchor.dart';
 
 // ─── Public entry point ───────────────────────────────────────────────────────
 
@@ -384,6 +387,7 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
           );
 
     if (!mounted) return;
+    context.read<TourCubit>().onPlacementOpened();
     Navigator.pop(context);
     Navigator.push(
       context,
@@ -464,17 +468,28 @@ class _PostRatingSheetState extends State<_PostRatingSheet> {
                   suggestions: suggestions,
                   userLists: userLists,
                   selectedTitle: _selectedTitle,
-                  onToggle: (title) => setState(() =>
-                      _selectedTitle = _selectedTitle == title ? null : title),
+                  onToggle: (title) {
+                    setState(() => _selectedTitle =
+                        _selectedTitle == title ? null : title);
+                    // This sheet keeps its selection in local State, so the
+                    // tour can't observe it the way it observes the other
+                    // steps — it has to be told.
+                    context
+                        .read<TourCubit>()
+                        .onRankingListSelected(_selectedTitle != null);
+                  },
                   scrollController: _scrollController,
                 );
               },
             ),
           ),
           // Bottom CTA
-          _BottomCTA(
-            hasSelection: _hasSelection,
-            onPlaceTap: _handlePlaceInRankings,
+          TourAnchor(
+            step: TourStep.confirmPlacement,
+            child: _BottomCTA(
+              hasSelection: _hasSelection,
+              onPlaceTap: _handlePlaceInRankings,
+            ),
           ),
         ],
       ),
@@ -639,6 +654,9 @@ class _RankingsBody extends StatelessWidget {
     required this.scrollController,
   });
 
+  static Widget _maybeAnchor(bool anchored, TourStep step, Widget child) =>
+      anchored ? TourAnchor(step: step, child: child) : child;
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -687,14 +705,20 @@ class _RankingsBody extends StatelessWidget {
             return Padding(
               padding: EdgeInsets.symmetric(
                   horizontal: WSizes.screenPadding.w, vertical: 5.h),
-              child: _SuggestionCard(
-                emoji: suggestions[i]['emoji']!,
-                title: title,
-                sub: suggestions[i]['sub']!,
-                selected: selectedTitle == title,
-                isNew: suggestions[i]['isNew'] == 'true',
-                index: i,
-                onTap: () => onToggle(title),
+              // Only the top suggestion is spotlighted — the tour needs one
+              // unambiguous target, and any list works for teaching the step.
+              child: _maybeAnchor(
+                i == 0,
+                TourStep.pickRankingList,
+                _SuggestionCard(
+                  emoji: suggestions[i]['emoji']!,
+                  title: title,
+                  sub: suggestions[i]['sub']!,
+                  selected: selectedTitle == title,
+                  isNew: suggestions[i]['isNew'] == 'true',
+                  index: i,
+                  onTap: () => onToggle(title),
+                ),
               ),
             );
           }),

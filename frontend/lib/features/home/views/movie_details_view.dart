@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/common/widgets/states/on_reconnect.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
+import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/movie_details_cubit.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
@@ -82,6 +84,14 @@ class _MovieDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tour = context.read<TourCubit>();
+    // Deferred: this can advance the tour, and the overlay listening for that
+    // sits above the router — emitting mid-build would mark an already-built
+    // ancestor dirty.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (tmdbId != null) tour.onDetailOpened(tmdbId!, CinemaType.movie);
+    });
+
     return BlocConsumer<MovieDetailsCubit, MovieDetailsState>(
       listenWhen: (prev, curr) =>
           (prev.userRating != curr.userRating && curr.userRating > 0) ||
@@ -96,6 +106,7 @@ class _MovieDetailsContent extends StatelessWidget {
           context.read<MovieDetailsCubit>().clearMutationError();
           return;
         }
+        if (state.userRating > 0) tour.onRated();
         WidgetsBinding.instance.addPostFrameCallback(
           (_) => _showRankingsSheet(context, state),
         );
