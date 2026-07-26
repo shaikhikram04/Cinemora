@@ -1,8 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
+import 'package:cinemora/core/constants/support_contact.dart';
 import 'package:cinemora/features/settings/widgets/settings_top_bar.dart';
+import 'package:cinemora/features/settings/widgets/settings_ui.dart';
+
+// Every answer here describes behaviour that exists. The previous set was
+// written against a design mockup and told users about a private-profile
+// setting, achievement badges and a working export — none of which the app
+// has. If a feature isn't shipped, it doesn't get an FAQ entry.
 
 class HelpSupportView extends StatelessWidget {
   const HelpSupportView({super.key});
@@ -11,27 +22,38 @@ class HelpSupportView extends StatelessWidget {
     _FaqItem(
       question: 'How do I add a title to my collection?',
       answer:
-          'Search for a movie, series, or anime and tap the bookmark icon on its detail page. It will appear in your Library.',
+          'Search for a movie, series, or anime and tap the bookmark icon on '
+          'its detail page. It will appear in your Library.',
     ),
     _FaqItem(
       question: 'How do I create a ranking list?',
       answer:
-          'Go to the Rankings tab and tap "New List". Add a title, choose your items, and drag to reorder them.',
+          'Go to the Rankings tab and tap "New List". Add a title, choose your '
+          'items, and drag to reorder them.',
     ),
     _FaqItem(
-      question: 'Can I make my profile private?',
+      question: 'Why haven’t I been notified about a release?',
       answer:
-          'Yes. Go to Settings → Privacy & Security and switch to "Private Profile". Your data will only be visible to you.',
+          'Release alerts always appear in your in-app inbox. Push is separate: '
+          'it needs both the switches in Settings → Notifications turned on and '
+          'notification permission granted for Cinemora in your device '
+          'settings. The release check also runs once a day, so a title that '
+          'just came out may not reach your phone until the next evening.',
     ),
     _FaqItem(
-      question: 'How are achievement badges earned?',
+      question: 'How is my Pick of the Week chosen?',
       answer:
-          'Badges are unlocked automatically as you reach milestones — watching titles, creating lists, rating content, and more.',
+          'It’s drawn from what’s in your library and how you’ve ranked things, '
+          'the same signals behind the "Because You Ranked" and "Critically '
+          'Acclaimed" rows. Until there’s enough history to go on, it falls '
+          'back to what’s trending.',
     ),
     _FaqItem(
-      question: 'How do I export my collection?',
+      question: 'I can’t decide what to watch.',
       answer:
-          'Go to Settings → Data & Library → Export Data. Choose a format (CSV or JSON) and your data will download.',
+          'Open your Library and tap Shuffle — it picks a title at random from '
+          'your watchlist. It stays disabled until there’s something on the '
+          'watchlist to pick from.',
     ),
   ];
 
@@ -48,78 +70,83 @@ class HelpSupportView extends StatelessWidget {
             Expanded(
               child: ListView(
                 padding: EdgeInsets.fromLTRB(
-                  WSizes.screenPadding.w,
-                  16.h,
-                  WSizes.screenPadding.w,
+                  (WSizes.screenPadding - kSettingsRowGutter).w,
+                  20.h,
+                  (WSizes.screenPadding - kSettingsRowGutter).w,
                   100.h,
                 ),
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  // Quick Actions
-                  Row(
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: kSettingsRowGutter.w),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _QuickActionCard(
+                            icon: Icons.bug_report_outlined,
+                            color: context.colors.accentRed,
+                            label: 'Report Bug',
+                            onTap: () => _emailSupport(
+                              context,
+                              'Bug report',
+                              'What happened, and what did you expect instead?',
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10.w),
+                        Expanded(
+                          child: _QuickActionCard(
+                            icon: Icons.lightbulb_outline_rounded,
+                            color: context.colors.chartYellow,
+                            label: 'Feature Request',
+                            onTap: () => _emailSupport(
+                              context,
+                              'Feature request',
+                              'What would you like Cinemora to do?',
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10.w),
+                        Expanded(
+                          child: _QuickActionCard(
+                            icon: Icons.star_outline_rounded,
+                            color: context.colors.chartGreen,
+                            label: 'Rate App',
+                            onTap: () => _rateApp(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 32.h),
+                  SettingsGroup(
+                    label: 'GET IN TOUCH',
                     children: [
-                      Expanded(
-                        child: _QuickActionCard(
-                          icon: Icons.bug_report_outlined,
-                          color: context.colors.accentRed,
-                          label: 'Report Bug',
-                          onTap: () {},
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: _QuickActionCard(
-                          icon: Icons.lightbulb_outline_rounded,
-                          color: context.colors.chartYellow,
-                          label: 'Feature Request',
-                          onTap: () {},
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: _QuickActionCard(
-                          icon: Icons.star_outline_rounded,
-                          color: context.colors.chartGreen,
-                          label: 'Rate App',
-                          onTap: () {},
+                      SettingsRow(
+                        icon: Icons.mail_outline_rounded,
+                        title: 'Email Support',
+                        onTap: () => _emailSupport(
+                          context,
+                          'Cinemora support',
+                          'How can we help?',
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 28.h),
-
-                  // Contact
-                  _SectionLabel(label: 'GET IN TOUCH'),
-                  SizedBox(height: 10.h),
-                  Container(
-                    decoration: BoxDecoration(
-                      color:
-                          context.colors.surfaceRaised.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: context.colors.borderStrong),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20.r),
-                      child: Column(
-                        children: [
-                          _ContactRow(
-                            icon: Icons.support_agent_rounded,
-                            iconColor: context.colors.accentPurple,
-                            title: 'Contact Support',
-                            subtitle: 'Avg response time: 24 hours',
-                            onTap: () {},
-                          ),
-                        ],
-                      ),
+                  SizedBox(height: kSettingsGroupSpacing.h),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: kSettingsRowGutter.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SettingsSectionLabel(label: 'FREQUENTLY ASKED'),
+                        SizedBox(height: 10.h),
+                        const _FaqSection(items: _faqs),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 28.h),
-
-                  // FAQ
-                  _SectionLabel(label: 'FREQUENTLY ASKED'),
-                  SizedBox(height: 10.h),
-                  _FaqSection(items: _faqs),
-                  SizedBox(height: 28.h),
                 ],
               ),
             ),
@@ -128,25 +155,80 @@ class HelpSupportView extends StatelessWidget {
       ),
     );
   }
-}
 
-class _SectionLabel extends StatelessWidget {
-  final String label;
+  // ── Actions ────────────────────────────────────────────────────────────────
 
-  const _SectionLabel({required this.label});
+  /// Opens the user's mail composer with the build already described, so a bug
+  /// report arrives with the version attached instead of "it doesn't work".
+  Future<void> _emailSupport(
+    BuildContext context,
+    String subject,
+    String prompt,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final info = await PackageInfo.fromPlatform();
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 2.w),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: context.colors.mutedSecondaryDeep,
-          fontSize: 11.sp,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 1.2,
-        ),
+    final body = '$prompt\n\n\n'
+        '—————\n'
+        'Cinemora ${info.version} (${info.buildNumber})\n'
+        '${Platform.operatingSystem} ${Platform.operatingSystemVersion}';
+
+    final uri = Uri(
+      scheme: 'mailto',
+      path: SupportContact.email,
+      // Built by hand rather than with queryParameters, which encodes spaces
+      // as '+' and leaves some mail clients showing them literally.
+      query: _encodeQuery({'subject': subject, 'body': body}),
+    );
+
+    _launch(messenger, uri, 'No email app is set up on this device.');
+  }
+
+  Future<void> _rateApp(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final info = await PackageInfo.fromPlatform();
+
+    final String? url = Platform.isAndroid
+        ? SupportContact.playStoreUrl(info.packageName)
+        : SupportContact.appStoreId.isEmpty
+            ? null
+            : SupportContact.appStoreUrl();
+
+    if (url == null) {
+      _showMessage(messenger, 'Cinemora isn’t on the App Store yet.');
+      return;
+    }
+
+    _launch(messenger, Uri.parse(url), 'Couldn’t open the store listing.');
+  }
+
+  static String _encodeQuery(Map<String, String> params) => params.entries
+      .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+      .join('&');
+
+  static Future<void> _launch(
+    ScaffoldMessengerState messenger,
+    Uri uri,
+    String onFailure,
+  ) async {
+    try {
+      final launched =
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched) _showMessage(messenger, onFailure);
+    } catch (_) {
+      // No handler registered for the scheme — same outcome as a failed launch.
+      _showMessage(messenger, onFailure);
+    }
+  }
+
+  static void _showMessage(ScaffoldMessengerState messenger, String message) {
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(fontSize: 14.sp)),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r)),
+        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       ),
     );
   }
@@ -158,61 +240,13 @@ class _QuickActionCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String label;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
   const _QuickActionCard({
     required this.icon,
     required this.color,
     required this.label,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16.h),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(18.r),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 22.sp, color: color),
-            SizedBox(height: 8.h),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: context.colors.foreground,
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Contact row ──────────────────────────────────────────────────────────────
-
-class _ContactRow extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String subtitle;
-  final VoidCallback? onTap;
-
-  const _ContactRow({
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.subtitle,
-    this.onTap,
+    required this.onTap,
   });
 
   @override
@@ -221,45 +255,31 @@ class _ContactRow extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 13.h),
-          child: Row(
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 6.w),
+          decoration: BoxDecoration(
+            // Same surface as every other card on the settings screens; only
+            // the icon carries the action's colour.
+            color: context.colors.surfaceRaised.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: context.colors.border),
+          ),
+          child: Column(
             children: [
-              Container(
-                width: 38.w,
-                height: 38.w,
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Icon(icon, size: 19.sp, color: iconColor),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: context.colors.foreground,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: context.colors.mutedSecondary,
-                        fontSize: 11.sp,
-                      ),
-                    ),
-                  ],
+              Icon(icon, size: 22.sp, color: color),
+              SizedBox(height: 8.h),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: context.colors.foreground,
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              Icon(Icons.arrow_outward_rounded,
-                  size: 16.sp, color: context.colors.mutedSecondaryHeader),
             ],
           ),
         ),
@@ -287,15 +307,16 @@ class _FaqSectionState extends State<_FaqSection> {
     return Container(
       decoration: BoxDecoration(
         color: context.colors.surfaceRaised.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: context.colors.borderStrong),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: context.colors.border),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(16.r),
         child: Column(
           children: List.generate(widget.items.length, (i) {
             final item = widget.items[i];
             final expanded = _expandedIndex == i;
+
             return Column(
               children: [
                 Material(
@@ -305,25 +326,9 @@ class _FaqSectionState extends State<_FaqSection> {
                       () => _expandedIndex = expanded ? null : i,
                     ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 14.w, vertical: 14.h),
+                      padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 14.h),
                       child: Row(
                         children: [
-                          Container(
-                            width: 28.w,
-                            height: 28.w,
-                            decoration: BoxDecoration(
-                              color: context.colors.accentPurple
-                                  .withValues(alpha: 0.10),
-                              borderRadius: BorderRadius.circular(9.r),
-                            ),
-                            child: Icon(
-                              Icons.question_mark_rounded,
-                              size: 14.sp,
-                              color: context.colors.accentPurple,
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
                           Expanded(
                             child: Text(
                               item.question,
@@ -354,7 +359,9 @@ class _FaqSectionState extends State<_FaqSection> {
                   firstChild: const SizedBox.shrink(),
                   secondChild: Container(
                     width: double.infinity,
-                    padding: EdgeInsets.fromLTRB(54.w, 0, 14.w, 14.h),
+                    // Aligned to the question above it, now that the question
+                    // has no icon to indent past.
+                    padding: EdgeInsets.fromLTRB(14.w, 0, 14.w, 14.h),
                     child: Text(
                       item.answer,
                       style: TextStyle(
@@ -371,9 +378,9 @@ class _FaqSectionState extends State<_FaqSection> {
                 ),
                 if (i < widget.items.length - 1)
                   Container(
-                    margin: EdgeInsets.only(left: 14.w),
+                    margin: EdgeInsets.symmetric(horizontal: 14.w),
                     height: 0.5,
-                    color: context.colors.borderStrong,
+                    color: context.colors.border,
                   ),
               ],
             );
