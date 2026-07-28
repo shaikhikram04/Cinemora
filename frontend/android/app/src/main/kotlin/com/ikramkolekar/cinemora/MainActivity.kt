@@ -1,4 +1,4 @@
-package com.example.watchary
+package com.ikramkolekar.cinemora
 
 import io.flutter.embedding.android.FlutterActivity
 

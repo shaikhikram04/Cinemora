@@ -8,8 +8,24 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+// Upload-key credentials. Deliberately outside the repo's tracked files —
+// android/key.properties is gitignored, and the .jks it points at must never
+// be committed either. Losing that keystore means losing the ability to ship
+// an update to an existing Play listing, so keep an offline backup.
+//
+// Absent (a fresh clone, or CI without secrets) the release build falls back
+// to unsigned rather than failing: `flutter build apk --debug` and the whole
+// debug workflow stay usable. A release build without it produces an unsigned
+// artifact Play will reject — see android/key.properties.example.
+def keystorePropertiesFile = rootProject.file("key.properties")
+def keystoreProperties = new Properties()
+def hasReleaseKeystore = keystorePropertiesFile.exists()
+if (hasReleaseKeystore) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    namespace = "com.example.watchary"
+    namespace = "com.ikramkolekar.cinemora"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -23,8 +39,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.watchary"
+        // Permanent and unchangeable once the first build is uploaded to Play.
+        applicationId = "com.ikramkolekar.cinemora"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -33,11 +49,29 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            release {
+                keyAlias = keystoreProperties['keyAlias']
+                keyPassword = keystoreProperties['keyPassword']
+                storeFile = keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+                storePassword = keystoreProperties['storePassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig = hasReleaseKeystore ? signingConfigs.release : null
+
+            // Left off deliberately. R8 shrinking + obfuscation is worth
+            // turning on, but it can break reflective lookups at runtime in
+            // ways only a release build on a device reveals — so enable it as
+            // its own change, then smoke-test sign-in, push, and image upload:
+            //
+            //   minifyEnabled = true
+            //   shrinkResources = true
+            //   proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
 }

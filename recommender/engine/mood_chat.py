@@ -174,11 +174,17 @@ async def _load_or_create_session(user_id: str, session_id: str | None) -> dict:
     if todays >= settings.mood_max_sessions_per_day:
         raise MoodLimitError("sessions")
 
+    # Always a freshly minted id, never the caller's. Reaching here means the
+    # lookup above found nothing owned by this user — which includes the case
+    # where the id names a session belonging to someone ELSE. Honouring it would
+    # make the upsert in send_message land on that user's document, pushing this
+    # user's messages into their history and burning their turns.
+    #
     # Deliberately NOT written yet. send_message upserts it only after the model
     # turn succeeds — otherwise a transient upstream 503 persists an empty
     # session and silently burns one of the user's 2 daily sessions.
     return {
-        "_id": session_id or uuid.uuid4().hex,
+        "_id": uuid.uuid4().hex,
         "userId": user_id,
         "dayKey": day,
         "turnCount": 0,
@@ -321,10 +327,15 @@ async def send_message(user_id: str, session_id: str | None, text: str) -> dict:
     # _load_or_create_session) — $setOnInsert is a no-op for an existing one.
     coll = mood_sessions_collection()
     await coll.update_one(
-        {"_id": session["_id"]},
+        # userId is part of the filter, not just the payload: every write to
+        # this collection must be unable to touch another user's document even
+        # if an id slipped through from the request.
+        {"_id": session["_id"], "userId": user_id},
         {
+            # userId is omitted here on purpose — an upsert seeds the new
+            # document from the filter's equality clauses, so it already
+            # carries it, and naming it twice is just a chance to disagree.
             "$setOnInsert": {
-                "userId": user_id,
                 "dayKey": session["dayKey"],
                 "createdAt": session["createdAt"],
             },

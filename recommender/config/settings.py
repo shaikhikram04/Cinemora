@@ -1,6 +1,17 @@
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Values that were once shipped as defaults, or that appear verbatim in
+# .env.example. Any of them reaching a running process means the real secret
+# was never set — and since they're readable in the repo, they authenticate
+# nobody. Rejected outright rather than trusted.
+_PLACEHOLDER_SECRETS = {
+    "dev-secret-change-me",
+    "change-me-shared-with-node-backend",
+    "change-me-shared-with-recommender",
+}
 
 
 class Settings(BaseSettings):
@@ -12,7 +23,24 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
 
     tmdb_api_key: str = ""
-    internal_service_secret: str = "dev-secret-change-me"
+
+    # Deliberately has NO default. This is the only thing standing between the
+    # /internal/* routes and the internet: they trust the X-User-Id header
+    # outright, so anyone who can authenticate can read any user's data. A
+    # default would mean a missing env var silently downgrades to a secret
+    # published in this repo — so the service refuses to boot instead.
+    internal_service_secret: str
+
+    @field_validator("internal_service_secret")
+    @classmethod
+    def _reject_placeholder_secret(cls, v: str) -> str:
+        if v.strip() in _PLACEHOLDER_SECRETS or len(v.strip()) < 16:
+            raise ValueError(
+                "INTERNAL_SERVICE_SECRET must be set to a real, unpublished "
+                "value of at least 16 characters (generate one with "
+                "`openssl rand -hex 32`), and must match the backend's."
+            )
+        return v
 
     # Ingestion tuning
     ingestion_hour_utc: int = 3  # daily sweep time

@@ -4,10 +4,31 @@ const cors = require("cors");
 const connectDB = require("./config/database");
 require("./config/firebase"); // initialize firebase-admin
 const rateLimiter = require("./middlewares/rateLimiter");
+const AppError = require("./utils/AppError");
 
 const app = express();
 
-app.use(cors());
+// Behind a managed host (Render/Railway/Fly/nginx) every request arrives from
+// the proxy, so req.ip is the proxy's address unless we opt in to
+// X-Forwarded-For. Without this the rate limiter below buckets the entire
+// userbase into one counter: 300 req/min becomes a global cap, and the 10/min
+// auth limit locks everyone out after ten sign-ins.
+//
+// The value is the number of proxies in front of us — trusting only that many
+// hops means a client can't forge its own IP by sending X-Forwarded-For. Set
+// TRUST_PROXY_HOPS to match the deployment; 0 disables it for a direct bind.
+const trustProxyHops = Number(process.env.TRUST_PROXY_HOPS ?? 1);
+if (trustProxyHops > 0) app.set("trust proxy", trustProxyHops);
+
+// The clients are native apps, which don't send an Origin header and aren't
+// subject to CORS at all — so the default is to grant no browser origin.
+// CORS_ORIGINS (comma-separated) exists for a future web client or dashboard.
+const corsOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+app.use(cors({ origin: corsOrigins.length > 0 ? corsOrigins : false }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -44,12 +65,18 @@ app.use("/api/users", require("./routes/users"));
 app.use("/api/notifications", require("./routes/notifications"));
 app.use("/api/recommendations", require("./routes/recommendations"));
 
+// Only an AppError carries a message written to be read by a user. Anything
+// else reaching here is an internal failure — a Mongoose cast error, an axios
+// timeout, a bug — and its message describes our internals, so it stays in the
+// log and the client gets a generic one.
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(err.status || 500).json({
+  const isPublic = err instanceof AppError;
+  const status = isPublic ? err.status : 500;
+  res.status(status).json({
     error: {
-      code: err.code || "INTERNAL_ERROR",
-      message: err.message || "Server error",
+      code: isPublic ? err.code : "INTERNAL_ERROR",
+      message: isPublic ? err.message : "Something went wrong. Please try again.",
     },
   });
 });

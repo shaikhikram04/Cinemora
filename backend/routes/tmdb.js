@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const auth = require("../middlewares/auth");
+const { numericParam } = require("../middlewares/params");
 const {
   getTrending,
   search,
@@ -16,6 +17,10 @@ const {
 } = require("../controllers/tmdbController");
 
 router.use(auth);
+
+// Both feed straight into the upstream TMDB path — see middlewares/params.js.
+router.param("id", numericParam);
+router.param("season", numericParam);
 
 router.get("/trending", getTrending);
 router.get("/search", search);

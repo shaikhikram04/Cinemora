@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const auth = require("../middlewares/auth");
+const { numericParam } = require("../middlewares/params");
 const {
   getTop,
   getSeasonNow,
@@ -14,6 +15,9 @@ const {
 } = require("../controllers/jikanController");
 
 router.use(auth);
+
+// Interpolated into the upstream Jikan path — see middlewares/params.js.
+router.param("id", numericParam);
 
 router.get("/top", getTop);
 router.get("/seasons/now", getSeasonNow);

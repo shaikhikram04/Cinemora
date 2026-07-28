@@ -1,0 +1,27 @@
+# Copy to `key.properties` (gitignored) and fill in. Required only for signed
+# release builds — debug and profile builds work without it.
+#
+# To create the keystore this points at:
+#
+#   keytool -genkeypair -v \
+#     -keystore android/upload-keystore.jks \
+#     -storetype PKCS12 \
+#     -keyalg RSA -keysize 2048 -validity 10000 \
+#     -alias upload
+#
+# storeFile is resolved relative to android/app/, hence the leading `../`.
+#
+# Neither this keystore nor the password below may be committed. Back both up
+# somewhere offline: Play ties your listing to this key, and losing it means
+# you can never publish an update to that listing again.
+#
+# After creating it, register its SHA-1 with Firebase (Project settings →
+# your Android app → Add fingerprint) or Google Sign-In will fail in release
+# builds while working fine in debug:
+#
+#   keytool -list -v -keystore android/upload-keystore.jks -alias upload
+
+storePassword=
+keyPassword=
+keyAlias=upload
+storeFile=../upload-keystore.jks
