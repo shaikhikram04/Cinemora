@@ -70,6 +70,11 @@ const firebaseLogin = async (req, res, next) => {
       framePoster: user.framePoster,
       isOnboarded: user.isOnboarded,
       preferences: user.preferences,
+      // From `timestamps: true`. Named explicitly because this is the one user
+      // payload assembled by hand rather than selected off the document, and
+      // sign-in is exactly when a brand-new account shows up — the client holds
+      // its notification permission prompt back for an account's first day.
+      createdAt: user.createdAt,
     },
   });
 };

@@ -54,12 +54,19 @@ class OnboardingCubit extends Cubit<OnboardingState> {
   Future<void> submitPreferences() async {
     emit(state.copyWith(isSubmitting: true, clearSubmitError: true));
     try {
-      await _userRepository.updatePreferences(
+      // The refreshed user is carried into state rather than dropped: it's the
+      // only copy that has the selections on it, and the session is still
+      // holding the sign-in payload with empty preferences.
+      final user = await _userRepository.updatePreferences(
         contentTypes: state.selectedContentTypes,
         genres: state.selectedGenres,
         languages: state.selectedLanguages,
       );
-      emit(state.copyWith(isSubmitting: false, submitSuccess: true));
+      emit(state.copyWith(
+        isSubmitting: false,
+        submitSuccess: true,
+        submittedUser: user,
+      ));
     } on AppException catch (e) {
       emit(state.copyWith(isSubmitting: false, submitError: e.userMessage));
     } catch (_) {

@@ -54,6 +54,13 @@ class UserModel extends Equatable {
   final bool isOnboarded;
   final UserPreferences preferences;
 
+  /// When the account was created, straight off the server's `timestamps`.
+  ///
+  /// Nullable because a user cached by an older build won't carry it, and
+  /// because it's only advisory — see [isFirstDay], the one thing that reads
+  /// it. Never treat a null here as "new account".
+  final DateTime? createdAt;
+
   const UserModel({
     required this.id,
     required this.name,
@@ -64,6 +71,7 @@ class UserModel extends Equatable {
     this.framePoster,
     required this.isOnboarded,
     this.preferences = const UserPreferences(),
+    this.createdAt,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -80,6 +88,8 @@ class UserModel extends Equatable {
           ? UserPreferences.fromJson(
               json['preferences'] as Map<String, dynamic>)
           : const UserPreferences(),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '')
+          ?.toLocal(),
     );
   }
 
@@ -95,6 +105,7 @@ class UserModel extends Equatable {
         'framePoster': framePoster,
         'isOnboarded': isOnboarded,
         'preferences': preferences.toJson(),
+        'createdAt': createdAt?.toIso8601String(),
       };
 
   UserModel copyWith({
@@ -107,6 +118,7 @@ class UserModel extends Equatable {
     String? framePoster,
     bool? isOnboarded,
     UserPreferences? preferences,
+    DateTime? createdAt,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -118,11 +130,26 @@ class UserModel extends Equatable {
       framePoster: framePoster ?? this.framePoster,
       isOnboarded: isOnboarded ?? this.isOnboarded,
       preferences: preferences ?? this.preferences,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
   String get displayUsername =>
       username ?? name.toLowerCase().replaceAll(' ', '_');
+
+  /// Whether this account is less than a day old.
+  ///
+  /// Measured as 24 hours elapsed rather than "same calendar date", so someone
+  /// who signs up at 11pm isn't treated as a day-old user an hour later.
+  ///
+  /// Unknown ages answer `false`: a missing [createdAt] means an older cached
+  /// payload, which belongs to someone who has been signed in long enough for
+  /// that build to have written the cache — the opposite of a new account.
+  bool get isFirstDay {
+    final created = createdAt;
+    if (created == null) return false;
+    return DateTime.now().difference(created) < const Duration(days: 1);
+  }
 
   @override
   List<Object?> get props => [
@@ -134,6 +161,7 @@ class UserModel extends Equatable {
         avatar,
         framePoster,
         isOnboarded,
-        preferences
+        preferences,
+        createdAt,
       ];
 }

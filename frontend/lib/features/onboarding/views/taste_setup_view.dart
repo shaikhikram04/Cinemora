@@ -205,7 +205,25 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
           );
         }
         if (state.submitSuccess) {
-          context.read<AppAuthCubit>().markOnboarded();
+          // Prefer the saved user over flipping the flag by hand: the same
+          // request that set isOnboarded also stored the selections, and this
+          // is the only copy carrying them. markOnboarded() alone would leave
+          // the session on the sign-in payload, whose preferences are empty —
+          // which is what made Edit Profile fall back to its placeholder
+          // genres and languages right after onboarding.
+          //
+          // isOnboarded is forced rather than trusted from the response: the
+          // server does set it on this same request, but reaching this line is
+          // itself proof onboarding is done, and a false flag sneaking through
+          // would both bounce the router back here and get written to the
+          // offline cache by updateUser.
+          final saved = state.submittedUser;
+          final authCubit = context.read<AppAuthCubit>();
+          if (saved != null) {
+            authCubit.updateUser(saved.copyWith(isOnboarded: true));
+          } else {
+            authCubit.markOnboarded();
+          }
           // Only a freshly created account reaches this line, which is what
           // makes it the right place to unlock the first-run tour — a returning
           // user signing in on a new phone skips onboarding entirely.

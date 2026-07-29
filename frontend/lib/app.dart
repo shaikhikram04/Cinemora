@@ -33,10 +33,6 @@ import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
 import 'package:cinemora/features/tour/viewmodels/tour_state.dart';
 import 'package:cinemora/features/tour/widgets/tour_overlay.dart';
 
-/// Set the first time the app reaches an authenticated state on this device.
-/// Gates the notification permission prompt away from that first run.
-const _kFirstRunDoneKey = 'first_authenticated_run_done';
-
 class CinemoraApp extends StatefulWidget {
   final AppAuthCubit authCubit;
   final NetworkStatusCubit networkStatusCubit;
@@ -135,18 +131,19 @@ class _CinemoraAppState extends State<CinemoraApp> {
         // Permission prompt + token sync; a push arriving in the foreground
         // just refreshes the badge, and tapping one opens the title it's about.
         //
-        // The prompt is held back on the very first authenticated run. Landing
-        // an OS permission dialog on someone who has been signed in for a few
-        // seconds asks them to decide about notifications before they've seen
-        // what the app sends — and on a new account it lands on top of the
-        // first-run tour. From the next launch it prompts as normal, and the
-        // notification settings screen can request it explicitly at any point.
-        final isFirstRun = !(widget.prefs.getBool(_kFirstRunDoneKey) ?? false);
-        widget.prefs.setBool(_kFirstRunDoneKey, true);
+        // The prompt is held back for the account's whole first day. Landing an
+        // OS permission dialog on someone who signed up minutes ago asks them
+        // to decide about notifications before they've seen what the app sends
+        // — and on a new account it would land on the onboarding form or on top
+        // of the first-run tour. This is keyed off the account's age rather
+        // than anything stored on the device, because a device-scoped flag is
+        // already spent by the time the *second* account signs in on the same
+        // phone, which is exactly when a new user would get prompted mid-
+        // onboarding. The settings screen can still request it at any point.
         _pushService.start(
           onForegroundMessage: _notificationsCubit.refreshUnreadCount,
           onNotificationTap: _openPushTarget,
-          canPrompt: !isFirstRun,
+          canPrompt: !state.user.isFirstDay,
         );
       } else if (state is AppAuthUnauthenticated) {
         _rankingsCubit.clear();
