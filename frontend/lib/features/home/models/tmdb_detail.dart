@@ -1,4 +1,3 @@
-import 'package:cinemora/core/constants/assets_path.dart';
 import 'package:cinemora/features/franchise/models/franchise_summary.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
 
@@ -29,13 +28,11 @@ class CrewMember {
 class StreamingProvider {
   final String name;
   final String type; // "Subscription" | "Rent" | "Buy"
-  final String? assetPath;
   final String? logoUrl;
 
   const StreamingProvider({
     required this.name,
     required this.type,
-    this.assetPath,
     this.logoUrl,
   });
 
@@ -724,7 +721,6 @@ List<StreamingProvider> _parseProviders(Map<String, dynamic> json) {
       providers.add(StreamingProvider(
         name: name,
         type: type,
-        assetPath: AppImages.forProvider(name),
         logoUrl: logoPath != null
             ? 'https://image.tmdb.org/t/p/original$logoPath'
             : null,

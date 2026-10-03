@@ -6,7 +6,6 @@ import 'package:cinemora/common/widgets/containers/top_gradient_background_conta
 import 'package:cinemora/common/widgets/cards/poster_image.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/network_images_path.dart';
-import 'package:cinemora/core/constants/shadows.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/utils/device_utils.dart';
 import 'package:cinemora/core/utils/image_preloader.dart';
@@ -78,14 +77,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
   /// resized provider, so a mismatch would fetch twice rather than once.
   void _preloadLaterPages() {
     precacheImages(context, [
-      // Page 2 — the recommendation card.
-      PosterImage.providerFor(
-        context,
-        image: NetworkImagesPath.dunePoster,
-        width: 74.w,
-        height: 116.h,
-      ),
-      // Page 3 — the sign-in grid, every poster at one uniform size.
+      // Page 1 — the sign-in grid, every poster at one uniform size.
       for (final image in _kPosterImages)
         PosterImage.providerFor(
           context,
@@ -159,7 +151,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
                               WSizes.sm,
                         ),
                         PageViewProgressBar(
-                          totalPages: 4,
+                          totalPages: WelcomeCubit.totalPages,
                           currentPage: state.currentPage,
                           onSkip: cubit.jumpToLast,
                         ),
@@ -168,10 +160,8 @@ class _WelcomeContentState extends State<_WelcomeContent> {
                             controller: _pageController,
                             onPageChanged: cubit.pageChanged,
                             children: [
-                              _buildPage0(cubit),
-                              _buildPage1(cubit),
-                              _buildPage2(cubit),
-                              _buildPage3(context),
+                              _buildIntroPage(cubit),
+                              _buildSignInPage(context),
                             ],
                           ),
                         ),
@@ -187,9 +177,9 @@ class _WelcomeContentState extends State<_WelcomeContent> {
     );
   }
 
-  // ── Page 0 — Track ─────────────────────────────────────────────────────────
+  // ── Page 0 — What this is ──────────────────────────────────────────────────
 
-  Widget _buildPage0(WelcomeCubit cubit) {
+  Widget _buildIntroPage(WelcomeCubit cubit) {
     return WelcomePageLayout(
       visual: Stack(
         clipBehavior: Clip.none,
@@ -283,203 +273,9 @@ class _WelcomeContentState extends State<_WelcomeContent> {
     );
   }
 
-  // ── Page 1 — Organize ──────────────────────────────────────────────────────
+  // ── Page 1 — Sign In ───────────────────────────────────────────────────────
 
-  Widget _buildPage1(WelcomeCubit cubit) {
-    return WelcomePageLayout(
-      visual: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(height: 62.h),
-          const FeatureTile(
-            icon: Icons.bookmark_border_rounded,
-            iconColor: Color(0xFF5EA2FF),
-            title: 'Instant Save',
-            subtitle: 'Add any movie in one tap',
-            trailingColor: Color(0xFF5EA2FF),
-          ),
-          SizedBox(height: WSizes.sm),
-          FeatureTile(
-            icon: Icons.star_border_rounded,
-            iconColor: context.colors.tertiary,
-            title: 'Rate & Review',
-            subtitle: 'Build your taste profile',
-            trailingColor: context.colors.tertiary,
-          ),
-          SizedBox(height: WSizes.sm),
-          const FeatureTile(
-            icon: Icons.auto_awesome_outlined,
-            iconColor: Color(0xFFA678FF),
-            title: 'AI Discovery',
-            subtitle: 'Finds your next obsession',
-            trailingColor: Color(0xFFA678FF),
-          ),
-        ],
-      ),
-      label: 'ORGANIZE',
-      title: 'Never forget\nwhat to watch.',
-      subtitle:
-          'Build the perfect watchlist and never lose track\nof a recommendation again.',
-      primaryButton: 'Continue',
-      onPrimaryPressed: cubit.nextPage,
-    );
-  }
-
-  // ── Page 2 — Discover ──────────────────────────────────────────────────────
-
-  Widget _buildPage2(WelcomeCubit cubit) {
-    return WelcomePageLayout(
-      visual: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: WSizes.sm),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(WSizes.md),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(WSizes.radiusLg),
-                color: context.colors.card.withAlpha(230),
-                border: Border.all(color: context.colors.border),
-                boxShadow: WShadow.cardGlow,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: const Color(0xFFC758B6),
-                        child: Icon(
-                          Icons.auto_awesome,
-                          size: 15.sp,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(width: WSizes.sm),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'AI Recommendation',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Based on your profile',
-                            style: TextStyle(
-                              color: context.colors.mutedForeground,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: WSizes.md),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      PosterImage(
-                        image: NetworkImagesPath.dunePoster,
-                        width: 74.w,
-                        height: 116.h,
-                        radius: 14.r,
-                      ),
-                      const SizedBox(width: WSizes.sm),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Dune: Part Two',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
-                              ),
-                            ),
-                            SizedBox(height: 4.h),
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: '★ 8.7   ',
-                                    style: TextStyle(
-                                      color: context.colors.chartYellow,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: 'Sci-Fi',
-                                    style: TextStyle(
-                                      color: context.colors.mutedForeground,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
-                              ),
-                            ),
-                            SizedBox(height: 8.h),
-                            TagChip(
-                              text: 'Because you liked Inception',
-                              background: const Color(0x25972FFF),
-                              border: const Color(0x3AB752FF),
-                              textColor: const Color(0xDFE6C1FF),
-                              icon: Icons.auto_awesome,
-                            ),
-                            SizedBox(height: 6.h),
-                            TagChip(
-                              text: 'Matches your Sci-Fi taste',
-                              background: const Color(0x1A2E8CFF),
-                              border: const Color(0x663C96FF),
-                              textColor: const Color(0xFFA4C9FF),
-                              icon: Icons.star_border,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: WSizes.md),
-            const Wrap(
-              spacing: WSizes.sm,
-              runSpacing: WSizes.sm,
-              children: [
-                MoodChip(text: '😌 Emotional'),
-                MoodChip(text: '🤯 Mind-Blown'),
-                MoodChip(text: '🔥 Hyped', highlighted: true),
-                MoodChip(text: '😱 Scared'),
-              ],
-            ),
-          ],
-        ),
-      ),
-      label: 'DISCOVER',
-      title: 'AI that knows\nyour taste.',
-      subtitle:
-          'Tell us your mood, get a perfect pick — with\ncontext on why it fits you.',
-      primaryButton: 'Continue',
-      onPrimaryPressed: cubit.nextPage,
-    );
-  }
-
-  // ── Page 3 — Sign In ───────────────────────────────────────────────────────
-
-  Widget _buildPage3(BuildContext context) {
+  Widget _buildSignInPage(BuildContext context) {
     final isLoading = context.select<AppAuthCubit, bool>(
       (c) => c.state is AppAuthLoading,
     );

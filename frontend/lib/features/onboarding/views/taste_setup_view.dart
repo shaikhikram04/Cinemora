@@ -13,110 +13,70 @@ import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/authentication/viewmodels/app_auth_cubit.dart';
 import 'package:cinemora/features/onboarding/viewmodels/onboarding_cubit.dart';
 import 'package:cinemora/features/onboarding/viewmodels/onboarding_state.dart';
-import 'package:cinemora/features/onboarding/views/onboarding_success_view.dart';
 import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
 import 'package:cinemora/core/utils/image_preloader.dart';
-import 'package:cinemora/core/constants/assets_path.dart';
-import 'package:cinemora/features/onboarding/widgets/content_type_card.dart';
-import 'package:cinemora/common/widgets/icons/app_icon.dart';
 
 // ── Static configuration data (not business state) ────────────────────────────
-
-const _kContentTypes = [
-  {
-    'key': 'movies',
-    'title': 'Movies',
-    'subtitle': 'Feature films from\naround the world',
-    'imageUrl': NetworkImagesPath.inceptionPoster,
-  },
-  {
-    'key': 'series',
-    'title': 'Web Series',
-    'subtitle': 'Binge-worthy episodic\nstorytelling',
-    'imageUrl': NetworkImagesPath.gameOfThronePoster,
-  },
-  {
-    'key': 'anime',
-    'title': 'Anime',
-    'subtitle': 'Japanese animation &\nmanga adaptations',
-    'imageUrl': NetworkImagesPath.onePunchManPoster,
-  },
-];
 
 // Genres come from TasteOptions so this screen and Edit Profile can never
 // offer different sets — see the note in taste_options.dart.
 const _kGenres = TasteOptions.genres;
 
+// Each language is marked by a letter from its own script, not by a flag.
+//
+// Flags were wrong twice over: a language isn't a country — 🇺🇸 for English
+// tells a British or Indian user this app wasn't built with them in mind — and
+// the four Indian regional languages had no flag to fall back on, so they all
+// got the plain white 🏳️. A white flag reads as surrender, and it landed on
+// exactly the audience least well served by the rest of this list. A glyph
+// works for every language on earth, needs no fallback, and inherits the
+// tile's text colour instead of fighting it with an emoji palette.
 const _kLanguages = [
   {
     'key': 'English',
-    'emoji': '🇺🇸',
+    'glyph': 'Aa',
     'imageUrl': NetworkImagesPath.inceptionPoster,
   },
   {
     'key': 'Hindi',
-    'emoji': '🇮🇳',
+    'glyph': 'हि',
     'imageUrl': NetworkImagesPath.theFamiliManPoster,
   },
   {
     'key': 'Japanese',
-    'emoji': '🇯🇵',
+    'glyph': 'あ',
     'imageUrl': NetworkImagesPath.myHeroAcedemiaPoster,
   },
   {
     'key': 'Korean',
-    'emoji': '🇰🇷',
+    'glyph': '한',
     'imageUrl': NetworkImagesPath.oldboyPoster,
   },
   {
     'key': 'Tamil',
-    'emoji': '🏳️',
+    'glyph': 'த',
     'imageUrl': NetworkImagesPath.jailerPoster,
   },
   {
     'key': 'Telugu',
-    'emoji': '🏳️',
+    'glyph': 'తె',
     'imageUrl': NetworkImagesPath.bahubaliPoster,
   },
   {
     'key': 'Malayalam',
-    'emoji': '🏳️',
+    'glyph': 'മ',
     'imageUrl': NetworkImagesPath.bramayugamPoster,
   },
   {
     'key': 'Marathi',
-    'emoji': '🏳️',
+    'glyph': 'म',
     'imageUrl': NetworkImagesPath.sairatPoster,
   },
   {
     'key': 'Other',
-    'emoji': '🌐',
+    'glyph': '⋯',
     'imageUrl': NetworkImagesPath.globePoster,
   },
-];
-
-const _kPlatforms = [
-  {'key': 'Netflix', 'image': AppImages.netflix, 'color': Color(0xFFE50914)},
-  {
-    'key': 'Prime Video',
-    'image': AppImages.amazonPrimeVideo,
-    'color': Color(0xFF00A8E1)
-  },
-  {'key': 'Disney+', 'image': AppImages.disneyPlus, 'color': Color(0xFF1F318C)},
-  {
-    'key': 'Crunchyroll',
-    'image': AppImages.crunchyroll,
-    'color': Color(0xFFF47521)
-  },
-  {
-    'key': 'JioHotstar',
-    'image': AppImages.jioHotstar,
-    'color': Color(0xFF1A3CB5)
-  },
-  {'key': 'SonyLIV', 'image': AppImages.sonyLiv, 'color': Color(0xFF0070C0)},
-  {'key': 'ZEE5', 'image': AppImages.zee5, 'color': Color(0xFF8B5CF6)},
-  {'key': 'Apple TV+', 'image': AppImages.appleTv, 'color': Color(0xFF555555)},
-  {'key': 'Mubi', 'image': AppImages.mubi, 'color': Color(0xFF33BBFF)},
 ];
 
 // ── Entry point — provides OnboardingCubit ─────────────────────────────────────
@@ -167,19 +127,13 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
   /// own three content-type posters are excluded — they're already loading as
   /// this runs.
   ///
-  /// All of these render through a plain `Image.network` / `Image.asset` with
-  /// no resize, so bare providers are the matching cache keys here. Posters
-  /// drawn by PosterImage are not — those need `PosterImage.providerFor`.
+  /// These render through a plain `Image.network` with no resize, so bare
+  /// providers are the matching cache keys here. Posters drawn by PosterImage
+  /// are not — those need `PosterImage.providerFor`.
   void _preloadLaterSteps() {
     precacheImages(context, [
       for (final language in _kLanguages)
         NetworkImage(language['imageUrl'] as String),
-      // Bundled assets rather than network, but still worth a warm decode —
-      // the platform grid is a wall of logos that all appear together.
-      for (final platform in _kPlatforms)
-        AssetImage(platform['image'] as String),
-      // The success screen is always the next route after this one.
-      for (final poster in kOnboardingSuccessPosters) NetworkImage(poster),
     ]);
   }
 
@@ -226,9 +180,16 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
           }
           // Only a freshly created account reaches this line, which is what
           // makes it the right place to unlock the first-run tour — a returning
-          // user signing in on a new phone skips onboarding entirely.
+          // user signing in on a new phone skips onboarding entirely. Arming
+          // is not starting: the tour waits for the user to settle on the home
+          // feed rather than opening on top of it.
           context.read<TourCubit>().arm();
-          context.go(AppRoutes.onboardingSuccess);
+          // Straight to the feed. The interstitial that used to sit here threw
+          // confetti at someone for completing a form, then asked for one more
+          // tap to reach the thing they'd actually come for — a second
+          // ceremony stacked on the tour that follows. The feed built from
+          // these answers is the reward.
+          context.go(AppRoutes.home);
         }
         if (state.submitError != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -280,9 +241,6 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                       children: [
                         _buildStep1(state, cubit),
                         _buildStep2(state, cubit),
-                        _buildStep3(state, cubit),
-                        _buildStep4(state, cubit),
-                        _buildStep5(state),
                       ],
                     ),
                   ),
@@ -367,70 +325,15 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
     );
   }
 
-  // ── Step 1: Content Types ─────────────────────────────────────────────────────
+  // ── Step 1: Genres ────────────────────────────────────────────────────────────
 
   Widget _buildStep1(OnboardingState state, OnboardingCubit cubit) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepHeader(
-          label: 'STEP 1',
-          title: 'What do you love\nwatching?',
-          subtitle: 'Choose one or more content types.',
-        ),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.all(WSizes.md.w),
-            child: GridView.count(
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: WSizes.sm.w,
-              mainAxisSpacing: WSizes.sm.h,
-              childAspectRatio: 1.35,
-              children: _kContentTypes.map((item) {
-                final key = item['key'] as String;
-                return ContentTypeCard(
-                  title: item['title'] as String,
-                  subtitle: item['subtitle'] as String,
-                  imageUrl: item['imageUrl'] as String,
-                  icon: _contentTypeIcon(key),
-                  isSelected: state.isContentTypeSelected(key),
-                  onTap: () => cubit.toggleContentType(key),
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-        _buildValidationHint(
-          show: state.selectedContentTypes.isEmpty,
-          message: 'Select at least 1 content type to continue',
-        ),
-      ],
-    );
-  }
-
-  Widget _contentTypeIcon(String key) {
-    switch (key) {
-      case 'movies':
-        return AppIcon(AppIcons.movie, size: 24.sp);
-      case 'series':
-        return AppIcon(AppIcons.tvShow, size: 24.sp);
-      case 'anime':
-        return AppIcon(AppIcons.anime, size: 24.sp);
-      default:
-        return AppIcon(AppIcons.movie, size: 24.sp);
-    }
-  }
-
-  // ── Step 2: Genres ────────────────────────────────────────────────────────────
-
-  Widget _buildStep2(OnboardingState state, OnboardingCubit cubit) {
     final remaining = (3 - state.selectedGenres.length).clamp(0, 3);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildStepHeader(
-          label: 'STEP 2',
+          label: 'STEP 1',
           title: 'Pick your genres',
           subtitle: 'Select at least 3',
         ),
@@ -497,14 +400,14 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
     );
   }
 
-  // ── Step 3: Languages ─────────────────────────────────────────────────────────
+  // ── Step 2: Languages ─────────────────────────────────────────────────────────
 
-  Widget _buildStep3(OnboardingState state, OnboardingCubit cubit) {
+  Widget _buildStep2(OnboardingState state, OnboardingCubit cubit) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildStepHeader(
-          label: 'STEP 3',
+          label: 'STEP 2',
           title: 'Languages you enjoy',
           subtitle: 'Select all that apply.',
         ),
@@ -553,8 +456,14 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              lang['emoji'] as String,
-                              style: TextStyle(fontSize: 26.sp),
+                              lang['glyph'] as String,
+                              style: TextStyle(
+                                fontSize: 26.sp,
+                                height: 1.1,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white
+                                    .withAlpha(isSelected ? 255 : 225),
+                              ),
                             ),
                             SizedBox(height: 6.h),
                             Text(
@@ -597,248 +506,6 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
           message: 'Select at least 1 language to continue',
         ),
       ],
-    );
-  }
-
-  // ── Step 4: Platforms ─────────────────────────────────────────────────────────
-
-  Widget _buildStep4(OnboardingState state, OnboardingCubit cubit) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepHeader(
-          label: 'STEP 4',
-          title: 'Where do you stream?',
-          subtitle: 'Select your active platforms.',
-        ),
-        Expanded(
-          child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: WSizes.md.w),
-            itemCount: _kPlatforms.length,
-            separatorBuilder: (_, __) =>
-                Divider(color: context.colors.border, height: 1),
-            itemBuilder: (_, i) {
-              final item = _kPlatforms[i];
-              final key = item['key'] as String;
-              final isSelected = state.isPlatformSelected(key);
-              final color = item['color'] as Color;
-              return InkWell(
-                onTap: () => cubit.togglePlatform(key),
-                splashColor: Colors.transparent,
-                highlightColor: context.colors.surfaceRaised.withAlpha(80),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 14.h),
-                  child: Row(
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 160),
-                        width: 44.w,
-                        height: 44.w,
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(WSizes.radiusMd.r),
-                          color: context.colors.surfaceRaised,
-                          border: Border.all(
-                            color: isSelected
-                                ? color.withAlpha(180)
-                                : context.colors.border,
-                            width: isSelected ? 1.5 : 1,
-                          ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(WSizes.radiusMd.r - 1),
-                          child: Image.asset(
-                            item['image'] as String,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: WSizes.md.w),
-                      Expanded(
-                        child: Text(
-                          key,
-                          style: TextStyle(
-                            color: context.colors.foreground,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15.sp,
-                          ),
-                        ),
-                      ),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 160),
-                        width: 22.w,
-                        height: 22.w,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isSelected
-                              ? context.colors.primary
-                              : Colors.transparent,
-                          border: Border.all(
-                            color: isSelected
-                                ? context.colors.primary
-                                : context.colors.surfaceTint,
-                            width: 2,
-                          ),
-                        ),
-                        child: isSelected
-                            ? Icon(
-                                Icons.check_rounded,
-                                color: Colors.white,
-                                size: 14.sp,
-                              )
-                            : null,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        _buildValidationHint(
-          show: state.selectedPlatforms.isEmpty,
-          message: 'Select at least 1 platform to continue',
-        ),
-      ],
-    );
-  }
-
-  // ── Step 5: Review ────────────────────────────────────────────────────────────
-
-  Widget _buildStep5(OnboardingState state) {
-    final divider =
-        Divider(color: context.colors.border, height: 1, thickness: 1);
-
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildStepHeader(
-            label: 'STEP 5',
-            title: 'Your taste profile',
-            subtitle: "Everything looks good? Let's go!",
-          ),
-          SizedBox(height: WSizes.xs.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: WSizes.md.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildReviewSection(
-                  dotColor: context.colors.primary,
-                  label: 'CONTENT TYPES',
-                  chips: state.selectedContentTypes,
-                ),
-                divider,
-                _buildReviewSection(
-                  dotColor: context.colors.accentPurple,
-                  label: 'GENRES',
-                  chips: state.selectedGenres,
-                  count: state.selectedGenres.isNotEmpty
-                      ? state.selectedGenres.length
-                      : null,
-                ),
-                divider,
-                _buildReviewSection(
-                  dotColor: context.colors.chartGreen,
-                  label: 'LANGUAGES',
-                  chips: state.selectedLanguages,
-                ),
-                divider,
-                _buildReviewSection(
-                  dotColor: context.colors.tertiary,
-                  label: 'PLATFORMS',
-                  chips: state.selectedPlatforms,
-                ),
-                SizedBox(height: 100.h),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReviewSection({
-    required Color dotColor,
-    required String label,
-    required List<String> chips,
-    int? count,
-  }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: WSizes.md.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 6.w,
-                height: 6.w,
-                decoration:
-                    BoxDecoration(shape: BoxShape.circle, color: dotColor),
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                label,
-                style: TextStyle(
-                  color: context.colors.mutedSecondary,
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              if (count != null) ...[
-                const Spacer(),
-                Text(
-                  '$count selected',
-                  style: TextStyle(
-                    color: context.colors.mutedForeground,
-                    fontSize: 11.sp,
-                  ),
-                ),
-              ],
-            ],
-          ),
-          SizedBox(height: 10.h),
-          chips.isEmpty
-              ? Text(
-                  'Skipped',
-                  style: TextStyle(
-                    color: context.colors.mutedForeground.withAlpha(120),
-                    fontSize: 13.sp,
-                    fontStyle: FontStyle.italic,
-                  ),
-                )
-              : Wrap(
-                  spacing: WSizes.xs.w,
-                  runSpacing: WSizes.xs.h,
-                  children: chips.map((text) {
-                    return Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10.w,
-                        vertical: 5.h,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(WSizes.radiusFull.r),
-                        color: dotColor.withAlpha(18),
-                        border: Border.all(color: dotColor.withAlpha(55)),
-                      ),
-                      child: Text(
-                        text,
-                        style: TextStyle(
-                          color: context.colors.foreground,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-        ],
-      ),
     );
   }
 
@@ -901,7 +568,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            isLast ? 'Confirm & Finish' : 'Continue',
+                            isLast ? 'Finish' : 'Continue',
                             style: TextStyle(
                               color: disabled
                                   ? context.colors.mutedForeground
@@ -925,27 +592,31 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
               ),
             ),
           ),
-          if (!isLast) ...[
-            SizedBox(height: 12.h),
-            GestureDetector(
-              onTap: () {
-                FocusScope.of(context).unfocus();
-                cubit.skipCurrentStep();
-              },
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 4.h),
-                child: Text(
-                  'Skip this step',
-                  style: TextStyle(
-                    color:
-                        context.colors.mutedForeground.withValues(alpha: 0.6),
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
+          // Shown on the last step too. With only two steps left, hiding it
+          // there would have made the final answer the one thing in the flow
+          // nobody can decline — and languages are a preference, not a
+          // requirement. Skipping the last step clears it and submits.
+          SizedBox(height: 12.h),
+          GestureDetector(
+            onTap: state.isSubmitting
+                ? null
+                : () {
+                    FocusScope.of(context).unfocus();
+                    cubit.skipCurrentStep();
+                    if (isLast) cubit.submitPreferences();
+                  },
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 4.h),
+              child: Text(
+                isLast ? 'Skip for now' : 'Skip this step',
+                style: TextStyle(
+                  color: context.colors.mutedForeground.withValues(alpha: 0.6),
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-          ],
+          ),
         ],
       ),
     );

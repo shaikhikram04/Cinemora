@@ -17,7 +17,6 @@ import 'package:cinemora/features/home/views/movie_details_view.dart';
 import 'package:cinemora/features/home/views/series_details_view.dart';
 import 'package:cinemora/features/library/views/library_view.dart';
 import 'package:cinemora/features/notifications/views/notifications_view.dart';
-import 'package:cinemora/features/onboarding/views/onboarding_success_view.dart';
 import 'package:cinemora/features/onboarding/views/taste_setup_view.dart';
 import 'package:cinemora/features/profile/views/profile_view.dart';
 import 'package:cinemora/features/rankings/views/rankings_view.dart';
@@ -112,9 +111,6 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
       if (authState is AppAuthAuthenticated) {
         final isOnboarded = authState.user.isOnboarded;
 
-        // Always allow the success screen — it's the reward after finishing onboarding
-        if (location == AppRoutes.onboardingSuccess) return null;
-
         if (!isOnboarded) {
           if (location != AppRoutes.onboarding) return AppRoutes.onboarding;
           return null;
@@ -158,10 +154,6 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
       GoRoute(
         path: AppRoutes.onboarding,
         builder: (context, state) => const TasteSetupView(),
-      ),
-      GoRoute(
-        path: AppRoutes.onboardingSuccess,
-        builder: (context, state) => const OnboardingSuccessView(),
       ),
 
       // ── Shell (bottom nav) ────────────────────────────────────────────────

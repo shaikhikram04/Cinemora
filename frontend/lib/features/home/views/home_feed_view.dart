@@ -628,7 +628,12 @@ class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
     // carousel advance under the spotlight would swap the title out from under
     // the user mid-step — and the step tracks a specific title, so the tap
     // would then never satisfy it.
-    if (context.read<TourCubit>().state.step.isRunning) return;
+    //
+    // holdsHero, not step.isRunning: only the first pick carries the tour
+    // anchor, and advancing past it unmounts that anchor. Do that while the
+    // invitation is still on screen — or during the delay before it appears —
+    // and accepting the tour spotlights a widget that no longer exists.
+    if (context.read<TourCubit>().holdsHero) return;
     _autoScrollTimer = Timer.periodic(_autoScrollInterval, (_) {
       if (!_controller.hasClients) return;
       final next = (_page + 1) % widget.picks.length;
@@ -655,17 +660,21 @@ class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<TourCubit, TourState>(
-      // The tour usually starts a beat after this carousel has already begun
+    return BlocConsumer<TourCubit, TourState>(
+      // The tour usually engages a beat after this carousel has already begun
       // ticking, so the guard in _startAutoScroll isn't enough on its own.
-      listenWhen: (prev, curr) => prev.step.isRunning != curr.step.isRunning,
+      // Resuming is left to _startAutoScroll's own check — by the time the tour
+      // disengages it has also been marked complete, so the carousel is free.
+      listenWhen: (prev, curr) => prev.isEngaged != curr.isEngaged,
       listener: (context, state) =>
-          state.step.isRunning ? _autoScrollTimer?.cancel() : _startAutoScroll(),
-      child: _buildCarousel(context),
+          state.isEngaged ? _autoScrollTimer?.cancel() : _startAutoScroll(),
+      buildWhen: (prev, curr) => prev.isEngaged != curr.isEngaged,
+      builder: (context, _) =>
+          _buildCarousel(context, context.read<TourCubit>().holdsHero),
     );
   }
 
-  Widget _buildCarousel(BuildContext context) {
+  Widget _buildCarousel(BuildContext context, bool frozen) {
     return Column(
       children: [
         SizedBox(
@@ -682,6 +691,11 @@ class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
             },
             child: PageView.builder(
               controller: _controller,
+              // Swipes are locked out for the same reason the timer is: only
+              // the first pick carries the tour's anchor, and a drag off it
+              // unmounts the widget the tour is about to point at. Brief —
+              // it lasts until the invitation is answered.
+              physics: frozen ? const NeverScrollableScrollPhysics() : null,
               itemCount: widget.picks.length,
               onPageChanged: (i) => setState(() => _page = i),
               itemBuilder: (context, i) {

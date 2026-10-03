@@ -108,7 +108,9 @@ class _TourOverlayState extends State<TourOverlay>
         _onStepChanged(previous, state.step);
       },
       buildWhen: (prev, curr) =>
-          prev.step != curr.step || prev.target != curr.target,
+          prev.step != curr.step ||
+          prev.target != curr.target ||
+          prev.isInviting != curr.isInviting,
       builder: (context, state) {
         // The Stack is unconditional and the router always sits at index 0.
         // Swapping between `child` and `Stack(children: [child, ...])` would
@@ -118,6 +120,11 @@ class _TourOverlayState extends State<TourOverlay>
         return Stack(
           children: [
             widget.child,
+            // Outside the AnimatedBuilder below on purpose: the invitation is a
+            // still card with its own entrance, and the step animations it
+            // would otherwise listen to repaint every frame for nothing.
+            if (state.isInviting)
+              const Positioned.fill(child: _InvitationScrim()),
             if (state.step.isRunning)
               Positioned.fill(
                 child: AnimatedBuilder(
@@ -493,6 +500,126 @@ class _CaretPainter extends CustomPainter {
 }
 
 // ─── Closing card ─────────────────────────────────────────────────────────────
+
+/// The card that offers the tour, before any step runs.
+///
+/// Modal on purpose, and dismissible only through its two buttons: declining is
+/// permanent, so it should take a deliberate tap rather than a stray one on the
+/// scrim. Both buttons read as answers to the question — there is no third
+/// "later" here, because [TourCubit.declineInvitation] does not ask again.
+class _InvitationScrim extends StatelessWidget {
+  const _InvitationScrim();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final cubit = context.read<TourCubit>();
+
+    return Material(
+      type: MaterialType.transparency,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {},
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 260),
+          curve: Curves.easeOut,
+          builder: (context, t, child) => Container(
+            // Lighter than the celebration scrim: the feed behind this one is
+            // the thing being offered a tour of, and it stays legible.
+            color: Colors.black.withValues(alpha: 0.55 * t),
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 32.w),
+            child: Opacity(
+              opacity: t,
+              child: Transform.translate(
+                offset: Offset(0, 12.h * (1 - t)),
+                child: child,
+              ),
+            ),
+          ),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(22.w, 24.h, 22.w, 16.h),
+            decoration: BoxDecoration(
+              color: colors.surfaceRaised,
+              borderRadius: BorderRadius.circular(24.r),
+              border: Border.all(color: colors.borderStrong),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('🍿', style: TextStyle(fontSize: 40.sp)),
+                SizedBox(height: 12.h),
+                Text(
+                  tourInvitation.title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: colors.foreground,
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Text(
+                  tourInvitation.body,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: colors.mutedSecondary,
+                    fontSize: 13.sp,
+                    height: 1.4,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                GestureDetector(
+                  onTap: cubit.acceptInvitation,
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 13.h),
+                    decoration: BoxDecoration(
+                      color: colors.accentRed,
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Show me around",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                GestureDetector(
+                  onTap: cubit.declineInvitation,
+                  child: Container(
+                    width: double.infinity,
+                    color: Colors.transparent,
+                    padding: EdgeInsets.symmetric(vertical: 13.h),
+                    child: Center(
+                      child: Text(
+                        "I'll explore myself",
+                        style: TextStyle(
+                          color: colors.mutedSecondary,
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _CelebrationScrim extends StatelessWidget {
   final double opacity;

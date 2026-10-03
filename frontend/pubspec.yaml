@@ -67,7 +67,6 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/streaming_platforms/
     - assets/icons/
     - assets/animations/
 

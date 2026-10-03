@@ -11,7 +11,6 @@ abstract class AppRoutes {
 
   // ── Onboarding ────────────────────────────────────────────────────────────
   static const onboarding = '/onboarding';
-  static const onboardingSuccess = '/onboarding/success';
 
   // ── Shell tabs ────────────────────────────────────────────────────────────
   static const home = '/home';

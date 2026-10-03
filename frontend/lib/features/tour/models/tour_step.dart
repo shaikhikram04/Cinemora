@@ -94,6 +94,15 @@ class TourCopy {
   const TourCopy(this.title, this.body);
 }
 
+/// The card that asks first. Names what the tour covers and roughly what it
+/// costs, because "want a tour?" with neither is a question nobody can answer
+/// — and the honest answer to a vague one is no.
+const tourInvitation = TourCopy(
+  'Want the quick tour?',
+  'A minute, start to finish: save a title, rate it, and watch it turn into '
+      'your first ranking.',
+);
+
 /// Written second-person and short — the caption sits over a dimmed screen and
 /// competes with the control it is pointing at, so anything longer than two
 /// lines gets skipped.

@@ -166,19 +166,6 @@ class _ProviderLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final assetPath = provider.assetPath;
-    if (assetPath != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8.r),
-        child: Image.asset(
-          assetPath,
-          width: 30.w,
-          height: 30.h,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _FallbackLogo(provider: provider),
-        ),
-      );
-    }
     if (provider.logoUrl != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(8.r),
