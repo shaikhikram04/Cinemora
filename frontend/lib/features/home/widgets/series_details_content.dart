@@ -125,7 +125,7 @@ class SeriesDetailsContent extends StatelessWidget {
           ),
           SizedBox(height: 20.h),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+            padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -324,7 +324,7 @@ class _SeriesHeroMeta extends StatelessWidget {
         Text(
           seriesTitle,
           style: TextStyle(
-            fontSize: WSizes.fontSize3xl.sp,
+            fontSize: AppSizes.fontSize32.sp,
             fontWeight: FontWeight.w800,
             color: context.colors.foreground,
             fontFamily: 'Inter',
@@ -364,7 +364,7 @@ class _SeriesHeroMeta extends StatelessWidget {
               ),
           ],
         ),
-        SizedBox(height: WSizes.sectionSpaceLg.h),
+        SizedBox(height: AppSizes.sectionSpaceLg.h),
       ],
     );
   }
@@ -498,7 +498,7 @@ class _SeasonsSkeleton extends StatelessWidget {
                   height: 48.h,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
+                    borderRadius: BorderRadius.circular(AppSizes.radius16.r),
                   ),
                 ),
               ),
@@ -623,7 +623,7 @@ class _SeasonsSection extends StatelessWidget {
                       color: selected
                           ? context.colors.primary
                           : context.colors.surfaceChip,
-                      borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
+                      borderRadius: BorderRadius.circular(AppSizes.radius16.r),
                       border: Border.all(
                         color: selected
                             ? context.colors.primary
@@ -677,7 +677,7 @@ class _SeasonsSection extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             color: context.colors.surfaceRaised,
-            borderRadius: BorderRadius.circular(WSizes.radius3xl.r),
+            borderRadius: BorderRadius.circular(AppSizes.radius20.r),
             border: Border.all(color: context.colors.borderStrong),
           ),
           child: Column(

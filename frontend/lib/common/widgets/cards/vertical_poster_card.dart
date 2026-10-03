@@ -22,7 +22,7 @@ class VerticalPosterCard extends StatelessWidget {
     required this.imageHeight,
     this.title,
     this.rating,
-    this.radius = WSizes.radiusXxl,
+    this.radius = AppSizes.radius18,
     this.onTap,
     this.showRatingBadge = true,
     this.titleOnImage = false,

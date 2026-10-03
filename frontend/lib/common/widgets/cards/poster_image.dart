@@ -29,7 +29,7 @@ class PosterImage extends StatelessWidget {
     required this.image,
     required this.height,
     this.width,
-    this.radius = WSizes.radiusXxl,
+    this.radius = AppSizes.radius18,
     this.rating,
     this.showBookmark = false,
     this.watchStatus,
@@ -132,7 +132,7 @@ class PosterImage extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                   decoration: BoxDecoration(
                     color: tagColor ?? context.colors.accentRed,
-                    borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
                   ),
                   child: Text(
                     tag!.toUpperCase(),

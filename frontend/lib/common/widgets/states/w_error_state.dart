@@ -62,7 +62,7 @@ class WErrorState extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
               decoration: BoxDecoration(
                 color: context.colors.primary,
-                borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
               ),
               child: Text(
                 'Retry',

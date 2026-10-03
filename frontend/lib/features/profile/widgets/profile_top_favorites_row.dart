@@ -63,7 +63,7 @@ class ProfileTopFavoritesRow extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isLoading) {
       return SizedBox(
-        height: WSizes.imageCarouselHeight.h,
+        height: AppSizes.imageCarouselHeight.h,
         child: const Center(child: ProfileLoadingSpinner()),
       );
     }
@@ -84,7 +84,7 @@ class ProfileTopFavoritesRow extends StatelessWidget {
     final itemCount = entries.length + (showSeeAll ? 1 : 0);
 
     return SizedBox(
-      height: WSizes.imageCarouselHeight.h,
+      height: AppSizes.imageCarouselHeight.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -99,8 +99,8 @@ class ProfileTopFavoritesRow extends StatelessWidget {
           final entry = entries[index];
           return VerticalPosterBookmarkCard(
             image: entry.posterUrl,
-            width: WSizes.posterImageWidth,
-            imageHeight: WSizes.posterImageHeight,
+            width: AppSizes.posterImageWidth,
+            imageHeight: AppSizes.posterImageHeight,
             title: entry.title,
             rating: (entry.userRating ?? 0).toStringAsFixed(1),
             cinemaType: entry.cinemaType,

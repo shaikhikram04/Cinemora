@@ -6,11 +6,11 @@ Watchary is a Flutter cinema-companion app backed by two services. Bring them up
 MongoDB + Redis  →  recommender (Python)  →  backend (Node)  →  frontend (Flutter)
 ```
 
-| Service | Stack | Default port | Talks to |
-|---|---|---|---|
-| **recommender** | Python 3.14 · FastAPI · Uvicorn | `8000` (internal only) | Mongo, Redis, TMDB, Jikan, Gemini |
-| **backend** | Node · Express 5 · Mongoose 8 | `3000` (public API) | Mongo, TMDB, Jikan, AniList, Firebase, recommender |
-| **frontend** | Flutter 3.41 (Dart 3.11) via FVM | — | backend |
+| Service         | Stack                            | Default port           | Talks to                                           |
+| --------------- | -------------------------------- | ---------------------- | -------------------------------------------------- |
+| **recommender** | Python 3.14 · FastAPI · Uvicorn  | `8000` (internal only) | Mongo, Redis, TMDB, Jikan, Gemini                  |
+| **backend**     | Node · Express 5 · Mongoose 8    | `3000` (public API)    | Mongo, TMDB, Jikan, AniList, Firebase, recommender |
+| **frontend**    | Flutter 3.41 (Dart 3.11) via FVM | —                      | backend                                            |
 
 The Flutter app only ever calls the **backend**. The backend proxies recommendation/mood calls to the **recommender** over an internal secret-protected hop.
 
@@ -47,14 +47,14 @@ uvicorn main:app --reload --port 8000
 
 Fill in `recommender/.env`:
 
-| Var | Notes |
-|---|---|
-| `MONGO_URI` | Same Mongo instance as the backend (`mongodb://localhost:27017/watchary`). |
-| `REDIS_URL` | `redis://localhost:6379/0` |
-| `TMDB_API_KEY` | Same key as `backend/.env`. |
-| `INTERNAL_SERVICE_SECRET` | **Must match** the backend's value — the shared handshake. |
-| `GEMINI_API_KEY` | Required for mood chat; without it the mood endpoint returns `503` (rest of the app still works). Free tier: ~10 req/min, 1500 req/day. |
-| `INGESTION_HOUR_UTC` / `CATALOG_PAGE_LIMIT` | Daily sweep hour and pages pulled per list. |
+| Var                                         | Notes                                                                                                                                   |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `MONGO_URI`                                 | Same Mongo instance as the backend (`mongodb://localhost:27017/watchary`).                                                              |
+| `REDIS_URL`                                 | `redis://localhost:6379/0`                                                                                                              |
+| `TMDB_API_KEY`                              | Same key as `backend/.env`.                                                                                                             |
+| `INTERNAL_SERVICE_SECRET`                   | **Must match** the backend's value — the shared handshake.                                                                              |
+| `GEMINI_API_KEY`                            | Required for mood chat; without it the mood endpoint returns `503` (rest of the app still works). Free tier: ~10 req/min, 1500 req/day. |
+| `INGESTION_HOUR_UTC` / `CATALOG_PAGE_LIMIT` | Daily sweep hour and pages pulled per list.                                                                                             |
 
 **Health check:**
 
@@ -85,14 +85,14 @@ npm run dev                   # nodemon; use `npm start` for plain node
 
 Fill in `backend/.env`:
 
-| Var | Notes |
-|---|---|
-| `MONGO_URI` | `mongodb://localhost:27017/watchary` |
-| `JWT_SECRET` / `JWT_REFRESH_SECRET` | Any strong secrets. |
-| `TMDB_API_KEY` | Same key as the recommender. |
-| `FIREBASE_SERVICE_ACCOUNT_JSON` | Full service-account JSON on a single line. |
-| `RECOMMENDER_URL` | `http://localhost:8000` |
-| `INTERNAL_SERVICE_SECRET` | **Must match** the recommender's value. |
+| Var                                 | Notes                                       |
+| ----------------------------------- | ------------------------------------------- |
+| `MONGO_URI`                         | `mongodb://localhost:27017/watchary`        |
+| `JWT_SECRET` / `JWT_REFRESH_SECRET` | Any strong secrets.                         |
+| `TMDB_API_KEY`                      | Same key as the recommender.                |
+| `FIREBASE_SERVICE_ACCOUNT_JSON`     | Full service-account JSON on a single line. |
+| `RECOMMENDER_URL`                   | `http://localhost:8000`                     |
+| `INTERNAL_SERVICE_SECRET`           | **Must match** the recommender's value.     |
 
 Recommendation routes exposed to the app (all behind JWT auth):
 
@@ -120,11 +120,11 @@ The app talks only to the Node backend, at the URL in
 
 Pick the value for how you're running:
 
-| Where the app runs | `baseUrl` |
-|---|---|
-| Desktop / web on the laptop itself | `http://localhost:3000/api` |
-| Android emulator | `http://10.0.2.2:3000/api` |
-| Physical device on the same Wi-Fi | `http://<laptop-LAN-IP>:3000/api` |
+| Where the app runs                     | `baseUrl`                                           |
+| -------------------------------------- | --------------------------------------------------- |
+| Desktop / web on the laptop itself     | `http://localhost:3000/api`                         |
+| Android emulator                       | `http://10.0.2.2:3000/api`                          |
+| Physical device on the same Wi-Fi      | `http://<laptop-LAN-IP>:3000/api`                   |
 | Physical device over USB (recommended) | `http://localhost:3000/api` + `adb reverse` (below) |
 
 Find the laptop's LAN IP:
@@ -183,7 +183,7 @@ Then, on first run only, seed the catalog (step 1's ingest curl).
 
 - **Home recommendations are empty / no "Critically Acclaimed"** → the catalog hasn't been ingested. Run the `/internal/ingest/run` curl (step 1).
 - **Mood chat returns 503** → `GEMINI_API_KEY` is blank in `recommender/.env`. Add a key and restart the recommender.
-- **Mood chat returns 429 "busy"** → either the Gemini free tier's ~10 req/min ceiling, or *both* `GEMINI_MODEL` and `GEMINI_FALLBACK_MODEL` are shedding load (free-tier traffic is dropped first when a model is saturated — a `503 high demand` can persist for minutes). Wait and retry.
+- **Mood chat returns 429 "busy"** → either the Gemini free tier's ~10 req/min ceiling, or _both_ `GEMINI_MODEL` and `GEMINI_FALLBACK_MODEL` are shedding load (free-tier traffic is dropped first when a model is saturated — a `503 high demand` can persist for minutes). Wait and retry.
 - **Backend `502`/`connection refused` on `/api/recommendations/*`** → the recommender isn't running, or `RECOMMENDER_URL` / `INTERNAL_SERVICE_SECRET` don't match between the two `.env` files.
 - **`/internal/*` returns 401/403** → the `X-Internal-Secret` doesn't match the recommender's `INTERNAL_SERVICE_SECRET`.
 - **App can't reach the backend from a device/emulator** (`No route to host` / `connectionError`) → the `baseUrl` doesn't match how you're running. See [Configuring the API base URL](#configuring-the-api-base-url) — use `10.0.2.2` on the emulator, the laptop LAN IP on Wi-Fi, or `adb reverse` over USB (works on any network). A bare `:` with no port (e.g. `http://192.168.1.108:/api`) also causes this — make sure the port is present.

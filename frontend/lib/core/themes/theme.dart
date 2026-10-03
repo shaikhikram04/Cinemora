@@ -43,6 +43,10 @@ class WTheme {
         backgroundColor: Colors.transparent,
         foregroundColor: c.foreground,
         elevation: 0,
+        // Material 3 tints the bar with surfaceTintColor once content scrolls
+        // under it; both are needed to keep it flat on the app background.
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: false,
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -51,15 +55,15 @@ class WTheme {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(WSizes.radiusLg),
+          borderRadius: BorderRadius.circular(AppSizes.radius12),
           borderSide: BorderSide(color: c.border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(WSizes.radiusLg),
+          borderRadius: BorderRadius.circular(AppSizes.radius12),
           borderSide: BorderSide(color: c.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(WSizes.radiusLg),
+          borderRadius: BorderRadius.circular(AppSizes.radius12),
           borderSide: BorderSide(color: c.primary.withValues(alpha: 0.6)),
         ),
         hintStyle: ts.body,
@@ -70,7 +74,7 @@ class WTheme {
           foregroundColor: c.primaryForeground,
           textStyle: ts.button,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(WSizes.radiusXl),
+            borderRadius: BorderRadius.circular(AppSizes.radius16),
           ),
         ),
       ),
@@ -79,7 +83,7 @@ class WTheme {
           foregroundColor: c.foreground,
           side: BorderSide(color: c.border),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(WSizes.radiusXl),
+            borderRadius: BorderRadius.circular(AppSizes.radius16),
           ),
         ),
       ),

@@ -28,7 +28,7 @@ class DiscoverFilterChips extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+      padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
       child: Row(
         children: List.generate(_options.length, (i) {
           final opt = _options[i];
@@ -120,7 +120,7 @@ class DiscoverGenreChips extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+      padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
       child: Row(
         children: List.generate(_genres.length, (i) {
           final isSelected = selectedIndices.contains(i);

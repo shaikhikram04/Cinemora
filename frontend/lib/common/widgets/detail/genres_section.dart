@@ -50,7 +50,7 @@ class GenresSection extends StatelessWidget {
             spacing: 8.w,
             runSpacing: 8.h,
             children: genres
-                .map((g) => WPillChip(
+                .map((g) => PillChip(
                       text: g,
                       backgroundColor:
                           context.colors.surfaceOverlay.withValues(alpha: 0.12),
@@ -79,7 +79,7 @@ class _SkeletonChip extends StatelessWidget {
       height: 32.h,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+        borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
       ),
     );
   }

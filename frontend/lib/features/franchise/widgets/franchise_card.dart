@@ -24,7 +24,7 @@ class FranchiseCard extends StatelessWidget {
         padding: EdgeInsets.all(10.w),
         decoration: BoxDecoration(
           color: context.colors.surfaceChip,
-          borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+          borderRadius: BorderRadius.circular(AppSizes.radius12.r),
           border: Border.all(
             color: context.colors.surfaceChipBorder.withValues(alpha: 0.5),
           ),
@@ -82,7 +82,7 @@ class _PosterThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(WSizes.radiusMd.r),
+      borderRadius: BorderRadius.circular(AppSizes.radius10.r),
       child: Container(
         width: 54.w,
         height: 76.h,

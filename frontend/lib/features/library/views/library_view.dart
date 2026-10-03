@@ -90,8 +90,8 @@ class _LibraryViewState extends State<LibraryView> {
               slivers: [
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 16.h,
-                        WSizes.screenPadding.w, 0),
+                    padding: EdgeInsets.fromLTRB(AppSizes.screenPadding.w, 16.h,
+                        AppSizes.screenPadding.w, 0),
                     child: Builder(builder: (context) {
                       final watchlist = state.entries
                           .where((e) => e.status == WatchStatus.watchlist)
@@ -107,8 +107,8 @@ class _LibraryViewState extends State<LibraryView> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 16.h,
-                        WSizes.screenPadding.w, 0),
+                    padding: EdgeInsets.fromLTRB(AppSizes.screenPadding.w, 16.h,
+                        AppSizes.screenPadding.w, 0),
                     child: LibraryStatsCard(
                       watchedCount: cubit.watchedCount,
                       totalEntries: cubit.totalEntries,
@@ -120,8 +120,8 @@ class _LibraryViewState extends State<LibraryView> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 16.h,
-                        WSizes.screenPadding.w, 0),
+                    padding: EdgeInsets.fromLTRB(AppSizes.screenPadding.w, 16.h,
+                        AppSizes.screenPadding.w, 0),
                     child: _LibrarySearchBar(
                       controller: _searchController,
                       onChanged: cubit.updateSearch,
@@ -140,8 +140,8 @@ class _LibraryViewState extends State<LibraryView> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 10.h,
-                        WSizes.screenPadding.w, 0),
+                    padding: EdgeInsets.fromLTRB(AppSizes.screenPadding.w, 10.h,
+                        AppSizes.screenPadding.w, 0),
                     child: _StatusFilterRow(
                       statuses: LibraryCubit.statuses,
                       counts: cubit.statusCounts,
@@ -152,8 +152,8 @@ class _LibraryViewState extends State<LibraryView> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 16.h,
-                        WSizes.screenPadding.w, 12.h),
+                    padding: EdgeInsets.fromLTRB(AppSizes.screenPadding.w, 16.h,
+                        AppSizes.screenPadding.w, 12.h),
                     child: Row(
                       children: [
                         Text.rich(
@@ -185,8 +185,8 @@ class _LibraryViewState extends State<LibraryView> {
                 if (state.isSortOpen)
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(WSizes.screenPadding.w, 0,
-                          WSizes.screenPadding.w, 12.h),
+                      padding: EdgeInsets.fromLTRB(AppSizes.screenPadding.w, 0,
+                          AppSizes.screenPadding.w, 12.h),
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: _SortPanel(
@@ -211,7 +211,7 @@ class _LibraryViewState extends State<LibraryView> {
                 else
                   SliverPadding(
                     padding: EdgeInsets.symmetric(
-                        horizontal: WSizes.screenPadding.w),
+                        horizontal: AppSizes.screenPadding.w),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
@@ -407,7 +407,7 @@ class _TypeFilterRow extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+        padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
         itemCount: types.length,
         separatorBuilder: (_, __) => SizedBox(width: 8.w),
         itemBuilder: (context, index) {

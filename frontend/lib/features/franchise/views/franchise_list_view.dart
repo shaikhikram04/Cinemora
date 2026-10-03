@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cinemora/common/widgets/buttons/circle_icon_button.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_router.dart';
@@ -67,8 +66,23 @@ class _FranchiseListContentState extends State<_FranchiseListContent> {
     return BlocBuilder<FranchiseListCubit, FranchiseListState>(
       builder: (context, state) {
         final cubit = context.read<FranchiseListCubit>();
+        final colors = context.colors;
         return Scaffold(
-          backgroundColor: context.colors.background,
+          backgroundColor: colors.background,
+          appBar: AppBar(
+            backgroundColor: colors.background,
+            elevation: 0,
+            titleSpacing: AppSizes.sectionSpaceSm.w,
+            title: Text(
+              'Franchises',
+              style: TextStyle(
+                fontSize: AppSizes.fontSize24.sp,
+                fontWeight: FontWeight.w800,
+                color: colors.foreground,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
           body: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: SafeArea(
@@ -78,37 +92,9 @@ class _FranchiseListContentState extends State<_FranchiseListContent> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
-                        WSizes.screenPadding.w,
-                        16.h,
-                        WSizes.screenPadding.w,
-                        0,
-                      ),
-                      child: Row(
-                        children: [
-                          WCircleIconButton(
-                            icon: Icons.arrow_back,
-                            onTap: () => Navigator.pop(context),
-                          ),
-                          SizedBox(width: 12.w),
-                          Text(
-                            'Franchises',
-                            style: TextStyle(
-                              fontSize: 24.sp,
-                              fontWeight: FontWeight.w800,
-                              color: context.colors.foreground,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        WSizes.screenPadding.w,
+                        AppSizes.screenPadding.w,
                         14.h,
-                        WSizes.screenPadding.w,
+                        AppSizes.screenPadding.w,
                         0,
                       ),
                       child: DiscoverSearchBar(
@@ -127,7 +113,7 @@ class _FranchiseListContentState extends State<_FranchiseListContent> {
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.symmetric(
-                          horizontal: WSizes.screenPadding.w,
+                          horizontal: AppSizes.screenPadding.w,
                         ),
                         child: Text(
                           'Popular Franchises',

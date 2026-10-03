@@ -78,9 +78,9 @@ class _ProfileContent extends StatelessWidget {
                         onRefresh: () => context.read<ProfileCubit>().refresh(),
                         child: ListView(
                           padding: EdgeInsets.fromLTRB(
-                            WSizes.screenPadding.w,
+                            AppSizes.screenPadding.w,
                             12.h,
-                            WSizes.screenPadding.w,
+                            AppSizes.screenPadding.w,
                             90.h,
                           ),
                           physics: const AlwaysScrollableScrollPhysics(

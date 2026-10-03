@@ -39,9 +39,9 @@ class _AppearanceContent extends StatelessWidget {
                 Expanded(
                   child: ListView(
                     padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
+                      AppSizes.screenPadding.w,
                       16.h,
-                      WSizes.screenPadding.w,
+                      AppSizes.screenPadding.w,
                       100.h,
                     ),
                     physics: const BouncingScrollPhysics(),
@@ -58,8 +58,7 @@ class _AppearanceContent extends StatelessWidget {
                           ];
                           return Expanded(
                             child: Padding(
-                              padding:
-                                  EdgeInsets.only(right: i < 2 ? 10.w : 0),
+                              padding: EdgeInsets.only(right: i < 2 ? 10.w : 0),
                               child: GestureDetector(
                                 onTap: () => cubit.selectTheme(i),
                                 child: _ThemeOptionCard(
@@ -85,7 +84,6 @@ class _AppearanceContent extends StatelessWidget {
     );
   }
 }
-
 
 class _SectionLabel extends StatelessWidget {
   final String label;
@@ -144,13 +142,17 @@ class _ThemeOptionCard extends StatelessWidget {
           Icon(
             icon,
             size: 22.sp,
-            color: selected ? context.colors.accentPurple : context.colors.mutedSecondaryDeep,
+            color: selected
+                ? context.colors.accentPurple
+                : context.colors.mutedSecondaryDeep,
           ),
           SizedBox(height: 6.h),
           Text(
             label,
             style: TextStyle(
-              color: selected ? context.colors.foreground : context.colors.mutedSecondary,
+              color: selected
+                  ? context.colors.foreground
+                  : context.colors.mutedSecondary,
               fontSize: 12.sp,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             ),

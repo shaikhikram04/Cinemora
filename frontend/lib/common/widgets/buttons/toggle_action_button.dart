@@ -50,14 +50,17 @@ class ToggleActionButton extends StatelessWidget {
 
     return Material(
       color: backgroundColor,
-      borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
+      borderRadius: BorderRadius.circular(AppSizes.radius16.r),
       child: InkWell(
-        borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
+        borderRadius: BorderRadius.circular(AppSizes.radius16.r),
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: WSizes.sectionSpaceSm.h),
+          padding: EdgeInsets.symmetric(
+            vertical: AppSizes.buttonVerticalPadding.h,
+            horizontal: AppSizes.buttonHorizontalPadding,
+          ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
+            borderRadius: BorderRadius.circular(AppSizes.radius16.r),
             border: Border.all(
               color:
                   selected ? borderColor.withValues(alpha: 0.5) : borderColor,

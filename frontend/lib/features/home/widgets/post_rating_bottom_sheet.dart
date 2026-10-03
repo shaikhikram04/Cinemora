@@ -535,7 +535,7 @@ class _SheetHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+      padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
       child: Row(
         children: [
           // Poster thumbnail
@@ -665,7 +665,7 @@ class _RankingsBody extends StatelessWidget {
       children: [
         // Smart Suggestions label
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+          padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
           child: Row(
             children: [
               Icon(
@@ -691,7 +691,7 @@ class _RankingsBody extends StatelessWidget {
         if (suggestions.isEmpty)
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: WSizes.screenPadding.w, vertical: 8.h),
+                horizontal: AppSizes.screenPadding.w, vertical: 8.h),
             child: Text(
               'No ranking lists yet — create one in the Rankings tab.',
               style: TextStyle(
@@ -704,7 +704,7 @@ class _RankingsBody extends StatelessWidget {
             final title = suggestions[i]['title']!;
             return Padding(
               padding: EdgeInsets.symmetric(
-                  horizontal: WSizes.screenPadding.w, vertical: 5.h),
+                  horizontal: AppSizes.screenPadding.w, vertical: 5.h),
               // Only the top suggestion is spotlighted — the tour needs one
               // unambiguous target, and any list works for teaching the step.
               child: _maybeAnchor(
@@ -725,7 +725,7 @@ class _RankingsBody extends StatelessWidget {
         SizedBox(height: 18.h),
         // All Lists label
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+          padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
           child: Text(
             'ALL LISTS',
             style: TextStyle(
@@ -741,7 +741,7 @@ class _RankingsBody extends StatelessWidget {
         if (userLists.isEmpty)
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: WSizes.screenPadding.w, vertical: 8.h),
+                horizontal: AppSizes.screenPadding.w, vertical: 8.h),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
               decoration: BoxDecoration(
@@ -773,7 +773,7 @@ class _RankingsBody extends StatelessWidget {
           )
         else
           Container(
-            margin: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+            margin: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
             decoration: BoxDecoration(
               color: context.colors.surfaceMuted.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(14.r),

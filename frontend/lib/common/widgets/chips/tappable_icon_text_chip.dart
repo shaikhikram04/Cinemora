@@ -36,7 +36,7 @@ class TappableIconTextChip extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
         decoration: BoxDecoration(
           color: selected ? context.colors.primary : context.colors.surfaceChip,
-          borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+          borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
           border: Border.all(
             color: selected
                 ? context.colors.primary

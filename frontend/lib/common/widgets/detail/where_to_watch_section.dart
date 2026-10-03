@@ -74,7 +74,7 @@ class _ProviderSkeletons extends StatelessWidget {
           width: 98.w,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+            borderRadius: BorderRadius.circular(AppSizes.radius12.r),
           ),
         ),
       ),
@@ -105,7 +105,7 @@ class _ProviderCard extends StatelessWidget {
         padding: EdgeInsets.all(10.w),
         decoration: BoxDecoration(
           color: context.colors.surfaceRaised,
-          borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+          borderRadius: BorderRadius.circular(AppSizes.radius12.r),
           border: Border.all(color: context.colors.borderStrong, width: 0.7),
         ),
         child: Column(
@@ -176,8 +176,7 @@ class _ProviderLogo extends StatelessWidget {
           fit: BoxFit.cover,
           // Width only — see poster_image.dart for why passing both dims
           // can distort the decoded image.
-          cacheWidth:
-              (30.w * MediaQuery.of(context).devicePixelRatio).round(),
+          cacheWidth: (30.w * MediaQuery.of(context).devicePixelRatio).round(),
           errorBuilder: (_, __, ___) => _FallbackLogo(provider: provider),
         ),
       );

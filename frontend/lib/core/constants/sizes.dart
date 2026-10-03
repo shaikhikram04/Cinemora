@@ -1,29 +1,30 @@
-class WSizes {
-  const WSizes._();
+class AppSizes {
+  const AppSizes._();
   //* padding and margin sizes
   static const double xs = 4.0;
   static const double sm = 8.0;
+  static const double space10 = 10.0;
   static const double md = 16.0;
   static const double lg = 24.0;
   static const double xl = 32.0;
   static const double xxl = 40.0;
 
   //* Icon sizes
-  static const double iconXs = 12.0;
-  static const double iconSm = 16.0;
-  static const double iconMd = 24.0;
-  static const double iconLg = 32.0;
-  static const double iconXl = 40.0;
-  static const double icon2xl = 42.0;
+  static const double icon12 = 12.0;
+  static const double icon16 = 16.0;
+  static const double icon18 = 18.0;
+  static const double icon22 = 22.0;
+  static const double icon24 = 24.0;
+  static const double icon32 = 32.0;
 
   //* Font sizes
-  static const double fontSizeSm = 14.0;
-  static const double fontSizeMd = 16.0;
-  static const double fontSizeLg = 18.0;
-  static const double fontSizeXs = 10.0;
-  static const double fontSizeXl = 20.0;
-  static const double fontSize2xl = 24.0;
-  static const double fontSize3xl = 32.0;
+  static const double fontSize12 = 12.0;
+  static const double fontSize13 = 13.0;
+  static const double fontSize14 = 14.0;
+  static const double fontSize16 = 16.0;
+  static const double fontSize18 = 18.0;
+  static const double fontSize24 = 24.0;
+  static const double fontSize32 = 32.0;
 
   //* Button sized
   static const double buttonHeight = 50.0;
@@ -53,14 +54,14 @@ class WSizes {
   static const double sectionSpaceXl = 28.0;
 
   //* Border Radius
-  static const double radiusSm = 8;
-  static const double radiusMd = 10;
-  static const double radiusLg = 12;
-  static const double radiusXl = 16;
-  static const double radiusXxl = 18;
-  static const double radius3xl = 20;
-  static const double radius4xl = 22;
-  static const double radius5xl = 28;
+  static const double radius8 = 8;
+  static const double radius10 = 10;
+  static const double radius12 = 12;
+  static const double radius16 = 16;
+  static const double radius18 = 18;
+  static const double radius20 = 20;
+  static const double radius22 = 22;
+  static const double radius28 = 28;
   static const double radiusFull = 999;
 
   //* Divider height
@@ -102,4 +103,6 @@ class WSizes {
   static const double chipVerticalPadding = 5.0;
   static const double compactVerticalPadding = 4.0;
   static const double compactHorizontalPadding = 6.0;
+  static const double buttonVerticalPadding = 12.0;
+  static const double buttonHorizontalPadding = 14.0;
 }

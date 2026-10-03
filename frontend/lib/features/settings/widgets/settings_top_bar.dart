@@ -12,7 +12,7 @@ class SettingsTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-          WSizes.screenPadding.w, 12.h, WSizes.screenPadding.w, 0),
+          AppSizes.screenPadding.w, 12.h, AppSizes.screenPadding.w, 0),
       child: Row(
         children: [
           GestureDetector(

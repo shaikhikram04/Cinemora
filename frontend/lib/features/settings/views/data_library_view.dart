@@ -38,9 +38,9 @@ class _DataLibraryContent extends StatelessWidget {
                 Expanded(
                   child: ListView(
                     padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
+                      AppSizes.screenPadding.w,
                       16.h,
-                      WSizes.screenPadding.w,
+                      AppSizes.screenPadding.w,
                       100.h,
                     ),
                     physics: const BouncingScrollPhysics(),

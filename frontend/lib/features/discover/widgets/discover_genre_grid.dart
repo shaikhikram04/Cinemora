@@ -63,7 +63,7 @@ class DiscoverGenreGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+      padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -147,7 +147,7 @@ class _GenreCardState extends State<_GenreCard>
       child: ScaleTransition(
         scale: _scaleAnim,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(WSizes.radius3xl.r),
+          borderRadius: BorderRadius.circular(AppSizes.radius20.r),
           child: Stack(
             fit: StackFit.expand,
             children: [

@@ -48,6 +48,7 @@ class AppColors {
   final Color accentRed;
   final Color accentRedAlt;
   final Color accentRedSoft;
+  final Color accentRedDeep;
 
   // --- Accents ---
   final Color accentPurple;
@@ -103,6 +104,7 @@ class AppColors {
     required this.accentRed,
     required this.accentRedAlt,
     required this.accentRedSoft,
+    required this.accentRedDeep,
     required this.accentPurple,
     required this.accentPink,
     required this.accentBlueMuted,
@@ -153,6 +155,7 @@ class AppColors {
     accentRed: Color(0xFFE84B57),
     accentRedAlt: Color(0xFFE74D5B),
     accentRedSoft: Color(0xFFED5A61),
+    accentRedDeep: Color(0xFFBF2D38),
     accentPurple: Color(0xFFA94EF2),
     accentPink: Color(0xFFEB4B6B),
     accentBlueMuted: Color(0xFF718096),
@@ -207,6 +210,7 @@ class AppColors {
     accentRed: Color(0xFFE84B57),
     accentRedAlt: Color(0xFFE74D5B),
     accentRedSoft: Color(0xFFED5A61),
+    accentRedDeep: Color(0xFFBF2D38),
     accentPurple: Color(0xFF9B3EE8),
     accentPink: Color(0xFFE03A5E),
     accentBlueMuted: Color(0xFF5A6478),

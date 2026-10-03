@@ -46,7 +46,7 @@ class LoginView extends StatelessWidget {
           body: TopGradientBackgroundContainer(
             child: SafeArea(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: WSizes.md.w),
+                padding: EdgeInsets.symmetric(horizontal: AppSizes.md.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -55,22 +55,23 @@ class LoginView extends StatelessWidget {
                       iconSize: 96,
                       fontSize: 30,
                     ),
-                    SizedBox(height: WSizes.xl.h),
+                    SizedBox(height: AppSizes.xl.h),
                     Text('WELCOME BACK', style: WTextTheme.of(context).label),
-                    SizedBox(height: WSizes.sm.h),
-                    Text('Pick up where\nyou left off.', style: WTextTheme.of(context).h1),
-                    SizedBox(height: WSizes.md.h),
+                    SizedBox(height: AppSizes.sm.h),
+                    Text('Pick up where\nyou left off.',
+                        style: WTextTheme.of(context).h1),
+                    SizedBox(height: AppSizes.md.h),
                     Text(
                       'Sign in to sync your watchlist, ratings and\nAI picks across devices.',
                       style: WTextTheme.of(context).body.copyWith(
-                        fontSize: 14.sp,
-                        color: context.colors.mutedSecondary,
-                      ),
+                            fontSize: 14.sp,
+                            color: context.colors.mutedSecondary,
+                          ),
                     ),
                     Spacer(),
-                    SizedBox(height: WSizes.lg.h),
+                    SizedBox(height: AppSizes.lg.h),
                     _SignInButtons(),
-                    SizedBox(height: (WSizes.lg * 2).h),
+                    SizedBox(height: (AppSizes.lg * 2).h),
                   ],
                 ),
               ),
@@ -106,7 +107,8 @@ class _SignInButtons extends StatelessWidget {
                 minimumSize: Size.fromHeight(58.h),
                 backgroundColor: context.colors.primary,
                 foregroundColor: context.colors.primaryForeground,
-                textStyle: WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
+                textStyle:
+                    WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18.r),
                 ),
@@ -126,14 +128,14 @@ class _SignInButtons extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text('Sign In with Google'),
-                        SizedBox(width: WSizes.sm.w),
+                        SizedBox(width: AppSizes.sm.w),
                         Icon(Icons.arrow_forward, size: 20.sp),
                       ],
                     ),
             ),
           ),
         ),
-        SizedBox(height: WSizes.md.h),
+        SizedBox(height: AppSizes.md.h),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
@@ -141,7 +143,8 @@ class _SignInButtons extends StatelessWidget {
               minimumSize: Size.fromHeight(58.h),
               side: const BorderSide(color: Color.fromARGB(28, 255, 255, 255)),
               foregroundColor: context.colors.foreground,
-              textStyle: WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
+              textStyle:
+                  WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
               backgroundColor:
                   const Color.fromARGB(255, 58, 58, 61).withAlpha(120),
               shape: RoundedRectangleBorder(

@@ -74,8 +74,10 @@ class _HomeFeedContent extends StatelessWidget {
   void _maybeStartTour(BuildContext context, HomeFeedState state) {
     final hero = state.pickOfWeek.isNotEmpty
         ? (state.pickOfWeek.first, null)
-        : (state.trending.isNotEmpty ? state.trending.first : null,
-            state.trendingType);
+        : (
+            state.trending.isNotEmpty ? state.trending.first : null,
+            state.trendingType
+          );
     final item = hero.$1;
     if (item == null || item.id == null) return;
 
@@ -121,9 +123,9 @@ class _HomeFeedContent extends StatelessWidget {
               bottom: false,
               child: ListView(
                 padding: EdgeInsets.fromLTRB(
-                  WSizes.screenPadding.w,
+                  AppSizes.screenPadding.w,
                   6.h,
-                  WSizes.screenPadding.w,
+                  AppSizes.screenPadding.w,
                   42.h,
                 ),
                 physics: const BouncingScrollPhysics(),
@@ -278,17 +280,17 @@ class _SkeletonCarousel extends StatelessWidget {
   Widget build(BuildContext context) {
     return WShimmer(
       child: SizedBox(
-        height: WSizes.imageCarouselHeight.h,
+        height: AppSizes.imageCarouselHeight.h,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: 5,
           separatorBuilder: (_, __) => SizedBox(width: 12.w),
           itemBuilder: (_, __) => Container(
-            width: WSizes.posterImageWidth.w + 8.w,
+            width: AppSizes.posterImageWidth.w + 8.w,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(WSizes.radiusXxl.r),
+              borderRadius: BorderRadius.circular(AppSizes.radius18.r),
             ),
           ),
         ),
@@ -375,7 +377,7 @@ class _PosterCarousel extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
     return SizedBox(
-      height: WSizes.imageCarouselHeight.h,
+      height: AppSizes.imageCarouselHeight.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -389,8 +391,8 @@ class _PosterCarousel extends StatelessWidget {
             selector: (s) => item.id != null ? s.libraryStatus[item.id] : null,
             builder: (context, watchStatus) => VerticalPosterBookmarkCard(
               image: item.image,
-              width: WSizes.posterImageWidth.w,
-              imageHeight: WSizes.posterImageHeight.h,
+              width: AppSizes.posterImageWidth.w,
+              imageHeight: AppSizes.posterImageHeight.h,
               title: item.title,
               rating: item.rating,
               cinemaType: item.cinemaType != null
@@ -823,7 +825,7 @@ class _HeroCardShell extends StatelessWidget {
   });
 
   Widget _watchlistButton(bool isBookmarked) {
-    final button = WActionButton(
+    final button = AppActionButton(
       label: isBookmarked ? 'In Watchlist' : 'Watchlist',
       icon: isBookmarked ? Icons.bookmark_rounded : Icons.add_rounded,
       filled: false,
@@ -842,10 +844,6 @@ class _HeroCardShell extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28.r),
         border: Border.all(color: context.colors.surfaceBorder),
-        boxShadow: const [
-          BoxShadow(
-              color: Colors.black54, blurRadius: 26, offset: Offset(0, 18)),
-        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28.r),
@@ -970,7 +968,7 @@ class _HeroCardShell extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: WActionButton(
+                        child: AppActionButton(
                           label: 'Details',
                           icon: Icons.play_arrow_rounded,
                           filled: true,

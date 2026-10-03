@@ -38,9 +38,9 @@ class CinemoraHomeShell extends StatelessWidget {
           top: false,
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-              WSizes.screenPadding.w,
+              AppSizes.screenPadding.w,
               0,
-              WSizes.screenPadding.w,
+              AppSizes.screenPadding.w,
               10.h,
             ),
             child: HomeBottomNavBar(

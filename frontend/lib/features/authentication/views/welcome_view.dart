@@ -148,7 +148,7 @@ class _WelcomeContentState extends State<_WelcomeContent> {
                       children: [
                         SizedBox(
                           height: DeviceUtils.getStatusBarHeight(context) +
-                              WSizes.sm,
+                              AppSizes.sm,
                         ),
                         PageViewProgressBar(
                           totalPages: WelcomeCubit.totalPages,
@@ -290,8 +290,8 @@ class _WelcomeContentState extends State<_WelcomeContent> {
               itemCount: _kPosterImages.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
-                crossAxisSpacing: WSizes.sm,
-                mainAxisSpacing: WSizes.sm,
+                crossAxisSpacing: AppSizes.sm,
+                mainAxisSpacing: AppSizes.sm,
                 childAspectRatio: 0.74,
               ),
               itemBuilder: (context, index) {
@@ -304,14 +304,14 @@ class _WelcomeContentState extends State<_WelcomeContent> {
               },
             ),
           ),
-          const SizedBox(height: WSizes.md),
+          const SizedBox(height: AppSizes.md),
           Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: WSizes.md,
-              vertical: WSizes.sm,
+              horizontal: AppSizes.md,
+              vertical: AppSizes.sm,
             ),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+              borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
               color: context.colors.primary.withAlpha(35),
               border: Border.all(color: context.colors.primary.withAlpha(60)),
             ),

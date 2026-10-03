@@ -29,9 +29,9 @@ class SettingsView extends StatelessWidget {
                 // Rows carry their own gutter, so the list gives back exactly
                 // that much to keep titles on the screen-padding grid.
                 padding: EdgeInsets.fromLTRB(
-                  (WSizes.screenPadding - kSettingsRowGutter).w,
+                  (AppSizes.screenPadding - kSettingsRowGutter).w,
                   20.h,
-                  (WSizes.screenPadding - kSettingsRowGutter).w,
+                  (AppSizes.screenPadding - kSettingsRowGutter).w,
                   100.h,
                 ),
                 physics: const BouncingScrollPhysics(),

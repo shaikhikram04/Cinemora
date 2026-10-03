@@ -32,7 +32,7 @@ class WSectionHeader extends StatelessWidget {
           ),
           child: Icon(icon, size: 12.sp, color: iconColor),
         ),
-        SizedBox(width: WSizes.sm.w),
+        SizedBox(width: AppSizes.sm.w),
         Expanded(
           child: Text(
             title,
@@ -50,7 +50,7 @@ class WSectionHeader extends StatelessWidget {
           Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+              borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
               onTap: onTapSuffix,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),

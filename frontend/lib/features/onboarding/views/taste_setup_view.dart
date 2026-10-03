@@ -222,7 +222,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
             body: SafeArea(
               child: Column(
                 children: [
-                  SizedBox(height: WSizes.sm.h),
+                  SizedBox(height: AppSizes.sm.h),
                   PageViewProgressBar(
                     totalPages: OnboardingCubit.totalSteps,
                     currentPage: state.currentStep,
@@ -232,7 +232,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                       cubit.prevStep();
                     },
                   ),
-                  SizedBox(height: WSizes.sm.h),
+                  SizedBox(height: AppSizes.sm.h),
                   Expanded(
                     child: PageView(
                       controller: _pageController,
@@ -263,10 +263,10 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
   }) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        WSizes.md.w,
-        WSizes.md.h,
-        WSizes.md.w,
-        WSizes.sm.h,
+        AppSizes.md.w,
+        AppSizes.md.h,
+        AppSizes.md.w,
+        AppSizes.sm.h,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,10 +339,10 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
         ),
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: WSizes.md.w),
+            padding: EdgeInsets.symmetric(horizontal: AppSizes.md.w),
             child: Wrap(
-              spacing: WSizes.sm.w,
-              runSpacing: WSizes.sm.h,
+              spacing: AppSizes.sm.w,
+              runSpacing: AppSizes.sm.h,
               children: _kGenres.map((key) {
                 final isSelected = state.isGenreSelected(key);
                 return GestureDetector(
@@ -354,7 +354,8 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                       vertical: 10.h,
                     ),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                      borderRadius:
+                          BorderRadius.circular(AppSizes.radiusFull.r),
                       color: isSelected
                           ? context.colors.primary.withAlpha(25)
                           : context.colors.surfaceChip,
@@ -413,12 +414,12 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
         ),
         Expanded(
           child: Padding(
-            padding: EdgeInsets.all(WSizes.md.w),
+            padding: EdgeInsets.all(AppSizes.md.w),
             child: GridView.count(
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 3,
-              crossAxisSpacing: WSizes.sm.w,
-              mainAxisSpacing: WSizes.sm.h,
+              crossAxisSpacing: AppSizes.sm.w,
+              mainAxisSpacing: AppSizes.sm.h,
               childAspectRatio: 1.05,
               children: _kLanguages.map((lang) {
                 final key = lang['key'] as String;
@@ -426,7 +427,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                 return GestureDetector(
                   onTap: () => cubit.toggleLanguage(key),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
+                    borderRadius: BorderRadius.circular(AppSizes.radius16.r),
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
@@ -483,7 +484,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                             duration: const Duration(milliseconds: 160),
                             decoration: BoxDecoration(
                               borderRadius:
-                                  BorderRadius.circular(WSizes.radiusXl.r),
+                                  BorderRadius.circular(AppSizes.radius16.r),
                               border: Border.all(
                                 color: isSelected
                                     ? context.colors.primary.withAlpha(220)
@@ -521,10 +522,10 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        WSizes.md.w,
-        WSizes.sm.h,
-        WSizes.md.w,
-        WSizes.md.h,
+        AppSizes.md.w,
+        AppSizes.sm.h,
+        AppSizes.md.w,
+        AppSizes.md.h,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -544,7 +545,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
               duration: const Duration(milliseconds: 200),
               height: 52.h,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
                 gradient: disabled
                     ? null
                     : const LinearGradient(

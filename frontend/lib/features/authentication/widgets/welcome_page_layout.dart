@@ -31,28 +31,28 @@ class WelcomePageLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: WSizes.md),
+      padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 360.h, child: Center(child: visual)),
           const Spacer(),
-          const SizedBox(height: WSizes.defaultSpace),
+          const SizedBox(height: AppSizes.defaultSpace),
           Text(
             label,
             style: WTextTheme.of(context).label,
           ),
-          const SizedBox(height: WSizes.sm),
+          const SizedBox(height: AppSizes.sm),
           Text(
             title,
             style: WTextTheme.of(context).h1,
           ),
-          const SizedBox(height: WSizes.md),
+          const SizedBox(height: AppSizes.md),
           Text(
             subtitle,
             style: WTextTheme.of(context).body.copyWith(fontSize: 14.sp),
           ),
-          const SizedBox(height: WSizes.lg),
+          const SizedBox(height: AppSizes.lg),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -60,7 +60,8 @@ class WelcomePageLayout extends StatelessWidget {
                 minimumSize: Size.fromHeight(50.h),
                 backgroundColor: context.colors.primary,
                 foregroundColor: context.colors.primaryForeground,
-                textStyle: WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
+                textStyle:
+                    WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18.r),
                 ),
@@ -81,14 +82,14 @@ class WelcomePageLayout extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(primaryButton),
-                        const SizedBox(width: WSizes.sm),
+                        const SizedBox(width: AppSizes.sm),
                         Icon(Icons.arrow_forward, size: 20.sp),
                       ],
                     ),
             ),
           ),
           if (secondaryButton != null) ...[
-            const SizedBox(height: WSizes.md),
+            const SizedBox(height: AppSizes.md),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
@@ -97,7 +98,8 @@ class WelcomePageLayout extends StatelessWidget {
                   side: const BorderSide(
                       color: Color.fromARGB(28, 255, 255, 255)),
                   foregroundColor: context.colors.foreground,
-                  textStyle: WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
+                  textStyle:
+                      WTextTheme.of(context).button.copyWith(fontSize: 16.sp),
                   backgroundColor:
                       const Color.fromARGB(255, 58, 58, 61).withAlpha(120),
                   shape: RoundedRectangleBorder(
@@ -109,7 +111,7 @@ class WelcomePageLayout extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: WSizes.lg),
+          const SizedBox(height: AppSizes.lg),
         ],
       ),
     );

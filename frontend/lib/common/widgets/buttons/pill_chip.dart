@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
-class WPillChip extends StatelessWidget {
+class PillChip extends StatelessWidget {
   final String text;
   final VoidCallback? onTap;
   final Color? backgroundColor;
@@ -13,16 +13,16 @@ class WPillChip extends StatelessWidget {
   final double verticalPadding;
   final double fontSize;
 
-  const WPillChip({
+  const PillChip({
     super.key,
     required this.text,
     this.onTap,
     this.backgroundColor,
     this.borderColor,
     this.textColor,
-    this.horizontalPadding = WSizes.chipHorizontalPadding,
-    this.verticalPadding = WSizes.chipVerticalPadding,
-    this.fontSize = 12,
+    this.horizontalPadding = AppSizes.chipHorizontalPadding,
+    this.verticalPadding = AppSizes.chipVerticalPadding,
+    this.fontSize = AppSizes.fontSize12,
   });
 
   @override
@@ -38,7 +38,7 @@ class WPillChip extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: resolvedBackground,
-        borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+        borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
         border: Border.all(color: resolvedBorder),
       ),
       child: Text(
@@ -56,9 +56,9 @@ class WPillChip extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+      borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
       child: InkWell(
-        borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+        borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
         onTap: onTap,
         child: child,
       ),

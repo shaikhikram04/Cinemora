@@ -30,7 +30,7 @@ class FranchiseResultsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+      padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
       child: switch (status) {
         FranchiseStatus.loading => const _ShimmerList(),
         FranchiseStatus.success => _ResultsList(
@@ -64,7 +64,7 @@ class _ShimmerList extends StatelessWidget {
               height: 96.h,
               decoration: BoxDecoration(
                 color: context.colors.surfaceChip,
-                borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+                borderRadius: BorderRadius.circular(AppSizes.radius12.r),
               ),
             ),
           ),
@@ -199,7 +199,7 @@ class _ErrorState extends StatelessWidget {
                       EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
                   decoration: BoxDecoration(
                     color: context.colors.primary,
-                    borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
                   ),
                   child: Text(
                     'Retry',

@@ -89,7 +89,7 @@ class MovieDetailsContent extends StatelessWidget {
           ),
           SizedBox(height: 20.h),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+            padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -292,7 +292,7 @@ class _MovieHeroMeta extends StatelessWidget {
         Text(
           movieTitle,
           style: TextStyle(
-            fontSize: WSizes.fontSize3xl.sp,
+            fontSize: AppSizes.fontSize32.sp,
             fontWeight: FontWeight.w800,
             color: context.colors.foreground,
             fontFamily: 'Inter',
@@ -308,7 +308,7 @@ class _MovieHeroMeta extends StatelessWidget {
             fontFamily: 'Inter',
           ),
         ),
-        SizedBox(height: WSizes.sectionSpaceLg.h),
+        SizedBox(height: AppSizes.sectionSpaceLg.h),
       ],
     );
   }

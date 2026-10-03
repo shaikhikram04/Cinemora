@@ -103,9 +103,9 @@ class _DiscoverContentState extends State<_DiscoverContent> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
-                        WSizes.screenPadding.w,
+                        AppSizes.screenPadding.w,
                         16.h,
-                        WSizes.screenPadding.w,
+                        AppSizes.screenPadding.w,
                         0,
                       ),
                       child: _buildHeader(context, state, cubit),
@@ -117,9 +117,9 @@ class _DiscoverContentState extends State<_DiscoverContent> {
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(
-                          WSizes.screenPadding.w,
+                          AppSizes.screenPadding.w,
                           14.h,
-                          WSizes.screenPadding.w,
+                          AppSizes.screenPadding.w,
                           0,
                         ),
                         child: DiscoverSearchBar(
@@ -230,7 +230,7 @@ class _DiscoverContentState extends State<_DiscoverContent> {
       // Franchises entry point
       SliverToBoxAdapter(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+          padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
           child: _FranchisesBanner(
             onTap: () => context.push(AppRoutes.franchiseList),
           ),
@@ -312,7 +312,7 @@ class _FranchisesBanner extends StatelessWidget {
         padding: EdgeInsets.all(14.w),
         decoration: BoxDecoration(
           color: context.colors.surfaceChip,
-          borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+          borderRadius: BorderRadius.circular(AppSizes.radius12.r),
           border: Border.all(
             color: context.colors.surfaceChipBorder.withValues(alpha: 0.5),
           ),

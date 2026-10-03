@@ -70,9 +70,9 @@ class HelpSupportView extends StatelessWidget {
             Expanded(
               child: ListView(
                 padding: EdgeInsets.fromLTRB(
-                  (WSizes.screenPadding - kSettingsRowGutter).w,
+                  (AppSizes.screenPadding - kSettingsRowGutter).w,
                   20.h,
-                  (WSizes.screenPadding - kSettingsRowGutter).w,
+                  (AppSizes.screenPadding - kSettingsRowGutter).w,
                   100.h,
                 ),
                 physics: const BouncingScrollPhysics(),
@@ -226,8 +226,8 @@ class HelpSupportView extends StatelessWidget {
       SnackBar(
         content: Text(message, style: TextStyle(fontSize: 14.sp)),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
         margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       ),
     );

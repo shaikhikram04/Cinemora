@@ -116,7 +116,7 @@ class _ComparingView extends StatelessWidget {
         ),
         const Spacer(),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+          padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
           child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -175,9 +175,9 @@ class _ComparingView extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-              WSizes.screenPadding.w,
+              AppSizes.screenPadding.w,
               0,
-              WSizes.screenPadding.w,
+              AppSizes.screenPadding.w,
               24.h,
             ),
             child: Container(
@@ -358,9 +358,9 @@ class _PlacedView extends StatelessWidget {
         const Spacer(),
         Padding(
           padding: EdgeInsets.fromLTRB(
-            WSizes.screenPadding.w,
+            AppSizes.screenPadding.w,
             0,
-            WSizes.screenPadding.w,
+            AppSizes.screenPadding.w,
             24.h,
           ),
           child: Column(
@@ -464,7 +464,7 @@ class _RankingPreview extends StatelessWidget {
     final visible = entries.sublist(start, end);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+      padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
       child: Container(
         decoration: BoxDecoration(
           color: context.colors.surfaceChip.withValues(alpha: 0.6),
@@ -522,9 +522,9 @@ class _RankingPreview extends StatelessWidget {
                           fit: BoxFit.cover,
                           // Width only — see poster_image.dart for why
                           // passing both dims can distort the decode.
-                          cacheWidth: (36.w *
-                                  MediaQuery.of(context).devicePixelRatio)
-                              .round(),
+                          cacheWidth:
+                              (36.w * MediaQuery.of(context).devicePixelRatio)
+                                  .round(),
                           errorBuilder: (_, __, ___) => Container(
                             width: 36.w,
                             height: 50.h,
@@ -709,7 +709,7 @@ class _BattleCardState extends State<_BattleCard> {
                     // Width only — see poster_image.dart for why passing
                     // both dims can distort the decode.
                     cacheWidth: ((MediaQuery.of(context).size.width -
-                                WSizes.screenPadding.w * 2) /
+                                AppSizes.screenPadding.w * 2) /
                             2 *
                             MediaQuery.of(context).devicePixelRatio)
                         .round(),
@@ -773,9 +773,9 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        WSizes.screenPadding.w,
+        AppSizes.screenPadding.w,
         12.h,
-        WSizes.screenPadding.w,
+        AppSizes.screenPadding.w,
         0,
       ),
       child: Row(
@@ -848,7 +848,7 @@ class _ProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+      padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
       child: Column(
         children: [
           Row(

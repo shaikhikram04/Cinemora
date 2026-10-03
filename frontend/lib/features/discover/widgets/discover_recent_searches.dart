@@ -22,7 +22,7 @@ class DiscoverRecentSearches extends StatelessWidget {
     if (recentSearches.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+      padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -93,7 +93,7 @@ class _RecentChip extends StatelessWidget {
         padding: EdgeInsets.only(left: 10.w, right: 4.w, top: 7.h, bottom: 7.h),
         decoration: BoxDecoration(
           color: context.colors.surfaceChip,
-          borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+          borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
           border: Border.all(color: context.colors.surfaceChipBorder),
         ),
         child: Row(

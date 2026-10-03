@@ -22,7 +22,7 @@ class FranchiseBannerSection extends StatelessWidget {
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
           color: context.colors.surfaceChip,
-          borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+          borderRadius: BorderRadius.circular(AppSizes.radius12.r),
           border: Border.all(
             color: context.colors.surfaceChipBorder.withValues(alpha: 0.5),
           ),
@@ -30,7 +30,7 @@ class FranchiseBannerSection extends StatelessWidget {
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(WSizes.radiusMd.r),
+              borderRadius: BorderRadius.circular(AppSizes.radius10.r),
               child: Container(
                 width: 44.w,
                 height: 62.h,
@@ -41,9 +41,9 @@ class FranchiseBannerSection extends StatelessWidget {
                         fit: BoxFit.cover,
                         // Width only — see poster_image.dart for why
                         // passing both dims can distort the decode.
-                        cacheWidth: (44.w *
-                                MediaQuery.of(context).devicePixelRatio)
-                            .round(),
+                        cacheWidth:
+                            (44.w * MediaQuery.of(context).devicePixelRatio)
+                                .round(),
                         errorBuilder: (_, __, ___) => Icon(
                           Icons.collections_bookmark_rounded,
                           color: context.colors.mutedForeground,

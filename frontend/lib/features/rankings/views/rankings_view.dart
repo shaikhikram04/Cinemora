@@ -50,9 +50,9 @@ class RankingsView extends StatelessWidget {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
+                      AppSizes.screenPadding.w,
                       16.h,
-                      WSizes.screenPadding.w,
+                      AppSizes.screenPadding.w,
                       0,
                     ),
                     child: Row(
@@ -125,9 +125,9 @@ class RankingsView extends StatelessWidget {
                 if (listCount > 0) ...[
                   SliverPadding(
                     padding: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
+                      AppSizes.screenPadding.w,
                       16.h,
-                      WSizes.screenPadding.w,
+                      AppSizes.screenPadding.w,
                       18.h,
                     ),
                     sliver: SliverList(
@@ -445,9 +445,9 @@ class _RankingDetailContentState extends State<_RankingDetailContent> {
               children: [
                 Padding(
                   padding: EdgeInsets.fromLTRB(
-                    WSizes.screenPadding.w,
+                    AppSizes.screenPadding.w,
                     8.h,
-                    WSizes.screenPadding.w,
+                    AppSizes.screenPadding.w,
                     0,
                   ),
                   child: Row(
@@ -571,9 +571,9 @@ class _RankingDetailContentState extends State<_RankingDetailContent> {
                 if (entries.isNotEmpty)
                   Container(
                     margin: EdgeInsets.fromLTRB(
-                      WSizes.screenPadding.w,
+                      AppSizes.screenPadding.w,
                       14.h,
-                      WSizes.screenPadding.w,
+                      AppSizes.screenPadding.w,
                       12.h,
                     ),
                     padding:
@@ -657,9 +657,9 @@ class _RankingDetailContentState extends State<_RankingDetailContent> {
                       ? _EmptyDetailState(list: list)
                       : ReorderableListView.builder(
                           padding: EdgeInsets.fromLTRB(
-                            WSizes.screenPadding.w,
+                            AppSizes.screenPadding.w,
                             6.h,
-                            WSizes.screenPadding.w,
+                            AppSizes.screenPadding.w,
                             16.h,
                           ),
                           buildDefaultDragHandles: false,

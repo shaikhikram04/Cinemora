@@ -118,7 +118,7 @@ class _DetailRecommendationsSectionState
             ),
             SizedBox(height: 12.h),
             SizedBox(
-              height: WSizes.imageCarouselHeight.h,
+              height: AppSizes.imageCarouselHeight.h,
               child: isLoading
                   ? _LoadingRow()
                   : ListView.separated(
@@ -132,8 +132,8 @@ class _DetailRecommendationsSectionState
                           title: item.title,
                           rating: item.ratingDisplay,
                           image: item.posterUrl,
-                          width: WSizes.posterImageWidth.w,
-                          imageHeight: WSizes.posterImageHeight.h,
+                          width: AppSizes.posterImageWidth.w,
+                          imageHeight: AppSizes.posterImageHeight.h,
                           cinemaType: CinemaType.fromJson(item.cinemaType),
                           year: item.year ?? '',
                           onTap: () => _navigate(context, item),
@@ -157,10 +157,10 @@ class _LoadingRow extends StatelessWidget {
       itemCount: 3,
       separatorBuilder: (_, __) => SizedBox(width: 12.w),
       itemBuilder: (context, i) => Container(
-        width: WSizes.posterImageWidth.w,
+        width: AppSizes.posterImageWidth.w,
         decoration: BoxDecoration(
           color: context.colors.surfaceChip,
-          borderRadius: BorderRadius.circular(WSizes.radiusXxl.r),
+          borderRadius: BorderRadius.circular(AppSizes.radius18.r),
         ),
       ),
     );

@@ -27,7 +27,7 @@ class DiscoverResultsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: WSizes.screenPadding.w),
+      padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPadding.w),
       child: switch (status) {
         DiscoverSearchStatus.loading => const _ShimmerList(),
         DiscoverSearchStatus.success => _ResultsList(
@@ -65,7 +65,7 @@ class _ShimmerList extends StatelessWidget {
               height: 96.h,
               decoration: BoxDecoration(
                 color: context.colors.surfaceChip,
-                borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+                borderRadius: BorderRadius.circular(AppSizes.radius12.r),
               ),
             ),
           ),

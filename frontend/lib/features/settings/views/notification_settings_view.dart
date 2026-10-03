@@ -90,9 +90,9 @@ class _NotificationSettingsContentState
                         )
                       : ListView(
                           padding: EdgeInsets.fromLTRB(
-                            WSizes.screenPadding.w,
+                            AppSizes.screenPadding.w,
                             16.h,
-                            WSizes.screenPadding.w,
+                            AppSizes.screenPadding.w,
                             100.h,
                           ),
                           physics: const BouncingScrollPhysics(),
@@ -116,8 +116,7 @@ class _NotificationSettingsContentState
                                   subtitle:
                                       'When a movie or anime you’re waiting on is out',
                                   value: state.pushNewRelease,
-                                  onChanged:
-                                      live ? cubit.setNewRelease : null,
+                                  onChanged: live ? cubit.setNewRelease : null,
                                 ),
                                 _NotifToggleItem(
                                   title: 'New Season Available',
@@ -160,8 +159,7 @@ class _NotifBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final blocked = permission != PushPermission.granted;
-    final accent =
-        blocked ? context.colors.accentRed : context.colors.warning;
+    final accent = blocked ? context.colors.accentRed : context.colors.warning;
 
     return Container(
       padding: EdgeInsets.all(14.w),
@@ -261,7 +259,8 @@ class _BannerAction extends StatelessWidget {
                 child: SizedBox(
                   width: 16.w,
                   height: 16.w,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: color),
+                  child:
+                      CircularProgressIndicator(strokeWidth: 2, color: color),
                 ),
               )
             : Text(

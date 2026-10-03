@@ -204,7 +204,7 @@ class _EditProfileContentState extends State<_EditProfileContent> {
                           SizedBox(height: 28.h),
                           Padding(
                             padding: EdgeInsets.symmetric(
-                                horizontal: WSizes.screenPadding.w),
+                                horizontal: AppSizes.screenPadding.w),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -381,7 +381,7 @@ class _TasteChip extends StatelessWidget {
           color: selected
               ? context.colors.accentRed.withValues(alpha: 0.12)
               : context.colors.surfaceRaised2,
-          borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+          borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
           border: Border.all(
             color: selected
                 ? context.colors.accentRed.withValues(alpha: 0.4)
@@ -429,7 +429,7 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-          WSizes.screenPadding.w, 12.h, WSizes.screenPadding.w, 0),
+          AppSizes.screenPadding.w, 12.h, AppSizes.screenPadding.w, 0),
       child: Row(
         children: [
           GestureDetector(
@@ -663,9 +663,9 @@ class _Avatar extends StatelessWidget {
                       : Image.network(
                           url!,
                           fit: BoxFit.cover,
-                          cacheWidth: (size *
-                                  MediaQuery.devicePixelRatioOf(context))
-                              .round(),
+                          cacheWidth:
+                              (size * MediaQuery.devicePixelRatioOf(context))
+                                  .round(),
                           errorBuilder: (_, __, ___) => _fallbackIcon(context),
                         ),
                 ),

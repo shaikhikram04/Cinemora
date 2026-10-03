@@ -22,7 +22,7 @@ class DiscoverResultCard extends StatelessWidget {
         padding: EdgeInsets.all(10.w),
         decoration: BoxDecoration(
           color: context.colors.surfaceChip,
-          borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+          borderRadius: BorderRadius.circular(AppSizes.radius12.r),
           border: Border.all(
             color: context.colors.surfaceChipBorder.withValues(alpha: 0.5),
           ),
@@ -142,7 +142,7 @@ class _PosterThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(WSizes.radiusMd.r),
+      borderRadius: BorderRadius.circular(AppSizes.radius10.r),
       child: Container(
         width: 54.w,
         height: 76.h,
@@ -197,7 +197,7 @@ class _TypeBadge extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(WSizes.radiusSm.r),
+        borderRadius: BorderRadius.circular(AppSizes.radius8.r),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(

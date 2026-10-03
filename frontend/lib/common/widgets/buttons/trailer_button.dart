@@ -1,3 +1,5 @@
+import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/core/constants/sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -8,50 +10,61 @@ class TrailerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final foregroundColor = colors.primaryForeground;
+    final borderRadius = BorderRadius.circular(AppSizes.radius16.r);
+
     return SizedBox(
       width: double.infinity,
-      height: 50.h,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFE84B57), Color(0xFFBF2D38)],
+          gradient: LinearGradient(
+            colors: [colors.accentRed, colors.accentRedDeep],
+            begin: AlignmentGeometry.topCenter,
+            end: AlignmentGeometry.bottomCenter,
           ),
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: borderRadius,
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFE84B57).withValues(alpha: 0.38),
-              blurRadius: 22,
-              offset: const Offset(0, 8),
+              color: colors.accentRed.withValues(alpha: 0.38),
+              blurRadius: AppSizes.radius10,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Material(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: borderRadius,
           child: InkWell(
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: borderRadius,
             onTap: onTap,
-            splashColor: Colors.white.withValues(alpha: 0.08),
+            splashColor: foregroundColor.withValues(alpha: 0.08),
             highlightColor: Colors.transparent,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.play_circle_fill_rounded,
-                  color: Colors.white,
-                  size: 22.sp,
-                ),
-                SizedBox(width: 10.w),
-                Text(
-                  'WATCH TRAILER',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.4,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSizes.buttonHorizontalPadding,
+                vertical: AppSizes.buttonVerticalPadding,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.play_circle_fill_rounded,
+                    color: foregroundColor,
+                    size: AppSizes.icon22.sp,
                   ),
-                ),
-              ],
+                  SizedBox(width: AppSizes.space10.w),
+                  Text(
+                    'WATCH TRAILER',
+                    style: TextStyle(
+                      color: foregroundColor,
+                      fontSize: AppSizes.fontSize13.sp,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.4,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

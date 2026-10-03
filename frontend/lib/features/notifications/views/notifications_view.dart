@@ -120,7 +120,7 @@ class _NotificationsContent extends StatelessWidget {
   ) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-          WSizes.screenPadding.w, 12.h, WSizes.screenPadding.w, 0),
+          AppSizes.screenPadding.w, 12.h, AppSizes.screenPadding.w, 0),
       child: Row(
         children: [
           GestureDetector(
@@ -129,7 +129,7 @@ class _NotificationsContent extends StatelessWidget {
               width: 38.w,
               height: 38.w,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(WSizes.radiusLg.r),
+                borderRadius: BorderRadius.circular(AppSizes.radius12.r),
                 color: context.colors.surfaceMuted,
                 border: Border.all(color: context.colors.borderStrong),
               ),
@@ -161,7 +161,8 @@ class _NotificationsContent extends StatelessWidget {
                         EdgeInsets.symmetric(horizontal: 7.w, vertical: 2.h),
                     decoration: BoxDecoration(
                       color: context.colors.primary,
-                      borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                      borderRadius:
+                          BorderRadius.circular(AppSizes.radiusFull.r),
                     ),
                     child: Text(
                       '${state.unreadCount}',
@@ -198,7 +199,7 @@ class _NotificationsContent extends StatelessWidget {
   Widget _buildGroupLabel(BuildContext context, String label) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-          WSizes.screenPadding.w, 22.h, WSizes.screenPadding.w, 8.h),
+          AppSizes.screenPadding.w, 22.h, AppSizes.screenPadding.w, 8.h),
       child: Row(
         children: [
           Text(
@@ -242,7 +243,7 @@ class _NotificationsContent extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         padding: EdgeInsets.symmetric(
-            horizontal: WSizes.screenPadding.w, vertical: 14.h),
+            horizontal: AppSizes.screenPadding.w, vertical: 14.h),
         decoration: BoxDecoration(
           color: isUnread
               ? context.colors.primary.withValues(alpha: 0.05)
@@ -369,7 +370,7 @@ class _NotificationsContent extends StatelessWidget {
       width: 48.w,
       height: 64.h,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(WSizes.radiusMd.r),
+        borderRadius: BorderRadius.circular(AppSizes.radius10.r),
         child: url == null
             ? placeholder
             : Image.network(
@@ -406,7 +407,7 @@ class _NotificationsContent extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(WSizes.xl.w),
+        padding: EdgeInsets.all(AppSizes.xl.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

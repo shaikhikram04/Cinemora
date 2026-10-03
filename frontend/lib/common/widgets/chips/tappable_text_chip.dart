@@ -26,7 +26,7 @@ class TappableTextChip extends StatelessWidget {
           color: isSelected
               ? context.colors.primary.withValues(alpha: 0.15)
               : context.colors.surfaceChip.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+          borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
           border: Border.all(
             color: isSelected
                 ? context.colors.primary.withValues(alpha: 0.6)
@@ -36,7 +36,9 @@ class TappableTextChip extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: isSelected ? context.colors.primary : context.colors.mutedSecondaryAlt,
+            color: isSelected
+                ? context.colors.primary
+                : context.colors.mutedSecondaryAlt,
             fontSize: 12.sp,
             fontWeight: FontWeight.w500,
           ),

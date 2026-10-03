@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:cinemora/common/widgets/buttons/circle_icon_button.dart';
+import 'package:cinemora/common/widgets/buttons/curved_icon_button.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
@@ -25,7 +25,7 @@ class DetailHeroShell extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          height: WSizes.imageDetailsHeroHeight.h,
+          height: AppSizes.imageDetailsHeroHeight.h,
           decoration: BoxDecoration(
             image: DecorationImage(
               // DecorationImage has no cacheWidth/cacheHeight of its own —
@@ -64,15 +64,15 @@ class DetailHeroShell extends StatelessWidget {
           child: SafeArea(
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: WSizes.screenPadding.w,
+                horizontal: AppSizes.screenPadding.w,
                 vertical: 12.h,
               ),
               child: Row(
                 children: [
-                  WCircleIconButton(
+                  CurvedIconButton(
                     icon: Icons.arrow_back,
                     onTap: () => Navigator.pop(context),
-                    backgroundColor: Colors.black.withValues(alpha: 0.8),
+                    // backgroundColor: Colors.black.withValues(alpha: 0.2),
                     iconColor: Colors.white,
                   ),
                 ],

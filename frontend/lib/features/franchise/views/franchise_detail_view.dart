@@ -119,7 +119,7 @@ class _FranchiseDetailContent extends StatelessWidget {
                 SizedBox(height: 20.h),
                 Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: WSizes.screenPadding.w,
+                    horizontal: AppSizes.screenPadding.w,
                   ),
                   child: state.status == FranchiseDetailStatus.loading
                       ? const _LoadingBody()
@@ -213,7 +213,7 @@ class _MoviesBody extends StatelessWidget {
         ),
         SizedBox(height: 14.h),
         SizedBox(
-          height: WSizes.imageCarouselHeight.h,
+          height: AppSizes.imageCarouselHeight.h,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: detail.movies.length,
@@ -224,8 +224,8 @@ class _MoviesBody extends StatelessWidget {
                 title: movie.title,
                 rating: movie.ratingDisplay,
                 image: movie.posterUrl,
-                width: WSizes.posterImageWidth.w,
-                imageHeight: WSizes.posterImageHeight.h,
+                width: AppSizes.posterImageWidth.w,
+                imageHeight: AppSizes.posterImageHeight.h,
                 cinemaType: CinemaType.movie,
                 year: movie.year,
                 watchStatus: statusFor(movie.id),
@@ -257,7 +257,7 @@ class _AddAllButton extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
         decoration: BoxDecoration(
           color: context.colors.primary.withValues(alpha: isLoading ? 0.6 : 1),
-          borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+          borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

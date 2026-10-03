@@ -28,7 +28,7 @@ class VerticalPosterBookmarkCard extends StatefulWidget {
     required this.rating,
     required this.cinemaType,
     required this.year,
-    this.radius = WSizes.radiusXxl,
+    this.radius = AppSizes.radius18,
     this.onTap,
     this.watchStatus,
     this.onBookmark,

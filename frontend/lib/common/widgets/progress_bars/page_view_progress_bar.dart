@@ -27,7 +27,7 @@ class PageViewProgressBar extends StatelessWidget {
     return Column(
       children: [
         _buildHeader(context),
-        const SizedBox(height: WSizes.sm),
+        const SizedBox(height: AppSizes.sm),
         _buildProgressDots(context, currentPage),
       ],
     );
@@ -35,7 +35,7 @@ class PageViewProgressBar extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: WSizes.md),
+      padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
       child: Row(
         children: [
           if (showBackButton)
@@ -48,7 +48,7 @@ class PageViewProgressBar extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: context.colors.surfaceRaised,
                     border: Border.all(color: context.colors.border),
-                    borderRadius: BorderRadius.circular(WSizes.radiusXl.r),
+                    borderRadius: BorderRadius.circular(AppSizes.radius16.r),
                   ),
                   child: Icon(
                     Icons.arrow_back_rounded,
@@ -72,7 +72,7 @@ class PageViewProgressBar extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(WSizes.radiusFull.r),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
                   border: Border.all(color: context.colors.border),
                   color: context.colors.card.withValues(alpha: 0.5),
                 ),
@@ -92,7 +92,7 @@ class PageViewProgressBar extends StatelessWidget {
 
   Widget _buildProgressDots(BuildContext context, int currentPage) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: WSizes.md),
+      padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
       child: Row(
         children: List.generate(totalPages, (index) {
           final isActive = index == currentPage;
@@ -102,7 +102,9 @@ class PageViewProgressBar extends StatelessWidget {
               height: 3.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(99.r),
-                color: isActive ? context.colors.primary : Colors.white.withAlpha(70),
+                color: isActive
+                    ? context.colors.primary
+                    : Colors.white.withAlpha(70),
               ),
             ),
           );
