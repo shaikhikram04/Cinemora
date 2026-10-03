@@ -308,7 +308,7 @@ class _MovieHeroMeta extends StatelessWidget {
             fontFamily: 'Inter',
           ),
         ),
-        SizedBox(height: AppSizes.sectionSpaceLg.h),
+        SizedBox(height: AppSizes.space20.h),
       ],
     );
   }

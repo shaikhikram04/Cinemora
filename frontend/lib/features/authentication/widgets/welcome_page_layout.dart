@@ -31,28 +31,28 @@ class WelcomePageLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
+      padding: const EdgeInsets.symmetric(horizontal: AppSizes.space16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 360.h, child: Center(child: visual)),
           const Spacer(),
-          const SizedBox(height: AppSizes.defaultSpace),
+          const SizedBox(height: AppSizes.space24),
           Text(
             label,
             style: WTextTheme.of(context).label,
           ),
-          const SizedBox(height: AppSizes.sm),
+          const SizedBox(height: AppSizes.space8),
           Text(
             title,
             style: WTextTheme.of(context).h1,
           ),
-          const SizedBox(height: AppSizes.md),
+          const SizedBox(height: AppSizes.space16),
           Text(
             subtitle,
             style: WTextTheme.of(context).body.copyWith(fontSize: 14.sp),
           ),
-          const SizedBox(height: AppSizes.lg),
+          const SizedBox(height: AppSizes.space24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -82,14 +82,14 @@ class WelcomePageLayout extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(primaryButton),
-                        const SizedBox(width: AppSizes.sm),
+                        const SizedBox(width: AppSizes.space8),
                         Icon(Icons.arrow_forward, size: 20.sp),
                       ],
                     ),
             ),
           ),
           if (secondaryButton != null) ...[
-            const SizedBox(height: AppSizes.md),
+            const SizedBox(height: AppSizes.space16),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
@@ -111,7 +111,7 @@ class WelcomePageLayout extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: AppSizes.lg),
+          const SizedBox(height: AppSizes.space24),
         ],
       ),
     );

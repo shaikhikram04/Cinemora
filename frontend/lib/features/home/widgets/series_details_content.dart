@@ -364,7 +364,7 @@ class _SeriesHeroMeta extends StatelessWidget {
               ),
           ],
         ),
-        SizedBox(height: AppSizes.sectionSpaceLg.h),
+        SizedBox(height: AppSizes.space20.h),
       ],
     );
   }

@@ -157,7 +157,7 @@ class _TrailerPlayerScreenState extends State<TrailerPlayerScreen> {
                 color: Colors.white,
                 size: AppSizes.icon32,
               ),
-              const SizedBox(height: AppSizes.sectionSpaceSm),
+              const SizedBox(height: AppSizes.space12),
               Text(
                 "This trailer can't be played here"
                 '${_errorCode == null ? '' : ' (error $_errorCode)'}.',
@@ -168,7 +168,7 @@ class _TrailerPlayerScreenState extends State<TrailerPlayerScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: AppSizes.sm),
+              const SizedBox(height: AppSizes.space8),
               const Text(
                 'Watch it on YouTube instead.',
                 textAlign: TextAlign.center,
@@ -177,7 +177,7 @@ class _TrailerPlayerScreenState extends State<TrailerPlayerScreen> {
                   fontSize: AppSizes.fontSize14,
                 ),
               ),
-              const SizedBox(height: AppSizes.lg),
+              const SizedBox(height: AppSizes.space24),
               FilledButton.icon(
                 onPressed: _retryInYouTube,
                 icon: const Icon(Icons.open_in_new_rounded,

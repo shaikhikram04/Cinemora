@@ -27,7 +27,7 @@ class PageViewProgressBar extends StatelessWidget {
     return Column(
       children: [
         _buildHeader(context),
-        const SizedBox(height: AppSizes.sm),
+        const SizedBox(height: AppSizes.space8),
         _buildProgressDots(context, currentPage),
       ],
     );
@@ -35,7 +35,7 @@ class PageViewProgressBar extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
+      padding: const EdgeInsets.symmetric(horizontal: AppSizes.space16),
       child: Row(
         children: [
           if (showBackButton)
@@ -92,7 +92,7 @@ class PageViewProgressBar extends StatelessWidget {
 
   Widget _buildProgressDots(BuildContext context, int currentPage) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
+      padding: const EdgeInsets.symmetric(horizontal: AppSizes.space16),
       child: Row(
         children: List.generate(totalPages, (index) {
           final isActive = index == currentPage;

@@ -59,12 +59,13 @@ class _VerticalPosterBookmarkCardState
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final poster = Container(
-      width: widget.width + 8.w,
-      padding: EdgeInsets.all(4.w),
+      width: widget.width + AppSizes.space8.w,
+      padding: EdgeInsets.all(AppSizes.space4.w),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(widget.radius.r),
-        color: context.colors.surfaceChip,
+        color: colors.surfaceChip,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,9 +87,9 @@ class _VerticalPosterBookmarkCardState
                     widget.onBookmark?.call();
                   },
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: AppSizes.space8.h),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            padding: EdgeInsets.symmetric(horizontal: AppSizes.space4.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -97,23 +98,23 @@ class _VerticalPosterBookmarkCardState
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: context.colors.foreground,
-                    fontSize: 13.sp,
+                    color: colors.foreground,
+                    fontSize: AppSizes.fontSize13.sp,
                     height: 1.1,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: AppSizes.space4.h),
                 Row(
                   children: [
                     Icon(Icons.star_rounded,
-                        color: context.colors.tertiary, size: 12.sp),
-                    SizedBox(width: 4.w),
+                        color: colors.tertiary, size: AppSizes.icon12.sp),
+                    SizedBox(width: AppSizes.space4.w),
                     Text(
                       widget.rating,
                       style: TextStyle(
-                        color: context.colors.tertiary,
-                        fontSize: 12.sp,
+                        color: colors.tertiary,
+                        fontSize: AppSizes.fontSize12.sp,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -122,8 +123,8 @@ class _VerticalPosterBookmarkCardState
                 Text(
                   "${widget.cinemaType.name} • ${widget.year}",
                   style: TextStyle(
-                    fontSize: 11.sp,
-                    color: context.colors.mutedSecondaryVibe,
+                    fontSize: AppSizes.fontSize11.sp,
+                    color: colors.mutedSecondaryVibe,
                   ),
                 ),
               ],

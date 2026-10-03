@@ -46,7 +46,7 @@ class LoginView extends StatelessWidget {
           body: TopGradientBackgroundContainer(
             child: SafeArea(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: AppSizes.md.w),
+                padding: EdgeInsets.symmetric(horizontal: AppSizes.space16.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -55,12 +55,12 @@ class LoginView extends StatelessWidget {
                       iconSize: 96,
                       fontSize: 30,
                     ),
-                    SizedBox(height: AppSizes.xl.h),
+                    SizedBox(height: AppSizes.space32.h),
                     Text('WELCOME BACK', style: WTextTheme.of(context).label),
-                    SizedBox(height: AppSizes.sm.h),
+                    SizedBox(height: AppSizes.space8.h),
                     Text('Pick up where\nyou left off.',
                         style: WTextTheme.of(context).h1),
-                    SizedBox(height: AppSizes.md.h),
+                    SizedBox(height: AppSizes.space16.h),
                     Text(
                       'Sign in to sync your watchlist, ratings and\nAI picks across devices.',
                       style: WTextTheme.of(context).body.copyWith(
@@ -69,9 +69,9 @@ class LoginView extends StatelessWidget {
                           ),
                     ),
                     Spacer(),
-                    SizedBox(height: AppSizes.lg.h),
+                    SizedBox(height: AppSizes.space24.h),
                     _SignInButtons(),
-                    SizedBox(height: (AppSizes.lg * 2).h),
+                    SizedBox(height: (AppSizes.space24 * 2).h),
                   ],
                 ),
               ),
@@ -128,14 +128,14 @@ class _SignInButtons extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text('Sign In with Google'),
-                        SizedBox(width: AppSizes.sm.w),
+                        SizedBox(width: AppSizes.space8.w),
                         Icon(Icons.arrow_forward, size: 20.sp),
                       ],
                     ),
             ),
           ),
         ),
-        SizedBox(height: AppSizes.md.h),
+        SizedBox(height: AppSizes.space16.h),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(

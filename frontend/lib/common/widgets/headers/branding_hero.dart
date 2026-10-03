@@ -9,7 +9,7 @@ class BrandHero extends StatelessWidget {
     super.key,
     required this.iconSize,
     required this.fontSize,
-    this.spacing = AppSizes.sm,
+    this.spacing = AppSizes.space8,
     this.centered = false,
   });
 
@@ -36,7 +36,7 @@ class BrandHero extends StatelessWidget {
             'Cinemora',
             style: WTextTheme.of(context).h1.copyWith(fontSize: fontSize.sp),
           ),
-          SizedBox(width: AppSizes.md.w),
+          SizedBox(width: AppSizes.space16.w),
         ],
       ),
     );

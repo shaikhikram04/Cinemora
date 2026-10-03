@@ -32,7 +32,7 @@ class WSectionHeader extends StatelessWidget {
           ),
           child: Icon(icon, size: 12.sp, color: iconColor),
         ),
-        SizedBox(width: AppSizes.sm.w),
+        SizedBox(width: AppSizes.space8.w),
         Expanded(
           child: Text(
             title,

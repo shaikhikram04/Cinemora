@@ -1,3 +1,4 @@
+import 'package:cinemora/common/widgets/overlays/bookmark_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
@@ -5,6 +6,12 @@ import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/models/watch_status.dart';
 
 typedef BadgeBuilder = Widget Function(BuildContext context, String rating);
+
+/// Scrims painted over the poster artwork itself, not over a themed surface,
+/// so they stay black in both themes — a theme token would invert in light
+/// mode and leave the white title and icons sitting on near-white.
+const Color _artworkScrimFaint = Color(0x1F000000); // black 12%
+const Color _artworkScrimDeep = Color(0xC7000000); // black 78%
 
 class PosterImage extends StatelessWidget {
   final String image;
@@ -18,7 +25,6 @@ class PosterImage extends StatelessWidget {
   final BadgeBuilder? badgeBuilder;
   final String? tag;
   final Color? tagColor;
-  final bool showAction;
   final bool actionAdded;
   final VoidCallback? onActionTap;
   final bool titleOnImage;
@@ -37,7 +43,6 @@ class PosterImage extends StatelessWidget {
     this.badgeBuilder,
     this.tag,
     this.tagColor,
-    this.showAction = false,
     this.actionAdded = false,
     this.onActionTap,
     this.titleOnImage = false,
@@ -69,6 +74,11 @@ class PosterImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    // Overlay chrome sits on top of photographic artwork, under the gradient
+    // below — so its black/white are deliberately theme-independent rather
+    // than theme tokens, which would invert and ruin contrast in light mode.
+    final onArtwork = colors.primaryForeground;
     final renderedHeight = height.h;
     return Container(
       height: renderedHeight,
@@ -77,9 +87,9 @@ class PosterImage extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius.r),
         boxShadow: [
           BoxShadow(
-            color: context.colors.shadowMedium,
+            color: colors.shadowMedium,
             blurRadius: 18,
-            offset: Offset(0, 10),
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -106,39 +116,43 @@ class PosterImage extends StatelessWidget {
                 width: width,
               ),
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                color: context.colors.surfaceMuted,
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.image_not_supported_outlined,
-                  color: context.colors.mutedSecondary,
-                  size: 22.sp,
+              errorBuilder: (context, error, stackTrace) => ColoredBox(
+                color: colors.surfaceMuted,
+                child: Center(
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    color: colors.mutedSecondary,
+                    size: AppSizes.icon22.sp,
+                  ),
                 ),
               ),
             ),
             const _PosterGradient(),
             if (showBookmark)
               Positioned.fill(
-                child: _BookmarkOverlay(
+                child: BookmarkOverlay(
                   watchStatus: watchStatus,
                   onToggle: onAddToWatchlist,
                 ),
               ),
             if (tag != null && tag!.isNotEmpty)
               Positioned(
-                left: 8.w,
-                top: 8.h,
+                left: AppSizes.space8.w,
+                top: AppSizes.space8.h,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppSizes.space8.w,
+                    vertical: AppSizes.space4.h,
+                  ),
                   decoration: BoxDecoration(
-                    color: tagColor ?? context.colors.accentRed,
+                    color: tagColor ?? colors.accentRed,
                     borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
                   ),
                   child: Text(
                     tag!.toUpperCase(),
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10.sp,
+                      color: onArtwork,
+                      fontSize: AppSizes.fontSize10.sp,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -146,15 +160,15 @@ class PosterImage extends StatelessWidget {
               ),
             if (badgeBuilder != null && rating != null)
               Positioned(
-                right: 8.w,
-                top: 8.h,
+                right: AppSizes.space8.w,
+                top: AppSizes.space8.h,
                 child: badgeBuilder!(context, rating!),
               ),
             if (titleOnImage && title != null)
               Positioned(
-                left: 10.w,
-                right: 10.w,
-                bottom: 10.h,
+                left: AppSizes.space10.w,
+                right: AppSizes.space10.w,
+                bottom: AppSizes.space10.h,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -163,8 +177,8 @@ class PosterImage extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.sp,
+                        color: onArtwork,
+                        fontSize: AppSizes.fontSize16.sp,
                         height: 1.1,
                         fontWeight: FontWeight.w800,
                       ),
@@ -174,15 +188,15 @@ class PosterImage extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.star_rounded,
-                            color: context.colors.tertiary,
-                            size: 11.sp,
+                            color: colors.tertiary,
+                            size: AppSizes.icon11.sp,
                           ),
-                          SizedBox(width: 2.w),
+                          SizedBox(width: AppSizes.space2.w),
                           Text(
                             rating!,
                             style: TextStyle(
-                              color: context.colors.tertiary,
-                              fontSize: 12.sp,
+                              color: colors.tertiary,
+                              fontSize: AppSizes.fontSize12.sp,
                               fontWeight: FontWeight.w800,
                               height: (1.8).h,
                             ),
@@ -190,29 +204,6 @@ class PosterImage extends StatelessWidget {
                         ],
                       ),
                   ],
-                ),
-              ),
-            if (showAction)
-              Positioned(
-                right: 8.w,
-                bottom: 8.h,
-                child: GestureDetector(
-                  onTap: onActionTap,
-                  child: Container(
-                    width: 36.w,
-                    height: 36.w,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      actionAdded ? Icons.check_rounded : Icons.add,
-                      color:
-                          actionAdded ? context.colors.accentRed : Colors.white,
-                      size: 18.sp,
-                    ),
-                  ),
                 ),
               ),
           ],
@@ -227,257 +218,16 @@ class _PosterGradient extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return const DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
             Colors.transparent,
-            Colors.black.withValues(alpha: 0.12),
-            Colors.black.withValues(alpha: 0.78),
+            _artworkScrimFaint,
+            _artworkScrimDeep,
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Animated bookmark overlay ────────────────────────────────────────────────
-
-class _BookmarkOverlay extends StatefulWidget {
-  final WatchStatus? watchStatus;
-  final VoidCallback? onToggle;
-
-  const _BookmarkOverlay({required this.watchStatus, this.onToggle});
-
-  @override
-  State<_BookmarkOverlay> createState() => _BookmarkOverlayState();
-}
-
-class _BookmarkOverlayState extends State<_BookmarkOverlay>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-
-  // Corner: fades + shrinks out as controller goes 0 → 1
-  late final Animation<double> _cornerOpacity;
-  late final Animation<double> _cornerScale;
-
-  // Ribbon: scales + fades in as controller goes 0 → 1
-  late final Animation<double> _ribbonOpacity;
-  late final Animation<double> _ribbonScale;
-
-  bool get _inWatchlist => widget.watchStatus == WatchStatus.watchlist;
-  bool get _isWatched => widget.watchStatus == WatchStatus.watched;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 320),
-    );
-
-    _cornerOpacity = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
-    );
-    _cornerScale = Tween<double>(begin: 1.0, end: 0.75).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
-    );
-    _ribbonOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-          parent: _ctrl, curve: const Interval(0.2, 1.0, curve: Curves.easeIn)),
-    );
-    _ribbonScale = Tween<double>(begin: 0.55, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack),
-    );
-
-    if (_inWatchlist) _ctrl.value = 1.0;
-  }
-
-  @override
-  void didUpdateWidget(_BookmarkOverlay old) {
-    super.didUpdateWidget(old);
-    final wasWatchlist = old.watchStatus == WatchStatus.watchlist;
-    if (_inWatchlist != wasWatchlist) {
-      _inWatchlist ? _ctrl.forward() : _ctrl.reverse();
-    }
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        if (!_isWatched) ...[
-          // Corner "+" — visible when NOT in watchlist
-          Positioned(
-            right: 0,
-            top: 0,
-            child: IgnorePointer(
-              ignoring: _inWatchlist,
-              child: FadeTransition(
-                opacity: _cornerOpacity,
-                child: ScaleTransition(
-                  scale: _cornerScale,
-                  alignment: Alignment.topRight,
-                  child: _AddToWatchlistCorner(onTap: widget.onToggle),
-                ),
-              ),
-            ),
-          ),
-          // Ribbon — visible when IN watchlist
-          Positioned(
-            right: -30.w,
-            top: 24.h,
-            child: IgnorePointer(
-              ignoring: !_inWatchlist,
-              child: FadeTransition(
-                opacity: _ribbonOpacity,
-                child: ScaleTransition(
-                  scale: _ribbonScale,
-                  child: GestureDetector(
-                    onTap: widget.onToggle,
-                    child: Transform.rotate(
-                      angle: 0.785398,
-                      child: const _WatchlistRibbon(label: 'IN WATCHLIST'),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-        if (_isWatched)
-          Positioned(
-            right: -30.w,
-            top: 24.h,
-            child: Transform.rotate(
-              angle: 0.785398,
-              child: const _WatchlistRibbon(
-                label: 'WATCHED',
-                color: Color(0xFF059669),
-                horizontalPadding: 40,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-// ─── Corner "+" button with tap-scale feedback ────────────────────────────────
-
-class _AddToWatchlistCorner extends StatefulWidget {
-  final VoidCallback? onTap;
-
-  const _AddToWatchlistCorner({this.onTap});
-
-  @override
-  State<_AddToWatchlistCorner> createState() => _AddToWatchlistCornerState();
-}
-
-class _AddToWatchlistCornerState extends State<_AddToWatchlistCorner>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _tap;
-
-  @override
-  void initState() {
-    super.initState();
-    _tap = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-      reverseDuration: const Duration(milliseconds: 80),
-    );
-  }
-
-  @override
-  void dispose() {
-    _tap.dispose();
-    super.dispose();
-  }
-
-  Future<void> _handleTap() async {
-    await _tap.forward();
-    _tap.reverse();
-    widget.onTap?.call();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _handleTap,
-      child: ScaleTransition(
-        scale: Tween<double>(begin: 1.0, end: 0.8).animate(
-          CurvedAnimation(parent: _tap, curve: Curves.easeOut),
-        ),
-        alignment: Alignment.topRight,
-        child: ClipPath(
-          clipper: const _TopRightTriangleClipper(),
-          child: Container(
-            width: 46.w,
-            height: 46.w,
-            color: context.colors.surfaceMuted.withValues(alpha: 0.7),
-            alignment: Alignment.topRight,
-            child: Padding(
-              padding: EdgeInsets.only(top: 8.h, right: 8.w),
-              child: Icon(Icons.add, color: Colors.white, size: 16.sp),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TopRightTriangleClipper extends CustomClipper<Path> {
-  const _TopRightTriangleClipper();
-
-  @override
-  Path getClip(Size size) {
-    return Path()
-      ..moveTo(size.width, 0)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, 0)
-      ..close();
-  }
-
-  @override
-  bool shouldReclip(covariant _TopRightTriangleClipper oldClipper) => false;
-}
-
-class _WatchlistRibbon extends StatelessWidget {
-  final String label;
-  final Color? color;
-  final double? horizontalPadding;
-
-  const _WatchlistRibbon({
-    required this.label,
-    this.color,
-    this.horizontalPadding,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: color ?? context.colors.accentRed,
-      padding: EdgeInsets.symmetric(
-        vertical: 2.h,
-        horizontal: (horizontalPadding ?? 28).w,
-      ),
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 8.sp,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.1,
         ),
       ),
     );

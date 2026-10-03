@@ -1,15 +1,19 @@
 class AppSizes {
   const AppSizes._();
   //* padding and margin sizes
-  static const double xs = 4.0;
-  static const double sm = 8.0;
+  static const double space2 = 2.0;
+  static const double space4 = 4.0;
+  static const double space8 = 8.0;
   static const double space10 = 10.0;
-  static const double md = 16.0;
-  static const double lg = 24.0;
-  static const double xl = 32.0;
-  static const double xxl = 40.0;
+  static const double space12 = 12.0;
+  static const double space16 = 16.0;
+  static const double space20 = 20.0;
+  static const double space24 = 24.0;
+  static const double space32 = 32.0;
+  static const double space48 = 48.0;
 
   //* Icon sizes
+  static const double icon11 = 11.0;
   static const double icon12 = 12.0;
   static const double icon16 = 16.0;
   static const double icon18 = 18.0;
@@ -18,6 +22,8 @@ class AppSizes {
   static const double icon32 = 32.0;
 
   //* Font sizes
+  static const double fontSize10 = 10.0;
+  static const double fontSize11 = 11.0;
   static const double fontSize12 = 12.0;
   static const double fontSize13 = 13.0;
   static const double fontSize14 = 14.0;
@@ -43,15 +49,7 @@ class AppSizes {
   static const double imageDetailsHeroHeight = 380.0;
   static const double posterImageWidth = 130.0;
   static const double posterImageHeight = 180.0;
-
-  //* Default spacing between sections
-  static const double defaultSpace = 24.0;
-  static const double spaceBtwItems = 16.0;
-  static const double spaceBtwSections = 32.0;
-  static const double sectionSpaceSm = 12.0;
-  static const double sectionSpaceMd = 16.0;
-  static const double sectionSpaceLg = 20.0;
-  static const double sectionSpaceXl = 28.0;
+  static const double posterActionSize = 36.0;
 
   //* Border Radius
   static const double radius8 = 8;
@@ -74,18 +72,6 @@ class AppSizes {
   //* Input Field
   static const double inputFieldRadius = 12.0;
   static const double spaceBtwInputFields = 16.0;
-
-  //* Card Sizes
-  static const double cardRadiusXs = 6.0;
-  static const double cardRadiusSm = 10.0;
-  static const double cardRadiusMd = 12.0;
-  static const double cardRadiusLg = 16.0;
-  static const double cardRadiusXl = 18.0;
-  static const double cardRadius2xl = 20.0;
-  static const double cardRadius3xl = 22.0;
-  static const double cardRadius4xl = 28.0;
-  static const double cardElevation = 2.0;
-  static const double cardElevationLg = 10.0;
 
   //* Image carousel height
   static const double imageCarouselHeight = 268.0;

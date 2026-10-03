@@ -72,7 +72,7 @@ class _FranchiseListContentState extends State<_FranchiseListContent> {
           appBar: AppBar(
             backgroundColor: colors.background,
             elevation: 0,
-            titleSpacing: AppSizes.sectionSpaceSm.w,
+            titleSpacing: AppSizes.space12.w,
             title: Text(
               'Franchises',
               style: TextStyle(

@@ -407,7 +407,7 @@ class _NotificationsContent extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(AppSizes.xl.w),
+        padding: EdgeInsets.all(AppSizes.space32.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

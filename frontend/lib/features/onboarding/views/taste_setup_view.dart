@@ -222,7 +222,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
             body: SafeArea(
               child: Column(
                 children: [
-                  SizedBox(height: AppSizes.sm.h),
+                  SizedBox(height: AppSizes.space8.h),
                   PageViewProgressBar(
                     totalPages: OnboardingCubit.totalSteps,
                     currentPage: state.currentStep,
@@ -232,7 +232,7 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                       cubit.prevStep();
                     },
                   ),
-                  SizedBox(height: AppSizes.sm.h),
+                  SizedBox(height: AppSizes.space8.h),
                   Expanded(
                     child: PageView(
                       controller: _pageController,
@@ -263,10 +263,10 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
   }) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        AppSizes.md.w,
-        AppSizes.md.h,
-        AppSizes.md.w,
-        AppSizes.sm.h,
+        AppSizes.space16.w,
+        AppSizes.space16.h,
+        AppSizes.space16.w,
+        AppSizes.space8.h,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,10 +339,10 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
         ),
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: AppSizes.md.w),
+            padding: EdgeInsets.symmetric(horizontal: AppSizes.space16.w),
             child: Wrap(
-              spacing: AppSizes.sm.w,
-              runSpacing: AppSizes.sm.h,
+              spacing: AppSizes.space8.w,
+              runSpacing: AppSizes.space8.h,
               children: _kGenres.map((key) {
                 final isSelected = state.isGenreSelected(key);
                 return GestureDetector(
@@ -414,12 +414,12 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
         ),
         Expanded(
           child: Padding(
-            padding: EdgeInsets.all(AppSizes.md.w),
+            padding: EdgeInsets.all(AppSizes.space16.w),
             child: GridView.count(
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 3,
-              crossAxisSpacing: AppSizes.sm.w,
-              mainAxisSpacing: AppSizes.sm.h,
+              crossAxisSpacing: AppSizes.space8.w,
+              mainAxisSpacing: AppSizes.space8.h,
               childAspectRatio: 1.05,
               children: _kLanguages.map((lang) {
                 final key = lang['key'] as String;
@@ -522,10 +522,10 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        AppSizes.md.w,
-        AppSizes.sm.h,
-        AppSizes.md.w,
-        AppSizes.md.h,
+        AppSizes.space16.w,
+        AppSizes.space8.h,
+        AppSizes.space16.w,
+        AppSizes.space16.h,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
