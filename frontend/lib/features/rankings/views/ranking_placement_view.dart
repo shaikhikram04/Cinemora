@@ -13,6 +13,7 @@ import 'package:cinemora/core/constants/assets_path.dart';
 import 'package:cinemora/features/tour/models/tour_step.dart';
 import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
 import 'package:cinemora/features/tour/widgets/tour_anchor.dart';
+import 'package:cinemora/common/widgets/images/curved_network_image.dart';
 
 // ─── Public entry point ───────────────────────────────────────────────────────
 
@@ -513,24 +514,11 @@ class _RankingPreview extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: 6.w),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8.r),
-                        child: Image.network(
-                          entry.image,
-                          width: 36.w,
-                          height: 50.h,
-                          fit: BoxFit.cover,
-                          // Width only — see poster_image.dart for why
-                          // passing both dims can distort the decode.
-                          cacheWidth:
-                              (36.w * MediaQuery.of(context).devicePixelRatio)
-                                  .round(),
-                          errorBuilder: (_, __, ___) => Container(
-                            width: 36.w,
-                            height: 50.h,
-                            color: context.colors.surfaceMuted,
-                          ),
-                        ),
+                      CurvedNetworkImage(
+                        url: entry.image,
+                        width: 36,
+                        height: 50,
+                        radius: AppSizes.radius8,
                       ),
                       SizedBox(width: 10.w),
                       Expanded(
@@ -697,30 +685,16 @@ class _BattleCardState extends State<_BattleCard> {
               // Poster
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.w),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14.r),
-                  child: Image.network(
-                    widget.entry.image,
-                    height: 176.h,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    // Card is one of two side-by-side Expanded columns —
-                    // roughly half the screen width minus padding/gutter.
-                    // Width only — see poster_image.dart for why passing
-                    // both dims can distort the decode.
-                    cacheWidth: ((MediaQuery.of(context).size.width -
-                                AppSizes.screenPadding.w * 2) /
-                            2 *
-                            MediaQuery.of(context).devicePixelRatio)
-                        .round(),
-                    errorBuilder: (_, __, ___) => Container(
-                      height: 176.h,
-                      color: context.colors.surfaceMuted,
-                      child: AppIcon(
-                        AppIcons.movie,
-                        color: context.colors.mutedForeground,
-                        size: 32.sp,
-                      ),
+                child: CurvedNetworkImage(
+                  url: widget.entry.image,
+                  width: double.infinity,
+                  height: 176,
+                  radius: AppSizes.radius16,
+                  placeholder: Center(
+                    child: AppIcon(
+                      AppIcons.movie,
+                      color: context.colors.mutedForeground,
+                      size: AppSizes.icon32.sp,
                     ),
                   ),
                 ),

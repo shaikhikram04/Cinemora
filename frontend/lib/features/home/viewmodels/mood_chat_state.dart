@@ -1,12 +1,12 @@
 import 'package:equatable/equatable.dart';
-import 'package:cinemora/features/home/models/similar_item.dart';
+import 'package:cinemora/features/home/models/recommended_title.dart';
 
 enum MoodMessageRole { user, assistant }
 
 class MoodMessage extends Equatable {
   final MoodMessageRole role;
   final String text;
-  final List<SimilarItem> recommendations;
+  final List<RecommendedTitle> recommendations;
 
   const MoodMessage({
     required this.role,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
+import 'package:cinemora/common/widgets/shimmer/shimmer.dart';
 import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
@@ -60,7 +60,7 @@ class _ShimmerList extends StatelessWidget {
         6,
         (i) => Padding(
           padding: EdgeInsets.only(bottom: 10.h),
-          child: WShimmer(
+          child: AppShimmer(
             child: Container(
               height: 96.h,
               decoration: BoxDecoration(

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -115,8 +116,10 @@ class _ShufflePickSheetState extends State<_ShufflePickSheet>
     final seen = <String>{};
     for (final e in _reel) {
       if (e.posterUrl.isEmpty || !seen.add(e.posterUrl)) continue;
+      // Same provider kind and width the reel renders with — a bare
+      // NetworkImage here would warm a key _Poster never reads.
       precacheImage(
-        ResizeImage(NetworkImage(e.posterUrl), width: cw),
+        ResizeImage(CachedNetworkImageProvider(e.posterUrl), width: cw),
         context,
       ).catchError((_) {});
     }
@@ -459,16 +462,20 @@ class _Poster extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (url.isEmpty) return _Fallback(width: width, height: height);
-    return Image.network(
-      url,
+    return CachedNetworkImage(
+      imageUrl: url,
       width: width,
       height: height,
       fit: BoxFit.cover,
       // Width only — see poster_image.dart for why passing both dims can
       // distort the decode.
-      cacheWidth: (width * MediaQuery.of(context).devicePixelRatio).round(),
-      gaplessPlayback: true,
-      errorBuilder: (_, __, ___) => _Fallback(width: width, height: height),
+      memCacheWidth: (width * MediaQuery.devicePixelRatioOf(context)).round(),
+      // The url changes in place as the reel spins; hold the previous frame
+      // rather than blanking between picks.
+      useOldImageOnUrlChange: true,
+      errorWidget: (_, __, ___) => _Fallback(width: width, height: height),
+      fadeInDuration: Duration.zero,
+      fadeOutDuration: Duration.zero,
     );
   }
 }
@@ -681,14 +688,16 @@ class _BlurredBg extends StatelessWidget {
     return RepaintBoundary(
       child: ImageFiltered(
         imageFilter: _filter,
-        child: Image.network(
-          url,
+        child: CachedNetworkImage(
+          imageUrl: url,
           fit: BoxFit.cover,
           // Width only — see poster_image.dart for why passing both dims can
           // distort the decode (harmless under this much blur, but kept
           // consistent with the rest of the app).
-          cacheWidth: (size.width * dpr).round(),
-          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          memCacheWidth: (size.width * dpr).round(),
+          errorWidget: (_, __, ___) => const SizedBox.shrink(),
+          fadeInDuration: Duration.zero,
+          fadeOutDuration: Duration.zero,
         ),
       ),
     );

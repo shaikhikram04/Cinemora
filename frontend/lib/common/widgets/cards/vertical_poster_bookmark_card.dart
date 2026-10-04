@@ -104,7 +104,7 @@ class _VerticalPosterBookmarkCardState
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: AppSizes.space4.h),
+                SizedBox(height: AppSizes.space2.h),
                 Row(
                   children: [
                     Icon(Icons.star_rounded,

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -84,7 +85,7 @@ class _RankingCard extends StatelessWidget {
                 color: list.accent.withValues(alpha: 0.2),
                 image: hasImage
                     ? DecorationImage(
-                        image: NetworkImage(list.images.first),
+                        image: CachedNetworkImageProvider(list.images.first),
                         fit: BoxFit.cover,
                       )
                     : null,

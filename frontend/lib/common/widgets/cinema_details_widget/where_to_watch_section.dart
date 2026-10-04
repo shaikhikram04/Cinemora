@@ -2,10 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
+import 'package:cinemora/common/widgets/shimmer/shimmer.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/home/models/tmdb_detail.dart';
+import 'package:cinemora/common/widgets/images/curved_network_image.dart';
+
+// Card geometry shared by the loaded card and its skeleton, so the two cannot
+// drift apart. Local because nothing outside this section lays out on them.
+const double _cardWidth = 98.0;
+const double _rowHeight = 90.0;
+const double _logoSize = 30.0;
+// The "Subscription"/"Rent" badge is small enough that the 8pt radius step
+// would read as a pill rather than a tag.
+const double _typeBadgeRadius = 4.0;
 
 class WhereToWatchSection extends StatelessWidget {
   final List<StreamingProvider>? providers;
@@ -22,38 +32,40 @@ class WhereToWatchSection extends StatelessWidget {
     final list = providers ?? const [];
     if (!isLoading && list.isEmpty) return const SizedBox.shrink();
 
+    final colors = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'WATCH NOW',
           style: TextStyle(
-            fontSize: 11.sp,
+            fontSize: AppSizes.fontSize12.sp,
             fontWeight: FontWeight.w700,
-            color: context.colors.accentRed,
+            color: colors.accentRed,
             letterSpacing: 1.2,
           ),
         ),
-        SizedBox(height: 3.h),
+        SizedBox(height: AppSizes.space4.h),
         Text(
           isLoading
               ? 'Checking platforms…'
               : 'Available on ${list.length} platform${list.length == 1 ? '' : 's'}',
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: AppSizes.fontSize14.sp,
             fontWeight: FontWeight.w700,
-            color: context.colors.foreground,
+            color: colors.foreground,
           ),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: AppSizes.space12.h),
         SizedBox(
-          height: 90.h,
+          height: _rowHeight.h,
           child: isLoading
-              ? _ProviderSkeletons()
+              ? const _ProviderSkeletons()
               : ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: list.length,
-                  separatorBuilder: (_, __) => SizedBox(width: 10.w),
+                  separatorBuilder: (_, __) =>
+                      SizedBox(width: AppSizes.space10.w),
                   itemBuilder: (context, i) => _ProviderCard(provider: list[i]),
                 ),
         ),
@@ -63,16 +75,20 @@ class WhereToWatchSection extends StatelessWidget {
 }
 
 class _ProviderSkeletons extends StatelessWidget {
+  const _ProviderSkeletons();
+
   @override
   Widget build(BuildContext context) {
-    return WShimmer(
+    return AppShimmer(
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: 4,
-        separatorBuilder: (_, __) => SizedBox(width: 10.w),
+        separatorBuilder: (_, __) => SizedBox(width: AppSizes.space10.w),
         itemBuilder: (_, __) => Container(
-          width: 98.w,
+          width: _cardWidth.w,
           decoration: BoxDecoration(
+            // Shimmer masks its child's shapes with its own colors, so the
+            // placeholder stays plain white rather than taking a theme color.
             color: Colors.white,
             borderRadius: BorderRadius.circular(AppSizes.radius12.r),
           ),
@@ -98,15 +114,16 @@ class _ProviderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return GestureDetector(
       onTap: _launch,
       child: Container(
-        width: 98.w,
-        padding: EdgeInsets.all(10.w),
+        width: _cardWidth.w,
+        padding: EdgeInsets.all(AppSizes.space10.w),
         decoration: BoxDecoration(
-          color: context.colors.surfaceRaised,
+          color: colors.surfaceRaised,
           borderRadius: BorderRadius.circular(AppSizes.radius12.r),
-          border: Border.all(color: context.colors.borderStrong, width: 0.7),
+          border: Border.all(color: colors.borderStrong, width: 0.7),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +135,7 @@ class _ProviderCard extends StatelessWidget {
               children: [
                 _ProviderLogo(provider: provider),
                 Icon(Icons.open_in_new_rounded,
-                    size: 13.sp, color: context.colors.mutedSecondaryDeep),
+                    size: AppSizes.icon14.sp, color: colors.mutedSecondaryDeep),
               ],
             ),
             Column(
@@ -127,26 +144,29 @@ class _ProviderCard extends StatelessWidget {
                 Text(
                   provider.name,
                   style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: AppSizes.fontSize12.sp,
                     fontWeight: FontWeight.w700,
-                    color: context.colors.foreground,
+                    color: colors.foreground,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: AppSizes.space2.h),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppSizes.space6.w,
+                    vertical: AppSizes.space2.h,
+                  ),
                   decoration: BoxDecoration(
-                    color: context.colors.surfaceMuted,
-                    borderRadius: BorderRadius.circular(4.r),
+                    color: colors.surfaceMuted,
+                    borderRadius: BorderRadius.circular(_typeBadgeRadius.r),
                   ),
                   child: Text(
                     provider.type,
                     style: TextStyle(
-                      fontSize: 9.sp,
+                      fontSize: AppSizes.fontSize10.sp,
                       fontWeight: FontWeight.w600,
-                      color: context.colors.mutedSecondary,
+                      color: colors.mutedSecondary,
                     ),
                   ),
                 ),
@@ -167,18 +187,12 @@ class _ProviderLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (provider.logoUrl != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8.r),
-        child: Image.network(
-          provider.logoUrl!,
-          width: 30.w,
-          height: 30.h,
-          fit: BoxFit.cover,
-          // Width only — see poster_image.dart for why passing both dims
-          // can distort the decoded image.
-          cacheWidth: (30.w * MediaQuery.of(context).devicePixelRatio).round(),
-          errorBuilder: (_, __, ___) => _FallbackLogo(provider: provider),
-        ),
+      return CurvedNetworkImage(
+        url: provider.logoUrl,
+        width: _logoSize,
+        height: _logoSize,
+        radius: AppSizes.radius8,
+        placeholder: _FallbackLogo(provider: provider),
       );
     }
     return _FallbackLogo(provider: provider);
@@ -192,20 +206,21 @@ class _FallbackLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Container(
-      width: 30.w,
-      height: 30.h,
+      width: _logoSize.w,
+      height: _logoSize.h,
       decoration: BoxDecoration(
-        color: context.colors.surfaceOverlay,
-        borderRadius: BorderRadius.circular(8.r),
+        color: colors.surfaceOverlay,
+        borderRadius: BorderRadius.circular(AppSizes.radius8.r),
       ),
       alignment: Alignment.center,
       child: Text(
         provider.name.isNotEmpty ? provider.name[0] : '?',
         style: TextStyle(
-          fontSize: 14.sp,
+          fontSize: AppSizes.fontSize14.sp,
           fontWeight: FontWeight.w900,
-          color: Colors.white,
+          color: colors.primaryForeground,
         ),
       ),
     );

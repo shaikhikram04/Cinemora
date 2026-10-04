@@ -1,3 +1,5 @@
+import 'package:cinemora/common/widgets/images/artwork_scrim.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
@@ -158,17 +160,9 @@ class _GenreCardState extends State<_GenreCard>
               ),
 
               // ── Dark overlay for text legibility ────────────────
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.45),
-                    ],
-                  ),
-                ),
+              ArtworkScrim.edge(
+                from: Alignment.topRight,
+                to: Alignment.bottomLeft,
               ),
 
               // ── Label ───────────────────────────────────────────
@@ -225,14 +219,15 @@ class _GenreBackground extends StatelessWidget {
         if (imagePath != null)
           Opacity(
             opacity: 0.25,
-            child: Image.network(
-              imagePath!,
+            child: CachedNetworkImage(
+              imageUrl: imagePath!,
               fit: BoxFit.cover,
-              frameBuilder: (context, child, frame, _) {
-                if (frame == null) return const SizedBox.shrink();
-                return child;
-              },
-              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              // Nothing until it has pixels — a half-drawn tile behind the
+              // label reads as a glitch.
+              placeholder: (_, __) => const SizedBox.shrink(),
+              errorWidget: (_, __, ___) => const SizedBox.shrink(),
+              fadeInDuration: Duration.zero,
+              fadeOutDuration: Duration.zero,
             ),
           ),
       ],

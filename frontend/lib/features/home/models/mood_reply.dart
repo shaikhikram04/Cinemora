@@ -1,11 +1,11 @@
-import 'package:cinemora/features/home/models/similar_item.dart';
+import 'package:cinemora/features/home/models/recommended_title.dart';
 
 /// One assistant response from the mood chat: a text reply plus the concrete
 /// catalog items Claude chose to recommend (rendered as cards).
 class MoodReply {
   final String sessionId;
   final String reply;
-  final List<SimilarItem> recommendations;
+  final List<RecommendedTitle> recommendations;
   final int turnsRemaining;
 
   const MoodReply({
@@ -21,7 +21,7 @@ class MoodReply {
       sessionId: json['sessionId'] as String? ?? '',
       reply: json['reply'] as String? ?? '',
       recommendations: recs
-          .map((e) => SimilarItem.fromJson(e as Map<String, dynamic>))
+          .map((e) => RecommendedTitle.fromJson(e as Map<String, dynamic>))
           .toList(),
       turnsRemaining: json['turnsRemaining'] as int? ?? 0,
     );

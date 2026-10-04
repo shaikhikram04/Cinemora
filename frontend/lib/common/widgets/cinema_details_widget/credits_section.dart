@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:cinemora/common/widgets/containers/circular_avatar.dart';
-import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
+import 'package:cinemora/common/widgets/shimmer/shimmer.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/home/models/tmdb_detail.dart';
@@ -217,7 +217,7 @@ class _CreditsSkeletons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WShimmer(
+    return AppShimmer(
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: itemCount,

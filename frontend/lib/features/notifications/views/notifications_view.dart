@@ -12,6 +12,7 @@ import 'package:cinemora/features/notifications/viewmodels/notifications_cubit.d
 import 'package:cinemora/features/notifications/viewmodels/notifications_state.dart';
 import 'package:cinemora/common/widgets/icons/app_icon.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/common/widgets/images/curved_network_image.dart';
 
 class NotificationsView extends StatefulWidget {
   const NotificationsView({super.key});
@@ -354,8 +355,7 @@ class _NotificationsContent extends StatelessWidget {
 
   Widget _buildPosterThumb(BuildContext context, AppNotification notif) {
     final url = notif.posterUrl;
-    final dpr = MediaQuery.of(context).devicePixelRatio;
-    final placeholder = Container(
+    final placeholder = ColoredBox(
       color: context.colors.surfaceMuted,
       child: Center(
         child: AppIcon(
@@ -366,22 +366,11 @@ class _NotificationsContent extends StatelessWidget {
       ),
     );
 
-    return SizedBox(
-      width: 48.w,
-      height: 64.h,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppSizes.radius10.r),
-        child: url == null
-            ? placeholder
-            : Image.network(
-                url,
-                fit: BoxFit.cover,
-                // Single dimension only — the decoder keeps the source aspect
-                // ratio and the box crops via BoxFit.cover.
-                cacheHeight: (64.h * dpr).round(),
-                errorBuilder: (context, error, stackTrace) => placeholder,
-              ),
-      ),
+    return CurvedNetworkImage(
+      url: url,
+      width: 48,
+      height: 64,
+      placeholder: placeholder,
     );
   }
 

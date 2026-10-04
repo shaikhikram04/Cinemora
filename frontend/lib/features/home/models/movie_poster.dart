@@ -1,4 +1,5 @@
 import 'package:cinemora/core/models/catalog_source.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
 
 class MoviePoster {
   final int? id;
@@ -12,7 +13,7 @@ class MoviePoster {
   // Set on mixed-type carousels (e.g. Critically Acclaimed) where each item
   // may be a different cinema type — null means the carousel's own fixed
   // type (passed by the call site) should be used instead.
-  final String? cinemaType; // "movie" | "tv" | "anime"
+  final CinemaType? cinemaType;
   final CatalogSource? source;
 
   const MoviePoster({

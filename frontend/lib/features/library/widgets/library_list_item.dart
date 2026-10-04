@@ -1,3 +1,4 @@
+import 'package:cinemora/common/widgets/images/artwork_scrim.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,6 +14,8 @@ import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/core/models/catalog_source.dart';
+import 'package:cinemora/common/widgets/images/curved_network_image.dart';
+import 'package:cinemora/core/constants/sizes.dart';
 
 class LibraryListItem extends StatelessWidget {
   final LibraryEntryModel entry;
@@ -98,37 +101,21 @@ class LibraryListItem extends StatelessWidget {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
+                    CurvedNetworkImage(
+                      url: entry.posterUrl,
+                      width: 90,
+                      height: 110,
+                      radius: AppSizes.radius16,
+                      placeholder: _PosterPlaceholder(type: entry.cinemaType),
+                    ),
+                    // Fade overlay on left edge
                     SizedBox(
                       width: 90.w,
                       height: 110.h,
-                      child: entry.posterUrl.isNotEmpty
-                          ? Image.network(
-                              entry.posterUrl,
-                              fit: BoxFit.cover,
-                              // Width only — see poster_image.dart for why
-                              // passing both dims can distort the decode.
-                              cacheWidth: (90.w *
-                                      MediaQuery.of(context).devicePixelRatio)
-                                  .round(),
-                              errorBuilder: (_, __, ___) => _PosterPlaceholder(
-                                type: entry.cinemaType,
-                              ),
-                            )
-                          : _PosterPlaceholder(type: entry.cinemaType),
-                    ),
-                    // Fade overlay on left edge
-                    Container(
-                      width: 90.w,
-                      height: 110.h,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.centerRight,
-                          end: Alignment.centerLeft,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(alpha: 0.4),
-                          ],
-                        ),
+                      child: ArtworkScrim.edge(
+                        from: Alignment.centerRight,
+                        to: Alignment.centerLeft,
+                        opacity: 0.4,
                       ),
                     ),
                   ],

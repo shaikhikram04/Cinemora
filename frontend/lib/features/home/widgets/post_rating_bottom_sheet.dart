@@ -12,6 +12,7 @@ import 'package:cinemora/core/constants/assets_path.dart';
 import 'package:cinemora/features/tour/models/tour_step.dart';
 import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
 import 'package:cinemora/features/tour/widgets/tour_anchor.dart';
+import 'package:cinemora/common/widgets/images/curved_network_image.dart';
 
 // ─── Public entry point ───────────────────────────────────────────────────────
 
@@ -539,24 +540,14 @@ class _SheetHeader extends StatelessWidget {
       child: Row(
         children: [
           // Poster thumbnail
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10.r),
-            child: Image.network(
-              image,
-              width: 52.w,
-              height: 66.h,
-              fit: BoxFit.cover,
-              // Width only — see poster_image.dart for why passing both
-              // dims can distort the decoded image.
-              cacheWidth:
-                  (52.w * MediaQuery.of(context).devicePixelRatio).round(),
-              errorBuilder: (_, __, ___) => Container(
-                width: 52.w,
-                height: 66.h,
-                color: context.colors.surfaceMuted,
-                child: AppIcon(AppIcons.movie,
-                    color: context.colors.mutedForeground, size: 24.sp),
-              ),
+          CurvedNetworkImage(
+            url: image,
+            width: 52,
+            height: 66,
+            placeholder: Center(
+              child: AppIcon(AppIcons.movie,
+                  color: context.colors.mutedForeground,
+                  size: AppSizes.icon24.sp),
             ),
           ),
           SizedBox(width: 12.w),

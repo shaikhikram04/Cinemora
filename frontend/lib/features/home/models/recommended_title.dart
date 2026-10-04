@@ -1,15 +1,20 @@
+import 'package:cinemora/core/constants/api_constants.dart';
 import 'package:cinemora/core/models/catalog_source.dart';
+import 'package:cinemora/core/models/cinema_type.dart';
 
-class SimilarItem {
+/// A title suggested by the recommender service — the payload shared by every
+/// recommendation endpoint: similar titles, pick of the week, because-you-ranked,
+/// critically acclaimed, and the mood chat's replies.
+class RecommendedTitle {
   final CatalogSource source;
   final int sourceId;
-  final String cinemaType; // "movie" | "tv" | "anime"
+  final CinemaType cinemaType;
   final String title;
   final String? posterPath;
   final String? year;
   final double? rating;
 
-  const SimilarItem({
+  const RecommendedTitle({
     required this.source,
     required this.sourceId,
     required this.cinemaType,
@@ -19,23 +24,24 @@ class SimilarItem {
     this.rating,
   });
 
-  factory SimilarItem.fromJson(Map<String, dynamic> json) => SimilarItem(
+  factory RecommendedTitle.fromJson(Map<String, dynamic> json) =>
+      RecommendedTitle(
         source: CatalogSource.fromJson(json['source'] as String?),
         sourceId: json['sourceId'] as int,
-        cinemaType: json['cinemaType'] as String? ?? 'movie',
+        cinemaType: CinemaType.fromJson(json['cinemaType'] as String? ?? ''),
         title: json['title'] as String? ?? 'Untitled',
         posterPath: json['posterPath'] as String?,
         year: json['year'] as String?,
         rating: (json['rating'] as num?)?.toDouble(),
       );
 
-  // Jikan posters are already full URLs; TMDB posters are relative paths.
+  /// The anime upstream returns full image URLs; TMDB returns relative paths.
   String get posterUrl {
     final path = posterPath;
     if (path == null || path.isEmpty) return '';
     return path.startsWith('http')
         ? path
-        : 'https://image.tmdb.org/t/p/w500$path';
+        : '${ApiConstants.tmdbImageBase}/w500$path';
   }
 
   String get ratingDisplay => rating != null ? rating!.toStringAsFixed(1) : '—';

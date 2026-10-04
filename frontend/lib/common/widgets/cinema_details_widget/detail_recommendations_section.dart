@@ -9,7 +9,7 @@ import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
-import 'package:cinemora/features/home/models/similar_item.dart';
+import 'package:cinemora/features/home/models/recommended_title.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/core/models/catalog_source.dart';
 
@@ -30,7 +30,7 @@ class DetailRecommendationsSection extends StatefulWidget {
 
 class _DetailRecommendationsSectionState
     extends State<DetailRecommendationsSection> {
-  late Future<List<SimilarItem>> _future;
+  late Future<List<RecommendedTitle>> _future;
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _DetailRecommendationsSectionState
     }
   }
 
-  Future<List<SimilarItem>> _load() async {
+  Future<List<RecommendedTitle>> _load() async {
     final id = widget.sourceId;
     if (id == null) return const [];
     try {
@@ -60,8 +60,8 @@ class _DetailRecommendationsSectionState
     }
   }
 
-  void _navigate(BuildContext context, SimilarItem item) {
-    if (item.cinemaType == 'movie') {
+  void _navigate(BuildContext context, RecommendedTitle item) {
+    if (item.cinemaType == CinemaType.movie) {
       context.push(
         AppRoutes.movieDetails,
         extra: MovieRouteArgs(
@@ -79,7 +79,7 @@ class _DetailRecommendationsSectionState
           image: item.posterUrl,
           rating: item.ratingDisplay,
           id: item.sourceId,
-          source: CatalogSource.forCinemaTypeName(item.cinemaType),
+          source: CatalogSource.forCinemaType(item.cinemaType),
         ),
       );
     }
@@ -87,7 +87,7 @@ class _DetailRecommendationsSectionState
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<SimilarItem>>(
+    return FutureBuilder<List<RecommendedTitle>>(
       future: _future,
       builder: (context, snapshot) {
         final isLoading = snapshot.connectionState == ConnectionState.waiting;
@@ -138,7 +138,7 @@ class _DetailRecommendationsSectionState
                           image: item.posterUrl,
                           width: AppSizes.posterImageWidth.w,
                           imageHeight: AppSizes.posterImageHeight.h,
-                          cinemaType: CinemaType.fromJson(item.cinemaType),
+                          cinemaType: item.cinemaType,
                           year: item.year ?? '',
                           onTap: () => _navigate(context, item),
                         );

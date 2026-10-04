@@ -1,10 +1,10 @@
-import 'package:cinemora/features/home/models/similar_item.dart';
+import 'package:cinemora/features/home/models/recommended_title.dart';
 
 class HomeRecommendations {
-  final List<SimilarItem> pickOfWeek;
+  final List<RecommendedTitle> pickOfWeek;
   final String? becauseYouRankedAnchorTitle;
-  final List<SimilarItem> becauseYouRanked;
-  final List<SimilarItem> criticallyAcclaimed;
+  final List<RecommendedTitle> becauseYouRanked;
+  final List<RecommendedTitle> criticallyAcclaimed;
 
   const HomeRecommendations({
     this.pickOfWeek = const [],
@@ -22,14 +22,14 @@ class HomeRecommendations {
 
     return HomeRecommendations(
       pickOfWeek: pickItems
-          .map((e) => SimilarItem.fromJson(e as Map<String, dynamic>))
+          .map((e) => RecommendedTitle.fromJson(e as Map<String, dynamic>))
           .toList(),
       becauseYouRankedAnchorTitle: anchor?['title'] as String?,
       becauseYouRanked: rankedItems
-          .map((e) => SimilarItem.fromJson(e as Map<String, dynamic>))
+          .map((e) => RecommendedTitle.fromJson(e as Map<String, dynamic>))
           .toList(),
       criticallyAcclaimed: acclaimedItems
-          .map((e) => SimilarItem.fromJson(e as Map<String, dynamic>))
+          .map((e) => RecommendedTitle.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }

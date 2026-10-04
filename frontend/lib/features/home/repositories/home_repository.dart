@@ -4,7 +4,7 @@ import 'package:cinemora/features/home/models/home_recommendations.dart';
 import 'package:cinemora/features/home/models/jikan_anime_item.dart';
 import 'package:cinemora/features/home/models/mood_reply.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
-import 'package:cinemora/features/home/models/similar_item.dart';
+import 'package:cinemora/features/home/models/recommended_title.dart';
 import 'package:cinemora/features/home/models/tmdb_detail.dart';
 import 'package:cinemora/features/home/models/tmdb_item.dart';
 
@@ -55,14 +55,14 @@ class HomeRepository {
     return HomeRecommendations.fromJson(res.data as Map<String, dynamic>);
   }
 
-  Future<List<SimilarItem>> fetchSimilar(
+  Future<List<RecommendedTitle>> fetchSimilar(
       CinemaType cinemaType, int sourceId) async {
     final res = await _apiClient.dio.get(
       '/recommendations/similar/${cinemaType.apiValue}/$sourceId',
     );
     final results = res.data as List;
     return results
-        .map((e) => SimilarItem.fromJson(e as Map<String, dynamic>))
+        .map((e) => RecommendedTitle.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 

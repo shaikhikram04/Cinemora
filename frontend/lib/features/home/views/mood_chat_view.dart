@@ -9,11 +9,13 @@ import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
-import 'package:cinemora/features/home/models/similar_item.dart';
+import 'package:cinemora/features/home/models/recommended_title.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/mood_chat_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/mood_chat_state.dart';
 import 'package:cinemora/core/models/catalog_source.dart';
+import 'package:cinemora/common/widgets/images/curved_network_image.dart';
+import 'package:cinemora/core/constants/sizes.dart';
 
 // Optional starter mood (e.g. tapped from the Home mood card) sent as the
 // opening message so the conversation begins immediately.
@@ -247,11 +249,11 @@ class _Bubble extends StatelessWidget {
 }
 
 class _RecCard extends StatelessWidget {
-  final SimilarItem item;
+  final RecommendedTitle item;
   const _RecCard({required this.item});
 
   void _open(BuildContext context) {
-    final type = CinemaType.fromJson(item.cinemaType);
+    final type = item.cinemaType;
     if (type == CinemaType.movie) {
       context.push(
         AppRoutes.movieDetails,
@@ -285,20 +287,11 @@ class _RecCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14.r),
-              child: SizedBox(
-                width: 120.w,
-                height: 160.h,
-                child: item.posterUrl.isEmpty
-                    ? Container(color: context.colors.surfaceMuted)
-                    : Image.network(
-                        item.posterUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            Container(color: context.colors.surfaceMuted),
-                      ),
-              ),
+            CurvedNetworkImage(
+              url: item.posterUrl,
+              width: 120,
+              height: 160,
+              radius: AppSizes.radius16,
             ),
             SizedBox(height: 6.h),
             Text(

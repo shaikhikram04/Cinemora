@@ -12,7 +12,7 @@ import 'package:cinemora/common/widgets/cinema_details_widget/genres_section.dar
 import 'package:cinemora/common/widgets/cinema_details_widget/overview_section.dart';
 import 'package:cinemora/common/widgets/cinema_details_widget/where_to_watch_section.dart';
 import 'package:cinemora/common/widgets/dialogs/unmark_watched_dialog.dart';
-import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
+import 'package:cinemora/common/widgets/shimmer/shimmer.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
@@ -467,7 +467,7 @@ class _ShowActionButtons extends StatelessWidget {
 class _SeasonsSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return WShimmer(
+    return AppShimmer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,3 +1,5 @@
+import 'package:cinemora/common/widgets/images/artwork_scrim.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
 
 import 'package:cinemora/core/models/cinema_type.dart';
@@ -6,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
+import 'package:cinemora/common/widgets/shimmer/shimmer.dart';
 import 'package:cinemora/common/widgets/states/on_reconnect.dart';
 import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/common/widgets/buttons/action_button.dart';
@@ -82,8 +84,7 @@ class _HomeFeedContent extends StatelessWidget {
     final item = hero.$1;
     if (item == null || item.id == null) return;
 
-    final cinemaType =
-        hero.$2 ?? CinemaType.fromJson(item.cinemaType ?? 'movie');
+    final cinemaType = hero.$2 ?? (item.cinemaType ?? CinemaType.movie);
 
     // Deferred a frame so the hero has laid out before the spotlight goes
     // looking for its rect.
@@ -156,7 +157,7 @@ class _HomeFeedContent extends StatelessWidget {
                       picks: state.pickOfWeek,
                       onBookmark: (item) => cubit.bookmarkFromPoster(
                         item,
-                        CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                        (item.cinemaType ?? CinemaType.movie),
                       ),
                       onDetails: (item) =>
                           _navigateToMixedPoster(context, item),
@@ -211,7 +212,7 @@ class _HomeFeedContent extends StatelessWidget {
                       type: CinemaType.movie,
                       onBookmark: (item) => cubit.bookmarkFromPoster(
                         item,
-                        CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                        (item.cinemaType ?? CinemaType.movie),
                       ),
                       onTap: (item) => _navigateToMixedPoster(context, item),
                     ),
@@ -234,7 +235,7 @@ class _HomeFeedContent extends StatelessWidget {
                             type: CinemaType.movie,
                             onBookmark: (item) => cubit.bookmarkFromPoster(
                               item,
-                              CinemaType.fromJson(item.cinemaType ?? 'movie'),
+                              (item.cinemaType ?? CinemaType.movie),
                             ),
                             onTap: (item) =>
                                 _navigateToMixedPoster(context, item),
@@ -264,7 +265,7 @@ class _HomeFeedContent extends StatelessWidget {
 class _HeroCardSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return WShimmer(
+    return AppShimmer(
       child: Container(
         height: 284.h,
         decoration: BoxDecoration(
@@ -279,7 +280,7 @@ class _HeroCardSkeleton extends StatelessWidget {
 class _SkeletonCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return WShimmer(
+    return AppShimmer(
       child: SizedBox(
         height: AppSizes.imageCarouselHeight.h,
         child: ListView.separated(
@@ -333,7 +334,7 @@ void _navigateToTyped(BuildContext context, MoviePoster item, CinemaType type) {
 // where each poster may carry its own cinemaType/source rather than the
 // carousel's fixed type — routes to the right detail screen per item.
 void _navigateToMixedPoster(BuildContext context, MoviePoster item) {
-  if (item.cinemaType == null || item.cinemaType == 'movie') {
+  if (item.cinemaType == null || item.cinemaType == CinemaType.movie) {
     context.push(
       AppRoutes.movieDetails,
       extra: MovieRouteArgs(
@@ -353,7 +354,7 @@ void _navigateToMixedPoster(BuildContext context, MoviePoster item) {
         backdropImage: item.backdropImage,
         rating: item.rating,
         id: item.id,
-        source: CatalogSource.forCinemaTypeName(item.cinemaType),
+        source: CatalogSource.forCinemaType(item.cinemaType),
       ),
     );
   }
@@ -396,9 +397,7 @@ class _PosterCarousel extends StatelessWidget {
               imageHeight: AppSizes.posterImageHeight.h,
               title: item.title,
               rating: item.rating,
-              cinemaType: item.cinemaType != null
-                  ? CinemaType.fromJson(item.cinemaType!)
-                  : type,
+              cinemaType: item.cinemaType ?? type,
               year: item.year,
               watchStatus: watchStatus,
               onBookmark: () => onBookmark(item),
@@ -713,8 +712,8 @@ class _PickOfWeekHeroState extends State<_PickOfWeekHero> {
                     badgeLabel: 'PICK OF THE WEEK',
                     badgeIcon: Icons.auto_awesome_rounded,
                     rating: item.rating,
-                    typeLabel: CinemaType.fromJson(item.cinemaType ?? 'movie')
-                        .displayName,
+                    typeLabel:
+                        (item.cinemaType ?? CinemaType.movie).displayName,
                     year: item.year,
                     title: item.title,
                     isBookmarked: isBookmarked,
@@ -852,29 +851,25 @@ class _HeroCardShell extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             if (imageUrl.isNotEmpty)
-              Image.network(imageUrl,
+              CachedNetworkImage(
+                  imageUrl: imageUrl,
                   fit: BoxFit.cover,
                   // Width only — passing both dims stretches the decode
                   // to that exact box and distorts the image if its real
                   // aspect ratio doesn't match.
-                  cacheWidth: (screenW * dpr).round(),
-                  errorBuilder: (_, __, ___) =>
-                      Container(color: context.colors.surfaceMuted))
+                  memCacheWidth: (screenW * dpr).round(),
+                  maxWidthDiskCache: (screenW * dpr).round(),
+                  errorWidget: (_, __, ___) =>
+                      ColoredBox(color: context.colors.surfaceMuted),
+                  fadeInDuration: Duration.zero,
+                  fadeOutDuration: Duration.zero)
             else
               Container(color: context.colors.surfaceMuted),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.12),
-                    Colors.black.withValues(alpha: 0.34),
-                    Colors.black.withValues(alpha: 0.80),
-                  ],
-                  stops: const [0.0, 0.60, 1.0],
-                ),
-              ),
+            ArtworkScrim.bottom(
+              topOpacity: 0.12,
+              midOpacity: 0.34,
+              midStop: 0.60,
+              opacity: 0.80,
             ),
             Padding(
               padding: EdgeInsets.all(14.w),

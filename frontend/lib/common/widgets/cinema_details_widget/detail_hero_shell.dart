@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -41,7 +42,7 @@ class DetailHeroShell extends StatelessWidget {
               // exact box, distorting the image if its real aspect ratio
               // doesn't match.
               image: ResizeImage(
-                NetworkImage(imageUrl),
+                CachedNetworkImageProvider(imageUrl),
                 width: (screenW * dpr).round(),
               ),
               fit: BoxFit.cover,

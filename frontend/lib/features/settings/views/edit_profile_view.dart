@@ -1,3 +1,5 @@
+import 'package:cinemora/common/widgets/images/artwork_scrim.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -596,26 +598,18 @@ class _CoverImage extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.network(
-          url,
+        CachedNetworkImage(
+          imageUrl: url,
           fit: BoxFit.cover,
-          cacheWidth: cacheWidth,
+          memCacheWidth: cacheWidth,
+          maxWidthDiskCache: cacheWidth,
           // A 404 or an offline launch would otherwise throw while painting.
-          errorBuilder: (_, __, ___) =>
+          errorWidget: (_, __, ___) =>
               ColoredBox(color: context.colors.surfaceMuted),
+          fadeInDuration: Duration.zero,
+          fadeOutDuration: Duration.zero,
         ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.transparent,
-                context.colors.background.withValues(alpha: 0.7),
-              ],
-            ),
-          ),
-        ),
+        ArtworkScrim.toBackground(),
         if (isUploading) const _UploadingScrim(),
       ],
     );
@@ -660,13 +654,15 @@ class _Avatar extends StatelessWidget {
                   color: context.colors.surfaceRaised2,
                   child: url == null
                       ? _fallbackIcon(context)
-                      : Image.network(
-                          url!,
+                      : CachedNetworkImage(
+                          imageUrl: url!,
                           fit: BoxFit.cover,
-                          cacheWidth:
+                          memCacheWidth:
                               (size * MediaQuery.devicePixelRatioOf(context))
                                   .round(),
-                          errorBuilder: (_, __, ___) => _fallbackIcon(context),
+                          errorWidget: (_, __, ___) => _fallbackIcon(context),
+                          fadeInDuration: Duration.zero,
+                          fadeOutDuration: Duration.zero,
                         ),
                 ),
                 if (isUploading) const _UploadingScrim(circular: true),

@@ -8,6 +8,7 @@ import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/discover/models/search_result_item.dart';
 import 'package:cinemora/common/widgets/icons/app_icon.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/common/widgets/images/curved_network_image.dart';
 
 class DiscoverResultCard extends StatelessWidget {
   final SearchResultItem item;
@@ -141,24 +142,11 @@ class _PosterThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppSizes.radius10.r),
-      child: Container(
-        width: 54.w,
-        height: 76.h,
-        color: context.colors.surfaceMuted,
-        child: url.isNotEmpty
-            ? Image.network(
-                url,
-                fit: BoxFit.cover,
-                // Width only — see poster_image.dart for why passing both
-                // dims can distort the decoded image.
-                cacheWidth:
-                    (54.w * MediaQuery.of(context).devicePixelRatio).round(),
-                errorBuilder: (_, __, ___) => _placeholder(context),
-              )
-            : _placeholder(context),
-      ),
+    return CurvedNetworkImage(
+      url: url,
+      width: 54,
+      height: 76,
+      placeholder: _placeholder(context),
     );
   }
 

@@ -14,6 +14,7 @@ import 'package:cinemora/features/rankings/viewmodels/ranking_detail_cubit.dart'
 import 'package:cinemora/features/rankings/viewmodels/ranking_detail_state.dart';
 import 'package:cinemora/features/rankings/viewmodels/rankings_cubit.dart';
 import 'package:cinemora/features/rankings/viewmodels/rankings_state.dart';
+import 'package:cinemora/common/widgets/images/curved_network_image.dart';
 
 // ─── Rankings list view ────────────────────────────────────────────────────────
 
@@ -889,7 +890,7 @@ class _PosterFan extends StatelessWidget {
     final safe = images.take(3).toList();
 
     if (safe.length == 1) {
-      return _buildPoster(context, safe[0], 46.w, 66.h);
+      return _buildPoster(context, safe[0], 46, 66);
     }
 
     return SizedBox(
@@ -904,7 +905,7 @@ class _PosterFan extends StatelessWidget {
               top: 5.h,
               child: Transform.rotate(
                 angle: 0.18,
-                child: _buildPoster(context, safe[2], 42.w, 58.h),
+                child: _buildPoster(context, safe[2], 42, 58),
               ),
             ),
           if (safe.length >= 2)
@@ -913,38 +914,32 @@ class _PosterFan extends StatelessWidget {
               top: 2.h,
               child: Transform.rotate(
                 angle: 0.07,
-                child: _buildPoster(context, safe[1], 44.w, 62.h),
+                child: _buildPoster(context, safe[1], 44, 62),
               ),
             ),
           Positioned(
             left: 0,
             top: 0,
-            child: _buildPoster(context, safe[0], 46.w, 66.h),
+            child: _buildPoster(context, safe[0], 46, 66),
           ),
         ],
       ),
     );
   }
 
+  /// [w] and [h] are unscaled design values — [CurvedNetworkImage] and the
+  /// border ring around it both apply ScreenUtil themselves.
   Widget _buildPoster(BuildContext context, String url, double w, double h) {
-    final dpr = MediaQuery.of(context).devicePixelRatio;
     return Container(
-      width: w,
-      height: h,
+      width: w.w,
+      height: h.h,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: accent.withValues(alpha: 0.35), width: 1),
+        borderRadius: BorderRadius.circular(AppSizes.radius10.r),
+        border: Border.all(
+            color: accent.withValues(alpha: 0.35),
+            width: AppSizes.dividerThickness),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(9.r),
-        child: Image.network(
-          url,
-          fit: BoxFit.cover,
-          // Width only — passing both dims can distort the decode if the
-          // source image's real aspect ratio doesn't match this box.
-          cacheWidth: (w * dpr).round(),
-        ),
-      ),
+      child: CurvedNetworkImage(url: url, width: w, height: h),
     );
   }
 }
@@ -1129,18 +1124,11 @@ class _RankingEntryTile extends StatelessWidget {
               border:
                   Border.all(color: context.colors.backgroundAlt, width: 0.8),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(14.r),
-              child: Image.network(
-                entry.image,
-                width: 46.w,
-                height: 64.w,
-                fit: BoxFit.cover,
-                // Width only — see poster_image.dart for why passing both
-                // dims can distort the decoded image.
-                cacheWidth:
-                    (46.w * MediaQuery.of(context).devicePixelRatio).round(),
-              ),
+            child: CurvedNetworkImage(
+              url: entry.image,
+              width: 46,
+              height: 64,
+              radius: AppSizes.radius16,
             ),
           ),
           SizedBox(width: 10.w),

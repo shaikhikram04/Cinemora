@@ -8,7 +8,7 @@ import 'package:cinemora/core/utils/tmdb_url_utils.dart';
 import 'package:cinemora/features/home/models/home_recommendations.dart';
 import 'package:cinemora/features/home/models/jikan_anime_item.dart';
 import 'package:cinemora/features/home/models/movie_poster.dart';
-import 'package:cinemora/features/home/models/similar_item.dart';
+import 'package:cinemora/features/home/models/recommended_title.dart';
 import 'package:cinemora/features/home/models/tmdb_item.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/home_feed_state.dart';
@@ -191,13 +191,13 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
         tag: 'Anime',
       );
 
-  static MoviePoster _fromSimilar(SimilarItem e) => MoviePoster(
+  static MoviePoster _fromSimilar(RecommendedTitle e) => MoviePoster(
         id: e.sourceId,
         title: e.title,
         rating: e.ratingDisplay,
         image: e.posterUrl,
         year: e.year ?? '',
-        tag: e.cinemaType == 'anime' ? 'Anime' : null,
+        tag: e.cinemaType == CinemaType.anime ? 'Anime' : null,
         cinemaType: e.cinemaType,
         source: e.source,
       );

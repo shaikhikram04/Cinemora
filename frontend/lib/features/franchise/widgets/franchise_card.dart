@@ -5,6 +5,7 @@ import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/franchise/models/franchise_summary.dart';
 import 'package:cinemora/common/widgets/icons/app_icon.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/common/widgets/images/curved_network_image.dart';
 
 class FranchiseCard extends StatelessWidget {
   final FranchiseSummary franchise;
@@ -81,20 +82,11 @@ class _PosterThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppSizes.radius10.r),
-      child: Container(
-        width: 54.w,
-        height: 76.h,
-        color: context.colors.surfaceMuted,
-        child: url.isNotEmpty
-            ? Image.network(
-                url,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _placeholder(context),
-              )
-            : _placeholder(context),
-      ),
+    return CurvedNetworkImage(
+      url: url,
+      width: 54,
+      height: 76,
+      placeholder: _placeholder(context),
     );
   }
 

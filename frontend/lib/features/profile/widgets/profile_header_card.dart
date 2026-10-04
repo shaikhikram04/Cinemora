@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -95,8 +96,9 @@ class ProfileHeaderCard extends StatelessWidget {
                   child: CircleAvatar(
                     radius: 48.r,
                     backgroundColor: context.colors.surfaceRaised2,
-                    backgroundImage:
-                        avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                    backgroundImage: avatarUrl != null
+                        ? CachedNetworkImageProvider(avatarUrl)
+                        : null,
                     child: avatarUrl == null
                         ? Icon(Icons.person_rounded,
                             size: 40.sp, color: context.colors.mutedSecondary)
@@ -188,14 +190,17 @@ class _CoverBanner extends StatelessWidget {
           colors: [Colors.white, Colors.transparent],
           stops: [0.35, 1.0],
         ).createShader(rect),
-        child: Image.network(
-          url,
+        child: CachedNetworkImage(
+          imageUrl: url,
           fit: BoxFit.cover,
           // Width only: the source is a 1600x600 banner being drawn into a box
           // of a different aspect ratio, so constraining both axes would skew
           // the decode.
-          cacheWidth: (1.sw * MediaQuery.devicePixelRatioOf(context)).round(),
-          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          memCacheWidth:
+              (1.sw * MediaQuery.devicePixelRatioOf(context)).round(),
+          errorWidget: (_, __, ___) => const SizedBox.shrink(),
+          fadeInDuration: Duration.zero,
+          fadeOutDuration: Duration.zero,
         ),
       ),
     );

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/features/franchise/models/franchise_summary.dart';
+import 'package:cinemora/common/widgets/images/curved_network_image.dart';
 
 class FranchiseBannerSection extends StatelessWidget {
   final FranchiseSummary collection;
@@ -16,48 +17,31 @@ class FranchiseBannerSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(12.w),
+        padding: EdgeInsets.all(AppSizes.space12.w),
         decoration: BoxDecoration(
-          color: context.colors.surfaceChip,
+          color: colors.surfaceChip,
           borderRadius: BorderRadius.circular(AppSizes.radius12.r),
           border: Border.all(
-            color: context.colors.surfaceChipBorder.withValues(alpha: 0.5),
+            color: colors.surfaceChipBorder.withValues(alpha: 0.5),
           ),
         ),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(AppSizes.radius10.r),
-              child: Container(
-                width: 44.w,
-                height: 62.h,
-                color: context.colors.surfaceMuted,
-                child: collection.posterUrl.isNotEmpty
-                    ? Image.network(
-                        collection.posterUrl,
-                        fit: BoxFit.cover,
-                        // Width only — see poster_image.dart for why
-                        // passing both dims can distort the decode.
-                        cacheWidth:
-                            (44.w * MediaQuery.of(context).devicePixelRatio)
-                                .round(),
-                        errorBuilder: (_, __, ___) => Icon(
-                          Icons.collections_bookmark_rounded,
-                          color: context.colors.mutedForeground,
-                          size: 20.sp,
-                        ),
-                      )
-                    : Icon(
-                        Icons.collections_bookmark_rounded,
-                        color: context.colors.mutedForeground,
-                        size: 20.sp,
-                      ),
+            CurvedNetworkImage(
+              url: collection.posterUrl,
+              width: 44,
+              height: 62,
+              placeholder: Icon(
+                Icons.collections_bookmark_rounded,
+                color: colors.mutedForeground,
+                size: AppSizes.icon22.sp,
               ),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: AppSizes.space12.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,19 +49,19 @@ class FranchiseBannerSection extends StatelessWidget {
                   Text(
                     'Part of a Collection',
                     style: TextStyle(
-                      color: context.colors.mutedForeground,
-                      fontSize: 11.sp,
+                      color: colors.mutedForeground,
+                      fontSize: AppSizes.fontSize12.sp,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: AppSizes.space2.h),
                   Text(
                     collection.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: context.colors.foreground,
-                      fontSize: 14.sp,
+                      color: colors.foreground,
+                      fontSize: AppSizes.fontSize14.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -86,8 +70,8 @@ class FranchiseBannerSection extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: context.colors.mutedForeground,
-              size: 20.sp,
+              color: colors.mutedForeground,
+              size: AppSizes.icon22.sp,
             ),
           ],
         ),

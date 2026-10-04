@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -127,13 +128,14 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
   /// own three content-type posters are excluded — they're already loading as
   /// this runs.
   ///
-  /// These render through a plain `Image.network` with no resize, so bare
-  /// providers are the matching cache keys here. Posters drawn by PosterImage
-  /// are not — those need `PosterImage.providerFor`.
+  /// These render through [CachedNetworkImage] with no resize, so a bare
+  /// [CachedNetworkImageProvider] is the matching cache key — a plain
+  /// [NetworkImage] here would warm a key the grid never reads. Posters drawn
+  /// by PosterImage need `PosterImage.providerFor` instead.
   void _preloadLaterSteps() {
     precacheImages(context, [
       for (final language in _kLanguages)
-        NetworkImage(language['imageUrl'] as String),
+        CachedNetworkImageProvider(language['imageUrl'] as String),
     ]);
   }
 
@@ -431,13 +433,15 @@ class _TasteSetupContentState extends State<_TasteSetupContent> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.network(
-                          lang['imageUrl'] as String,
+                        CachedNetworkImage(
+                          imageUrl: lang['imageUrl'] as String,
                           fit: BoxFit.cover,
                           color: const Color(0xBB000000),
                           colorBlendMode: BlendMode.multiply,
-                          errorBuilder: (_, __, ___) =>
+                          errorWidget: (_, __, ___) =>
                               ColoredBox(color: context.colors.surfaceRaised),
+                          fadeInDuration: Duration.zero,
+                          fadeOutDuration: Duration.zero,
                         ),
                         const DecoratedBox(
                           decoration: BoxDecoration(

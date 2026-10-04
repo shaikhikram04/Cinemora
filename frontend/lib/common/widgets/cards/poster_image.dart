@@ -1,3 +1,5 @@
+import 'package:cinemora/common/widgets/images/artwork_scrim.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cinemora/common/widgets/overlays/bookmark_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,12 +8,6 @@ import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/models/watch_status.dart';
 
 typedef BadgeBuilder = Widget Function(BuildContext context, String rating);
-
-/// Scrims painted over the poster artwork itself, not over a themed surface,
-/// so they stay black in both themes — a theme token would invert in light
-/// mode and leave the white title and icons sitting on near-white.
-const Color _artworkScrimFaint = Color(0x1F000000); // black 12%
-const Color _artworkScrimDeep = Color(0xC7000000); // black 78%
 
 class PosterImage extends StatelessWidget {
   final String image;
@@ -53,10 +49,13 @@ class PosterImage extends StatelessWidget {
   ///
   /// Exposed so callers can warm the cache under the same key — `ImageCache`
   /// is keyed on the provider, and the resize below means a bare
-  /// [NetworkImage] would land somewhere nothing reads. Anything preloading a
-  /// poster must go through here rather than duplicating the arithmetic, or
-  /// the two drift the moment a width changes and the preload silently starts
-  /// costing an extra download instead of saving one.
+  /// [CachedNetworkImageProvider] would land somewhere nothing reads. Anything
+  /// preloading a poster must go through here rather than duplicating the
+  /// arithmetic, or the two drift the moment a width changes and the preload
+  /// silently starts costing an extra download instead of saving one.
+  ///
+  /// The inner provider must stay the same kind that [CurvedNetworkImage] uses,
+  /// for the same reason: two provider types are two cache keys for one image.
   static ImageProvider providerFor(
     BuildContext context, {
     required String image,
@@ -65,7 +64,7 @@ class PosterImage extends StatelessWidget {
   }) {
     final dpr = MediaQuery.of(context).devicePixelRatio;
     return ResizeImage(
-      NetworkImage(image),
+      CachedNetworkImageProvider(image),
       width: width != null ? (width * dpr).round() : null,
       height: width == null ? (height.h * dpr).round() : null,
       allowUpscaling: false,
@@ -127,7 +126,7 @@ class PosterImage extends StatelessWidget {
                 ),
               ),
             ),
-            const _PosterGradient(),
+            ArtworkScrim.bottom(midOpacity: 0.12, midStop: 0.5),
             if (showBookmark)
               Positioned.fill(
                 child: BookmarkOverlay(
@@ -206,27 +205,6 @@ class PosterImage extends StatelessWidget {
                   ],
                 ),
               ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PosterGradient extends StatelessWidget {
-  const _PosterGradient();
-
-  @override
-  Widget build(BuildContext context) {
-    return const DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.transparent,
-            _artworkScrimFaint,
-            _artworkScrimDeep,
           ],
         ),
       ),
