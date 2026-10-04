@@ -80,8 +80,7 @@ class LibraryState extends Equatable {
 
   static bool _isWatched(LibraryEntryModel e) => e.hasBeenWatched;
 
-  static Map<String, int> _buildStatusCounts(
-      List<LibraryEntryModel> entries) {
+  static Map<String, int> _buildStatusCounts(List<LibraryEntryModel> entries) {
     return {
       for (final s in _statuses)
         s: s == 'Watched'
@@ -177,9 +176,8 @@ class LibraryState extends Equatable {
           : filteredEntries,
       statusCounts:
           entriesChanged ? _buildStatusCounts(newEntries) : statusCounts,
-      watchedCount: entriesChanged
-          ? newEntries.where(_isWatched).length
-          : watchedCount,
+      watchedCount:
+          entriesChanged ? newEntries.where(_isWatched).length : watchedCount,
       moviesWatched: entriesChanged
           ? newEntries
               .where((e) => e.cinemaType == CinemaType.movie && _isWatched(e))

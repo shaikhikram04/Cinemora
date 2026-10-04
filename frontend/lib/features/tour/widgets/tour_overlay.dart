@@ -433,8 +433,8 @@ class _Caret extends StatelessWidget {
         builder: (context, constraints) {
           // Keep the caret inside the card's rounded corners even when the
           // spotlight sits hard against a screen edge.
-          final x = (holeCenterX - margin)
-              .clamp(22.0, constraints.maxWidth - 22.0);
+          final x =
+              (holeCenterX - margin).clamp(22.0, constraints.maxWidth - 22.0);
           return Stack(
             clipBehavior: Clip.none,
             children: [

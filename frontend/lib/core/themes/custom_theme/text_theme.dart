@@ -5,7 +5,8 @@ class WTextTheme {
   final AppColors _c;
   const WTextTheme(this._c);
 
-  static WTextTheme of(BuildContext context) => WTextTheme(AppColors.of(context));
+  static WTextTheme of(BuildContext context) =>
+      WTextTheme(AppColors.of(context));
 
   TextStyle get h1 => TextStyle(
         fontFamily: 'Inter',

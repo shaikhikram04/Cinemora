@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:cinemora/common/widgets/rating/star_rating_bar.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
+import 'package:cinemora/core/constants/sizes.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/home/widgets/rating_meter.dart';
 import 'package:cinemora/features/tour/models/tour_step.dart';
@@ -35,12 +36,13 @@ class DetailRatingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final hasRated = rating > 0;
     final ratingColor =
-        hasRated ? ratingColorFor(rating) : context.colors.mutedSecondaryDeep;
+        hasRated ? ratingColorFor(rating) : colors.mutedSecondaryDeep;
     final ratingLabel = hasRated ? ratingLabelFor(rating) : null;
     final ratingEmoji = hasRated ? ratingEmojiFor(rating) : null;
-    const starSize = 48.0;
+    const starSize = AppSizes.icon48;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,18 +56,18 @@ class DetailRatingSection extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: AppSizes.fontSize16.sp,
                     fontWeight: FontWeight.bold,
-                    color: context.colors.foreground,
+                    color: colors.foreground,
                     fontFamily: 'Inter',
                   ),
                 ),
-                SizedBox(height: 6.h),
+                SizedBox(height: AppSizes.space6.h),
                 Text(
                   subtitle,
                   style: TextStyle(
-                    fontSize: 11.sp,
-                    color: context.colors.mutedForeground,
+                    fontSize: AppSizes.fontSize12.sp,
+                    color: colors.mutedForeground,
                     fontFamily: 'Inter',
                   ),
                 ),
@@ -73,10 +75,13 @@ class DetailRatingSection extends StatelessWidget {
             ),
             if (hasRated)
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSizes.space10.w,
+                  vertical: AppSizes.space6.h,
+                ),
                 decoration: BoxDecoration(
                   color: ratingColor.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(18.r),
+                  borderRadius: BorderRadius.circular(AppSizes.radius18.r),
                   border: Border.all(
                     color: ratingColor.withValues(alpha: 0.35),
                     width: 0.6,
@@ -87,27 +92,33 @@ class DetailRatingSection extends StatelessWidget {
                     Text(
                       rating.toStringAsFixed(1),
                       style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: AppSizes.fontSize12.sp,
                         fontWeight: FontWeight.w700,
                         color: ratingColor,
                       ),
                     ),
-                    SizedBox(width: 4.w),
-                    Icon(Icons.star_rounded, size: 12.sp, color: ratingColor),
+                    SizedBox(width: AppSizes.space4.w),
+                    Icon(Icons.star_rounded,
+                        size: AppSizes.icon12.sp, color: ratingColor),
                   ],
                 ),
               ),
           ],
         ),
-        SizedBox(height: 14.h),
+        SizedBox(height: AppSizes.space14.h),
         Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSizes.space16.w,
+            vertical: AppSizes.space24.h,
+          ),
           decoration: BoxDecoration(
-            color: context.colors.surfaceTint.withValues(alpha: 0.18),
-            borderRadius: BorderRadius.all(Radius.elliptical(20.r, 18.r)),
+            color: colors.surfaceTint.withValues(alpha: 0.18),
+            borderRadius: BorderRadius.all(
+              Radius.elliptical(AppSizes.radius20.r, AppSizes.radius18.r),
+            ),
             border: Border.all(
-              color: context.colors.surfaceChipBorder.withValues(alpha: 0.8),
+              color: colors.surfaceChipBorder.withValues(alpha: 0.8),
               width: 0.7,
             ),
           ),
@@ -117,40 +128,41 @@ class DetailRatingSection extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(ratingEmoji!, style: TextStyle(fontSize: 24.sp)),
-                    SizedBox(width: 8.w),
+                    Text(ratingEmoji!,
+                        style: TextStyle(fontSize: AppSizes.fontSize24.sp)),
+                    SizedBox(width: AppSizes.space8.w),
                     Text(
                       rating.toStringAsFixed(1),
                       style: TextStyle(
-                        fontSize: 24.sp,
+                        fontSize: AppSizes.fontSize24.sp,
                         fontWeight: FontWeight.w800,
                         color: ratingColor,
                         letterSpacing: -1,
                       ),
                     ),
-                    SizedBox(width: 8.w),
+                    SizedBox(width: AppSizes.space8.w),
                     Text(
                       ratingLabel!,
                       style: TextStyle(
-                        fontSize: 14.sp,
+                        fontSize: AppSizes.fontSize14.sp,
                         fontWeight: FontWeight.w600,
                         color: ratingColor,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 14.h),
+                SizedBox(height: AppSizes.space14.h),
               ] else ...[
                 Text(
                   'Tap the stars to rate',
                   style: TextStyle(
-                    fontSize: 13.sp,
+                    fontSize: AppSizes.fontSize14.sp,
                     fontWeight: FontWeight.w500,
-                    color: context.colors.mutedSecondaryDeep,
+                    color: colors.mutedSecondaryDeep,
                     fontFamily: 'Inter',
                   ),
                 ),
-                SizedBox(height: 14.h),
+                SizedBox(height: AppSizes.space14.h),
               ],
               TourAnchor(
                 step: TourStep.rateTitle,
@@ -163,7 +175,7 @@ class DetailRatingSection extends StatelessWidget {
                 ),
               ),
               if (hasRated) ...[
-                SizedBox(height: 16.h),
+                SizedBox(height: AppSizes.space16.h),
                 RatingMeter(
                   rating: rating,
                   starSize: starSize.sp,

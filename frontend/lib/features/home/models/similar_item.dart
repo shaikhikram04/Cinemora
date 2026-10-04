@@ -1,5 +1,7 @@
+import 'package:cinemora/core/models/catalog_source.dart';
+
 class SimilarItem {
-  final String source; // "tmdb" | "jikan"
+  final CatalogSource source;
   final int sourceId;
   final String cinemaType; // "movie" | "tv" | "anime"
   final String title;
@@ -18,7 +20,7 @@ class SimilarItem {
   });
 
   factory SimilarItem.fromJson(Map<String, dynamic> json) => SimilarItem(
-        source: json['source'] as String? ?? 'tmdb',
+        source: CatalogSource.fromJson(json['source'] as String?),
         sourceId: json['sourceId'] as int,
         cinemaType: json['cinemaType'] as String? ?? 'movie',
         title: json['title'] as String? ?? 'Untitled',
@@ -31,7 +33,9 @@ class SimilarItem {
   String get posterUrl {
     final path = posterPath;
     if (path == null || path.isEmpty) return '';
-    return path.startsWith('http') ? path : 'https://image.tmdb.org/t/p/w500$path';
+    return path.startsWith('http')
+        ? path
+        : 'https://image.tmdb.org/t/p/w500$path';
   }
 
   String get ratingDisplay => rating != null ? rating!.toStringAsFixed(1) : '—';

@@ -26,10 +26,12 @@ const _baselineShare = {
   '2010s': 0.35,
   '2020s': 0.30,
 };
-const _fallbackBaseline = 0.05; // any decade we haven't tabulated (a future 2030s)
+const _fallbackBaseline =
+    0.05; // any decade we haven't tabulated (a future 2030s)
 
 const _minDatedTitles = 8; // below this, any era claim is noise
-const _minDecadeTitles = 3; // guards lift: one 1965 film must not crown Pre-1970s
+const _minDecadeTitles =
+    3; // guards lift: one 1965 film must not crown Pre-1970s
 const _minDecadeShare = 0.08;
 
 final _yearPattern = RegExp(r'(?:19|20)\d{2}');

@@ -9,6 +9,7 @@ import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/movie_details_state.dart';
 import 'package:cinemora/features/library/repositories/library_repository.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 import 'series_details_state.dart';
 
 class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
@@ -16,7 +17,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
   final LibraryRepository _library;
   final LibraryCubit _libraryCubit;
   final int? _id;
-  final String _source;
+  final CatalogSource _source;
   final String _title;
   final String? _posterUrl;
   final double? _tmdbRating;
@@ -27,7 +28,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     required LibraryRepository library,
     required LibraryCubit libraryCubit,
     int? id,
-    String source = 'tmdb',
+    CatalogSource source = CatalogSource.tmdb,
     List<SeriesSeason> initialSeasons = const [],
     String title = '',
     String? posterUrl,
@@ -54,11 +55,11 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
   static SeriesDetailsState _buildInitialState({
     required LibraryCubit libraryCubit,
     required int? id,
-    required String source,
+    required CatalogSource source,
     required List<SeriesSeason> initialSeasons,
   }) {
     if (id == null) return SeriesDetailsState(seasons: initialSeasons);
-    final cinemaType = source == 'tmdb' ? CinemaType.tv : CinemaType.anime;
+    final cinemaType = source.seriesCinemaType;
     final entry = libraryCubit.state.entries
         .where((e) => e.tmdbId == id && e.cinemaType == cinemaType)
         .firstOrNull;
@@ -87,9 +88,7 @@ class SeriesDetailsCubit extends Cubit<SeriesDetailsState> {
     );
   }
 
-  // Anything that isn't TMDB is an anime source — the label has been both
-  // "jikan" and "anilist" as the upstream moved, so only "tmdb" is tested.
-  bool get _isAnime => _source != 'tmdb';
+  bool get _isAnime => _source.isAnime;
 
   CinemaType get _cinemaType => _isAnime ? CinemaType.anime : CinemaType.tv;
 

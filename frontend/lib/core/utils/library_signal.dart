@@ -24,10 +24,9 @@ double libraryEntryWeight(LibraryEntryModel entry) {
   // Only a finished title carries a verdict: a 5★ rewatch lifts its bucket, a
   // 1★ one drags it down. Anything unwatched is neutral on quality.
   final rating = entry.userRating;
-  final ratingMultiplier =
-      entry.status == WatchStatus.watched && rating != null
-          ? ((rating - 2.5) / 2.5).clamp(-1.0, 1.0)
-          : 1.0;
+  final ratingMultiplier = entry.status == WatchStatus.watched && rating != null
+      ? ((rating - 2.5) / 2.5).clamp(-1.0, 1.0)
+      : 1.0;
 
   return base * rewatchMultiplier * ratingMultiplier;
 }
@@ -73,8 +72,8 @@ BucketInsight? deriveTopBucket({
   }
 
   final eligible = shares.keys
-      .where((k) =>
-          counts[k]! >= minBucketTitles && shares[k]! >= minBucketShare)
+      .where(
+          (k) => counts[k]! >= minBucketTitles && shares[k]! >= minBucketShare)
       .toList();
 
   final String winner;
@@ -85,9 +84,9 @@ BucketInsight? deriveTopBucket({
   } else {
     // Signal spread too thin for the lift guards — fall back to plain weighted
     // mode rather than saying nothing.
-    winner =
-        (shares.keys.toList()..sort((a, b) => compare(a, b, (k) => shares[k]!)))
-            .first;
+    winner = (shares.keys.toList()
+          ..sort((a, b) => compare(a, b, (k) => shares[k]!)))
+        .first;
   }
 
   return BucketInsight(

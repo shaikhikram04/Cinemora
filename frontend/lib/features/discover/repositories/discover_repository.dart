@@ -64,5 +64,4 @@ class DiscoverRepository {
         .where((e) => e.posterPath != null && e.posterPath!.isNotEmpty)
         .toList();
   }
-
 }

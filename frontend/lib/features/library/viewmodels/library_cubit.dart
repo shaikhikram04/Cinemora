@@ -114,8 +114,8 @@ class LibraryCubit extends Cubit<LibraryState> {
   /// Deletes a show-level entry. cinemaType is required for the compound key.
   Future<void> removeEntry(int tmdbId, CinemaType cinemaType) async {
     final entries = List<LibraryEntryModel>.from(state.entries);
-    final idx = entries.indexWhere(
-        (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
+    final idx = entries
+        .indexWhere((e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
     if (idx < 0) return;
     final original = entries[idx];
     entries.removeAt(idx);
@@ -134,8 +134,8 @@ class LibraryCubit extends Cubit<LibraryState> {
       int tmdbId, CinemaType cinemaType, String displayStatus) async {
     final newStatus = WatchStatus.fromDisplayName(displayStatus);
     final entries = List<LibraryEntryModel>.from(state.entries);
-    final idx = entries.indexWhere(
-        (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
+    final idx = entries
+        .indexWhere((e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
     if (idx < 0) return;
 
     final original = entries[idx];
@@ -148,8 +148,8 @@ class LibraryCubit extends Cubit<LibraryState> {
           await _repo.updateEntry(tmdbId, cinemaType, status: newStatus);
       if (_tourMode.isActive) return;
       final refreshed = List<LibraryEntryModel>.from(state.entries);
-      final i = refreshed.indexWhere(
-          (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
+      final i = refreshed
+          .indexWhere((e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
       if (i >= 0) refreshed[i] = confirmed;
       emit(state.copyWith(entries: refreshed));
     } catch (e) {
@@ -175,8 +175,8 @@ class LibraryCubit extends Cubit<LibraryState> {
   /// user marks it as watched again.
   Future<void> markAsRewatch(int tmdbId, CinemaType cinemaType) async {
     final entries = List<LibraryEntryModel>.from(state.entries);
-    final idx = entries.indexWhere(
-        (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
+    final idx = entries
+        .indexWhere((e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
     if (idx < 0) return;
 
     final original = entries[idx];
@@ -187,12 +187,12 @@ class LibraryCubit extends Cubit<LibraryState> {
     emit(state.copyWith(entries: entries));
 
     try {
-      final confirmed = await _repo
-          .updateEntry(tmdbId, cinemaType, status: WatchStatus.watchlist);
+      final confirmed = await _repo.updateEntry(tmdbId, cinemaType,
+          status: WatchStatus.watchlist);
       if (_tourMode.isActive) return;
       final refreshed = List<LibraryEntryModel>.from(state.entries);
-      final i = refreshed.indexWhere(
-          (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
+      final i = refreshed
+          .indexWhere((e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
       if (i >= 0) refreshed[i] = confirmed;
       emit(state.copyWith(entries: refreshed));
     } catch (e) {
@@ -203,8 +203,7 @@ class LibraryCubit extends Cubit<LibraryState> {
   /// Removes an entry from state without an API call.
   void removeEntryLocal(int tmdbId, CinemaType cinemaType) {
     final entries = List<LibraryEntryModel>.from(state.entries)
-      ..removeWhere(
-          (e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
+      ..removeWhere((e) => e.tmdbId == tmdbId && e.cinemaType == cinemaType);
     emit(state.copyWith(entries: entries));
   }
 

@@ -99,7 +99,7 @@ class _VerticalPosterBookmarkCardState
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: colors.foreground,
-                    fontSize: AppSizes.fontSize13.sp,
+                    fontSize: AppSizes.fontSize14.sp,
                     height: 1.1,
                     fontWeight: FontWeight.w700,
                   ),
@@ -123,7 +123,7 @@ class _VerticalPosterBookmarkCardState
                 Text(
                   "${widget.cinemaType.name} • ${widget.year}",
                   style: TextStyle(
-                    fontSize: AppSizes.fontSize11.sp,
+                    fontSize: AppSizes.fontSize12.sp,
                     color: colors.mutedSecondaryVibe,
                   ),
                 ),

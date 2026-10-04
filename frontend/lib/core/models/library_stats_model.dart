@@ -66,7 +66,14 @@ class LibraryStatsModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        totalEntries, watched, watchlist, dropped,
-        movies, tvShows, anime, rewatchCount, topGenres,
+        totalEntries,
+        watched,
+        watchlist,
+        dropped,
+        movies,
+        tvShows,
+        anime,
+        rewatchCount,
+        topGenres,
       ];
 }

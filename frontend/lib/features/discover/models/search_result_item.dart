@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:cinemora/core/constants/api_constants.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 
 class SearchResultItem extends Equatable {
   final int id;
@@ -8,7 +9,7 @@ class SearchResultItem extends Equatable {
   final double rating;
   final String year;
   final String mediaType; // 'movie' | 'tv' | 'anime'
-  final String source;    // 'tmdb' | 'jikan'
+  final CatalogSource source;
 
   const SearchResultItem({
     required this.id,
@@ -21,8 +22,10 @@ class SearchResultItem extends Equatable {
   });
 
   String get posterUrl {
-    if (source == 'jikan') return posterPath ?? '';
-    return posterPath != null ? '${ApiConstants.tmdbImageBase}/w342$posterPath' : '';
+    if (source.isAnime) return posterPath ?? '';
+    return posterPath != null
+        ? '${ApiConstants.tmdbImageBase}/w342$posterPath'
+        : '';
   }
 
   String get ratingDisplay => rating > 0 ? rating.toStringAsFixed(1) : '—';
@@ -53,7 +56,7 @@ class SearchResultItem extends Equatable {
       rating: rating,
       year: year,
       mediaType: _resolveMediaType(json, rawType),
-      source: 'tmdb',
+      source: CatalogSource.tmdb,
     );
   }
 
@@ -72,7 +75,7 @@ class SearchResultItem extends Equatable {
       rating: rating,
       year: year,
       mediaType: _resolveMediaType(json, type),
-      source: 'tmdb',
+      source: CatalogSource.tmdb,
     );
   }
 
@@ -109,7 +112,7 @@ class SearchResultItem extends Equatable {
       rating: rawScore > 0 ? rawScore / 10.0 : 0.0,
       year: startDate?['year']?.toString() ?? '',
       mediaType: 'anime',
-      source: 'jikan',
+      source: CatalogSource.anime,
     );
   }
 

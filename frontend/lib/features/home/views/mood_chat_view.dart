@@ -13,6 +13,7 @@ import 'package:cinemora/features/home/models/similar_item.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
 import 'package:cinemora/features/home/viewmodels/mood_chat_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/mood_chat_state.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 
 // Optional starter mood (e.g. tapped from the Home mood card) sent as the
 // opening message so the conversation begins immediately.
@@ -269,7 +270,7 @@ class _RecCard extends StatelessWidget {
           image: item.posterUrl,
           rating: item.ratingDisplay,
           id: item.sourceId,
-          source: type == CinemaType.anime ? 'jikan' : 'tmdb',
+          source: CatalogSource.forCinemaType(type),
         ),
       );
     }

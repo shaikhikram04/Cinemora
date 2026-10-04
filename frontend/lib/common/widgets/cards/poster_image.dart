@@ -189,7 +189,7 @@ class PosterImage extends StatelessWidget {
                           Icon(
                             Icons.star_rounded,
                             color: colors.tertiary,
-                            size: AppSizes.icon11.sp,
+                            size: AppSizes.icon14.sp,
                           ),
                           SizedBox(width: AppSizes.space2.w),
                           Text(

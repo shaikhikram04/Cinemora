@@ -76,7 +76,8 @@ class SettingsHairline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: (kSettingsRowGutter + _kIconSlot + _kIconGap).w),
+      margin: EdgeInsets.only(
+          left: (kSettingsRowGutter + _kIconSlot + _kIconGap).w),
       height: 0.5,
       color: context.colors.border,
     );

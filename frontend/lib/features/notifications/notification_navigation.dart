@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/notifications/models/notification.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 
 /// Opens the title a notification points at.
 ///
@@ -37,7 +38,7 @@ bool openNotificationTarget(GoRouter router, AppNotification notif) {
         image: image,
         rating: '—',
         id: id,
-        source: notif.cinemaType == 'anime' ? 'jikan' : 'tmdb',
+        source: CatalogSource.forCinemaTypeName(notif.cinemaType),
         focusSeason: notif.season,
       ),
     );

@@ -63,9 +63,9 @@ class RankingEntry {
   final String cinemaType; // backend value: 'movie', 'tv', 'anime'
   final String title;
   final String year;
-  final String type;   // display: 'Movie', 'Series', 'Anime'
+  final String type; // display: 'Movie', 'Series', 'Anime'
   final String rating; // display: user rating string
-  final String image;  // full URL for display
+  final String image; // full URL for display
   final String? posterPath; // raw path for API serialisation
 
   const RankingEntry({

@@ -11,6 +11,7 @@ import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/common/widgets/icons/app_icon.dart';
 import 'package:cinemora/core/constants/assets_path.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 
 void showShufflePick(BuildContext context, List<LibraryEntryModel> watchlist) {
   showModalBottomSheet(
@@ -222,7 +223,7 @@ class _ShufflePickSheetState extends State<_ShufflePickSheet>
             image: e.posterUrl,
             rating: e.tmdbRating?.toStringAsFixed(1) ?? '—',
             id: e.tmdbId,
-            source: e.cinemaType == CinemaType.anime ? 'jikan' : 'tmdb',
+            source: CatalogSource.forCinemaType(e.cinemaType),
           ));
     }
   }

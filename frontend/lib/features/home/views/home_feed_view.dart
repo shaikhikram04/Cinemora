@@ -31,6 +31,7 @@ import 'package:cinemora/features/tour/models/tour_step.dart';
 import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
 import 'package:cinemora/features/tour/viewmodels/tour_state.dart';
 import 'package:cinemora/features/tour/widgets/tour_anchor.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 
 // Generative glyph for the "For You" tab — picked once per session so it
 // varies across launches (feels personalised/AI-generated) without flickering
@@ -322,7 +323,7 @@ void _navigateToTyped(BuildContext context, MoviePoster item, CinemaType type) {
         backdropImage: item.backdropImage,
         rating: item.rating,
         id: item.id,
-        source: type == CinemaType.anime ? 'jikan' : 'tmdb',
+        source: CatalogSource.forCinemaType(type),
       ),
     );
   }
@@ -352,7 +353,7 @@ void _navigateToMixedPoster(BuildContext context, MoviePoster item) {
         backdropImage: item.backdropImage,
         rating: item.rating,
         id: item.id,
-        source: item.cinemaType == 'anime' ? 'jikan' : 'tmdb',
+        source: CatalogSource.forCinemaTypeName(item.cinemaType),
       ),
     );
   }

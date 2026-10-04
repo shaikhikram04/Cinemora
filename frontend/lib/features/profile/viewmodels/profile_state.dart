@@ -72,7 +72,8 @@ class ProfileState extends Equatable {
   static List<LibraryEntryModel> _buildTopFavorites(
       List<LibraryEntryModel> entries) {
     final rated = entries
-        .where((e) => e.status == WatchStatus.watched && (e.userRating ?? 0) > 0)
+        .where(
+            (e) => e.status == WatchStatus.watched && (e.userRating ?? 0) > 0)
         .toList()
       ..sort((a, b) => (b.userRating ?? 0).compareTo(a.userRating ?? 0));
     return rated.take(5).toList();

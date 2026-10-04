@@ -56,8 +56,6 @@ class GenresSection extends StatelessWidget {
                           context.colors.surfaceOverlay.withValues(alpha: 0.12),
                       borderColor: context.colors.border,
                       textColor: context.colors.foreground,
-                      horizontalPadding: 14,
-                      verticalPadding: 7,
                       fontSize: 13,
                     ))
                 .toList(),

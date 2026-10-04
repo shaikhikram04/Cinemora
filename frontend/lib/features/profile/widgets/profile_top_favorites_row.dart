@@ -11,6 +11,7 @@ import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/profile/widgets/profile_shared.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 
 /// Horizontal carousel of the user's highest-rated watched titles.
 class ProfileTopFavoritesRow extends StatelessWidget {
@@ -52,7 +53,7 @@ class ProfileTopFavoritesRow extends StatelessWidget {
           image: entry.posterUrl,
           rating: entry.tmdbRating?.toStringAsFixed(1) ?? '—',
           id: entry.tmdbId,
-          source: entry.cinemaType == CinemaType.anime ? 'jikan' : 'tmdb',
+          source: CatalogSource.forCinemaType(entry.cinemaType),
           focusSeason: focusSeason,
         ),
       );

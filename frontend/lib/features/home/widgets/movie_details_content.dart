@@ -4,15 +4,14 @@ import 'package:go_router/go_router.dart';
 
 import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
 import 'package:cinemora/common/widgets/buttons/trailer_button.dart';
-import 'package:cinemora/common/widgets/detail/cast_section.dart';
-import 'package:cinemora/common/widgets/detail/crew_section.dart';
-import 'package:cinemora/common/widgets/detail/detail_hero_shell.dart';
-import 'package:cinemora/common/widgets/detail/detail_rating_section.dart';
-import 'package:cinemora/common/widgets/detail/detail_recommendations_section.dart';
-import 'package:cinemora/common/widgets/detail/franchise_banner_section.dart';
-import 'package:cinemora/common/widgets/detail/genres_section.dart';
-import 'package:cinemora/common/widgets/detail/overview_section.dart';
-import 'package:cinemora/common/widgets/detail/where_to_watch_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/credits_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/detail_hero_shell.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/detail_rating_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/detail_recommendations_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/franchise_banner_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/genres_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/overview_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/where_to_watch_section.dart';
 import 'package:cinemora/common/widgets/dialogs/unmark_watched_dialog.dart';
 import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
@@ -145,7 +144,7 @@ class MovieDetailsContent extends StatelessWidget {
                   ],
                   if (isDetailLoading ||
                       (detail?.cast.isNotEmpty ?? false)) ...[
-                    CastSection(
+                    CreditsSection.cast(
                       cast: detail?.cast,
                       isLoading: isDetailLoading,
                     ),
@@ -155,7 +154,7 @@ class MovieDetailsContent extends StatelessWidget {
                   ],
                   if (isDetailLoading ||
                       (detail?.crew.isNotEmpty ?? false)) ...[
-                    CrewSection(
+                    CreditsSection.crew(
                       crew: detail?.crew,
                       isLoading: isDetailLoading,
                     ),

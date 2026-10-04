@@ -19,6 +19,5 @@ class SupportContact {
   static String playStoreUrl(String packageName) =>
       'https://play.google.com/store/apps/details?id=$packageName';
 
-  static String appStoreUrl() =>
-      'https://apps.apple.com/app/id$appStoreId';
+  static String appStoreUrl() => 'https://apps.apple.com/app/id$appStoreId';
 }

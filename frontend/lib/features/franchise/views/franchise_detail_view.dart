@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cinemora/common/widgets/cards/vertical_poster_bookmark_card.dart';
-import 'package:cinemora/common/widgets/detail/detail_hero_shell.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/detail_hero_shell.dart';
 import 'package:cinemora/common/widgets/states/on_reconnect.dart';
 import 'package:cinemora/common/widgets/states/w_error_state.dart';
 import 'package:cinemora/core/constants/app_colors.dart';

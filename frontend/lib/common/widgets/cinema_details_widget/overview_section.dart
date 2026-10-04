@@ -70,8 +70,9 @@ class _OverviewSectionState extends State<OverviewSection> {
                 fontFamily: 'Inter',
               ),
             ),
-            crossFadeState:
-                _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            crossFadeState: _expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 200),
           ),
           if (hasText) ...[

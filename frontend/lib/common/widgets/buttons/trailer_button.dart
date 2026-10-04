@@ -58,7 +58,7 @@ class TrailerButton extends StatelessWidget {
                     'WATCH TRAILER',
                     style: TextStyle(
                       color: foregroundColor,
-                      fontSize: AppSizes.fontSize13.sp,
+                      fontSize: AppSizes.fontSize14.sp,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1.4,
                     ),

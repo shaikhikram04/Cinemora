@@ -12,6 +12,7 @@ import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 
 class LibraryListItem extends StatelessWidget {
   final LibraryEntryModel entry;
@@ -50,7 +51,7 @@ class LibraryListItem extends StatelessWidget {
           image: entry.posterUrl,
           rating: entry.tmdbRating?.toStringAsFixed(1) ?? '—',
           id: entry.tmdbId,
-          source: entry.cinemaType == CinemaType.anime ? 'jikan' : 'tmdb',
+          source: CatalogSource.forCinemaType(entry.cinemaType),
           focusSeason: _focusSeason,
         ),
       );
@@ -448,7 +449,8 @@ class _PosterPlaceholder extends StatelessWidget {
     return Container(
       color: context.colors.surfaceMuted,
       child: Center(
-        child: AppIcon(asset, color: context.colors.mutedSecondary, size: 28.sp),
+        child:
+            AppIcon(asset, color: context.colors.mutedSecondary, size: 28.sp),
       ),
     );
   }
@@ -473,7 +475,8 @@ class _ActionsSheet extends StatelessWidget {
   ];
 
   static bool hasContent(LibraryEntryModel entry, bool fromWatchedTab) {
-    final canDrop = !entry.hasBeenWatched && entry.status != WatchStatus.dropped;
+    final canDrop =
+        !entry.hasBeenWatched && entry.status != WatchStatus.dropped;
     final hasRemoveOption = !fromWatchedTab &&
         (entry.status == WatchStatus.watchlist ||
             entry.status == WatchStatus.dropped);

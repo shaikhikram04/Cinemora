@@ -3,9 +3,11 @@ class AppSizes {
   //* padding and margin sizes
   static const double space2 = 2.0;
   static const double space4 = 4.0;
+  static const double space6 = 6.0;
   static const double space8 = 8.0;
   static const double space10 = 10.0;
   static const double space12 = 12.0;
+  static const double space14 = 14.0;
   static const double space16 = 16.0;
   static const double space20 = 20.0;
   static const double space24 = 24.0;
@@ -13,19 +15,18 @@ class AppSizes {
   static const double space48 = 48.0;
 
   //* Icon sizes
-  static const double icon11 = 11.0;
   static const double icon12 = 12.0;
+  static const double icon14 = 14.0;
   static const double icon16 = 16.0;
   static const double icon18 = 18.0;
   static const double icon22 = 22.0;
   static const double icon24 = 24.0;
   static const double icon32 = 32.0;
+  static const double icon48 = 48.0;
 
   //* Font sizes
   static const double fontSize10 = 10.0;
-  static const double fontSize11 = 11.0;
   static const double fontSize12 = 12.0;
-  static const double fontSize13 = 13.0;
   static const double fontSize14 = 14.0;
   static const double fontSize16 = 16.0;
   static const double fontSize18 = 18.0;
@@ -50,6 +51,7 @@ class AppSizes {
   static const double posterImageWidth = 130.0;
   static const double posterImageHeight = 180.0;
   static const double posterActionSize = 36.0;
+  static const double avatarSize = 72.0;
 
   //* Border Radius
   static const double radius8 = 8;
@@ -65,6 +67,7 @@ class AppSizes {
   //* Divider height
   static const double dividerHeight = 1.0;
   static const double dividerThickness = 1.0;
+  static const double borderWidth = 1.5;
 
   //* image dimensions
   static const double logoImageSize = 120.0;
@@ -86,7 +89,7 @@ class AppSizes {
   static const double screenPadding = 16.0;
   static const double screenPaddingLg = 24.0;
   static const double chipHorizontalPadding = 12.0;
-  static const double chipVerticalPadding = 5.0;
+  static const double chipVerticalPadding = 4.0;
   static const double compactVerticalPadding = 4.0;
   static const double compactHorizontalPadding = 6.0;
   static const double buttonVerticalPadding = 12.0;

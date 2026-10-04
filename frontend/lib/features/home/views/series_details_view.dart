@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cinemora/common/widgets/states/on_reconnect.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
-import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/tour/viewmodels/tour_cubit.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
@@ -12,6 +11,7 @@ import 'package:cinemora/features/library/viewmodels/library_cubit.dart';
 import 'package:cinemora/features/home/viewmodels/series_details_state.dart';
 import 'package:cinemora/features/home/widgets/post_rating_bottom_sheet.dart';
 import 'package:cinemora/features/home/widgets/series_details_content.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 
 class SeriesDetailsView extends StatelessWidget {
   final String seriesTitle;
@@ -19,7 +19,7 @@ class SeriesDetailsView extends StatelessWidget {
   final String? backdropImage;
   final String rating;
   final int? id;
-  final String source;
+  final CatalogSource source;
   final int? focusSeason;
   final bool isAnime;
 
@@ -30,7 +30,7 @@ class SeriesDetailsView extends StatelessWidget {
     this.backdropImage,
     required this.rating,
     this.id,
-    this.source = 'tmdb',
+    this.source = CatalogSource.tmdb,
     this.focusSeason,
     this.isAnime = false,
   });
@@ -67,7 +67,7 @@ class _SeriesDetailsContent extends StatelessWidget {
   final String seriesImage;
   final String? backdropImage;
   final String rating;
-  final String source;
+  final CatalogSource source;
   final int? tmdbId;
   final bool isAnime;
 
@@ -128,7 +128,7 @@ class _SeriesDetailsContent extends StatelessWidget {
       if (tmdbId == null) return;
       tour.onDetailOpened(
         tmdbId!,
-        source == 'jikan' ? CinemaType.anime : CinemaType.tv,
+        source.seriesCinemaType,
       );
     });
 

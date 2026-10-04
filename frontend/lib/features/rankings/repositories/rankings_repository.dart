@@ -46,7 +46,8 @@ class RankingsRepository {
         title: title,
         subtitle: subtitle,
         count: 0,
-        accent: Color(int.parse(accentHex.substring(1), radix: 16) | 0xFF000000),
+        accent:
+            Color(int.parse(accentHex.substring(1), radix: 16) | 0xFF000000),
         images: const [],
         entries: const [],
       );

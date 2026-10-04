@@ -122,8 +122,8 @@ class ProfileTasteSection extends StatelessWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color:
-                              context.colors.accentPurple.withValues(alpha: 0.3),
+                          color: context.colors.accentPurple
+                              .withValues(alpha: 0.3),
                           blurRadius: 80,
                           offset: const Offset(0, 10),
                           spreadRadius: 40,
@@ -142,7 +142,8 @@ class ProfileTasteSection extends StatelessWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: context.colors.accentRed.withValues(alpha: 0.3),
+                          color:
+                              context.colors.accentRed.withValues(alpha: 0.3),
                           blurRadius: 150,
                           offset: const Offset(0, 10),
                           spreadRadius: 50,

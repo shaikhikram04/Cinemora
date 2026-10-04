@@ -32,13 +32,13 @@ class TmdbItem {
   String get posterUrl =>
       posterPath != null ? 'https://image.tmdb.org/t/p/w500$posterPath' : '';
 
-  String get backdropUrl =>
-      backdropPath != null ? 'https://image.tmdb.org/t/p/w1280$backdropPath' : '';
+  String get backdropUrl => backdropPath != null
+      ? 'https://image.tmdb.org/t/p/w1280$backdropPath'
+      : '';
 
   String get year => releaseDate?.split('-').first ?? '';
 
   String get ratingDisplay => voteAverage.toStringAsFixed(1);
 
   String get mediaTypeLabel => mediaType == 'tv' ? 'TV Show' : 'Movie';
-
 }

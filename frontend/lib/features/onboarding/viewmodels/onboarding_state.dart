@@ -31,9 +31,12 @@ class OnboardingState extends Equatable {
 
   bool get canContinue {
     switch (currentStep) {
-      case 0: return selectedGenres.length >= 3;
-      case 1: return selectedLanguages.isNotEmpty;
-      default: return true;
+      case 0:
+        return selectedGenres.length >= 3;
+      case 1:
+        return selectedLanguages.isNotEmpty;
+      default:
+        return true;
     }
   }
 

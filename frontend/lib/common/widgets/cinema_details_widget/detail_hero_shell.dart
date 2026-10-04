@@ -5,6 +5,11 @@ import 'package:cinemora/common/widgets/buttons/curved_icon_button.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
 
+/// Top scrim painted on the backdrop artwork itself, not on a themed surface,
+/// so it stays black in both themes — a theme token would invert in light mode
+/// and leave the white back button sitting on near-white.
+const Color _backdropTopScrim = Color(0x40000000); // black 25%
+
 /// Shared backdrop shell for movie and series detail hero headers.
 /// Renders the full-bleed image, the gradient overlay, and the back button.
 /// Caller provides [bottomContent] for the title/meta area.
@@ -20,6 +25,7 @@ class DetailHeroShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final dpr = MediaQuery.of(context).devicePixelRatio;
     final screenW = MediaQuery.of(context).size.width;
     return Stack(
@@ -41,16 +47,18 @@ class DetailHeroShell extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
-          child: Container(
+        ),
+        Positioned.fill(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withValues(alpha: 0.25),
+                  _backdropTopScrim,
                   Colors.transparent,
-                  context.colors.background.withValues(alpha: 0.65),
-                  context.colors.background.withValues(alpha: 0.96),
+                  colors.background.withValues(alpha: 0.65),
+                  colors.background.withValues(alpha: 0.96),
                 ],
                 stops: const [0.0, 0.3, 0.68, 1.0],
               ),
@@ -60,30 +68,26 @@ class DetailHeroShell extends StatelessWidget {
         Positioned(
           top: 0,
           left: 0,
-          right: 0,
           child: SafeArea(
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: AppSizes.screenPadding.w,
-                vertical: 12.h,
+                horizontal: AppSizes.buttonHorizontalPadding.w,
+                vertical: AppSizes.buttonVerticalPadding.h,
               ),
-              child: Row(
-                children: [
-                  CurvedIconButton(
-                    icon: Icons.arrow_back,
-                    onTap: () => Navigator.pop(context),
-                    // backgroundColor: Colors.black.withValues(alpha: 0.2),
-                    iconColor: Colors.white,
-                  ),
-                ],
+              child: CurvedIconButton(
+                icon: Icons.arrow_back,
+                onTap: () => Navigator.pop(context),
+                // Sits on the backdrop artwork, so it stays light in both
+                // themes rather than following the theme's foreground.
+                iconColor: colors.primaryForeground,
               ),
             ),
           ),
         ),
         Positioned(
           bottom: 0,
-          left: 24.w,
-          right: 24.w,
+          left: AppSizes.space24.w,
+          right: AppSizes.space24.w,
           child: bottomContent,
         ),
       ],

@@ -11,6 +11,7 @@ import 'package:cinemora/core/router/app_router.dart';
 import 'package:cinemora/core/router/app_routes.dart';
 import 'package:cinemora/features/home/models/similar_item.dart';
 import 'package:cinemora/features/home/repositories/home_repository.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 
 class DetailRecommendationsSection extends StatefulWidget {
   final CinemaType cinemaType;
@@ -78,7 +79,7 @@ class _DetailRecommendationsSectionState
           image: item.posterUrl,
           rating: item.ratingDisplay,
           id: item.sourceId,
-          source: item.cinemaType == 'anime' ? 'jikan' : 'tmdb',
+          source: CatalogSource.forCinemaTypeName(item.cinemaType),
         ),
       );
     }
@@ -93,39 +94,42 @@ class _DetailRecommendationsSectionState
         final items = snapshot.data ?? const [];
         if (!isLoading && items.isEmpty) return const SizedBox.shrink();
 
+        final colors = context.colors;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'DISCOVER',
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: AppSizes.fontSize12.sp,
                 fontWeight: FontWeight.w700,
-                color: context.colors.accentRed,
+                color: colors.accentRed,
                 letterSpacing: 1.2,
                 fontFamily: 'Inter',
               ),
             ),
-            SizedBox(height: 6.h),
+            SizedBox(height: AppSizes.space6.h),
             Text(
               'More Like This',
               style: TextStyle(
-                fontSize: 16.sp,
+                fontSize: AppSizes.fontSize16.sp,
                 fontWeight: FontWeight.bold,
-                color: context.colors.foreground,
+                color: colors.foreground,
                 fontFamily: 'Inter',
               ),
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: AppSizes.space12.h),
             SizedBox(
               height: AppSizes.imageCarouselHeight.h,
               child: isLoading
-                  ? _LoadingRow()
+                  ? const _LoadingRow()
                   : ListView.separated(
                       scrollDirection: Axis.horizontal,
                       physics: const BouncingScrollPhysics(),
                       itemCount: items.length,
-                      separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                      separatorBuilder: (_, __) =>
+                          SizedBox(width: AppSizes.space12.w),
                       itemBuilder: (context, i) {
                         final item = items[i];
                         return VerticalPosterBookmarkCard(
@@ -149,13 +153,15 @@ class _DetailRecommendationsSectionState
 }
 
 class _LoadingRow extends StatelessWidget {
+  const _LoadingRow();
+
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
       scrollDirection: Axis.horizontal,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: 3,
-      separatorBuilder: (_, __) => SizedBox(width: 12.w),
+      separatorBuilder: (_, __) => SizedBox(width: AppSizes.space12.w),
       itemBuilder: (context, i) => Container(
         width: AppSizes.posterImageWidth.w,
         decoration: BoxDecoration(

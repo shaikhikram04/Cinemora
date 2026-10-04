@@ -88,8 +88,8 @@ class UserModel extends Equatable {
           ? UserPreferences.fromJson(
               json['preferences'] as Map<String, dynamic>)
           : const UserPreferences(),
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '')
-          ?.toLocal(),
+      createdAt:
+          DateTime.tryParse(json['createdAt'] as String? ?? '')?.toLocal(),
     );
   }
 

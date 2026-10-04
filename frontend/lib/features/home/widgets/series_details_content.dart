@@ -4,24 +4,23 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cinemora/common/widgets/buttons/toggle_action_button.dart';
 import 'package:cinemora/common/widgets/buttons/trailer_button.dart';
 import 'package:cinemora/common/widgets/states/w_error_state.dart';
-import 'package:cinemora/common/widgets/detail/cast_section.dart';
-import 'package:cinemora/common/widgets/detail/crew_section.dart';
-import 'package:cinemora/common/widgets/detail/detail_hero_shell.dart';
-import 'package:cinemora/common/widgets/detail/detail_rating_section.dart';
-import 'package:cinemora/common/widgets/detail/detail_recommendations_section.dart';
-import 'package:cinemora/common/widgets/detail/genres_section.dart';
-import 'package:cinemora/common/widgets/detail/overview_section.dart';
-import 'package:cinemora/common/widgets/detail/where_to_watch_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/credits_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/detail_hero_shell.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/detail_rating_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/detail_recommendations_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/genres_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/overview_section.dart';
+import 'package:cinemora/common/widgets/cinema_details_widget/where_to_watch_section.dart';
 import 'package:cinemora/common/widgets/dialogs/unmark_watched_dialog.dart';
 import 'package:cinemora/common/widgets/shimmer/w_shimmer.dart';
 import 'package:cinemora/core/constants/app_colors.dart';
 import 'package:cinemora/core/constants/sizes.dart';
-import 'package:cinemora/core/models/cinema_type.dart';
 import 'package:cinemora/core/utils/rating_display_utils.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
 import 'package:cinemora/features/home/models/tmdb_detail.dart';
 import 'package:cinemora/features/home/views/trailer_player_screen.dart';
 import 'package:cinemora/common/widgets/rating/star_rating_bar.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 
 // ─── Root content widget ─────────────────────────────────────────────────────
 
@@ -30,7 +29,7 @@ class SeriesDetailsContent extends StatelessWidget {
   final String seriesImage;
   final String? backdropImage;
   final String rating;
-  final String source;
+  final CatalogSource source;
   // UI-only: force the ANIME badge for TMDB-sourced Japanese animated series.
   // Detail fetch and recommendations still key off [source].
   final bool isAnime;
@@ -68,7 +67,7 @@ class SeriesDetailsContent extends StatelessWidget {
     required this.seriesImage,
     this.backdropImage,
     required this.rating,
-    this.source = 'tmdb',
+    this.source = CatalogSource.tmdb,
     this.isAnime = false,
     this.seriesId,
     this.detail,
@@ -117,7 +116,7 @@ class SeriesDetailsContent extends StatelessWidget {
             bottomContent: _SeriesHeroMeta(
               seriesTitle: seriesTitle,
               rating: rating,
-              isAnime: source != 'tmdb' || isAnime,
+              isAnime: source.isAnime || isAnime,
               seasonCount: seasons.length,
               yearRange: detail?.yearRange,
               creator: detail?.creator,
@@ -203,7 +202,7 @@ class SeriesDetailsContent extends StatelessWidget {
                     SizedBox(height: 24.h),
                     Divider(color: context.colors.border),
                     SizedBox(height: 16.h),
-                    CastSection(
+                    CreditsSection.cast(
                       cast: detail?.cast,
                       isLoading: isDetailLoading,
                     ),
@@ -213,7 +212,7 @@ class SeriesDetailsContent extends StatelessWidget {
                   ],
                   if (isDetailLoading ||
                       (detail?.crew.isNotEmpty ?? false)) ...[
-                    CrewSection(
+                    CreditsSection.crew(
                       crew: detail?.crew,
                       isLoading: isDetailLoading,
                     ),
@@ -234,8 +233,7 @@ class SeriesDetailsContent extends StatelessWidget {
                   Divider(color: context.colors.border),
                   SizedBox(height: 16.h),
                   DetailRecommendationsSection(
-                    cinemaType:
-                        source == 'tmdb' ? CinemaType.tv : CinemaType.anime,
+                    cinemaType: source.seriesCinemaType,
                     sourceId: seriesId,
                   ),
                   SizedBox(height: 32.h),

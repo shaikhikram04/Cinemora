@@ -18,7 +18,8 @@ class DiscoverChip extends StatelessWidget {
     final border = selected
         ? context.colors.accentRed.withValues(alpha: 0.6)
         : context.colors.border.withValues(alpha: 0.2);
-    final foreground = selected ? context.colors.accentRed : context.colors.mutedForeground;
+    final foreground =
+        selected ? context.colors.accentRed : context.colors.mutedForeground;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),

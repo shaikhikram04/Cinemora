@@ -25,6 +25,7 @@ import 'package:cinemora/features/settings/views/edit_profile_view.dart';
 import 'package:cinemora/features/settings/views/help_support_view.dart';
 import 'package:cinemora/features/settings/views/notification_settings_view.dart';
 import 'package:cinemora/features/settings/views/settings_view.dart';
+import 'package:cinemora/core/models/catalog_source.dart';
 
 class MovieRouteArgs {
   final String title;
@@ -47,7 +48,7 @@ class SeriesRouteArgs {
   final String? backdropImage;
   final String rating;
   final int? id;
-  final String source; // "tmdb" | "jikan"
+  final CatalogSource source;
   final int? focusSeason; // auto-select this season tab on open
   // UI-only: label the title as anime even when it comes from TMDB (a
   // Japanese animated series). Fetch/recommendation logic still keys off
@@ -59,7 +60,7 @@ class SeriesRouteArgs {
     this.backdropImage,
     required this.rating,
     this.id,
-    this.source = 'tmdb',
+    this.source = CatalogSource.tmdb,
     this.focusSeason,
     this.isAnime = false,
   });
@@ -83,6 +84,8 @@ GoRouter buildAppRouter(AppAuthCubit authCubit, [ChangeNotifier? notifier]) {
     redirect: (context, state) {
       final authState = authCubit.state;
       final location = state.matchedLocation;
+
+      // return AppRoutes.welcome;
 
       if (authState is AppAuthInitial) {
         if (location != AppRoutes.splash) return AppRoutes.splash;

@@ -14,8 +14,8 @@ class TappableIconTextChip extends StatelessWidget {
     required this.label,
     this.icon,
     this.iconAsset,
-    this.iconSize = 15,
-    this.textSize = 13,
+    this.iconSize = AppSizes.icon14,
+    this.textSize = AppSizes.fontSize12,
   }) : assert((icon == null) != (iconAsset == null),
             'Provide either icon or iconAsset, not both');
 
@@ -29,41 +29,38 @@ class TappableIconTextChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final iconColor =
+        selected ? colors.primaryForeground : colors.mutedForeground;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSizes.space10.w,
+          vertical: AppSizes.space4.h,
+        ),
         decoration: BoxDecoration(
-          color: selected ? context.colors.primary : context.colors.surfaceChip,
+          color: selected ? colors.primary : colors.surfaceChip,
           borderRadius: BorderRadius.circular(AppSizes.radiusFull.r),
           border: Border.all(
-            color: selected
-                ? context.colors.primary
-                : context.colors.surfaceChipBorder,
+            color: selected ? colors.primary : colors.surfaceChipBorder,
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (iconAsset != null)
-              AppIcon(
-                iconAsset!,
-                size: iconSize.sp,
-                color: selected ? Colors.white : context.colors.mutedForeground,
-              )
+              AppIcon(iconAsset!, size: iconSize.sp, color: iconColor)
             else
-              Icon(
-                icon,
-                size: iconSize.sp,
-                color: selected ? Colors.white : context.colors.mutedForeground,
-              ),
-            SizedBox(width: 6.w),
+              Icon(icon, size: iconSize.sp, color: iconColor),
+            SizedBox(width: AppSizes.space6.w),
             Text(
               label,
               style: TextStyle(
-                color:
-                    selected ? Colors.white : context.colors.mutedSecondaryAlt,
+                color: selected
+                    ? colors.primaryForeground
+                    : colors.mutedSecondaryAlt,
                 fontSize: textSize.sp,
                 fontWeight: FontWeight.w600,
               ),

@@ -44,7 +44,8 @@ class StarRatingBar extends StatelessWidget {
             child: Icon(
               icon,
               size: size,
-              color: rating >= value - 0.5 ? resolvedColor : context.colors.border,
+              color:
+                  rating >= value - 0.5 ? resolvedColor : context.colors.border,
             ),
           ),
         );
