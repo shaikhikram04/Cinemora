@@ -7,6 +7,7 @@ import '../exceptions/app_exception.dart';
 import '../models/user_model.dart';
 import '../network/api_client.dart';
 import 'secure_storage_service.dart';
+import 'package:cinemora/core/constants/api_constants.dart';
 
 /// Outcome of a successful session restore. [fromCache] means the server was
 /// unreachable and this identity came from local storage — it is good enough to
@@ -101,7 +102,7 @@ class AuthService {
     if (token == null) return null;
 
     try {
-      final res = await _apiClient.dio.get('/auth/me');
+      final res = await _apiClient.dio.get(ApiConstants.authMe);
       final user = UserModel.fromJson(res.data as Map<String, dynamic>);
       await _storage.saveCachedUser(user);
       return RestoredSession(user, fromCache: false);
@@ -159,7 +160,7 @@ class AuthService {
   Future<UserModel> _loginToBackend(String idToken) async {
     try {
       final res = await _apiClient.dio.post(
-        '/auth/firebase',
+        ApiConstants.authFirebase,
         data: {'idToken': idToken},
       );
       final data = res.data as Map<String, dynamic>;

@@ -102,17 +102,17 @@ class SeriesDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = backdropImage != null && backdropImage!.isNotEmpty
-        ? backdropImage!
-        : seriesImage;
-
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           DetailHeroShell(
-            imageUrl: imageUrl,
+            posterUrl: seriesImage,
+            // The detail fetch carries a backdrop for every TMDB title; the
+            // route's only arrives from the carousels that happened to pass
+            // one, so it is just the pre-load stand-in.
+            backdropUrl: detail?.backdropUrl ?? backdropImage,
             bottomContent: _SeriesHeroMeta(
               seriesTitle: seriesTitle,
               rating: rating,
@@ -318,18 +318,24 @@ class _SeriesHeroMeta extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: AppSizes.space10.h),
+        // Sits beside the poster card now, not across the full width, so the
+        // display size steps down and long titles clamp rather than pushing the
+        // meta line out of the hero.
         Text(
           seriesTitle,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: AppSizes.fontSize32.sp,
+            fontSize: AppSizes.fontSize24.sp,
             fontWeight: FontWeight.w800,
             color: context.colors.foreground,
             fontFamily: 'Inter',
             letterSpacing: -0.5,
+            height: 1.15,
           ),
         ),
-        SizedBox(height: 5.h),
+        SizedBox(height: AppSizes.space4.h),
         Row(
           children: [
             if (seasonCount > 0) ...[
@@ -362,7 +368,6 @@ class _SeriesHeroMeta extends StatelessWidget {
               ),
           ],
         ),
-        SizedBox(height: AppSizes.space20.h),
       ],
     );
   }

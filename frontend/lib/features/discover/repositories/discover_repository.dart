@@ -1,5 +1,6 @@
 import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/features/discover/models/search_result_item.dart';
+import 'package:cinemora/core/constants/api_constants.dart';
 
 class DiscoverRepository {
   final ApiClient _apiClient;
@@ -17,7 +18,7 @@ class DiscoverRepository {
 
   Future<List<SearchResultItem>> searchAnime(String query) async {
     final res = await _apiClient.dio.get(
-      '/anilist/search',
+      ApiConstants.anilistSearch,
       queryParameters: {'q': query},
     );
     return (res.data['data'] as List? ?? [])
@@ -33,7 +34,7 @@ class DiscoverRepository {
     int page = 1,
   }) async {
     final res = await _apiClient.dio.get(
-      '/tmdb/discover',
+      ApiConstants.tmdbDiscover,
       queryParameters: {
         'type': type,
         'genre_id': genreId,
@@ -50,7 +51,7 @@ class DiscoverRepository {
 
   Future<List<SearchResultItem>> _searchTmdb(String query, String type) async {
     final res = await _apiClient.dio.get(
-      '/tmdb/search',
+      ApiConstants.tmdbSearch,
       queryParameters: {'q': query, 'type': type},
     );
     return (res.data['results'] as List? ?? [])

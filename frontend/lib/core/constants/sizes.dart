@@ -77,7 +77,7 @@ class AppSizes {
   static const double spaceBtwInputFields = 16.0;
 
   //* Image carousel height
-  static const double imageCarouselHeight = 268.0;
+  static const double imageCarouselHeight = 272.0;
 
   //* Loading indicator size
   static const double loadingIndicatorSize = 36.0;

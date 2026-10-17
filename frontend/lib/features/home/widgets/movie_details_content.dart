@@ -67,17 +67,17 @@ class MovieDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = backdropImage != null && backdropImage!.isNotEmpty
-        ? backdropImage!
-        : movieImage;
-
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           DetailHeroShell(
-            imageUrl: imageUrl,
+            posterUrl: movieImage,
+            // The detail fetch carries a backdrop for every title; the route's
+            // only arrives from the carousels that happened to pass one, so it
+            // is just the pre-load stand-in.
+            backdropUrl: detail?.backdropUrl ?? backdropImage,
             bottomContent: _MovieHeroMeta(
               movieTitle: movieTitle,
               rating: rating,
@@ -287,27 +287,32 @@ class _MovieHeroMeta extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: AppSizes.space10.h),
+        // Sits beside the poster card now, not across the full width, so the
+        // display size steps down and long titles clamp rather than pushing the
+        // meta line out of the hero.
         Text(
           movieTitle,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: AppSizes.fontSize32.sp,
+            fontSize: AppSizes.fontSize24.sp,
             fontWeight: FontWeight.w800,
             color: context.colors.foreground,
             fontFamily: 'Inter',
             letterSpacing: -0.5,
+            height: 1.15,
           ),
         ),
-        SizedBox(height: 5.h),
+        SizedBox(height: AppSizes.space4.h),
         Text(
           _buildMetaLine(),
           style: TextStyle(
-            fontSize: 13.sp,
+            fontSize: AppSizes.fontSize14.sp,
             color: context.colors.mutedForeground,
             fontFamily: 'Inter',
           ),
         ),
-        SizedBox(height: AppSizes.space20.h),
       ],
     );
   }

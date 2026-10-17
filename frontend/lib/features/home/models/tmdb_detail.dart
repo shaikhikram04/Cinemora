@@ -1,5 +1,15 @@
+import 'package:cinemora/core/constants/api_constants.dart';
 import 'package:cinemora/features/franchise/models/franchise_summary.dart';
 import 'package:cinemora/features/home/models/series_season.dart';
+
+/// The 16:9 still behind a detail screen's hero. TMDB returns it on the detail
+/// payload, so it is available on every title regardless of which screen the
+/// user arrived from — unlike the poster the route carries in.
+String? _parseBackdropUrl(Map<String, dynamic> detail) {
+  final path = detail['backdrop_path'] as String?;
+  if (path == null || path.isEmpty) return null;
+  return '${ApiConstants.tmdbImageBase}/w1280$path';
+}
 
 class CastMember {
   final String name;
@@ -75,6 +85,7 @@ class TmdbMovieDetail {
   final String? trailerKey; // YouTube video ID
   final FranchiseSummary? collection;
   final String? originalLanguage; // ISO 639-1, stored on the library entry
+  final String? backdropUrl; // 16:9 still for the detail hero
 
   const TmdbMovieDetail({
     required this.overview,
@@ -89,6 +100,7 @@ class TmdbMovieDetail {
     this.trailerKey,
     this.collection,
     this.originalLanguage,
+    this.backdropUrl,
   });
 
   factory TmdbMovieDetail.fromJson(
@@ -155,6 +167,7 @@ class TmdbMovieDetail {
               detail['belongs_to_collection'] as Map<String, dynamic>)
           : null,
       originalLanguage: detail['original_language'] as String?,
+      backdropUrl: _parseBackdropUrl(detail),
     );
   }
 }
@@ -230,6 +243,7 @@ class TmdbTvDetail {
   final String? trailerKey; // YouTube video ID
   final int? runtimeMinutes; // per-episode runtime
   final String? originalLanguage; // ISO 639-1, stored on the library entry
+  final String? backdropUrl; // 16:9 still for the detail hero
 
   const TmdbTvDetail({
     required this.overview,
@@ -243,6 +257,7 @@ class TmdbTvDetail {
     this.trailerKey,
     this.runtimeMinutes,
     this.originalLanguage,
+    this.backdropUrl,
   });
 
   TmdbTvDetail copyWithSeasonEpisodes(SeriesSeason updated) {
@@ -259,6 +274,7 @@ class TmdbTvDetail {
       trailerKey: trailerKey,
       runtimeMinutes: runtimeMinutes,
       originalLanguage: originalLanguage,
+      backdropUrl: backdropUrl,
     );
   }
 
@@ -364,6 +380,7 @@ class TmdbTvDetail {
       trailerKey: _parseTrailerKey(detail),
       runtimeMinutes: episodeRuntime,
       originalLanguage: detail['original_language'] as String?,
+      backdropUrl: _parseBackdropUrl(detail),
     );
   }
 

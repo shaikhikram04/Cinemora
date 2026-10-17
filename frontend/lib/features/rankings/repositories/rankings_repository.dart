@@ -2,6 +2,7 @@ import 'package:cinemora/core/exceptions/app_exception.dart';
 import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/features/rankings/models/ranking_item.dart';
 import 'package:cinemora/features/tour/tour_mode.dart';
+import 'package:cinemora/core/constants/api_constants.dart';
 import 'package:flutter/painting.dart';
 
 class RankingsRepository {
@@ -23,7 +24,7 @@ class RankingsRepository {
 
   Future<List<RankingList>> fetchLists() async {
     try {
-      final res = await _apiClient.dio.get('/rankings');
+      final res = await _apiClient.dio.get(ApiConstants.rankings);
       final list = res.data as List;
       return list
           .map((e) => RankingList.fromJson(e as Map<String, dynamic>))
@@ -53,7 +54,7 @@ class RankingsRepository {
       );
     }
     try {
-      final res = await _apiClient.dio.post('/rankings', data: {
+      final res = await _apiClient.dio.post(ApiConstants.rankings, data: {
         'emoji': emoji,
         'title': title,
         'description': subtitle,
@@ -86,7 +87,7 @@ class RankingsRepository {
     }
     try {
       final res = await _apiClient.dio.put(
-        '/rankings/$listId/entries',
+        ApiConstants.rankingEntries(listId),
         data: {'entries': entries.map((e) => e.toJson()).toList()},
       );
       return RankingList.fromJson(res.data as Map<String, dynamic>);
@@ -98,7 +99,7 @@ class RankingsRepository {
   Future<void> deleteList(String listId) async {
     if (_tourMode.isActive) return;
     try {
-      await _apiClient.dio.delete('/rankings/$listId');
+      await _apiClient.dio.delete(ApiConstants.rankingList(listId));
     } catch (e) {
       final err = ApiClient.parseError(e);
       if (err is BackendException && err.code == 'RANKING_LIST_NOT_FOUND') {

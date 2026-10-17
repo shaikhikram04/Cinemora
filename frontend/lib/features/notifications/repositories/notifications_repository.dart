@@ -1,5 +1,6 @@
 import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/features/notifications/models/notification.dart';
+import 'package:cinemora/core/constants/api_constants.dart';
 
 class NotificationsPage {
   final List<AppNotification> notifications;
@@ -19,7 +20,7 @@ class NotificationsRepository {
   Future<NotificationsPage> fetch({int page = 1, int limit = 50}) async {
     try {
       final res = await _apiClient.dio.get(
-        '/notifications',
+        ApiConstants.notifications,
         queryParameters: {'page': page, 'limit': limit},
       );
       final data = res.data as Map<String, dynamic>;
@@ -39,7 +40,8 @@ class NotificationsRepository {
   /// user ever opening the inbox.
   Future<int> fetchUnreadCount() async {
     try {
-      final res = await _apiClient.dio.get('/notifications/unread-count');
+      final res =
+          await _apiClient.dio.get(ApiConstants.notificationsUnreadCount);
       return ((res.data as Map<String, dynamic>)['unreadCount'] as num?)
               ?.toInt() ??
           0;
@@ -50,7 +52,7 @@ class NotificationsRepository {
 
   Future<void> markRead(String id) async {
     try {
-      await _apiClient.dio.put('/notifications/$id/read');
+      await _apiClient.dio.put(ApiConstants.notificationRead(id));
     } catch (e) {
       throw ApiClient.parseError(e);
     }
@@ -58,7 +60,7 @@ class NotificationsRepository {
 
   Future<void> markAllRead() async {
     try {
-      await _apiClient.dio.put('/notifications/read-all');
+      await _apiClient.dio.put(ApiConstants.notificationsReadAll);
     } catch (e) {
       throw ApiClient.parseError(e);
     }

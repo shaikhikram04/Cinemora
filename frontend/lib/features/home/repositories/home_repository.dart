@@ -7,6 +7,7 @@ import 'package:cinemora/features/home/models/series_season.dart';
 import 'package:cinemora/features/home/models/recommended_title.dart';
 import 'package:cinemora/features/home/models/tmdb_detail.dart';
 import 'package:cinemora/features/home/models/tmdb_item.dart';
+import 'package:cinemora/core/constants/api_constants.dart';
 
 class HomeRepository {
   final ApiClient _apiClient;
@@ -15,7 +16,7 @@ class HomeRepository {
 
   Future<List<TmdbItem>> fetchTrendingMovies() async {
     final res = await _apiClient.dio.get(
-      '/tmdb/trending',
+      ApiConstants.tmdbTrending,
       queryParameters: {'type': 'movie', 'time': 'week'},
     );
     final results = res.data['results'] as List;
@@ -26,7 +27,7 @@ class HomeRepository {
 
   Future<List<TmdbItem>> fetchTrendingSeries() async {
     final res = await _apiClient.dio.get(
-      '/tmdb/trending',
+      ApiConstants.tmdbTrending,
       queryParameters: {'type': 'tv', 'time': 'week'},
     );
     final results = res.data['results'] as List;
@@ -37,7 +38,7 @@ class HomeRepository {
 
   Future<List<JikanAnimeItem>> fetchTopAnime() async {
     final res = await _apiClient.dio.get(
-      '/jikan/top',
+      ApiConstants.jikanTop,
       queryParameters: {'filter': 'bypopularity', 'type': 'tv', 'limit': 10},
     );
     final results = res.data['data'] as List;
@@ -48,8 +49,8 @@ class HomeRepository {
 
   Future<HomeRecommendations> fetchHomeRecommendations(
       {CinemaType? type}) async {
-    final res =
-        await _apiClient.dio.get('/recommendations/home', queryParameters: {
+    final res = await _apiClient.dio
+        .get(ApiConstants.recommendationsHome, queryParameters: {
       'type': type?.apiValue ?? 'all',
     });
     return HomeRecommendations.fromJson(res.data as Map<String, dynamic>);
@@ -58,7 +59,7 @@ class HomeRepository {
   Future<List<RecommendedTitle>> fetchSimilar(
       CinemaType cinemaType, int sourceId) async {
     final res = await _apiClient.dio.get(
-      '/recommendations/similar/${cinemaType.apiValue}/$sourceId',
+      ApiConstants.recommendationsSimilar(cinemaType.apiValue, sourceId),
     );
     final results = res.data as List;
     return results
@@ -72,7 +73,7 @@ class HomeRepository {
   Future<MoodReply> sendMoodMessage(
       {String? sessionId, required String message}) async {
     final res = await _apiClient.dio.post(
-      '/recommendations/mood/message',
+      ApiConstants.recommendationsMoodMessage,
       data: {
         if (sessionId != null) 'sessionId': sessionId,
         'message': message,
@@ -83,8 +84,8 @@ class HomeRepository {
 
   Future<TmdbMovieDetail> fetchMovieDetail(int id) async {
     final results = await Future.wait([
-      _apiClient.dio.get('/tmdb/movie/$id'),
-      _apiClient.dio.get('/tmdb/movie/$id/watch-providers'),
+      _apiClient.dio.get(ApiConstants.tmdbMovie(id)),
+      _apiClient.dio.get(ApiConstants.tmdbMovieProviders(id)),
     ]);
     return TmdbMovieDetail.fromJson(
       results[0].data as Map<String, dynamic>,
@@ -94,8 +95,8 @@ class HomeRepository {
 
   Future<TmdbTvDetail> fetchTvDetail(int id) async {
     final results = await Future.wait([
-      _apiClient.dio.get('/tmdb/tv/$id'),
-      _apiClient.dio.get('/tmdb/tv/$id/watch-providers'),
+      _apiClient.dio.get(ApiConstants.tmdbTv(id)),
+      _apiClient.dio.get(ApiConstants.tmdbTvProviders(id)),
     ]);
     return TmdbTvDetail.fromJson(
       results[0].data as Map<String, dynamic>,
@@ -104,7 +105,8 @@ class HomeRepository {
   }
 
   Future<SeriesSeason> fetchTvSeasonEpisodes(int tvId, int seasonNumber) async {
-    final res = await _apiClient.dio.get('/tmdb/tv/$tvId/season/$seasonNumber');
+    final res =
+        await _apiClient.dio.get(ApiConstants.tmdbTvSeason(tvId, seasonNumber));
     final data = res.data as Map<String, dynamic>;
     final episodes = (data['episodes'] as List? ?? [])
         .cast<Map>()
@@ -137,14 +139,14 @@ class HomeRepository {
 
   // Single GraphQL request — replaces the old 4-call Jikan approach
   Future<TmdbTvDetail> fetchAnimeDetail(int id) async {
-    final res = await _apiClient.dio.get('/anilist/anime/$id');
+    final res = await _apiClient.dio.get(ApiConstants.anilistAnime(id));
     return TmdbTvDetail.fromAniListJson(res.data as Map<String, dynamic>);
   }
 
   // Lazy episode loader — called by the cubit when a season is selected
   Future<List<SeriesEpisode>> fetchAnimeEpisodes(int malId) async {
     final ep1Res = await _apiClient.dio.get(
-      '/jikan/anime/$malId/episodes',
+      ApiConstants.jikanAnimeEpisodes(malId),
       queryParameters: {'page': 1},
     );
     final rawEps = await _paginateAnimeEpisodes(
@@ -172,7 +174,7 @@ class HomeRepository {
     while (hasNext && page <= 6) {
       try {
         final res = await _apiClient.dio.get(
-          '/jikan/anime/$malId/episodes',
+          ApiConstants.jikanAnimeEpisodes(malId),
           queryParameters: {'page': page},
         );
         final data = res.data as Map<String, dynamic>;

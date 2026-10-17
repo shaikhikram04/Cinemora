@@ -52,7 +52,7 @@ class ApiClient {
   /// app already believes it is offline — nothing polls while healthy.
   Future<bool> probe() async {
     try {
-      await _probeDio.get('/health');
+      await _probeDio.get(ApiConstants.health);
       _connectivity.add(true);
       return true;
     } catch (_) {
@@ -249,7 +249,7 @@ class _AuthInterceptor extends Interceptor {
     if (refreshToken == null) throw const _NoRefreshToken();
 
     final res = await _plainDio.post(
-      '/auth/refresh',
+      ApiConstants.authRefresh,
       data: {'refreshToken': refreshToken},
     );
     final newToken = res.data['accessToken'] as String;

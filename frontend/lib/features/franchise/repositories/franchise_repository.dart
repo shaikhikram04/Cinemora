@@ -1,6 +1,7 @@
 import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/features/franchise/models/franchise_detail.dart';
 import 'package:cinemora/features/franchise/models/franchise_summary.dart';
+import 'package:cinemora/core/constants/api_constants.dart';
 
 class FranchiseRepository {
   final ApiClient _apiClient;
@@ -8,7 +9,7 @@ class FranchiseRepository {
   FranchiseRepository(this._apiClient);
 
   Future<List<FranchiseSummary>> getFeatured() async {
-    final res = await _apiClient.dio.get('/tmdb/collection/featured');
+    final res = await _apiClient.dio.get(ApiConstants.tmdbCollectionsFeatured);
     return (res.data as List? ?? [])
         .cast<Map<String, dynamic>>()
         .map(FranchiseSummary.fromFeaturedJson)
@@ -17,7 +18,7 @@ class FranchiseRepository {
 
   Future<List<FranchiseSummary>> search(String query) async {
     final res = await _apiClient.dio.get(
-      '/tmdb/collection/search',
+      ApiConstants.tmdbCollectionSearch,
       queryParameters: {'q': query},
     );
     return (res.data['results'] as List? ?? [])
@@ -28,7 +29,7 @@ class FranchiseRepository {
   }
 
   Future<FranchiseDetail> getCollection(int id) async {
-    final res = await _apiClient.dio.get('/tmdb/collection/$id');
+    final res = await _apiClient.dio.get(ApiConstants.tmdbCollection(id));
     return FranchiseDetail.fromJson(res.data as Map<String, dynamic>);
   }
 }

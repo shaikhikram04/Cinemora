@@ -5,6 +5,7 @@ import 'package:cinemora/core/models/library_stats_model.dart';
 import 'package:cinemora/core/models/watch_status.dart';
 import 'package:cinemora/core/network/api_client.dart';
 import 'package:cinemora/features/tour/tour_mode.dart';
+import 'package:cinemora/core/constants/api_constants.dart';
 
 class LibraryRepository {
   final ApiClient _apiClient;
@@ -56,7 +57,7 @@ class LibraryRepository {
 
   Future<List<LibraryEntryModel>> fetchEntries() async {
     try {
-      final res = await _apiClient.dio.get('/library');
+      final res = await _apiClient.dio.get(ApiConstants.library);
       final list = res.data as List;
       return list
           .map((e) => LibraryEntryModel.fromJson(e as Map<String, dynamic>))
@@ -68,7 +69,7 @@ class LibraryRepository {
 
   Future<LibraryStatsModel> fetchStats() async {
     try {
-      final res = await _apiClient.dio.get('/library/stats');
+      final res = await _apiClient.dio.get(ApiConstants.libraryStats);
       return LibraryStatsModel.fromJson(res.data as Map<String, dynamic>);
     } catch (e) {
       throw ApiClient.parseError(e);
@@ -104,7 +105,7 @@ class LibraryRepository {
       );
     }
     try {
-      final res = await _apiClient.dio.post('/library', data: {
+      final res = await _apiClient.dio.post(ApiConstants.library, data: {
         'tmdbId': tmdbId,
         'cinemaType': cinemaType.apiValue,
         'title': title,
@@ -126,7 +127,7 @@ class LibraryRepository {
   Future<LibraryEntryModel?> getEntry(int tmdbId, CinemaType cinemaType) async {
     try {
       final res = await _apiClient.dio.get(
-        '/library/$tmdbId',
+        ApiConstants.libraryEntry(tmdbId),
         queryParameters: {'type': cinemaType.apiValue},
       );
       return LibraryEntryModel.fromJson(res.data as Map<String, dynamic>);
@@ -164,7 +165,7 @@ class LibraryRepository {
     }
     try {
       final res = await _apiClient.dio.put(
-        '/library/$tmdbId',
+        ApiConstants.libraryEntry(tmdbId),
         queryParameters: {'type': cinemaType.apiValue},
         data: {
           if (status != null) 'status': status.apiValue,
@@ -187,7 +188,7 @@ class LibraryRepository {
     if (_tourMode.isActive) return;
     try {
       await _apiClient.dio.delete(
-        '/library/$tmdbId',
+        ApiConstants.libraryEntry(tmdbId),
         queryParameters: {'type': cinemaType.apiValue},
       );
     } catch (e) {
@@ -226,7 +227,7 @@ class LibraryRepository {
       );
     }
     try {
-      final res = await _apiClient.dio.post('/library/upsert', data: {
+      final res = await _apiClient.dio.post(ApiConstants.libraryUpsert, data: {
         'tmdbId': tmdbId,
         'cinemaType': cinemaType.apiValue,
         'title': title,
@@ -281,7 +282,7 @@ class LibraryRepository {
     }
     try {
       final res = await _apiClient.dio.put(
-        '/library/$tmdbId/seasons/$seasonNumber',
+        ApiConstants.librarySeason(tmdbId, seasonNumber),
         queryParameters: {'type': cinemaType.apiValue},
         data: {
           if (seasonId != null) 'seasonId': seasonId,
@@ -325,7 +326,7 @@ class LibraryRepository {
     }
     try {
       final res = await _apiClient.dio.delete(
-        '/library/$tmdbId/seasons/$seasonNumber',
+        ApiConstants.librarySeason(tmdbId, seasonNumber),
         queryParameters: {'type': cinemaType.apiValue},
       );
       return LibraryEntryModel.fromJson(res.data as Map<String, dynamic>);

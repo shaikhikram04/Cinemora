@@ -4,6 +4,7 @@ import '../models/library_entry_model.dart';
 import '../models/library_stats_model.dart';
 import '../models/user_model.dart';
 import '../network/api_client.dart';
+import 'package:cinemora/core/constants/api_constants.dart';
 
 class UserRepository {
   final ApiClient _apiClient;
@@ -11,7 +12,7 @@ class UserRepository {
   UserRepository(this._apiClient);
 
   Future<UserModel> getMe() async {
-    final res = await _apiClient.dio.get('/auth/me');
+    final res = await _apiClient.dio.get(ApiConstants.authMe);
     return UserModel.fromJson(res.data as Map<String, dynamic>);
   }
 
@@ -33,10 +34,10 @@ class UserRepository {
   }
 
   Future<UserModel> uploadAvatar(String path) =>
-      _uploadImage(path, '/users/avatar');
+      _uploadImage(path, ApiConstants.userAvatar);
 
   Future<UserModel> uploadCover(String path) =>
-      _uploadImage(path, '/users/cover');
+      _uploadImage(path, ApiConstants.userCover);
 
   Future<UserModel> updateProfile({
     required String name,
@@ -45,7 +46,7 @@ class UserRepository {
     String? avatar,
     String? framePoster,
   }) async {
-    await _apiClient.dio.put('/users/profile', data: {
+    await _apiClient.dio.put(ApiConstants.userProfile, data: {
       'name': name,
       if (username != null) 'username': username,
       if (bio != null) 'bio': bio,
@@ -60,7 +61,7 @@ class UserRepository {
     List<String>? genres,
     List<String>? languages,
   }) async {
-    await _apiClient.dio.put('/users/preferences', data: {
+    await _apiClient.dio.put(ApiConstants.userPreferences, data: {
       if (contentTypes != null) 'contentTypes': contentTypes,
       if (genres != null) 'genres': genres,
       if (languages != null) 'languages': languages,
@@ -79,12 +80,12 @@ class UserRepository {
     List<String>? contentTypes,
   }) async {
     await Future.wait([
-      _apiClient.dio.put('/users/profile', data: {
+      _apiClient.dio.put(ApiConstants.userProfile, data: {
         'name': name,
         'username': username,
         'bio': bio,
       }),
-      _apiClient.dio.put('/users/preferences', data: {
+      _apiClient.dio.put(ApiConstants.userPreferences, data: {
         'genres': genres,
         'languages': languages,
         if (contentTypes != null) 'contentTypes': contentTypes,
@@ -94,7 +95,7 @@ class UserRepository {
   }
 
   Future<LibraryStatsModel> getLibraryStats() async {
-    final res = await _apiClient.dio.get('/library/stats');
+    final res = await _apiClient.dio.get(ApiConstants.libraryStats);
     return LibraryStatsModel.fromJson(res.data as Map<String, dynamic>);
   }
 
@@ -102,7 +103,8 @@ class UserRepository {
     String? status,
     String sort = 'updatedAt',
   }) async {
-    final res = await _apiClient.dio.get('/library', queryParameters: {
+    final res =
+        await _apiClient.dio.get(ApiConstants.library, queryParameters: {
       if (status != null) 'status': status,
       'sort': sort,
     });
@@ -115,19 +117,20 @@ class UserRepository {
   // ── Push notifications ────────────────────────────────────────────────────
 
   Future<void> updateFcmToken(String token) async {
-    await _apiClient.dio.put('/users/fcm-token', data: {'fcmToken': token});
+    await _apiClient.dio
+        .put(ApiConstants.userFcmToken, data: {'fcmToken': token});
   }
 
   /// Detaches this device from the account. Must run while the session is still
   /// valid — after sign-out there's no token to authenticate the call with.
   Future<void> clearFcmToken() async {
-    await _apiClient.dio.delete('/users/fcm-token');
+    await _apiClient.dio.delete(ApiConstants.userFcmToken);
   }
 
   /// Reads the push opt-outs off the full profile — prefs live on the user
   /// document, and /auth/me is the only place the backend serves them.
   Future<NotificationPrefs> getNotificationPrefs() async {
-    final res = await _apiClient.dio.get('/auth/me');
+    final res = await _apiClient.dio.get(ApiConstants.authMe);
     return NotificationPrefs.fromJson(
         (res.data as Map<String, dynamic>)['notificationPrefs']
                 as Map<String, dynamic>? ??
@@ -138,7 +141,8 @@ class UserRepository {
     bool? pushNewRelease,
     bool? pushNewSeason,
   }) async {
-    final res = await _apiClient.dio.put('/users/notification-prefs', data: {
+    final res =
+        await _apiClient.dio.put(ApiConstants.userNotificationPrefs, data: {
       if (pushNewRelease != null) 'pushNewRelease': pushNewRelease,
       if (pushNewSeason != null) 'pushNewSeason': pushNewSeason,
     });

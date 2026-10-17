@@ -106,7 +106,9 @@ class _FranchiseDetailContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DetailHeroShell(
-                  imageUrl: heroBackdrop,
+                  // A collection has a backdrop but no poster of its own, so
+                  // the hero runs without the poster card.
+                  backdropUrl: heroBackdrop,
                   bottomContent: Text(
                     detail?.name ?? fallbackName ?? '',
                     style: TextStyle(
